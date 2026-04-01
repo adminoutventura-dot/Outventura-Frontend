@@ -1,0 +1,2 @@
+sdk.dir=C:\\Users\\mnavalon\\AppData\\Local\\Android\\Sdk
+flutter.sdk=C:\\Users\\mnavalon\\scoop\\apps\\flutter\\3.41.5
