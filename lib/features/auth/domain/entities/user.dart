@@ -1,4 +1,4 @@
-import 'rol.dart';
+import 'role.dart';
 
 class Usuario {
   final int id;
@@ -65,5 +65,4 @@ class Usuario {
       return false;
     }
   }
-
 }

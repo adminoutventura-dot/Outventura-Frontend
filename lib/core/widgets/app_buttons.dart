@@ -24,6 +24,7 @@ class PrimaryButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.primary,
         foregroundColor: textColor ?? Theme.of(context).colorScheme.onPrimary,
+        textStyle: Theme.of(context).textTheme.labelLarge,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
@@ -46,6 +47,7 @@ class PrimaryButton extends StatelessWidget {
 class SecondaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
+  final Color backgroundColor;
   final Color borderColor;
   final double borderRadius;
 
@@ -53,6 +55,7 @@ class SecondaryButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
+    required this.backgroundColor,
     required this.borderColor,
     this.borderRadius = 15,
   });
@@ -61,8 +64,9 @@ class SecondaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
+        backgroundColor: backgroundColor,
         foregroundColor: borderColor,
+        textStyle: Theme.of(context).textTheme.labelLarge,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           side: BorderSide(color: borderColor, width: 2),
@@ -89,12 +93,14 @@ class TertiaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
+      style: TextButton.styleFrom(
+        textStyle: Theme.of(context).textTheme.labelLarge,
+      ),
       onPressed: onPressed,
       child: Text(
         label,
-        style: TextStyle(
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
           color: textColor ?? Theme.of(context).colorScheme.secondary,
-          fontSize: 16,
         ),
       ),
     );

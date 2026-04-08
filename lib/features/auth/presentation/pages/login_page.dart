@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/custom_input_field.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
-import 'package:outventura/features/outventura/presentation/pages/home_page.dart';
+import 'package:outventura/features/auth/data/fakes/usuarios_fake.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
+import 'package:outventura/features/outventura/presentation/pages/main_scaffold.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -48,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
                 Text(
                   'Tu próxima aventura te espera',
                   textAlign: TextAlign.center,
-                  style: textTheme.bodySmall!.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                  style: textTheme.bodySmall!.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
 
                 const SizedBox(height: 48),
@@ -89,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: Text(
                       '¿Olvidaste tu contraseña?',
-                      style: textTheme.bodyMedium!.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.55)),
+                      style: textTheme.bodyMedium!.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                   ),
                 ),
@@ -101,9 +102,18 @@ class _LoginPageState extends State<LoginPage> {
                   label: 'Iniciar sesión',
                   onPressed: () {
                     if (_controller.formKey.currentState?.validate() ?? false) {
-                      Navigator.push(
+                      // Busca el usuario y si no lo encuentra usa el primero de la lista.
+                      final email = _controller.emailController.text.trim();
+                      final usuario = usuariosFake.firstWhere(
+                        (u) => u.email == email,
+                        orElse: () => usuariosFake[0],
+                      );
+                      
+                      Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const HomePage()),
+                        MaterialPageRoute(
+                          builder: (_) => MainScaffold(usuario: usuario),
+                        ),
                       );
                     }
                   },
@@ -117,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     Text(
                       '¿Aún no tienes cuenta? ',
-                      style: textTheme.bodyMedium!.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.55)),
+                      style: textTheme.bodyMedium!.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                     TextButton(
                       onPressed: () {
@@ -125,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       child: Text(
                         'Regístrate',
-                        style: textTheme.labelLarge!.copyWith(color: colorScheme.secondary),
+                        style: textTheme.labelLarge!.copyWith(color: colorScheme.onSurface),
                       ),
                     ),
                   ],

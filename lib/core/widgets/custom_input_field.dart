@@ -33,8 +33,23 @@ class CustomInputField extends StatelessWidget {
         labelText: labelText,
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
         suffixIcon: suffixIcon,
-        border: OutlineInputBorder(
+        enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            // Color del borde cuando está habilitado
+            color: colorScheme.secondary, 
+            // Ancho del borde
+            width: 1.0, 
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            // Color del borde cuando está enfocado
+            color: colorScheme.primary, 
+            // Ancho del borde
+            width: 2.0, 
+          ),
         ),
         filled: true,
         fillColor: colorScheme.surface,
