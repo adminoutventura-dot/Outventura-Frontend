@@ -52,6 +52,13 @@ class _ExcursionsPageState extends State<ExcursionsPage> {
         children: [
           Row(
             children: [
+              Expanded(
+                child: ExcursionCategoryTab(
+                  label: 'Todos',
+                  selected: _selectedCategory == null,
+                  onTap: () => setState(() => _selectedCategory = null),
+                ),
+              ),
               for (final categoria in CategoriaActividad.values)
                 Expanded(
                   child: ExcursionCategoryTab(

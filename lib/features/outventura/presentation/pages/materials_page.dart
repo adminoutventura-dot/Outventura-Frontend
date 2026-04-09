@@ -51,6 +51,13 @@ class _MaterialsPageState extends State<MaterialsPage> {
         children: [
           Row(
             children: [
+              Expanded(
+                child: ExcursionCategoryTab(
+                  label: 'Todos',
+                  selected: _selectedCategory == null,
+                  onTap: () => setState(() => _selectedCategory = null),
+                ),
+              ),
               for (final categoria in CategoriaActividad.values)
                 Expanded(
                   child: ExcursionCategoryTab(
