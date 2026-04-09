@@ -42,6 +42,7 @@ class Material {
   final EstadoMaterial estado;
   final double precioAlquilerDiario;
   final double tarifaDanios;
+  final String? imageAsset;
 
   const Material({
     required this.id,
@@ -52,6 +53,7 @@ class Material {
     required this.estado,
     required this.precioAlquilerDiario,
     required this.tarifaDanios,
+    this.imageAsset,
   });
 
   // Crea un Material a partir del JSON que devuelve el backend.
@@ -65,6 +67,7 @@ class Material {
       estado: EstadoMaterial.fromString(map['estado'] as String),
       precioAlquilerDiario: (map['precioAlquilerDiario'] as num).toDouble(),
       tarifaDanios: (map['tarifaDanios'] as num).toDouble(),
+      imageAsset: map['imageAsset'] as String?,
     );
   }
 
@@ -77,6 +80,7 @@ class Material {
     EstadoMaterial? estado,
     double? precioAlquilerDiario,
     double? tarifaDanios,
+    String? imageAsset,
   }) {
     return Material(
       id: id,
@@ -87,6 +91,7 @@ class Material {
       estado: estado ?? this.estado,
       precioAlquilerDiario: precioAlquilerDiario ?? this.precioAlquilerDiario,
       tarifaDanios: tarifaDanios ?? this.tarifaDanios,
+      imageAsset: imageAsset ?? this.imageAsset,
     );
   }
 }

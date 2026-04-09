@@ -20,11 +20,12 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
+    return OutlinedButton(
+      style: OutlinedButton.styleFrom(
         backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.primary,
         foregroundColor: textColor ?? Theme.of(context).colorScheme.onPrimary,
         textStyle: Theme.of(context).textTheme.labelLarge,
+        side: BorderSide(color: backgroundColor ?? Theme.of(context).colorScheme.primary),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
@@ -62,14 +63,14 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
+    return OutlinedButton(
+      style: OutlinedButton.styleFrom(
         backgroundColor: backgroundColor,
         foregroundColor: borderColor,
         textStyle: Theme.of(context).textTheme.labelLarge,
+        side: BorderSide(color: borderColor, width: 2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
-          side: BorderSide(color: borderColor, width: 2),
         ),
       ),
       onPressed: onPressed,
@@ -103,6 +104,37 @@ class TertiaryButton extends StatelessWidget {
           color: textColor ?? Theme.of(context).colorScheme.secondary,
         ),
       ),
+    );
+  }
+}
+
+class MiniButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final Color? backgroundColor;
+  final Color? textColor;
+
+  const MiniButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.backgroundColor,
+    this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        backgroundColor: backgroundColor ?? Theme.of(context).colorScheme.primary,
+        foregroundColor: textColor ?? Theme.of(context).colorScheme.onPrimary,
+        textStyle: Theme.of(context).textTheme.labelMedium,
+        side: BorderSide(color: backgroundColor ?? Theme.of(context).colorScheme.primary),
+        padding: const EdgeInsets.all(10),
+        minimumSize: const Size(40, 24),
+      ),
+      onPressed: onPressed,
+      child: Text(label),
     );
   }
 }

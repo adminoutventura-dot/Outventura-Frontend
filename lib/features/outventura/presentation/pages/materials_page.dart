@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/features/outventura/data/fakes/excursiones_fake.dart';
+import 'package:outventura/features/outventura/data/fakes/materiales_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/material.dart' as entity;
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/excursion_category_tab.dart';
-import 'package:outventura/features/outventura/presentation/widgets/excursion_card.dart';
+import 'package:outventura/features/outventura/presentation/widgets/material_card.dart';
 
-class ExcursionsPage extends StatefulWidget {
-  const ExcursionsPage({super.key});
+class MaterialsPage extends StatefulWidget {
+  const MaterialsPage({super.key});
 
   @override
-  State<ExcursionsPage> createState() => _ExcursionsPageState();
+  State<MaterialsPage> createState() => _MaterialsPageState();
 }
 
-class _ExcursionsPageState extends State<ExcursionsPage> {
+class _MaterialsPageState extends State<MaterialsPage> {
   CategoriaActividad? _selectedCategory;
 
-
-  // Filtra las excursiones según la categoría seleccionada
-  List<Excursion> get _filteredExcursions {
+  // Filtra los materiales según la categoría seleccionada
+  List<entity.Material> get _filteredMaterials {
     if (_selectedCategory == null) {
-      return excursionCatalog;
+      return materialesFake;
     }
-    return excursionCatalog
-        .where((excursion) => excursion.categorias.contains(_selectedCategory))
+    return materialesFake
+        .where((material) => material.categoria == _selectedCategory)
         .toList();
   }
 
@@ -34,12 +33,12 @@ class _ExcursionsPageState extends State<ExcursionsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Excursiones'),
+        title: const Text('Materiales'),
         automaticallyImplyLeading: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [ cs.inverseSurface, cs.primary],
+              colors: [cs.inverseSurface, cs.primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -63,29 +62,29 @@ class _ExcursionsPageState extends State<ExcursionsPage> {
             ],
           ),
 
-          // Lista de excursiones filtradas
+          // Lista de materiales filtrados
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.all(12),
-              itemCount: _filteredExcursions.isEmpty ? 1 : _filteredExcursions.length,
+              itemCount: _filteredMaterials.isEmpty ? 1 : _filteredMaterials.length,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
-                if (_filteredExcursions.isEmpty) {
+                if (_filteredMaterials.isEmpty) {
                   return Center(
                     child: Text(
-                      'No hay excursiones para esta categoría.',
+                      'No hay materiales para esta categoría.',
                       style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   );
                 }
-                final excursion = _filteredExcursions[index];
-                return ExcursionCard(
-                  excursion: excursion,
-                  onEditar: () => {
-
+                final material = _filteredMaterials[index];
+                return MaterialCard(
+                  material: material,
+                  onEditar: () {
+                    
                   },
                   onEliminar: () {
-
+                    
                   },
                 );
               },

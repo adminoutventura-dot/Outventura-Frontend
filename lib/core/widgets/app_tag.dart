@@ -22,7 +22,7 @@ class TagWidget extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: textColor),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: textColor),
       ),
     );
   }

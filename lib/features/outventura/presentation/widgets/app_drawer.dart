@@ -8,7 +8,7 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     return Drawer(
@@ -17,21 +17,21 @@ class AppDrawer extends StatelessWidget {
         children: [
           // Header del Drawer.
           DrawerHeader(
-            decoration: BoxDecoration(color: colorScheme.primary),
+            decoration: BoxDecoration(color: cs.primary),
             child: Text(
               'Outventura',
               style: tt.headlineSmall?.copyWith(
-                color: colorScheme.onPrimary,
+                color: cs.onPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
           // Catálogo de Componentes.
           ListTile(
-            leading: Icon(Icons.map, color: colorScheme.onSurface),
+            leading: Icon(Icons.map, color: cs.onSurface),
             title: Text(
               'Catálogo de Componentes',
-              style: tt.titleMedium?.copyWith(color: colorScheme.onSurface),
+              style: tt.titleMedium?.copyWith(color: cs.onSurface),
             ),
             onTap: () {
               Navigator.pop(context);
@@ -45,10 +45,10 @@ class AppDrawer extends StatelessWidget {
           ),
           // Page de preferencias.
           ListTile(
-            leading: Icon(Icons.settings_outlined, color: colorScheme.onSurface),
+            leading: Icon(Icons.settings_outlined, color: cs.onSurface),
             title: Text(
               'Preferencias',
-              style: tt.titleMedium?.copyWith(color: colorScheme.onSurface),
+              style: tt.titleMedium?.copyWith(color: cs.onSurface),
             ),
             onTap: () {
               Navigator.pop(context);
@@ -62,10 +62,10 @@ class AppDrawer extends StatelessWidget {
           ),
           // Botón de cerrar sesión.
           ListTile(
-            leading: Icon(Icons.logout, color: colorScheme.onSurface),
+            leading: Icon(Icons.logout, color: cs.onSurface),
             title: Text(
               'Cerrar sesión',
-              style: tt.titleMedium?.copyWith(color: colorScheme.onSurface),
+              style: tt.titleMedium?.copyWith(color: cs.onSurface),
             ),
             onTap: () {
               Navigator.pop(context);

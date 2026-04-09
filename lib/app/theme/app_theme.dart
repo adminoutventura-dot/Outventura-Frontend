@@ -16,7 +16,7 @@ class AppTheme {
       // Reacción del AppBar al scroll
       surfaceTintColor: Colors.transparent,
       // Estilo del título del AppBar
-      titleTextStyle: AppTextStyles.headline.copyWith(
+      titleTextStyle: AppTextStyles.headlineSmall.copyWith(
         color: AppColors.offWhite,
       ),
     ),
@@ -51,16 +51,16 @@ class AppTheme {
     ),
     
     textTheme: const TextTheme(
-      titleLarge: AppTextStyles.appTitle,     
-      headlineSmall: AppTextStyles.headline,  
-      titleMedium: AppTextStyles.subtitle,   
-      bodyLarge: AppTextStyles.bodyBold,     
-      bodyMedium: AppTextStyles.body, 
-      bodySmall: AppTextStyles.tagline,   
-      labelLarge: AppTextStyles.button,   
-      labelMedium: AppTextStyles.caption,  
-      labelSmall: AppTextStyles.tag,   
-      titleSmall: AppTextStyles.overline,  
+      titleLarge: AppTextStyles.titleLarge, 
+      headlineSmall: AppTextStyles.headlineSmall,
+      titleMedium: AppTextStyles.titleMedium,
+      bodyLarge: AppTextStyles.bodyLarge,
+      bodyMedium: AppTextStyles.bodyMedium,
+      bodySmall: AppTextStyles.bodySmall,
+      labelLarge: AppTextStyles.labelLarge,
+      labelMedium: AppTextStyles.labelMedium,
+      labelSmall: AppTextStyles.labelSmall,
+      titleSmall: AppTextStyles.titleSmall,  
     ),
     
   );
@@ -102,16 +102,16 @@ class AppTheme {
     ),
     
     textTheme: const TextTheme(
-      titleLarge: AppTextStyles.appTitle,      // Para AppBar y títulos grandes
-      headlineSmall: AppTextStyles.headline,  // Encabezados
-      titleMedium: AppTextStyles.subtitle,    // Subtítulos
-      bodyLarge: AppTextStyles.bodyBold,      // Texto en negrita
-      bodyMedium: AppTextStyles.body,         // Texto normal
-      bodySmall: AppTextStyles.tagline,       // Tagline
-      labelLarge: AppTextStyles.button,       // Botones
-      labelMedium: AppTextStyles.caption,     // Texto pequeño
-      labelSmall: AppTextStyles.tag,          // Chips, etiquetas
-      titleSmall: AppTextStyles.overline,     // Overline
+      titleLarge: AppTextStyles.titleLarge, 
+      headlineSmall: AppTextStyles.headlineSmall,
+      titleMedium: AppTextStyles.titleMedium,
+      bodyLarge: AppTextStyles.bodyLarge,
+      bodyMedium: AppTextStyles.bodyMedium,
+      bodySmall: AppTextStyles.bodySmall,
+      labelLarge: AppTextStyles.labelLarge,
+      labelMedium: AppTextStyles.labelMedium,
+      labelSmall: AppTextStyles.labelSmall,
+      titleSmall: AppTextStyles.titleSmall,  
     ),
   );
-} 
+}

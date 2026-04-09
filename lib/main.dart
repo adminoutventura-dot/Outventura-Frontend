@@ -5,8 +5,10 @@ import 'package:outventura/features/auth/presentation/pages/login_page.dart';
 import 'package:outventura/features/preferences/controllers/preferences_controller.dart';
 
 // TODO: Revisar la diferencia entre entities y models (Recordatorio)
+// TODO: Arreglar tema oscuro (Recordatorio)
 // TODO: Los nombres de los objetos y atributos tienen que ir en inglés o español?
 // TODO: En que carpeta van los entities?
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

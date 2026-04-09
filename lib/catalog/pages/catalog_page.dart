@@ -4,7 +4,6 @@ import 'package:outventura/catalog/demos/cards_demo.dart';
 import 'package:outventura/catalog/demos/inputs_demo.dart';
 import 'package:outventura/catalog/demos/theme_demo.dart';
 
-// Pantalla que muestra un catálogo de componentes de la app.
 class CatalogPage extends StatelessWidget {
   const CatalogPage({super.key});
 
@@ -19,7 +18,7 @@ class CatalogPage extends StatelessWidget {
       // El cuerpo de la pantalla se envuelve en una lista
       body: ListView(
         children: [
-          // Opción para ver la demo de botones
+          // Botones
           ListTile(
             title: Text(
               'Botones',
@@ -32,15 +31,15 @@ class CatalogPage extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             // Al pulsar, se navega a la pantalla ButtonsDemo
             onTap: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const ButtonsDemo()));
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ButtonsDemo()),
+              );
             },
           ),
 
           const SizedBox(height: 8),
 
-          // Opción para ver la demo de inputs
+          // Inputs
           ListTile(
             title: Text(
               'Inputs',
@@ -53,15 +52,15 @@ class CatalogPage extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             // Al pulsar, se navega a la pantalla InputsDemo
             onTap: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const InputsDemo()));
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const InputsDemo()),
+              );
             },
           ),
 
           const SizedBox(height: 8),
 
-          // Opción para ver la demo de cards
+          // Cards
           ListTile(
             title: Text(
               'Cards',
@@ -74,15 +73,15 @@ class CatalogPage extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             // Al pulsar, se navega a la pantalla CardsDemo
             onTap: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const CardsDemo()));
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CardsDemo()),
+              );
             },
           ),
 
           const SizedBox(height: 8),
 
-          // Opción para ver la demo de colores y tipografía
+          // Colores y tipografía
           ListTile(
             title: Text(
               'Colores y tipografía',
@@ -95,9 +94,9 @@ class CatalogPage extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             // Al pulsar, se navega a la pantalla ThemeDemo
             onTap: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const ThemeDemo()));
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ThemeDemo()),
+              );
             },
           ),
         ],

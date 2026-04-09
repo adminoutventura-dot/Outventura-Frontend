@@ -6,19 +6,13 @@ class ButtonsDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Botones')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // ---- PRIMARY BUTTON ----
-          Text(
-            'PrimaryButton – Botón principal',
-            style: tt.titleMedium?.copyWith(color: cs.onSurface),
-          ),
+          const Text('PrimaryButton – Botón principal'),
           const SizedBox(height: 8),
           PrimaryButton(
             label: 'Confirmar',
@@ -26,10 +20,7 @@ class ButtonsDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          Text(
-            'PrimaryButton – Con icono',
-            style: tt.titleMedium?.copyWith(color: cs.onSurface),
-          ),
+          const Text('PrimaryButton – Con icono'),
           const SizedBox(height: 8),
           PrimaryButton(
             label: 'Con icono',
@@ -38,10 +29,7 @@ class ButtonsDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          Text(
-            'PrimaryButton – Color personalizado',
-            style: tt.titleMedium?.copyWith(color: cs.onSurface),
-          ),
+          const Text('PrimaryButton – Color personalizado'),
           const SizedBox(height: 8),
           PrimaryButton(
             label: 'Color personalizado',
@@ -50,10 +38,7 @@ class ButtonsDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          Text(
-            'PrimaryButton – Deshabilitado',
-            style: tt.titleMedium?.copyWith(color: cs.onSurface),
-          ),
+          const Text('PrimaryButton – Deshabilitado'),
           const SizedBox(height: 8),
           PrimaryButton(
             label: 'Deshabilitado',
@@ -62,10 +47,7 @@ class ButtonsDemo extends StatelessWidget {
 
           // ---- SECONDARY BUTTON ----
           const SizedBox(height: 20),
-          Text(
-            'SecondaryButton – Con borde',
-            style: tt.titleMedium?.copyWith(color: cs.onSurface),
-          ),
+          const Text('SecondaryButton – Con borde'),
           const SizedBox(height: 8),
           SecondaryButton(
             label: 'Cancelar',
@@ -75,10 +57,7 @@ class ButtonsDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          Text(
-            'SecondaryButton – Borde azul oscuro',
-            style: tt.titleMedium?.copyWith(color: cs.onSurface),
-          ),
+          const Text('SecondaryButton – Borde azul oscuro'),
           const SizedBox(height: 8),
           SecondaryButton(
             label: 'Borde azul oscuro',
@@ -88,10 +67,7 @@ class ButtonsDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          Text(
-            'SecondaryButton – Deshabilitado',
-            style: tt.titleMedium?.copyWith(color: cs.onSurface),
-          ),
+          const Text('SecondaryButton – Deshabilitado'),
           const SizedBox(height: 8),
           SecondaryButton(
             label: 'Deshabilitado',
@@ -102,10 +78,7 @@ class ButtonsDemo extends StatelessWidget {
 
           // ---- TERTIARY BUTTON ----
           const SizedBox(height: 20),
-          Text(
-            'TertiaryButton – Texto plano',
-            style: tt.titleMedium?.copyWith(color: cs.onSurface),
-          ),
+          const Text('TertiaryButton – Texto plano'),
           const SizedBox(height: 8),
           TertiaryButton(
             label: 'Ver más',
@@ -113,10 +86,7 @@ class ButtonsDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          Text(
-            'TertiaryButton – Color personalizado',
-            style: tt.titleMedium?.copyWith(color: cs.onSurface),
-          ),
+          const Text('TertiaryButton – Color personalizado'),
           const SizedBox(height: 8),
           TertiaryButton(
             label: 'Color personalizado',
@@ -125,14 +95,20 @@ class ButtonsDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 16),
-          Text(
-            'TertiaryButton – Deshabilitado',
-            style: tt.titleMedium?.copyWith(color: cs.onSurface),
-          ),
+          const Text('TertiaryButton – Deshabilitado'),
           const SizedBox(height: 8),
           TertiaryButton(
             label: 'Deshabilitado',
             onPressed: null,
+          ),
+
+          // ---- MINI BUTTON ----
+          const SizedBox(height: 20),
+          const Text('MiniButton – Texto plano'),
+          const SizedBox(height: 8),
+          MiniButton(
+            label: 'Mini',
+            onPressed: () {},
           ),
         ],
       ),

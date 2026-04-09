@@ -7,6 +7,8 @@ class CustomInputField extends StatelessWidget {
   final bool obscureText;
   final Widget? suffixIcon;
   final TextInputType keyboardType;
+
+  // Función de validación opcional
   final String? Function(String?)? validator; 
 
   const CustomInputField({
@@ -38,7 +40,6 @@ class CustomInputField extends StatelessWidget {
           borderSide: BorderSide(
             // Color del borde cuando está habilitado
             color: colorScheme.secondary, 
-            // Ancho del borde
             width: 1.0, 
           ),
         ),
@@ -47,7 +48,6 @@ class CustomInputField extends StatelessWidget {
           borderSide: BorderSide(
             // Color del borde cuando está enfocado
             color: colorScheme.primary, 
-            // Ancho del borde
             width: 2.0, 
           ),
         ),

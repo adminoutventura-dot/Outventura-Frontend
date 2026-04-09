@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/outventura/data/fakes/excursiones_fake.dart';
+import 'package:outventura/features/outventura/data/fakes/materiales_fake.dart';
 import 'package:outventura/features/outventura/data/fakes/solicitudes_fake.dart';
 import 'package:outventura/features/outventura/presentation/widgets/excursion_card.dart';
+import 'package:outventura/features/outventura/presentation/widgets/material_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 
 class CardsDemo extends StatelessWidget {
@@ -25,7 +27,6 @@ class CardsDemo extends StatelessWidget {
           const SizedBox(height: 8),
           ExcursionCard(
             excursion: excursionCatalog[0],
-            imageAsset: 'assets/images/Camino.jpg',
             onEditar: () {},
             onEliminar: () {},
           ),
@@ -59,6 +60,29 @@ class CardsDemo extends StatelessWidget {
           SolicitudCard(
             solicitud: solicitudesFake[1],
             onGestionar: () {},
+          ),
+
+          // ---- MATERIAL CARD ----
+          const SizedBox(height: 20),
+          Text(
+            'MaterialCard – Solo lectura',
+            style: tt.titleMedium?.copyWith(color: cs.onSurface),
+          ),
+          const SizedBox(height: 8),
+          MaterialCard(
+            material: materialesFake[0],
+          ),
+
+          const SizedBox(height: 16),
+          Text(
+            'MaterialCard – Con icono Gestionar',
+            style: tt.titleMedium?.copyWith(color: cs.onSurface),
+          ),
+          const SizedBox(height: 8),
+          MaterialCard(
+            material: materialesFake[1],
+            onEditar: () {},
+            onEliminar: () {},
           ),
         ],
       ),

@@ -18,7 +18,7 @@ class ExcursionCategoryTab extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
 
     return Material(
-      color: Colors.transparent,
+      color: cs.surface,
       child: InkWell(
         onTap: onTap,
         child: Container(
@@ -26,7 +26,7 @@ class ExcursionCategoryTab extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: selected ? cs.primary : Colors.transparent,
+                color: selected ? cs.primary : cs.onSurfaceVariant.withAlpha(100),
                 width: 2,
               ),
             ),

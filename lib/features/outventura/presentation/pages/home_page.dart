@@ -4,14 +4,14 @@ import 'package:outventura/features/outventura/presentation/widgets/request_card
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/features/outventura/data/fakes/solicitudes_fake.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomeAdminPage extends StatefulWidget {
+  const HomeAdminPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomeAdminPage> createState() => _HomeAdminPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeAdminPageState extends State<HomeAdminPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -52,9 +52,17 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   // Fila de tarjetas de estadísticas.
                   Container(
-                    color: cs.onSecondary, 
+                    decoration: BoxDecoration(
+                      color: cs.onInverseSurface,
+                      border: Border(
+                        bottom: BorderSide(
+                          color:   cs.onSurfaceVariant.withAlpha(100),
+                          width: 2,
+                        ),
+                      ),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                       child: Row(
                         children: [
                           // Tarjeta de excursiones.
@@ -106,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                 // Tarjetas de solicitudes recientes.
                 for (var solicitud in solicitudesFake)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.only(bottom: 10),
                     child: SolicitudCard(solicitud: solicitud),
                   ),
               ],

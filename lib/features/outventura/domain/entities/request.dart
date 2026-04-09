@@ -35,7 +35,6 @@ class Solicitud {
   final DateTime fechaInicio;
   final DateTime fechaFin;
   final List<CategoriaActividad> categorias;
-  final bool conPernoctacion;
   final int numeroParticipantes;
   final String? descripcion;
   final EstadoSolicitud estado;
@@ -48,7 +47,6 @@ class Solicitud {
     required this.fechaInicio,
     required this.fechaFin,
     required this.categorias,
-    required this.conPernoctacion,
     required this.numeroParticipantes,
     this.descripcion,
     required this.estado,
@@ -66,7 +64,6 @@ class Solicitud {
       categorias: (map['categorias'] as List<dynamic>)
           .map((e) => CategoriaActividad.fromString(e as String))
           .toList(),
-      conPernoctacion: map['conPernoctacion'] as bool,
       numeroParticipantes: map['numeroParticipantes'] as int,
       descripcion: map['descripcion'] as String?,
       estado: EstadoSolicitud.fromString(map['estado'] as String),
@@ -81,7 +78,6 @@ class Solicitud {
     DateTime? fechaInicio,
     DateTime? fechaFin,
     List<CategoriaActividad>? categorias,
-    bool? conPernoctacion,
     int? numeroParticipantes,
     String? descripcion,
     EstadoSolicitud? estado,
@@ -94,7 +90,6 @@ class Solicitud {
       fechaInicio: fechaInicio ?? this.fechaInicio,
       fechaFin: fechaFin ?? this.fechaFin,
       categorias: categorias ?? this.categorias,
-      conPernoctacion: conPernoctacion ?? this.conPernoctacion,
       numeroParticipantes: numeroParticipantes ?? this.numeroParticipantes,
       descripcion: descripcion ?? this.descripcion,
       estado: estado ?? this.estado,

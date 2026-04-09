@@ -17,12 +17,12 @@ final List<Material> materialesFake = [
   const Material(
     id: 2,
     nombre: 'Saco de dormir -10°C',
-    descripcion: 'Saco de plumas para temperaturas extremas de montaña.',
     categoria: CategoriaActividad.acampada,
     stock: 10,
     estado: EstadoMaterial.disponible,
     precioAlquilerDiario: 10.0,
     tarifaDanios: 120.0,
+    imageAsset: 'assets/images/Camino.jpg',
   ),
 
   // --- Acuática ---
@@ -45,6 +45,7 @@ final List<Material> materialesFake = [
     estado: EstadoMaterial.reservado,
     precioAlquilerDiario: 20.0,
     tarifaDanios: 200.0,
+    imageAsset: 'assets/images/Camino.jpg',
   ),
 
   // --- Senderismo ---
@@ -57,6 +58,7 @@ final List<Material> materialesFake = [
     estado: EstadoMaterial.disponible,
     precioAlquilerDiario: 7.0,
     tarifaDanios: 80.0,
+    imageAsset: 'assets/images/Camino.jpg',
   ),
   const Material(
     id: 6,
@@ -67,6 +69,7 @@ final List<Material> materialesFake = [
     estado: EstadoMaterial.disponible,
     precioAlquilerDiario: 3.0,
     tarifaDanios: 25.0,
+    imageAsset: 'assets/images/Camino.jpg',
   ),
 
   // --- Montaña ---
@@ -79,6 +82,7 @@ final List<Material> materialesFake = [
     estado: EstadoMaterial.mantenimiento,
     precioAlquilerDiario: 5.0,
     tarifaDanios: 90.0,
+    imageAsset: 'assets/images/Camino.jpg',
   ),
   const Material(
     id: 8,
@@ -89,6 +93,7 @@ final List<Material> materialesFake = [
     estado: EstadoMaterial.disponible,
     precioAlquilerDiario: 4.0,
     tarifaDanios: 70.0,
+    imageAsset: 'assets/images/Camino.jpg',
   ),
 
   // --- Nieve ---
@@ -101,6 +106,7 @@ final List<Material> materialesFake = [
     estado: EstadoMaterial.disponible,
     precioAlquilerDiario: 8.0,
     tarifaDanios: 60.0,
+    imageAsset: 'assets/images/Camino.jpg',
   ),
   const Material(
     id: 10,
@@ -111,5 +117,6 @@ final List<Material> materialesFake = [
     estado: EstadoMaterial.fueraDeServicio,
     precioAlquilerDiario: 6.0,
     tarifaDanios: 100.0,
+    imageAsset: 'assets/images/Camino.jpg',
   ),
 ];
