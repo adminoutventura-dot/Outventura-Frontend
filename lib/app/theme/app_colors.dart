@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 class AppColors {
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
-  static const Color lightBrown = Color.fromARGB(255, 240, 233, 229);
-  static const Color paleGreen = Color(0xFFF2F0F2);
+  static const Color lightBrown = Color(0xFFF0E9E5);
+  static const Color paleGreen = Color(0xFFEEE8E2);
   static const Color red = Color(0xFFB53A3A);
 
   static const Color darkBrown = Color(0xFF201A14);

@@ -33,6 +33,6 @@ final List<Usuario> usuariosFake = [
     email: 'cliente@outventura.com',
     telefono: '600 555 666',
     rol: TipoRol.usuario,
-    activo: true,
+    activo: false,
   ),
 ];

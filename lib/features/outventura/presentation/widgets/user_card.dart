@@ -24,8 +24,8 @@ class UserCard extends StatelessWidget {
     Color badgeFg;
 
     if (usuario.rol == TipoRol.superadmin) {
-      badgeBg = cs.errorContainer;
-      badgeFg = cs.onErrorContainer;
+      badgeBg = cs.primary;
+      badgeFg = cs.onPrimary;
     } else if (usuario.rol == TipoRol.admin) {
       badgeBg = cs.secondaryContainer;
       badgeFg = cs.onSecondaryContainer;
@@ -70,10 +70,24 @@ class UserCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${usuario.nombre} ${usuario.apellidos}',
-                  style: tt.labelLarge?.copyWith(color: cs.onSurface),
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Text(
+                      '${usuario.nombre} ${usuario.apellidos}',
+                      style: tt.labelLarge?.copyWith(color: cs.onSurface),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(width: 6),
+                    if (!usuario.activo)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: TagWidget(
+                          text: 'Inactivo',
+                          backgroundColor: Colors.transparent,
+                          textColor: cs.error,
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -106,17 +120,6 @@ class UserCard extends StatelessWidget {
               const SizedBox(height: 6),
               Row(
                 children: [
-                  if (!usuario.activo)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: TagWidget(
-                        text: 'Inactivo',
-                        backgroundColor:
-                            cs.errorContainer.withValues(alpha: 0.4),
-                        textColor: cs.onErrorContainer,
-                      ),
-                    ),
-                    
                   if (onEditar != null)
                     IconButton(
                       onPressed: onEditar,

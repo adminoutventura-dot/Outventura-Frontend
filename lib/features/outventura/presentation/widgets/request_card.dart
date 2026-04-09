@@ -31,9 +31,9 @@ class SolicitudCard extends StatelessWidget {
           cs.tertiary,
         ),
       EstadoSolicitud.finalizada => (
-          cs.onSurfaceVariant.withValues(alpha: 0.15),
-          cs.onSurfaceVariant,
-          cs.onSurfaceVariant.withValues(alpha: 0.3),
+          cs.primaryContainer,
+          cs.onPrimaryContainer,
+          cs.primaryContainer,
         ),
     };
 
@@ -151,7 +151,7 @@ class SolicitudCard extends StatelessWidget {
                       children: solicitud.categorias
                           .map((c) => TagWidget(
                                 text: c.nombre,
-                                backgroundColor: cs.primaryContainer,
+                                backgroundColor: cs.onPrimary,
                                 textColor: cs.onPrimaryContainer,
                               ))
                           .toList(),
