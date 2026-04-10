@@ -27,83 +27,96 @@ class _LoginPageState extends State<LoginPage> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       body: Stack(
         children: [
-          // Imagen de fondo
-          Positioned.fill(
-            child: Image.asset('assets/images/Camino.jpg', fit: BoxFit.cover),
-          ),
-
-          // Overlay oscuro
-          Positioned.fill(
+          // Decoraciones
+          Positioned(
+            top: -150,
+            right: -150,
             child: Container(
+              width: 400,
+              height: 400,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    colorScheme.onSurface.withAlpha(128),
-                    colorScheme.onSurface.withAlpha(179),
-                  ],
-                ),
+                shape: BoxShape.circle,
+                color: colorScheme.primary.withAlpha(100),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -200,
+            left: -200,
+            child: Container(
+              width: 500,
+              height: 500,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.secondary.withAlpha(100),
               ),
             ),
           ),
 
           // Contenido
           Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              margin: const EdgeInsets.all(24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo y título
-                  Icon(
-                    Icons.landscape_rounded,
-                    size: 80,
-                    color: colorScheme.onPrimary,
-                  ),
-                  const SizedBox(height: 16),
-
-                  Text(
-                    'OUTVENTURA',
-                    textAlign: TextAlign.center,
-                    style: textTheme.displaySmall?.copyWith(
-                      color: colorScheme.surface,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  Text(
-                    'Tu próxima aventura te espera',
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.surface.withAlpha(230),
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // Card con formulario
+                  // Card principal
                   Container(
-                    constraints: const BoxConstraints(maxWidth: 400),
                     decoration: BoxDecoration(
-                      color: colorScheme.surface.withAlpha(242),
+                      color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: colorScheme.onSurface.withAlpha(77),
-                          blurRadius: 20,
+                          color: colorScheme.onSurface.withAlpha(20),
+                          blurRadius: 30,
                           offset: const Offset(0, 10),
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(28),
+                    padding: const EdgeInsets.all(32),
                     child: Form(
                       key: _controller.formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          // Logo y título
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary.withAlpha(30),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.landscape_rounded,
+                              size: 48,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          Text(
+                            'OUTVENTURA',
+                            textAlign: TextAlign.center,
+                            style: textTheme.displaySmall!.copyWith(
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+
+                          Text(
+                            'Tu próxima aventura te espera',
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodyMedium!.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+
+                          const SizedBox(height: 36),
+
                           // Email
                           CustomInputField(
                             controller: _controller.emailController,
@@ -148,14 +161,14 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               child: Text(
                                 '¿Olvidaste tu contraseña?',
-                                style: textTheme.bodySmall?.copyWith(
+                                style: textTheme.bodySmall!.copyWith(
                                   color: colorScheme.primary,
                                 ),
                               ),
                             ),
                           ),
 
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 24),
 
                           // Botón principal
                           PrimaryButton(
@@ -163,7 +176,8 @@ class _LoginPageState extends State<LoginPage> {
                             onPressed: () {
                               if (_controller.formKey.currentState?.validate() ?? false) {
                                 // Busca el usuario y si no lo encuentra usa el primero de la lista.
-                                final email = _controller.emailController.text.trim();
+                                final email = _controller.emailController.text
+                                    .trim();
                                 final usuario = usuariosFake.firstWhere(
                                   (u) => u.email == email,
                                   orElse: () => usuariosFake[0],
@@ -172,7 +186,8 @@ class _LoginPageState extends State<LoginPage> {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => MainScaffold(usuario: usuario),
+                                    builder: (_) =>
+                                        MainScaffold(usuario: usuario),
                                   ),
                                 );
                               }
@@ -181,13 +196,13 @@ class _LoginPageState extends State<LoginPage> {
 
                           const SizedBox(height: 20),
 
-                          // Divider
+                          // Divider con texto
                           Row(
                             children: [
                               Expanded(
                                 child: Divider(
                                   color: colorScheme.onSurfaceVariant.withAlpha(
-                                    77,
+                                    80,
                                   ),
                                 ),
                               ),
@@ -197,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 child: Text(
                                   'O',
-                                  style: textTheme.bodySmall?.copyWith(
+                                  style: textTheme.bodySmall!.copyWith(
                                     color: colorScheme.onSurfaceVariant,
                                   ),
                                 ),
@@ -205,7 +220,7 @@ class _LoginPageState extends State<LoginPage> {
                               Expanded(
                                 child: Divider(
                                   color: colorScheme.onSurfaceVariant.withAlpha(
-                                    77,
+                                    80,
                                   ),
                                 ),
                               ),
@@ -220,8 +235,8 @@ class _LoginPageState extends State<LoginPage> {
                             children: [
                               Text(
                                 '¿Aún no tienes cuenta? ',
-                                style: textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.onSurface.withAlpha(179),
+                                style: textTheme.bodyMedium!.copyWith(
+                                  color: colorScheme.onSurface,
                                 ),
                               ),
                               TextButton(
@@ -235,7 +250,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 child: Text(
                                   'Regístrate',
-                                  style: textTheme.labelLarge?.copyWith(
+                                  style: textTheme.labelLarge!.copyWith(
                                     color: colorScheme.primary,
                                   ),
                                 ),
@@ -246,8 +261,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-
-                  const SizedBox(height: 24),
                 ],
               ),
             ),

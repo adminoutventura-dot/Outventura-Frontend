@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/widgets/custom_input_field.dart';
+import 'package:outventura/core/widgets/app_input_field.dart';
 
 class InputsDemo extends StatelessWidget {
   const InputsDemo({super.key});
