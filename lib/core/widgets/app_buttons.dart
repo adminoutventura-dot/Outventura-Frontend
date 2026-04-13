@@ -36,7 +36,7 @@ class PrimaryButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(icon, size: 24),
-                const SizedBox(width: 8),
+                const SizedBox(width: 2),
                 Text(label),
               ],
             )

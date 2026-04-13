@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outventura/features/outventura/data/fakes/excursiones_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/presentation/pages/excursion_form_page.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/excursion_category_tab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/excursion_card.dart';
@@ -47,6 +48,18 @@ class _ExcursionsPageState extends State<ExcursionsPage> {
         ),
       ),
       drawer: const AppDrawer(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ExcursionFormPage()),
+        ),
+        backgroundColor: cs.secondaryContainer,
+        foregroundColor: cs.onSecondary,
+        elevation: 2,
+        shape: CircleBorder(
+          side: BorderSide(color: cs.onSecondary, width: 3),
+        ),
+        child: const Icon(Icons.add),
+      ),
       body: Column(
         // Barra de categorías
         children: [

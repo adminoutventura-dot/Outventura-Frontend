@@ -29,6 +29,17 @@ class UsersPage extends StatelessWidget {
         ),
       ),
       drawer: const AppDrawer(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: cs.secondaryContainer,
+        foregroundColor: cs.onSecondary,
+        elevation: 2,
+        shape: CircleBorder(
+          side: BorderSide(color: cs.onSecondary, width: 3),
+        ),
+        child: const Icon(Icons.person_add_outlined),
+      ),
+
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: usuariosFake.length,

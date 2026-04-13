@@ -20,128 +20,232 @@ class UserCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
+    // Colores según el rol
     Color badgeBg;
     Color badgeFg;
+    Color bordeColor;
 
     if (usuario.rol == TipoRol.superadmin) {
-      badgeBg = cs.primary;
-      badgeFg = cs.onPrimary;
+      badgeBg = cs.error;
+      badgeFg = cs.onError;
+      bordeColor = cs.error;
     } else if (usuario.rol == TipoRol.admin) {
-      badgeBg = cs.secondaryContainer;
-      badgeFg = cs.onSecondaryContainer;
-    } else if (usuario.rol == TipoRol.experto) {
-      badgeBg = cs.tertiaryContainer;
+      badgeBg = cs.tertiary;
       badgeFg = cs.onTertiary;
+      bordeColor = cs.tertiary;
+    } else if (usuario.rol == TipoRol.experto) {
+      badgeBg = cs.inverseSurface;
+      badgeFg = cs.onInverseSurface;
+      bordeColor = cs.inverseSurface;
     } else if (usuario.rol == TipoRol.usuario) {
-      badgeBg = cs.primaryContainer;
-      badgeFg = cs.onPrimaryContainer;
+      badgeBg = cs.secondary;
+      badgeFg = cs.onSecondary;
+      bordeColor = cs.secondary;
     } else {
       badgeBg = cs.onSurfaceVariant.withValues(alpha: 0.15);
       badgeFg = cs.onSurfaceVariant;
+      bordeColor = cs.onSurfaceVariant;
     }
 
     return Container(
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.onSurfaceVariant.withValues(alpha: 0.2)),
+        border: Border.all(color: cs.onSurfaceVariant.withValues(alpha: 0.2))
       ),
-      padding: const EdgeInsets.fromLTRB(13, 11, 12, 10),
-      child: Row(
+      clipBehavior: Clip.hardEdge,
+      child: Stack(
         children: [
-          // Avatar
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: cs.primaryContainer,
-            backgroundImage:
-                usuario.foto != null ? NetworkImage(usuario.foto!) : null,
-            child: usuario.foto == null
-                ? Text(
-                    usuario.nombre[0].toUpperCase(),
-                    style: tt.titleMedium
-                        ?.copyWith(color: cs.onPrimaryContainer),
-                  )
-                : null,
+          // Barra de color lateral según rol
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: 4,
+              decoration: BoxDecoration(
+                color: bordeColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                ),
+              ),
+            ),
           ),
-          const SizedBox(width: 12),
 
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // Contenido principal
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                Row(
+                // Avatar con borde de color según rol
+                Stack(
                   children: [
-                    Text(
-                      '${usuario.nombre} ${usuario.apellidos}',
-                      style: tt.labelLarge?.copyWith(color: cs.onSurface),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(width: 6),
-                    if (!usuario.activo)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 6),
-                        child: TagWidget(
-                          text: 'Inactivo',
-                          backgroundColor: Colors.transparent,
-                          textColor: cs.error,
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: bordeColor.withAlpha(80),
+                          width: 2.5,
                         ),
+                      ),
+                      child: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: cs.onPrimary,
+                        backgroundImage: usuario.foto != null
+                            ? NetworkImage(usuario.foto!)
+                            : null,
+                        child: usuario.foto == null
+                            ? Text(
+                                usuario.nombre[0].toUpperCase(),
+                                style: tt.titleLarge?.copyWith(
+                                  color: bordeColor,
+                                ),
+                              )
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(width: 16),
+
+                // Información del usuario
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Nombre + Badge de rol en la misma línea
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              '${usuario.nombre} ${usuario.apellidos}',
+                              style: tt.titleMedium?.copyWith(
+                                color: cs.onSurface,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.2,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          TagWidget(
+                            text: usuario.rol.nombre,
+                            backgroundColor: badgeBg,
+                            textColor: badgeFg,
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      // Email con icono
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.email_outlined,
+                            size: 14,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 6),
+                          
+                          Text(
+                            usuario.email,
+                            style: tt.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        
+                        ],
+                      ),
+
+                      // Teléfono con icono (si existe)
+                      if (usuario.telefono != null) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.phone_outlined,
+                              size: 14,
+                              color: cs.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              usuario.telefono!,
+                              style: tt.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+
+                      // Badge de inactivo si aplica
+                      if (!usuario.activo) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: cs.errorContainer.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.block_outlined,
+                                size: 12,
+                                color: cs.error,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Cuenta inactiva',
+                                style: tt.labelSmall?.copyWith(
+                                  color: cs.error
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                // Botones de acción
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (onEditar != null)
+                      IconButton(
+                        onPressed: onEditar,
+                        icon: Icon(Icons.edit_outlined, color: cs.onPrimaryContainer),
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    
+                    if (onEditar != null && onEliminar != null)
+                      const SizedBox(height: 20),
+
+                    if (onEliminar != null)
+                      IconButton(
+                        onPressed: onEliminar,
+                        icon: Icon(Icons.delete_outline, color: cs.error),
+                        iconSize: 20,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
                       ),
                   ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  usuario.email,
-                  style: tt.labelSmall
-                      ?.copyWith(color: cs.onSurfaceVariant),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                if (usuario.telefono != null) 
-                  Text(
-                    usuario.telefono!,
-                    style: tt.labelSmall
-                        ?.copyWith(color: cs.onSurfaceVariant),
-                  ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-
-          // Badge rol + estado
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              TagWidget(
-                text: usuario.rol.nombre,
-                backgroundColor: badgeBg,
-                textColor: badgeFg,
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  if (onEditar != null)
-                    IconButton(
-                      onPressed: onEditar,
-                      icon: Icon(Icons.edit_outlined, color: cs.onPrimaryContainer),
-                      iconSize: 18,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-
-                  const SizedBox(width: 8),
-
-                  if (onEliminar != null)
-                    IconButton(
-                      onPressed: onEliminar,
-                      icon: Icon(Icons.delete_outline, color: cs.error),
-                      iconSize: 18,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                ],
-              ),
-            ],
           ),
         ],
       ),
