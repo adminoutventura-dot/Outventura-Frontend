@@ -132,9 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                                 obscureText: _controller.obscurePassword,
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _controller.obscurePassword
-                                        ? Icons.visibility_off_outlined
-                                        : Icons.visibility_outlined,
+                                      _controller.obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                                   ),
                                   onPressed: () => setState(
                                     () => _controller.obscurePassword =

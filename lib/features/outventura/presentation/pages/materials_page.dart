@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/outventura/data/fakes/materiales_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/material.dart' as entity;
-import 'package:outventura/features/outventura/presentation/pages/material_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/material_form_page.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/excursion_category_tab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/material_card.dart';
@@ -22,9 +23,7 @@ class _MaterialsPageState extends State<MaterialsPage> {
     if (_selectedCategory == null) {
       return materialesFake;
     }
-    return materialesFake
-        .where((material) => material.categoria == _selectedCategory)
-        .toList();
+    return materialesFake.where((material) => material.categorias.contains(_selectedCategory)).toList();
   }
 
   @override
@@ -100,11 +99,20 @@ class _MaterialsPageState extends State<MaterialsPage> {
                 final material = _filteredMaterials[index];
                 return MaterialCard(
                   material: material,
-                  onEditar: () {
-                    
-                  },
-                  onEliminar: () {
-                    
+                  onEditar: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => MaterialFormPage(material: material),
+                    ),
+                  ),
+                  onEliminar: () async {
+                    final confirm = await showConfirmDialog(
+                      context: context,
+                      title: 'Eliminar material',
+                      content: '¿Eliminar "${material.nombre}"?',
+                    );
+                    if (confirm) {
+                      setState(() => materialesFake.remove(material));
+                    }
                   },
                 );
               },

@@ -4,7 +4,8 @@ import 'package:outventura/features/outventura/domain/entities/activity_category
 enum EstadoSolicitud {
   pendiente,
   confirmada,
-  finalizada;
+  finalizada,
+  cancelada;
 
   String get nombre {
     switch (this) {
@@ -14,6 +15,8 @@ enum EstadoSolicitud {
         return 'Confirmada';
       case EstadoSolicitud.finalizada:
         return 'Finalizada';
+      case EstadoSolicitud.cancelada:
+        return 'Cancelada';
     }
   }
 
@@ -27,7 +30,7 @@ enum EstadoSolicitud {
   }
 }
 
-// Entidad que representa una solicitud gestionada por Outventura.
+// Entidad solicitud.
 class Solicitud {
   final int id;
   final String puntoInicio;

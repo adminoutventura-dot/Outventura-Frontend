@@ -5,34 +5,60 @@ import 'package:outventura/features/outventura/domain/entities/material.dart' as
 class MaterialFormController {
   final formKey = GlobalKey<FormState>();
 
-  late final TextEditingController nombreController;
-  late final TextEditingController descripcionController;
-  late final TextEditingController stockController;
-  late final TextEditingController precioController;
-  late final TextEditingController tarifaController;
+  final nombreController = TextEditingController();
+  final descripcionController = TextEditingController();
+  final stockController = TextEditingController();
+  final precioController = TextEditingController();
+  final tarifaController = TextEditingController();
 
-  late CategoriaActividad categoria;
-  late mat.EstadoMaterial estado;
-  late bool isEditing;
+  List<CategoriaActividad> categorias = [];
+  mat.EstadoMaterial estado = mat.EstadoMaterial.disponible;
+  bool isEditing = false;
 
-  void initialize(mat.Material? material) {
-    final m = material;
-    isEditing = m != null;
-    nombreController = TextEditingController(text: m?.nombre ?? '');
-    descripcionController = TextEditingController(text: m?.descripcion ?? '');
-    stockController = TextEditingController(text: m != null ? '${m.stock}' : '');
-    precioController = TextEditingController(
-      text: m != null ? m.precioAlquilerDiario.toStringAsFixed(2) : '',
-    );
-    tarifaController = TextEditingController(
-      text: m != null ? m.tarifaDanios.toStringAsFixed(2) : '',
-    );
-    categoria = m?.categoria ?? CategoriaActividad.montania;
-    estado = m?.estado ?? mat.EstadoMaterial.disponible;
+  mat.Material? seleccionado;
+
+  // Cargar los datos de un material
+  void cargarMaterial(mat.Material material) {
+    isEditing = true;
+    seleccionado = material;
+    nombreController.text = material.nombre;
+    descripcionController.text = material.descripcion ?? '';
+    stockController.text = '${material.stock}';
+    precioController.text = material.precioAlquilerDiario.toStringAsFixed(2);
+    tarifaController.text = material.tarifaDanios.toStringAsFixed(2);
+    categorias = List.from(material.categorias);
+    estado = material.estado;
+  }
+
+  // Limpiar todos los campos
+  void limpiar() {
+    isEditing = false;
+    seleccionado = null;
+    nombreController.clear();
+    descripcionController.clear();
+    stockController.clear();
+    precioController.clear();
+    tarifaController.clear();
+    categorias = [];
+    estado = mat.EstadoMaterial.disponible;
+  }
+
+  void toggleCategoria(CategoriaActividad cat) {
+    if (categorias.contains(cat)) {
+      categorias.remove(cat);
+    } else {
+      categorias.add(cat);
+    }
   }
 
   bool submit() {
-    return formKey.currentState?.validate() ?? false;
+    if (formKey.currentState == null) {
+      return false;
+    }
+    if (categorias.isEmpty) {
+      return false;
+    }
+    return formKey.currentState!.validate();
   }
 
   void dispose() {

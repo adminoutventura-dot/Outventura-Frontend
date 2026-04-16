@@ -8,6 +8,8 @@ class CustomInputField extends StatelessWidget {
   final Widget? suffixIcon;
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
+  final int? maxLines;
+  final int? minLines;
 
   const CustomInputField({
     super.key,
@@ -18,6 +20,8 @@ class CustomInputField extends StatelessWidget {
     this.suffixIcon,
     this.keyboardType = TextInputType.text,
     this.validator,
+    this.maxLines = 1,
+    this.minLines,
   });
 
   @override
@@ -29,6 +33,8 @@ class CustomInputField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
+      maxLines: maxLines,
+      minLines: minLines,
       style: TextStyle(
         color: colorScheme.onSurface,
         fontSize: 15,
@@ -49,58 +55,40 @@ class CustomInputField extends StatelessWidget {
             : null,
         suffixIcon: suffixIcon,
         
-        // Border cuando no está enfocado
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+        border: UnderlineInputBorder(
           borderSide: BorderSide(
             color: colorScheme.onSurfaceVariant.withAlpha(50),
             width: 1.5,
           ),
         ),
-        
-        // Border cuando está enfocado
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+        focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: colorScheme.primary.withAlpha(150),
             width: 2,
           ),
         ),
-        
-        // Border cuando hay error
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+        errorBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: colorScheme.error,
             width: 1.5,
           ),
         ),
-        
-        // Border cuando hay error y está enfocado
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+        focusedErrorBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: colorScheme.error,
             width: 2,
           ),
         ),
-        
-        // Border habilitado
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+        enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(
             color: colorScheme.onSurfaceVariant.withAlpha(50),
             width: 1.5,
           ),
         ),
-        
-        filled: true,
-        fillColor: colorScheme.surface,
-        
-        // Espaciado interno
+        filled: false,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          horizontal: 0,
+          vertical: 12,
         ),
       ),
     );

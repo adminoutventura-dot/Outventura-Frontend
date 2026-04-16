@@ -5,12 +5,16 @@ import 'package:outventura/features/outventura/domain/entities/request.dart';
 class SolicitudCard extends StatelessWidget {
   final Solicitud solicitud;
   final VoidCallback? onGestionar;
+  final VoidCallback? onCancelar;
+  final VoidCallback? onEditar;
   final VoidCallback? onVerDetalle;
 
   const SolicitudCard({
     super.key,
     required this.solicitud,
     this.onGestionar,
+    this.onCancelar,
+    this.onEditar,
     this.onVerDetalle,
   });
 
@@ -34,6 +38,11 @@ class SolicitudCard extends StatelessWidget {
           cs.primaryContainer,
           cs.onPrimaryContainer,
           cs.primaryContainer,
+        ),
+      EstadoSolicitud.cancelada => (
+          cs.error,
+          cs.onError,
+          cs.error,
         ),
     };
 
@@ -68,8 +77,7 @@ class SolicitudCard extends StatelessWidget {
                               // Inicio
                               Text(
                                 solicitud.puntoInicio,
-                                style: tt.labelLarge
-                                    ?.copyWith(color: cs.onSurface),
+                                style: tt.labelLarge?.copyWith(color: cs.onSurface),
                                 overflow: TextOverflow.ellipsis,
                               ),
                               // Flecha
@@ -83,8 +91,7 @@ class SolicitudCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               Text(
                                 solicitud.puntoFin,
-                                style: tt.labelLarge
-                                    ?.copyWith(color: cs.onSurface),
+                                style: tt.labelLarge?.copyWith(color: cs.onSurface),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
@@ -93,8 +100,7 @@ class SolicitudCard extends StatelessWidget {
                           // ID + experto
                           Text(
                             '#${solicitud.id}  ·  ${solicitud.idExperto != null ? 'Experto asignado' : 'Sin experto'}',
-                            style: tt.labelSmall
-                                ?.copyWith(color: cs.onSurfaceVariant),
+                            style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                           ),
                         ],
                       ),
@@ -120,8 +126,7 @@ class SolicitudCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       _formatDate(solicitud.fechaInicio),
-                      style: tt.labelSmall
-                          ?.copyWith(color: cs.onSurfaceVariant),
+                      style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(width: 12),
 
@@ -131,8 +136,7 @@ class SolicitudCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       '${solicitud.numeroParticipantes} personas',
-                      style: tt.labelSmall
-                          ?.copyWith(color: cs.onSurfaceVariant),
+                      style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -159,14 +163,33 @@ class SolicitudCard extends StatelessWidget {
                     const Spacer(),
                     Row(
                       children: [
-                        if (onGestionar != null)
+                        if (onCancelar != null)
                           IconButton(
-                            onPressed: onGestionar,
-                            icon: Icon(Icons.edit_outlined, color: cs.onPrimaryContainer),
+                            onPressed: onCancelar,
+                            icon: Icon(Icons.close, color: cs.error),
                             iconSize: 18,
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
+                        if (onCancelar != null) const SizedBox(width: 8),
+                        if (onGestionar != null)
+                          IconButton(
+                            onPressed: onGestionar,
+                            icon: Icon(Icons.check_circle_outline, color: cs.primary),
+                            iconSize: 18,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        if (onGestionar != null) const SizedBox(width: 8),
+                        if (onEditar != null)
+                          IconButton(
+                            onPressed: onEditar,
+                            icon: Icon(Icons.edit_outlined, color: cs.onSurfaceVariant),
+                            iconSize: 18,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        if (onEditar != null) const SizedBox(width: 8),
                         if (onVerDetalle != null)
                           IconButton(
                             onPressed: onVerDetalle,

@@ -92,9 +92,7 @@ class UserCard extends StatelessWidget {
                       child: CircleAvatar(
                         radius: 28,
                         backgroundColor: cs.onPrimary,
-                        backgroundImage: usuario.foto != null
-                            ? NetworkImage(usuario.foto!)
-                            : null,
+                        backgroundImage: usuario.foto != null ? NetworkImage(usuario.foto!) : null,
                         child: usuario.foto == null
                             ? Text(
                                 usuario.nombre[0].toUpperCase(),

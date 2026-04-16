@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/auth/data/fakes/usuarios_fake.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/user_form_page.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
 
@@ -30,7 +31,10 @@ class UsersPage extends StatelessWidget {
       ),
       drawer: const AppDrawer(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const UserFormPage()),
+        ),
         backgroundColor: cs.secondaryContainer,
         foregroundColor: cs.onSecondary,
         elevation: 2,
@@ -48,7 +52,12 @@ class UsersPage extends StatelessWidget {
           if (index < usuariosFake.length) {
             return UserCard(
               usuario: usuariosFake[index],
-              onEditar: () {},
+              onEditar: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => UserFormPage(usuario: usuariosFake[index]),
+                ),
+              ),
               onEliminar: () {},
             );
           }

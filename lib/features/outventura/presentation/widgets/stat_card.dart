@@ -33,8 +33,7 @@ class StatCard extends StatelessWidget {
           children: [
             Text(
               value,
-              style: textTheme.labelLarge
-                  ?.copyWith(color: colorScheme.onSurface, fontSize: 18),
+              style: textTheme.labelLarge?.copyWith(color: colorScheme.onSurface, fontSize: 18),
             ),
             const SizedBox(height: 2),
             Text(

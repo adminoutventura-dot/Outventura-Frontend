@@ -5,7 +5,8 @@ enum EstadoExcursion {
   disponible,
   pendiente,
   confirmada,
-  finalizada;
+  finalizada,
+  cancelada;
 
   String get nombre {
     switch (this) {
@@ -17,6 +18,8 @@ enum EstadoExcursion {
         return 'Confirmada';
       case EstadoExcursion.finalizada:
         return 'Finalizada';
+      case EstadoExcursion.cancelada:
+        return 'Cancelada';
     }
   }
 
@@ -30,7 +33,7 @@ enum EstadoExcursion {
   }
 }
 
-// Entidad que representa una excursión gestionada por Outventura.
+// Entidad de excursión.
 class Excursion {
   final int id;
   final String puntoInicio;

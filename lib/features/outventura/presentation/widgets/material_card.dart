@@ -63,9 +63,7 @@ class MaterialCard extends StatelessWidget {
               ),
               child: SizedBox(
                 width: 90,
-                child: material.imageAsset != null
-                    ? Image.asset(material.imageAsset!, fit: BoxFit.cover)
-                    : ColoredBox(
+                child: material.imageAsset != null ? Image.asset(material.imageAsset!, fit: BoxFit.cover) : ColoredBox(
                         color: cs.primaryContainer,
                         child: Icon(
                           Icons.inventory_2_outlined,
@@ -119,8 +117,7 @@ class MaterialCard extends StatelessWidget {
                         const SizedBox(width: 3),
                         Text(
                           '${material.precioAlquilerDiario.toStringAsFixed(2)}€/día',
-                          style: tt.labelSmall
-                              ?.copyWith(color: cs.onSurfaceVariant),
+                          style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                         const SizedBox(width: 10),
                         
@@ -140,8 +137,7 @@ class MaterialCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           '${material.stock} uds',
-                          style: tt.labelSmall
-                              ?.copyWith(color: cs.onSurfaceVariant),
+                          style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
 
                         const Spacer(),

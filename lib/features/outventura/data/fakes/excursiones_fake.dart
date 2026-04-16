@@ -59,5 +59,4 @@ final List<Excursion> excursionCatalog = [
   ),
 ];
 
-// Backward-compatible alias (legacy Spanish name).
 final List<Excursion> catalogoExcursiones = excursionCatalog;

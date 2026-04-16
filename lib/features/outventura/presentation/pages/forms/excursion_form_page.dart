@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
+import 'package:outventura/core/widgets/app_chip.dart';
+import 'package:outventura/core/widgets/app_date_selector.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
@@ -20,28 +22,16 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
   @override
   void initState() {
     super.initState();
-    _controller = ExcursionFormController()..initialize(widget.excursion);
+    _controller = ExcursionFormController();
+    if (widget.excursion != null) {
+      _controller.cargarExcursion(widget.excursion!);
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickDate({required bool isStart}) async {
-    final initial = isStart ? _controller.fechaInicio : _controller.fechaFin;
-    final first = isStart ? DateTime.now() : _controller.fechaInicio;
-    final picked  = await showDatePicker(
-      context: context,
-      initialDate: initial,
-      firstDate: first,
-      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-    );
-    if (picked == null) return;
-    setState(() {
-      _controller.setDate(isStart: isStart, value: picked);
-    });
   }
 
   @override
@@ -115,24 +105,22 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
               Row(
                 children: [
                   Expanded(
-                    child: _DateSelector(
+                    child: AppDateSelector(
                       label: 'Inicio',
                       date: _controller.fechaInicio,
-                      formatted: _controller.formatDate(_controller.fechaInicio),
-                      cs: cs,
-                      tt: tt,
-                      onTap: () => _pickDate(isStart: true),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                      onDateSelected: (picked) => setState(() => _controller.setDate(isStart: true, value: picked)),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _DateSelector(
+                    child: AppDateSelector(
                       label: 'Fin',
                       date: _controller.fechaFin,
-                      formatted: _controller.formatDate(_controller.fechaFin),
-                      cs: cs,
-                      tt: tt,
-                      onTap: () => _pickDate(isStart: false),
+                      firstDate: _controller.fechaInicio,
+                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                      onDateSelected: (picked) => setState(() => _controller.setDate(isStart: false, value: picked)),
                     ),
                   ),
                 ],
@@ -164,29 +152,13 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
+              AppChipWrap(
                 children: CategoriaActividad.values.map((cat) {
                   final selected = _controller.categorias.contains(cat);
-                  return FilterChip(
-                    label: Text(cat.nombre),
+                  return AppFilterChip(
+                    label: cat.nombre,
                     selected: selected,
                     onSelected: (_) => setState(() => _controller.toggleCategoria(cat)),
-                    selectedColor: cs.primaryContainer,
-                    backgroundColor: cs.onPrimary,
-                    labelStyle: tt.labelMedium?.copyWith(
-                      color: selected
-                          ? cs.onPrimaryContainer
-                          : cs.onSurfaceVariant,
-                    ),
-                    side: BorderSide(
-                      color: selected ? cs.primary : cs.onSurfaceVariant,
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
                   );
                 }).toList(),
               ),
@@ -198,27 +170,15 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
+              AppChipWrap(
                 children: EstadoExcursion.values.map((est) {
                   final selected = _controller.estado == est;
-                  return ChoiceChip(
-                    label: Text(est.nombre),
+                  return AppChoiceChip(
+                    label: est.nombre,
                     selected: selected,
                     onSelected: (_) => setState(() => _controller.estado = est),
                     selectedColor: cs.secondaryContainer,
-                    backgroundColor: cs.onPrimary,
-                    labelStyle: tt.labelMedium?.copyWith(
-                      color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
-                    ),
-                    side: BorderSide(
-                      color: selected ? cs.tertiary : cs.onSurfaceVariant,
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    selectedBorderColor: cs.tertiary,
                   );
                 }).toList(),
               ),
@@ -253,67 +213,6 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Widget interno selector de fecha ─────────────────────────────
-
-class _DateSelector extends StatelessWidget {
-  final String label;
-  final DateTime date;
-  final String formatted;
-  final ColorScheme cs;
-  final TextTheme tt;
-  final VoidCallback onTap;
-
-  const _DateSelector({
-    required this.label,
-    required this.date,
-    required this.formatted,
-    required this.cs,
-    required this.tt,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: cs.onSurfaceVariant.withValues(alpha: 0.2),
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.calendar_today_outlined,
-                size: 18, color: cs.primary.withValues(alpha: 0.7)),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-                ),
-                Text(
-                  formatted,
-                  style: tt.labelMedium?.copyWith(
-                    color: cs.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ],
         ),
       ),
     );

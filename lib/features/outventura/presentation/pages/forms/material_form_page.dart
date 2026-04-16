@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
+import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/material.dart' as mat;
 import 'package:outventura/features/outventura/presentation/controllers/material_form_controller.dart';
 
 class MaterialFormPage extends StatefulWidget {
-  /// Si se pasa un material el formulario pasa a edición.
+  // Si se pasa un material el formulario pasa a edición.
   final mat.Material? material;
 
   const MaterialFormPage({super.key, this.material});
@@ -21,7 +22,10 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
   @override
   void initState() {
     super.initState();
-    _controller = MaterialFormController()..initialize(widget.material);
+    _controller = MaterialFormController();
+    if (widget.material != null) {
+      _controller.cargarMaterial(widget.material!);
+    }
   }
 
   @override
@@ -83,33 +87,19 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Categoría
+              // Categorías
               Text(
-                'Categoría',
+                'Categorías',
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
+              AppChipWrap(
                 children: CategoriaActividad.values.map((cat) {
-                  final selected = _controller.categoria == cat;
-                  return ChoiceChip(
-                    label: Text(cat.nombre),
+                  final selected = _controller.categorias.contains(cat);
+                  return AppFilterChip(
+                    label: cat.nombre,
                     selected: selected,
-                    onSelected: (_) => setState(() => _controller.categoria = cat),
-                    selectedColor: cs.primaryContainer,
-                    backgroundColor: cs.onPrimary,
-                    labelStyle: tt.labelMedium?.copyWith(
-                      color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
-                    ),
-                    side: BorderSide(
-                      color: selected ? cs.primary : cs.onSurfaceVariant,
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    onSelected: (_) => setState(() => _controller.toggleCategoria(cat)),
                   );
                 }).toList(),
               ),
@@ -121,27 +111,15 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
+              AppChipWrap(
                 children: mat.EstadoMaterial.values.map((est) {
                   final selected = _controller.estado == est;
-                  return ChoiceChip(
-                    label: Text(est.nombre),
+                  return AppChoiceChip(
+                    label: est.nombre,
                     selected: selected,
                     onSelected: (_) => setState(() => _controller.estado = est),
                     selectedColor: cs.secondaryContainer,
-                    backgroundColor: cs.onPrimary,
-                    labelStyle: tt.labelMedium?.copyWith(
-                      color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
-                    ),
-                    side: BorderSide(
-                      color: selected ? cs.tertiary : cs.onSurfaceVariant,
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    selectedBorderColor: cs.tertiary,
                   );
                 }).toList(),
               ),

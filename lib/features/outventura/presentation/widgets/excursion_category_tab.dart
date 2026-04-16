@@ -22,7 +22,7 @@ class ExcursionCategoryTab extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
@@ -38,6 +38,9 @@ class ExcursionCategoryTab extends StatelessWidget {
                 color: selected ? cs.primary : cs.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),

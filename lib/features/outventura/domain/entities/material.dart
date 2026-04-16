@@ -1,13 +1,13 @@
 import 'activity_category.dart';
 
-// Estados posibles de un material del catálogo.
+// Estados posibles de un material.
 enum EstadoMaterial {
   disponible,
   reservado,
   mantenimiento,
   fueraDeServicio;
 
-  // Devuelve el nombre legible del estado.
+  // Devuelve el nombre del estado.
   String get nombre {
     switch (this) {
       case EstadoMaterial.disponible:
@@ -32,12 +32,12 @@ enum EstadoMaterial {
   }
 }
 
-// Entidad que representa un material del catálogo de Outventura.
+// Entidad de material.
 class Material {
   final int id;
   final String nombre;
   final String? descripcion;
-  final CategoriaActividad categoria;
+  final List<CategoriaActividad> categorias;
   final int stock;
   final EstadoMaterial estado;
   final double precioAlquilerDiario;
@@ -48,7 +48,7 @@ class Material {
     required this.id,
     required this.nombre,
     this.descripcion,
-    required this.categoria,
+    required this.categorias,
     required this.stock,
     required this.estado,
     required this.precioAlquilerDiario,
@@ -62,7 +62,9 @@ class Material {
       id: map['id'] as int,
       nombre: map['nombre'] as String,
       descripcion: map['descripcion'] as String?,
-      categoria: CategoriaActividad.fromString(map['categoria'] as String),
+      categorias: (map['categorias'] as List<dynamic>)
+          .map((e) => CategoriaActividad.fromString(e as String))
+          .toList(),
       stock: map['stock'] as int,
       estado: EstadoMaterial.fromString(map['estado'] as String),
       precioAlquilerDiario: (map['precioAlquilerDiario'] as num).toDouble(),
@@ -75,7 +77,7 @@ class Material {
   Material copyWith({
     String? nombre,
     String? descripcion,
-    CategoriaActividad? categoria,
+    List<CategoriaActividad>? categorias,
     int? stock,
     EstadoMaterial? estado,
     double? precioAlquilerDiario,
@@ -86,7 +88,7 @@ class Material {
       id: id,
       nombre: nombre ?? this.nombre,
       descripcion: descripcion ?? this.descripcion,
-      categoria: categoria ?? this.categoria,
+      categorias: categorias ?? this.categorias,
       stock: stock ?? this.stock,
       estado: estado ?? this.estado,
       precioAlquilerDiario: precioAlquilerDiario ?? this.precioAlquilerDiario,

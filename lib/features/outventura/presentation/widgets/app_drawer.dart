@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/catalog/pages/catalog_page.dart';
 import 'package:outventura/features/auth/presentation/pages/login_page.dart';
+import 'package:outventura/features/auth/presentation/pages/user_form_page.dart';
 import 'package:outventura/features/preferences/presentation/pages/preferences_page.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -25,6 +26,23 @@ class AppDrawer extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+          ),
+          // Crear/Editar usuario
+          ListTile(
+            leading: Icon(Icons.person_add_alt_1, color: cs.onSurface),
+            title: Text(
+              'Crear/Editar usuario',
+              style: tt.titleMedium?.copyWith(color: cs.onSurface),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const UserFormPage(),
+                ),
+              );
+            },
           ),
           // Catálogo de Componentes.
           ListTile(
