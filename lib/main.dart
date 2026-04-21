@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:outventura/app/theme/app_theme.dart';
 import 'package:outventura/features/auth/presentation/pages/login_page.dart';
 import 'package:outventura/features/preferences/controllers/preferences_controller.dart';
+import 'package:outventura/features/preferences/data/models/preferences.dart';
 
 // TODO: Revisar la diferencia entre entities y models (Recordatorio)
 // TODO: Arreglar tema oscuro (Recordatorio)
@@ -12,6 +14,7 @@ import 'package:outventura/features/preferences/controllers/preferences_controll
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('es');
   runApp(const ProviderScope(child: MainApp()));
 }
 
@@ -20,10 +23,10 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final preferencesAsync = ref.watch(preferencesProvider);
+    final AsyncValue<Preferencias> preferenciasAsync = ref.watch(preferenciasProvider);
 
-    return preferencesAsync.when(
-      data: (preferences) => MaterialApp(
+    return preferenciasAsync.when(
+      data: (Preferencias preferences) => MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Outventura',
         theme: AppTheme.light,
@@ -32,7 +35,7 @@ class MainApp extends ConsumerWidget {
         home: const LoginPage(),
       ),
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => MaterialApp(
+      error: (Object error, StackTrace stack) => MaterialApp(
         home: Scaffold(
           body: Center(child: Text('Error: $error')),
         ),

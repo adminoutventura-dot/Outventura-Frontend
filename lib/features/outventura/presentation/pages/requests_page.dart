@@ -1,38 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/features/outventura/data/fakes/solicitudes_fake.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/core/widgets/confirm_dialog.dart';
+import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
-import 'package:outventura/features/outventura/presentation/controllers/requests_page_controller.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
+import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/excursion_category_tab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
-// import 'package:outventura/features/outventura/presentation/widgets/request_detail_sheet.dart';
 
-class RequestsPage extends StatefulWidget {
+class RequestsPage extends ConsumerStatefulWidget {
   const RequestsPage({super.key});
 
   @override
-  State<RequestsPage> createState() => _RequestsPageState();
+  ConsumerState<RequestsPage> createState() => _RequestsPageState();
 }
 
-class _RequestsPageState extends State<RequestsPage> {
-  final _controller = RequestsPageController();
-  EstadoSolicitud? _selectedEstado;
+class _RequestsPageState extends ConsumerState<RequestsPage> {
+  EstadoSolicitud? _estadoSeleccionado;
 
-  List<Solicitud> get _filtered {
-    return _controller.filterByEstado(
-      solicitudes: solicitudesFake,
-      selectedEstado: _selectedEstado,
-    );
-  }
-
+  // TODO: Mover estas funciones a un controller para RequestsPage
   void _aceptar(Solicitud s) async {
-    final updated = await _controller.aceptarSolicitud(
+    final bool confirm = await showConfirmDialog(
       context: context,
-      solicitud: s,
-      solicitudes: solicitudesFake,
+      title: 'Aceptar solicitud',
+      content:
+          '¿Aceptar la solicitud #${s.id}?\nSe generará una excursión automáticamente.',
+      confirmLabel: 'Aceptar',
+      isDanger: false,
     );
-    if (!updated) return;
-    setState(() {});
+    if (!confirm) return;
+    ref.read(solicitudesProvider.notifier).actualizar(
+          s,
+          s.copyWith(estado: EstadoSolicitud.confirmada),
+        );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Solicitud aceptada. Excursión generada.')),
@@ -41,28 +43,28 @@ class _RequestsPageState extends State<RequestsPage> {
   }
 
   void _editar(Solicitud s) async {
-    final result = await _controller.editSolicitud(
-      context: context,
-      solicitud: s,
+    final Solicitud? result = await Navigator.push<Solicitud>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SolicitudFormPage(solicitud: s),
+      ),
     );
     if (result == null) return;
-    setState(() {
-      _controller.replaceSolicitud(
-        solicitudes: solicitudesFake,
-        current: s,
-        updated: result,
-      );
-    });
+    ref.read(solicitudesProvider.notifier).actualizar(s, result);
   }
 
   void _rechazar(Solicitud s) async {
-    final updated = await _controller.rechazarSolicitud(
+    final bool confirm = await showConfirmDialog(
       context: context,
-      solicitud: s,
-      solicitudes: solicitudesFake,
+      title: 'Rechazar solicitud',
+      content: '¿Rechazar la solicitud #${s.id}?',
+      confirmLabel: 'Rechazar',
     );
-    if (!updated) return;
-    setState(() {});
+    if (!confirm) return;
+    ref.read(solicitudesProvider.notifier).actualizar(
+          s,
+          s.copyWith(estado: EstadoSolicitud.cancelada),
+        );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Solicitud rechazada.')),
@@ -72,8 +74,17 @@ class _RequestsPageState extends State<RequestsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final List<Solicitud> solicitudes = ref.watch(solicitudesProvider);
+    final List<Excursion> excursiones = ref.watch(excursionesProvider);
+
+    List<Solicitud> filtradas;
+    if (_estadoSeleccionado == null) {
+      filtradas = solicitudes;
+    } else {
+      filtradas = solicitudes.where((Solicitud s) => s.estado == _estadoSeleccionado).toList();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -94,32 +105,30 @@ class _RequestsPageState extends State<RequestsPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Filtros
-          ColoredBox(
-            color: cs.surface,
-            child: Row(
-              children: [
+          Row(
+            children: [
+              Expanded(
+                child: ExcursionCategoryTab(
+                  label: 'Todas',
+                  seleccionado: _estadoSeleccionado == null,
+                  onTap: () => setState(() => _estadoSeleccionado = null),
+                ),
+              ),
+              for (final EstadoSolicitud e in EstadoSolicitud.values)
                 Expanded(
                   child: ExcursionCategoryTab(
-                    label: 'Todas',
-                    selected: _selectedEstado == null,
-                    onTap: () => setState(() => _selectedEstado = null),
+                    label: e.label,
+                    seleccionado: _estadoSeleccionado == e,
+                    onTap: () => setState(() => _estadoSeleccionado = e),
                   ),
                 ),
-                for (final e in EstadoSolicitud.values)
-                  Expanded(
-                    child: ExcursionCategoryTab(
-                      label: e.nombre,
-                      selected: _selectedEstado == e,
-                      onTap: () => setState(() => _selectedEstado = e),
-                    ),
-                  ),
-              ],
-            ),
+            ],
           ),
+          
 
           // Lista
           Expanded(
-            child: _filtered.isEmpty
+            child: filtradas.isEmpty
                 ? Center(
                     child: Text(
                       'No hay solicitudes',
@@ -128,12 +137,17 @@ class _RequestsPageState extends State<RequestsPage> {
                   )
                 : ListView.separated(
                     padding: const EdgeInsets.all(12),
-                    itemCount: _filtered.length,
+                    itemCount: filtradas.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final s = _filtered[index];
+                    itemBuilder: (BuildContext context, int index) {
+                      final Solicitud s = filtradas[index];
+                      final Excursion excursion = excursiones.firstWhere(
+                        (e) => e.id == s.idExcursion,
+                        orElse: () => excursiones.first,
+                      );
                       return SolicitudCard(
                         solicitud: s,
+                        excursion: excursion,
                         onGestionar: s.estado == EstadoSolicitud.pendiente ? () => _aceptar(s) : null,
                         onCancelar: s.estado == EstadoSolicitud.pendiente ? () => _rechazar(s) : null,
                         onEditar: () => _editar(s),

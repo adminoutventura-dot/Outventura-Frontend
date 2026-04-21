@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
+import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
@@ -35,15 +37,15 @@ class _UserFormPageState extends State<UserFormPage> {
   }
 
   void _submit() {
-    if (!_controller.submit()) return;
+    if (!_controller.validar()) return;
     // TODO: enviar datos al repositorio
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -51,7 +53,7 @@ class _UserFormPageState extends State<UserFormPage> {
         backgroundColor: cs.inverseSurface,
         foregroundColor: cs.onInverseSurface,
         title: Text(
-          _controller.isEditing ? 'Editar usuario' : 'Nuevo usuario',
+          _controller.editando ? 'Editar usuario' : 'Nuevo usuario',
           style: tt.titleMedium?.copyWith(color: cs.onInverseSurface),
         ),
       ),
@@ -62,6 +64,18 @@ class _UserFormPageState extends State<UserFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Avatar
+              Center(
+                child: AppImagePickerField(
+                  imageUrl: _controller.foto,
+                  // le indica al widget AppImagePickerField que la imagen de perfil es un asset local (por ejemplo, assets/images/Camino.jpg) 
+                  // y no una URL de internet. Así, usa Image.asset en vez de NetworkImage para mostrar la foto.
+                  isAsset: true,
+                  isCircular: true,
+                  placeholder: Icons.person_outline,
+                ),
+              ),
+              const SizedBox(height: 20),
               // Nombre y Apellidos
               Row(
                 children: [
@@ -70,12 +84,7 @@ class _UserFormPageState extends State<UserFormPage> {
                       controller: _controller.nombre,
                       labelText: 'Nombre',
                       prefixIcon: Icons.person_outline,
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) {
-                          return 'Campo obligatorio';
-                        }
-                        return null;
-                      },
+                      validator: ValidadoresFormulario.campoObligatorio,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -84,12 +93,7 @@ class _UserFormPageState extends State<UserFormPage> {
                       controller: _controller.apellidos,
                       labelText: 'Apellidos',
                       prefixIcon: Icons.person_outline,
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) {
-                          return 'Campo obligatorio';
-                        }
-                        return null;
-                      },
+                      validator: ValidadoresFormulario.campoObligatorio,
                     ),
                   ),
                 ],
@@ -102,16 +106,7 @@ class _UserFormPageState extends State<UserFormPage> {
                 labelText: 'Email',
                 prefixIcon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return 'Campo obligatorio';
-                  }
-                  final regex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+');
-                  if (!regex.hasMatch(v)) {
-                    return 'Email no válido';
-                  }
-                  return null;
-                },
+                validator: ValidadoresFormulario.email,
               ),
               const SizedBox(height: 14),
 
@@ -125,18 +120,13 @@ class _UserFormPageState extends State<UserFormPage> {
               const SizedBox(height: 14),
 
               // Contraseña (solo en creación)
-              if (!_controller.isEditing) ...[
+              if (!_controller.editando) ...[
                 CustomInputField(
                   controller: _controller.password,
                   labelText: 'Contraseña',
                   prefixIcon: Icons.lock_outline,
                   obscureText: true,
-                  validator: (v) {
-                    if (v == null || v.length < 6) {
-                      return 'Mínimo 6 caracteres';
-                    }
-                    return null;
-                  },
+                  validator: (String? v) => ValidadoresFormulario.longitudMinima(v, 6),
                 ),
                 const SizedBox(height: 20),
               ] else
@@ -149,11 +139,11 @@ class _UserFormPageState extends State<UserFormPage> {
               ),
               const SizedBox(height: 8),
               AppChipWrap(
-                children: TipoRol.values.map((rol) {
-                  final selected = _controller.rol == rol;
+                children: TipoRol.values.map((TipoRol rol) {
+                  final bool seleccionado = _controller.rol == rol;
                   return AppChoiceChip(
                     label: rol.nombre,
-                    selected: selected,
+                    seleccionado: seleccionado,
                     onSelected: (_) => setState(() => _controller.rol = rol),
                     selectedColor: cs.secondaryContainer,
                     selectedBorderColor: cs.tertiary,
@@ -172,7 +162,7 @@ class _UserFormPageState extends State<UserFormPage> {
                   const Spacer(),
                   Switch(
                     value: _controller.activo,
-                    onChanged: (v) => setState(() => _controller.activo = v),
+                    onChanged: (bool v) => setState(() => _controller.activo = v),
                     activeThumbColor: cs.primary,
                   ),
                 ],
@@ -193,9 +183,9 @@ class _UserFormPageState extends State<UserFormPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: PrimaryButton(
-                      label: _controller.isEditing ? 'Guardar' : 'Crear',
+                      label: _controller.editando ? 'Guardar' : 'Crear',
                       onPressed: _submit,
-                      icon: _controller.isEditing ? Icons.save_outlined : Icons.person_add_outlined,
+                      icon: _controller.editando ? Icons.save_outlined : Icons.person_add_outlined,
                     ),
                   ),
                 ],

@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/features/outventura/domain/entities/equipment.dart';
+import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
-import 'package:outventura/features/outventura/data/fakes/solicitudes_fake.dart';
+import 'package:outventura/features/outventura/domain/entities/request.dart';
 
-class HomeAdminPage extends StatefulWidget {
+class HomeAdminPage extends ConsumerWidget {
   const HomeAdminPage({super.key});
 
   @override
-  State<HomeAdminPage> createState() => _HomeAdminPageState();
-}
-
-class _HomeAdminPageState extends State<HomeAdminPage> {
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final List<Excursion> excursiones = ref.watch(excursionesProvider);
+    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider);
+    final List<Solicitud> solicitudes = ref.watch(solicitudesProvider);
 
     return Scaffold(
       // Barra superior con título y fondo degradado.
@@ -69,23 +73,23 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
                           StatCard(
                             colorScheme: cs,
                             textTheme: tt,
-                            value: '4',
+                            value: '${excursiones.length}',
                             label: 'EXCURSIONES',
                           ),
                           const SizedBox(width: 10),
-                          // Tarjeta de materiales.
+                          // Tarjeta de equipamiento.
                           StatCard(
                             colorScheme: cs,
                             textTheme: tt,
-                            value: '8',
-                            label: 'MATERIALES',
+                            value: '${equipamientos.length}',
+                            label: 'EQUIPAMIENTO',
                           ),
                           const SizedBox(width: 10),
                           // Tarjeta de pendientes.
                           StatCard(
                             colorScheme: cs,
                             textTheme: tt,
-                            value: '2',
+                            value: '${solicitudes.where((Solicitud s) => s.estado == EstadoSolicitud.pendiente).length}',
                             label: 'PENDIENTES',
                           ),
                         ],
@@ -112,10 +116,16 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
                 const SizedBox(height: 12),
 
                 // Tarjetas de solicitudes recientes.
-                for (var solicitud in solicitudesFake)
+                for (Solicitud solicitud in solicitudes)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: SolicitudCard(solicitud: solicitud),
+                    child: SolicitudCard(
+                      solicitud: solicitud,
+                      excursion: excursiones.firstWhere(
+                        (Excursion e) => e.id == solicitud.idExcursion,
+                        orElse: () => excursiones.first,
+                      ),
+                    ),
                   ),
               ],
             ),

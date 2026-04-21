@@ -23,7 +23,7 @@ enum TipoRol {
 
   // Crea un rol a partir del valor en texto que devuelve el backend.
   static TipoRol fromString(String value) {
-    for (var rol in TipoRol.values) {
+    for (TipoRol rol in TipoRol.values) {
       if (rol.name == value.toLowerCase()) {
         return rol;
       }

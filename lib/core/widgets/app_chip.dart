@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
 // Grupo de chips que se pueden seleccionar. 
 //El AppChipWrap organiza los chips y el AppChoiceChip representa cada chip individual.
@@ -16,7 +17,7 @@ class AppChipWrap extends StatelessWidget {
 // Chip que se permite una sola selección. 
 class AppChoiceChip extends StatelessWidget {
   final String label;
-  final bool selected;
+  final bool seleccionado;
   final void Function(bool) onSelected;
 
   final Color? selectedColor;
@@ -26,7 +27,7 @@ class AppChoiceChip extends StatelessWidget {
   const AppChoiceChip({
     super.key,
     required this.label,
-    required this.selected,
+    required this.seleccionado,
     required this.onSelected,
     this.selectedColor,
     this.selectedBorderColor,
@@ -34,23 +35,23 @@ class AppChoiceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
-    final selColor = selectedColor ?? cs.primaryContainer;
-    final selBorder = selectedBorderColor ?? cs.primary;
+    final Color selColor = selectedColor ?? cs.primaryContainer;
+    final Color selBorder = selectedBorderColor ?? cs.primary;
 
     return ChoiceChip(
       label: Text(label),
-      selected: selected,
+      selected: seleccionado,
       onSelected: onSelected,
       selectedColor: selColor,
       backgroundColor: cs.onPrimary,
       labelStyle: tt.labelMedium?.copyWith(
-        color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+        color: seleccionado ? cs.onPrimaryContainer : cs.onSurfaceVariant,
       ),
       side: BorderSide(
-        color: selected ? selBorder : cs.onSurfaceVariant,
+        color: seleccionado ? selBorder : cs.onSurfaceVariant,
         width: 1.5,
       ),
       shape: RoundedRectangleBorder(
@@ -63,7 +64,7 @@ class AppChoiceChip extends StatelessWidget {
 // Filter chip para selección múltiple.
 class AppFilterChip extends StatelessWidget {
   final String label;
-  final bool selected;
+  final bool seleccionado;
   final void Function(bool) onSelected;
 
   final Color? selectedColor;
@@ -73,7 +74,7 @@ class AppFilterChip extends StatelessWidget {
   const AppFilterChip({
     super.key,
     required this.label,
-    required this.selected,
+    required this.seleccionado,
     required this.onSelected,
     this.selectedColor,
     this.selectedBorderColor,
@@ -81,27 +82,80 @@ class AppFilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
-    final selColor = selectedColor ?? cs.primaryContainer;
-    final selBorder = selectedBorderColor ?? cs.primary;
+    final Color selColor = selectedColor ?? cs.primaryContainer;
+    final Color selBorder = selectedBorderColor ?? cs.primary;
 
     return FilterChip(
       label: Text(label),
-      selected: selected,
+      // Indica si el chip debe mostrarse como seleccionado o no.
+      selected: seleccionado,
+      // Callback que se ejecuta cuando el usuario pulsa el chip.
       onSelected: onSelected,
       selectedColor: selColor,
       backgroundColor: cs.onPrimary,
       labelStyle: tt.labelMedium?.copyWith(
-        color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+        color: seleccionado ? cs.onPrimaryContainer : cs.onSurfaceVariant,
       ),
       side: BorderSide(
-        color: selected ? selBorder : cs.onSurfaceVariant,
+        color: seleccionado ? selBorder : cs.onSurfaceVariant,
         width: 1.5,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
+      ),
+    );
+  }
+}
+
+// FormField de selección múltiple con chips que se integra con Form y muestra errores.
+class AppFilterChipFormField extends StatelessWidget {
+  final List<CategoriaActividad> seleccionados;
+  final void Function(CategoriaActividad) onToggle;
+  final String? Function(List<CategoriaActividad>?)? validator;
+
+  const AppFilterChipFormField({
+    super.key,
+    required this.seleccionados,
+    required this.onToggle,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+
+    return FormField<List<CategoriaActividad>>(
+      initialValue: seleccionados,
+      validator: validator,
+      builder: (FormFieldState<List<CategoriaActividad>> field) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppChipWrap(
+            children: CategoriaActividad.values.map((CategoriaActividad cat) {
+              return AppFilterChip(
+                label: cat.label,
+                seleccionado: seleccionados.contains(cat),
+                onSelected: (_) {
+                  onToggle(cat);
+                  // Le notifica al FormField que su valor ha cambiado, para que pueda re-evaluar la validación.
+                  field.didChange(List.from(seleccionados));
+                },
+              );
+            }).toList(),
+          ),
+          if (field.hasError)
+            Padding(
+              padding: const EdgeInsets.only(top: 6, left: 4),
+              child: Text(
+                field.errorText!,
+                style: tt.bodySmall?.copyWith(color: cs.error),
+              ),
+            ),
+        ],
       ),
     );
   }

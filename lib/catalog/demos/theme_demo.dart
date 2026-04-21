@@ -7,8 +7,8 @@ class ThemeDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Colores y Tipografía')),
@@ -217,7 +217,7 @@ class ThemeDemo extends StatelessWidget {
             ),
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
+            child: const Text(
               '#F4F8EF',
               style: TextStyle(
                 fontSize: 11,
@@ -237,7 +237,7 @@ class ThemeDemo extends StatelessWidget {
             ),
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
+            child: const Text(
               '#F1EFE8',
               style: TextStyle(
                 fontSize: 11,

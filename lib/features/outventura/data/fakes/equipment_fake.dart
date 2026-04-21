@@ -1,0 +1,122 @@
+import 'package:outventura/features/outventura/domain/entities/equipment.dart';
+import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+
+// Materiales de prueba del catálogo, con distintas categorías y estados.
+final List<Equipamiento> equipamientosFake = <Equipamiento>[
+  // --- Acampada ---
+  const Equipamiento(
+    id: 1,
+    nombre: 'Tienda de campaña 4 estaciones',
+    descripcion: 'Para 2 personas, resistente al viento y la lluvia.',
+    categorias: <CategoriaActividad>[CategoriaActividad.camping, CategoriaActividad.montana],
+    stock: 8,
+    estado: EstadoEquipamiento.disponible,
+    precioAlquilerDiario: 12.50,
+    cargoPorDanio: 150.0,
+  ),
+  const Equipamiento(
+    id: 2,
+    nombre: 'Saco de dormir -10°C',
+    categorias: <CategoriaActividad>[CategoriaActividad.camping, CategoriaActividad.nieve],
+    stock: 10,
+    estado: EstadoEquipamiento.disponible,
+    precioAlquilerDiario: 10.0,
+    cargoPorDanio: 120.0,
+    imagenAsset: 'assets/images/Camino.jpg',
+  ),
+
+  // --- Acuática ---
+  const Equipamiento(
+    id: 3,
+    nombre: 'Kayak individual',
+    descripcion: 'Kayak rígido de poliéster con pala y chaleco salvavidas incluidos.',
+    categorias: <CategoriaActividad>[CategoriaActividad.acuatico],
+    stock: 6,
+    estado: EstadoEquipamiento.disponible,
+    precioAlquilerDiario: 25.0,
+    cargoPorDanio: 300.0,
+  ),
+  const Equipamiento(
+    id: 4,
+    nombre: 'Tabla de SUP',
+    descripcion: 'Tabla de paddle surf hinchable con remo y bomba.',
+    categorias: <CategoriaActividad>[CategoriaActividad.acuatico],
+    stock: 3,
+    estado: EstadoEquipamiento.reservado,
+    precioAlquilerDiario: 20.0,
+    cargoPorDanio: 200.0,
+    imagenAsset: 'assets/images/Camino.jpg',
+  ),
+
+  // --- Senderismo ---
+  const Equipamiento(
+    id: 5,
+    nombre: 'Mochila 60L',
+    descripcion: 'Mochila de trekking con soporte lumbar y funda impermeable.',
+    categorias: <CategoriaActividad>[CategoriaActividad.montana, CategoriaActividad.camping],
+    stock: 12,
+    estado: EstadoEquipamiento.disponible,
+    precioAlquilerDiario: 7.0,
+    cargoPorDanio: 80.0,
+    imagenAsset: 'assets/images/Camino.jpg',
+  ),
+  const Equipamiento(
+    id: 6,
+    nombre: 'Bastones de trekking',
+    descripcion: 'Par de bastones telescópicos de aluminio con puntas de carburo.',
+    categorias: <CategoriaActividad>[CategoriaActividad.montana, CategoriaActividad.nieve],
+    stock: 15,
+    estado: EstadoEquipamiento.disponible,
+    precioAlquilerDiario: 3.0,
+    cargoPorDanio: 25.0,
+    imagenAsset: 'assets/images/Camino.jpg',
+  ),
+
+  // --- Montaña ---
+  const Equipamiento(
+    id: 7,
+    nombre: 'Arnés de escalada',
+    descripcion: 'Arnés homologado CE para escalada y vías ferratas.',
+    categorias: <CategoriaActividad>[CategoriaActividad.montana],
+    stock: 4,
+    estado: EstadoEquipamiento.mantenimiento,
+    precioAlquilerDiario: 5.0,
+    cargoPorDanio: 90.0,
+    imagenAsset: 'assets/images/Camino.jpg',
+  ),
+  const Equipamiento(
+    id: 8,
+    nombre: 'Casco de montaña',
+    descripcion: 'Casco polivalente para escalada y vías ferratas, ajuste regulable.',
+    categorias: <CategoriaActividad>[CategoriaActividad.montana, CategoriaActividad.nieve],
+    stock: 8,
+    estado: EstadoEquipamiento.disponible,
+    precioAlquilerDiario: 4.0,
+    cargoPorDanio: 70.0,
+    imagenAsset: 'assets/images/Camino.jpg',
+  ),
+
+  // --- Nieve ---
+  const Equipamiento(
+    id: 9,
+    nombre: 'Raquetas de nieve',
+    descripcion: 'Par de raquetas de aluminio para actividades en terreno nevado.',
+    categorias: <CategoriaActividad>[CategoriaActividad.nieve],
+    stock: 10,
+    estado: EstadoEquipamiento.disponible,
+    precioAlquilerDiario: 8.0,
+    cargoPorDanio: 60.0,
+    imagenAsset: 'assets/images/Camino.jpg',
+  ),
+  const Equipamiento(
+    id: 10,
+    nombre: 'Piolet',
+    descripcion: 'Piolet técnico de aluminio para ascensiones en nieve y hielo.',
+    categorias: <CategoriaActividad>[CategoriaActividad.nieve, CategoriaActividad.montana],
+    stock: 5,
+    estado: EstadoEquipamiento.fueraDeServicio,
+    precioAlquilerDiario: 6.0,
+    cargoPorDanio: 100.0,
+    imagenAsset: 'assets/images/Camino.jpg',
+  ),
+];

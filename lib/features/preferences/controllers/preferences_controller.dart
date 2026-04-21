@@ -2,24 +2,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/preferences/data/models/preferences.dart';
 import 'package:outventura/features/preferences/data/repositories/preferences_repository.dart';
 
-final preferencesProvider =
-    AsyncNotifierProvider<PreferencesNotifier, Preferences>(() {
-  return PreferencesNotifier();
+final AsyncNotifierProvider<PreferenciasNotifier, Preferencias> preferenciasProvider =
+    AsyncNotifierProvider<PreferenciasNotifier, Preferencias>(() {
+  return PreferenciasNotifier();
 });
 
 // Gestiona las preferencias de la aplicación.
-class PreferencesNotifier extends AsyncNotifier<Preferences> {
-  late final PreferencesRepository _repo;
+class PreferenciasNotifier extends AsyncNotifier<Preferencias> {
+  late final PreferenciasRepositorio _repo;
 
   @override
-  Future<Preferences> build() async {
-    _repo = PreferencesRepository();
-    return await _repo.getPreferences();
+  Future<Preferencias> build() async {
+    _repo = PreferenciasRepositorio();
+    return await _repo.obtenerPreferencias();
   }
 
   // Actualiza todas las preferencias de una vez.
-  Future<void> updatePreferences(Preferences newPreferences) async {
-    await _repo.setPreferences(newPreferences);
-    state = AsyncValue.data(newPreferences);
+  Future<void> actualizarPreferencias(Preferencias newPreferences) async {
+    await _repo.guardarPreferencias(newPreferences);
+    state = AsyncValue<Preferencias>.data(newPreferences);
   }
 }

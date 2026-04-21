@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
-import 'package:outventura/features/outventura/domain/entities/material.dart' as entity;
+import 'package:outventura/features/outventura/domain/entities/equipment.dart' as entity;
 
-class MaterialCard extends StatelessWidget {
-  final entity.Material material;
+class EquipmentCard extends StatelessWidget {
+  final entity.Equipamiento equipamiento;
   final VoidCallback? onEditar;
   final VoidCallback? onEliminar;
   final VoidCallback? onAlquilar;
 
-  const MaterialCard({
+  const EquipmentCard({
     super.key,
-    required this.material,
+    required this.equipamiento,
     this.onEditar,
     this.onEliminar,
     this.onAlquilar,
@@ -18,31 +18,31 @@ class MaterialCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     Color badgeBg;
-    Color badgeFg = cs.onSurface;
-    switch (material.estado) {
-      case entity.EstadoMaterial.disponible:
+    final Color badgeFg = cs.onSurface;
+    switch (equipamiento.estado) {
+      case entity.EstadoEquipamiento.disponible:
         badgeBg = cs.primary;
         // badgeFg = cs.onPrimary;
         break;
-      case entity.EstadoMaterial.reservado:
+      case entity.EstadoEquipamiento.reservado:
         badgeBg = cs.secondaryContainer;
         // badgeFg = cs.onSecondaryContainer;
         break;
-      case entity.EstadoMaterial.mantenimiento:
+      case entity.EstadoEquipamiento.mantenimiento:
         badgeBg = cs.secondaryContainer;
         // badgeFg = cs.onSecondaryContainer;
         break;
-      case entity.EstadoMaterial.fueraDeServicio:
+      case entity.EstadoEquipamiento.fueraDeServicio:
         badgeBg = cs.errorContainer;
         // badgeFg = cs.onErrorContainer;
         break;
     }
 
-    final stockPorcentaje = (material.stock / 10).clamp(0.0, 1.0);
+    final double stockPorcentaje = (equipamiento.stock / 10).clamp(0.0, 1.0);
 
     return Container(
       decoration: BoxDecoration(
@@ -63,7 +63,7 @@ class MaterialCard extends StatelessWidget {
               ),
               child: SizedBox(
                 width: 90,
-                child: material.imageAsset != null ? Image.asset(material.imageAsset!, fit: BoxFit.cover) : ColoredBox(
+                child: equipamiento.imagenAsset != null ? Image.asset(equipamiento.imagenAsset!, fit: BoxFit.cover) : ColoredBox(
                         color: cs.primaryContainer,
                         child: Icon(
                           Icons.inventory_2_outlined,
@@ -86,13 +86,13 @@ class MaterialCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            material.nombre,
+                            equipamiento.nombre,
                             style: tt.labelLarge?.copyWith(color: cs.onSurface),
                           ),
                         ),
                         const SizedBox(width: 8),
                         TagWidget(
-                          text: material.estado.nombre,
+                          text: equipamiento.estado.label,
                           backgroundColor: badgeBg.withValues(alpha: 0.35),
                           textColor: badgeFg,
                         ),
@@ -101,9 +101,9 @@ class MaterialCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     
                     // Descripción
-                    if (material.descripcion != null) 
+                    if (equipamiento.descripcion != null) 
                       Text(
-                        material.descripcion!,
+                        equipamiento.descripcion!,
                         style: tt.bodySmall?.copyWith(
                             color: cs.onSurfaceVariant),
                         maxLines: 2,
@@ -116,7 +116,7 @@ class MaterialCard extends StatelessWidget {
                         Icon(Icons.sell_outlined, size: 11, color: cs.onSurfaceVariant),
                         const SizedBox(width: 3),
                         Text(
-                          '${material.precioAlquilerDiario.toStringAsFixed(2)}€/día',
+                          '${equipamiento.precioAlquilerDiario.toStringAsFixed(2)}€/día',
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                         const SizedBox(width: 10),
@@ -136,7 +136,7 @@ class MaterialCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${material.stock} uds',
+                          '${equipamiento.stock} uds',
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
 

@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
+import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-import 'package:outventura/features/outventura/domain/entities/material.dart' as mat;
-import 'package:outventura/features/outventura/presentation/controllers/material_form_controller.dart';
+import 'package:outventura/core/utils/form_validators.dart';
+import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 
-class MaterialFormPage extends StatefulWidget {
-  // Si se pasa un material el formulario pasa a edición.
-  final mat.Material? material;
+import 'package:outventura/features/outventura/presentation/controllers/equipment_form_controller.dart';
 
-  const MaterialFormPage({super.key, this.material});
+class EquipmentFormPage extends StatefulWidget {
+  final Equipamiento? equipamiento;
+
+  const EquipmentFormPage({super.key, this.equipamiento});
 
   @override
-  State<MaterialFormPage> createState() => _MaterialFormPageState();
+  State<EquipmentFormPage> createState() => _EquipmentFormPageState();
 }
 
-class _MaterialFormPageState extends State<MaterialFormPage> {
-  late final MaterialFormController _controller;
+class _EquipmentFormPageState extends State<EquipmentFormPage> {
+  late final EquipmentFormController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = MaterialFormController();
-    if (widget.material != null) {
-      _controller.cargarMaterial(widget.material!);
+    _controller = EquipmentFormController();
+    if (widget.equipamiento != null) {
+      _controller.cargarEquipo(widget.equipamiento!);
     }
   }
 
@@ -36,8 +37,8 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -45,7 +46,7 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
         backgroundColor: cs.inverseSurface,
         foregroundColor: cs.onInverseSurface,
         title: Text(
-          _controller.isEditing ? 'Editar material' : 'Nuevo material',
+          _controller.editando ? 'Editar equipamiento' : 'Nuevo equipamiento',
           style: tt.titleMedium?.copyWith(color: cs.onInverseSurface),
         ),
       ),
@@ -58,9 +59,20 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Imagen
+              Center(
+                child: AppImagePickerField(
+                  imageUrl: _controller.imagenAsset,
+                  isAsset: true,  
+                  size: 120,                
+                  placeholder: Icons.inventory_2_outlined,
+                ),
+              ),
+              const SizedBox(height: 20),
+              
               // Categoría
               Text(
-                'Material',
+                'Equipamiento',
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -69,12 +81,7 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
                 controller: _controller.nombreController,
                 labelText: 'Nombre',
                 prefixIcon: Icons.inventory_2_outlined,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return 'Campo obligatorio';
-                  }
-                  return null;
-                },
+                validator: ValidadoresFormulario.campoObligatorio,
               ),
               const SizedBox(height: 14),
 
@@ -93,15 +100,15 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              AppChipWrap(
-                children: CategoriaActividad.values.map((cat) {
-                  final selected = _controller.categorias.contains(cat);
-                  return AppFilterChip(
-                    label: cat.nombre,
-                    selected: selected,
-                    onSelected: (_) => setState(() => _controller.toggleCategoria(cat)),
-                  );
-                }).toList(),
+              AppFilterChipFormField(
+                seleccionados: _controller.categorias,
+                onToggle: (cat) => setState(() => _controller.alternarCategoria(cat)),
+                validator: (v) {
+                  if (v == null || v.isEmpty) {
+                    return 'Selecciona al menos una categoría';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
 
@@ -112,11 +119,11 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
               ),
               const SizedBox(height: 8),
               AppChipWrap(
-                children: mat.EstadoMaterial.values.map((est) {
-                  final selected = _controller.estado == est;
+                children: EstadoEquipamiento.values.map((EstadoEquipamiento est) {
+                  final bool seleccionado = _controller.estado == est;
                   return AppChoiceChip(
-                    label: est.nombre,
-                    selected: selected,
+                    label: est.label,
+                    seleccionado: seleccionado,
                     onSelected: (_) => setState(() => _controller.estado = est),
                     selectedColor: cs.secondaryContainer,
                     selectedBorderColor: cs.tertiary,
@@ -131,16 +138,7 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
                 labelText: 'Stock (unidades)',
                 prefixIcon: Icons.format_list_numbered,
                 keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (v == null || v.isEmpty) {
-                    return 'Introduce un número válido';
-                  }
-                  final numero = int.tryParse(v);
-                  if (numero == null || numero < 0) {
-                    return 'Introduce un número válido';
-                  }
-                  return null;
-                },
+                validator: ValidadoresFormulario.enteroPositivo,
               ),
               const SizedBox(height: 14),
 
@@ -161,18 +159,7 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
                       labelText: 'Precio/día (€)',
                       prefixIcon: Icons.euro_outlined,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) {
-                        // Si el campo está vacío o no es un número válido muestra error
-                        if (v == null || v.isEmpty) {
-                          return 'Valor inválido';
-                        }
-                        final numero = double.tryParse(v);
-                        if (numero == null || numero < 0) {
-                          return 'Valor inválido';
-                        }
-                        // Si todo está bien, no hay error
-                        return null;
-                      },
+                      validator: ValidadoresFormulario.decimalPositivo,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -182,16 +169,7 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
                       labelText: 'Tarifa daños (€)',
                       prefixIcon: Icons.warning_amber_outlined,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: (v) {
-                        if (v == null || v.isEmpty) {
-                          return 'Valor inválido';
-                        }
-                        final numero = double.tryParse(v);
-                        if (numero == null || numero < 0) {
-                          return 'Valor inválido';
-                        }
-                        return null;
-                      },
+                      validator: ValidadoresFormulario.decimalPositivo,
                     ),
                   ),
                 ],
@@ -212,15 +190,16 @@ class _MaterialFormPageState extends State<MaterialFormPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: PrimaryButton(
-                      label: _controller.isEditing ? 'Guardar' : 'Crear',
+                      label: _controller.editando ? 'Guardar' : 'Crear',
                       onPressed: () {
-                        if (!_controller.submit()) {
+                        final Equipamiento? equipamiento = _controller.crearEquipamiento();
+                        if (equipamiento == null) {
                           return;
                         }
-                        // TODO: enviar datos al repositorio
-                        Navigator.of(context).pop();
+                        // Cierra la página y devuelve el nuevo equipamiento a la página anterior
+                        Navigator.of(context).pop(equipamiento);
                       },
-                      icon: _controller.isEditing ? Icons.save_outlined : Icons.add,
+                      icon: _controller.editando ? Icons.save_outlined : Icons.add,
                     ),
                   ),
                 ],

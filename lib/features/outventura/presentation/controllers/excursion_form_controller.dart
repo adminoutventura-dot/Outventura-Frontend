@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 
 class ExcursionFormController {
-  final formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  final puntoInicioController = TextEditingController();
-  final puntoFinController = TextEditingController();
-  final descripcionController = TextEditingController();
-  final participantesController = TextEditingController();
+  final TextEditingController puntoInicioController = TextEditingController();
+  final TextEditingController puntoFinController = TextEditingController();
+  final TextEditingController descripcionController = TextEditingController();
+  final TextEditingController participantesController = TextEditingController();
 
   DateTime fechaInicio = DateTime.now();
   DateTime fechaFin = DateTime.now().add(const Duration(days: 1));
   EstadoExcursion estado = EstadoExcursion.disponible;
-  List<CategoriaActividad> categorias = [];
-  bool isEditing = false;
+  List<CategoriaActividad> categorias = <CategoriaActividad>[];
+  String? imagenAsset;
+  bool editando = false;
 
   Excursion? seleccionado;
 
   // Cargar los datos de una excursión en los input
   void cargarExcursion(Excursion excursion) {
-    isEditing = true;
+    editando = true;
     seleccionado = excursion;
     puntoInicioController.text = excursion.puntoInicio;
     puntoFinController.text = excursion.puntoFin;
@@ -29,12 +31,13 @@ class ExcursionFormController {
     fechaInicio = excursion.fechaInicio;
     fechaFin = excursion.fechaFin;
     estado = excursion.estado;
-    categorias = List.from(excursion.categorias);
+    categorias = List<CategoriaActividad>.from(excursion.categorias);
+    imagenAsset = excursion.imagenAsset;
   }
 
   // Limpiar todos los campos
   void limpiar() {
-    isEditing = false;
+    editando = false;
     seleccionado = null;
     puntoInicioController.clear();
     puntoFinController.clear();
@@ -43,10 +46,10 @@ class ExcursionFormController {
     fechaInicio = DateTime.now();
     fechaFin = DateTime.now().add(const Duration(days: 1));
     estado = EstadoExcursion.disponible;
-    categorias = [];
+    categorias = <CategoriaActividad>[];
   }
 
-  void setDate({required bool isStart, required DateTime value}) {
+  void establecerFecha({required bool isStart, required DateTime value}) {
     if (isStart) {
       fechaInicio = value;
       if (fechaFin.isBefore(value)) {
@@ -57,7 +60,7 @@ class ExcursionFormController {
     fechaFin = value;
   }
 
-  void toggleCategoria(CategoriaActividad cat) {
+  void alternarCategoria(CategoriaActividad cat) {
     if (categorias.contains(cat)) {
       categorias.remove(cat);
     } else {
@@ -65,7 +68,7 @@ class ExcursionFormController {
     }
   }
 
-  bool submit() {
+  bool validar() {
     if (formKey.currentState == null) {
       return false;
     }
@@ -77,23 +80,7 @@ class ExcursionFormController {
 
   bool get hasCategorias => categorias.isNotEmpty;
 
-  String formatDate(DateTime dt) {
-    const m = [
-      'ene',
-      'feb',
-      'mar',
-      'abr',
-      'may',
-      'jun',
-      'jul',
-      'ago',
-      'sep',
-      'oct',
-      'nov',
-      'dic',
-    ];
-    return '${dt.day} ${m[dt.month - 1]} ${dt.year}';
-  }
+  String formatearFecha(DateTime dt) => FormateadorFecha.short(dt);
 
   void dispose() {
     puntoInicioController.dispose();

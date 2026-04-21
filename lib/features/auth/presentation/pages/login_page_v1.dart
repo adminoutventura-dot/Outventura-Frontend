@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
-import 'package:outventura/features/auth/data/fakes/usuarios_fake.dart';
+import 'package:outventura/features/auth/data/fakes/users_fake.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/outventura/presentation/pages/main_scaffold.dart';
 
@@ -23,8 +24,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       body: Stack(
@@ -90,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: BoxDecoration(
                       color: colorScheme.surface.withAlpha(242),
                       borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
+                      boxShadow: <BoxShadow>[
                         BoxShadow(
                           color: colorScheme.onSurface.withAlpha(77),
                           blurRadius: 20,
@@ -110,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                             labelText: 'Email',
                             prefixIcon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
-                            validator: _controller.emailValidator,
+                            validator: _controller.validadorEmail,
                           ),
                           const SizedBox(height: 16),
 
@@ -119,14 +120,14 @@ class _LoginPageState extends State<LoginPage> {
                             controller: _controller.passwordController,
                             labelText: 'Contraseña',
                             prefixIcon: Icons.lock_outline,
-                            obscureText: _controller.obscurePassword,
+                            obscureText: _controller.ocultarContrasena,
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _controller.obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                _controller.ocultarContrasena ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                               ),
                               onPressed: () => setState(
-                                () => _controller.obscurePassword =
-                                    !_controller.obscurePassword,
+                                () => _controller.ocultarContrasena =
+                                    !_controller.ocultarContrasena,
                               ),
                             ),
                           ),
@@ -136,7 +137,6 @@ class _LoginPageState extends State<LoginPage> {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: () {
-                                // TODO: Recuperar contraseña
                               },
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
@@ -161,9 +161,9 @@ class _LoginPageState extends State<LoginPage> {
                             onPressed: () {
                               if (_controller.formKey.currentState?.validate() ?? false) {
                                 // Busca el usuario y si no lo encuentra usa el primero de la lista.
-                                final email = _controller.emailController.text.trim();
-                                final usuario = usuariosFake.firstWhere(
-                                  (u) => u.email == email,
+                                final String email = _controller.emailController.text.trim();
+                                final Usuario usuario = usuariosFake.firstWhere(
+                                  (Usuario u) => u.email == email,
                                   orElse: () => usuariosFake[0],
                                 );
 
@@ -224,7 +224,6 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  // TODO: Página de registro
                                 },
                                 style: TextButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(

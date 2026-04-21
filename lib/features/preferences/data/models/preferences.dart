@@ -1,21 +1,21 @@
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
-class Preferences {
+class Preferencias {
   final String idioma;
   final bool temaOscuro;
 
-  const Preferences({
+  const Preferencias({
     required this.idioma,
     required this.temaOscuro,
   });
 
   // Crea una copia modificada de las preferencias.
-  Preferences copyWith({
+  Preferencias copyWith({
     List<CategoriaActividad>? categoriasFavoritas,
     String? idioma,
     bool? temaOscuro,
   }) =>
-      Preferences(
+      Preferencias(
         idioma: idioma ?? this.idioma,
         temaOscuro: temaOscuro ?? this.temaOscuro,
       );

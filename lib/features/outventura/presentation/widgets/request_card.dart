@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
+import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 
 class SolicitudCard extends StatelessWidget {
   final Solicitud solicitud;
+  final Excursion excursion;
   final VoidCallback? onGestionar;
   final VoidCallback? onCancelar;
   final VoidCallback? onEditar;
@@ -12,6 +15,7 @@ class SolicitudCard extends StatelessWidget {
   const SolicitudCard({
     super.key,
     required this.solicitud,
+    required this.excursion,
     this.onGestionar,
     this.onCancelar,
     this.onEditar,
@@ -20,10 +24,10 @@ class SolicitudCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
-    final (badgeBg, badgeFg, accentColor) = switch (solicitud.estado) {
+    final (Color badgeBg, Color badgeFg, Color accentColor) = switch (solicitud.estado) {
       EstadoSolicitud.confirmada => (
           cs.secondaryContainer,
           cs.onSecondaryContainer,
@@ -76,7 +80,7 @@ class SolicitudCard extends StatelessWidget {
                             children: [
                               // Inicio
                               Text(
-                                solicitud.puntoInicio,
+                                excursion.puntoInicio,
                                 style: tt.labelLarge?.copyWith(color: cs.onSurface),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -90,7 +94,7 @@ class SolicitudCard extends StatelessWidget {
                               // Fin
                               const SizedBox(width: 4),
                               Text(
-                                solicitud.puntoFin,
+                                excursion.puntoFin,
                                 style: tt.labelLarge?.copyWith(color: cs.onSurface),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -108,7 +112,7 @@ class SolicitudCard extends StatelessWidget {
                     const SizedBox(width: 10),
                     // Badge estado
                     TagWidget(
-                      text: solicitud.estado.nombre,
+                      text: solicitud.estado.label,
                       backgroundColor: badgeBg,
                       textColor: badgeFg,
                     ),
@@ -125,7 +129,7 @@ class SolicitudCard extends StatelessWidget {
                         size: 12, color: cs.onSurfaceVariant),
                     const SizedBox(width: 4),
                     Text(
-                      _formatDate(solicitud.fechaInicio),
+                      _formatDate(excursion.fechaInicio),
                       style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(width: 12),
@@ -152,9 +156,9 @@ class SolicitudCard extends StatelessWidget {
                   children: [
                     Row(
                       spacing: 5,
-                      children: solicitud.categorias
-                          .map((c) => TagWidget(
-                                text: c.nombre,
+                      children: excursion.categorias
+                          .map((CategoriaActividad c) => TagWidget(
+                                text: c.label,
                                 backgroundColor: cs.onPrimary,
                                 textColor: cs.onPrimaryContainer,
                               ))
@@ -211,7 +215,7 @@ class SolicitudCard extends StatelessWidget {
   }
 
   String _formatDate(DateTime dt) {
-    const m = [
+    const List<String> m = <String>[
       'ene','feb','mar','abr','may','jun',
       'jul','ago','sep','oct','nov','dic'
     ];

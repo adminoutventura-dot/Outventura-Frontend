@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 
 class LoginController {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
-  bool obscurePassword = true;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  bool ocultarContrasena = true;
 
-  String? emailValidator(String? value) {
+  // TODO: Esto creo que esta repetido eln validciones globales
+  String? validadorEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Por favor, introduce un correo';
     }
 
-    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+');
+    final RegExp emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+');
 
     if (!emailRegex.hasMatch(value)) {
       return 'Introduce un correo válido';

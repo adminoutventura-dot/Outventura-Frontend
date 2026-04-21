@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/preferences/controllers/preferences_controller.dart';
+import 'package:outventura/features/preferences/data/models/preferences.dart';
 
 class PreferencesPage extends ConsumerWidget {
   const PreferencesPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     // Observa el estado de las preferencias.
-    final prefsAsync = ref.watch(preferencesProvider);
+    final AsyncValue<Preferencias> prefsAsync = ref.watch(preferenciasProvider);
 
     return Scaffold(
       // Barra superior.
@@ -20,7 +21,7 @@ class PreferencesPage extends ConsumerWidget {
       ),
       body: prefsAsync.when(
         // Preferencias cargadas.
-        data: (prefs) => ListView(
+        data: (Preferencias prefs) => ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           children: [
             // Selector de idioma.
@@ -30,7 +31,7 @@ class PreferencesPage extends ConsumerWidget {
                 Text('Idioma', style: tt.titleMedium),
                 DropdownButton<String>(
                   value: prefs.idioma,
-                  items: [
+                  items: <DropdownMenuItem<String>>[
                     DropdownMenuItem(
                       value: 'es',
                       child: Text('Español', style: tt.bodyMedium),
@@ -40,10 +41,10 @@ class PreferencesPage extends ConsumerWidget {
                       child: Text('Inglés', style: tt.bodyMedium),
                     ),
                   ],
-                  onChanged: (value) {
+                  onChanged: (String? value) {
                     if (value != null) {
                       // Actualiza el idioma seleccionado.
-                      ref.read(preferencesProvider.notifier).updatePreferences(
+                      ref.read(preferenciasProvider.notifier).actualizarPreferencias(
                         prefs.copyWith(idioma: value),
                       );
                     }
@@ -59,9 +60,9 @@ class PreferencesPage extends ConsumerWidget {
                 Text('Tema oscuro', style: tt.titleMedium),
                 Switch(
                   value: prefs.temaOscuro,
-                  onChanged: (value) {
+                  onChanged: (bool value) {
                     // Actualiza la preferencia de tema oscuro.
-                    ref.read(preferencesProvider.notifier).updatePreferences(
+                    ref.read(preferenciasProvider.notifier).actualizarPreferencias(
                       prefs.copyWith(temaOscuro: value),
                     );
                   },
@@ -73,7 +74,7 @@ class PreferencesPage extends ConsumerWidget {
         // Indicador de carga mientras se obtienen las preferencias.
         loading: () => const Center(child: CircularProgressIndicator()),
         // Mensaje de error si falla la carga.
-        error: (err, stack) => Center(
+        error: (Object err, StackTrace stack) => Center(
           child: Text(
             'Error: $err',
             style: tt.bodyMedium?.copyWith(color: cs.error),

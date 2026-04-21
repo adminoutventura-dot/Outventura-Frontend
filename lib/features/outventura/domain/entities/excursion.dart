@@ -8,7 +8,7 @@ enum EstadoExcursion {
   finalizada,
   cancelada;
 
-  String get nombre {
+  String get label {
     switch (this) {
       case EstadoExcursion.disponible:
         return 'Disponible';
@@ -24,9 +24,9 @@ enum EstadoExcursion {
   }
 
   static EstadoExcursion fromString(String value) {
-    for (var estado in EstadoExcursion.values) {
-      if (estado.nombre.toLowerCase() == value.toLowerCase()) {
-        return estado;
+    for (EstadoExcursion status in EstadoExcursion.values) {
+      if (status.label.toLowerCase() == value.toLowerCase()) {
+        return status;
       }
     }
     return EstadoExcursion.disponible;
@@ -38,7 +38,7 @@ class Excursion {
   final int id;
   final String puntoInicio;
   final String puntoFin;
-  final String? imageAsset;
+  final String? imagenAsset;
   final DateTime fechaInicio;
   final DateTime fechaFin;
   final List<CategoriaActividad> categorias;
@@ -50,7 +50,7 @@ class Excursion {
     required this.id,
     required this.puntoInicio,
     required this.puntoFin,
-    this.imageAsset,
+    this.imagenAsset,
     required this.fechaInicio,
     required this.fechaFin,
     required this.categorias,
@@ -63,17 +63,17 @@ class Excursion {
   factory Excursion.fromMap(Map<String, dynamic> map) {
     return Excursion(
       id: map['id'] as int,
-      puntoInicio: map['puntoInicio'] as String,
-      puntoFin: map['puntoFin'] as String,
-      imageAsset: (map['imageAsset']) as String?,
-      fechaInicio: DateTime.parse(map['fechaInicio'] as String),
-      fechaFin: DateTime.parse(map['fechaFin'] as String),
-      categorias: (map['categorias'] as List<dynamic>)
+      puntoInicio: map['startPoint'] as String,
+      puntoFin: map['endPoint'] as String,
+      imagenAsset: (map['imageAsset']) as String?,
+      fechaInicio: DateTime.parse(map['startDate'] as String),
+      fechaFin: DateTime.parse(map['endDate'] as String),
+      categorias: (map['categories'] as List<dynamic>)
           .map((e) => CategoriaActividad.fromString(e as String))
           .toList(),
-      numeroParticipantes: map['numeroParticipantes'] as int,
-      descripcion: map['descripcion'] as String?,
-      estado: EstadoExcursion.fromString(map['estado'] as String),
+      numeroParticipantes: map['participantCount'] as int,
+      descripcion: map['description'] as String?,
+      estado: EstadoExcursion.fromString(map['status'] as String),
     );
   }
 
@@ -81,7 +81,7 @@ class Excursion {
   Excursion copyWith({
     String? puntoInicio,
     String? puntoFin,
-    String? imageAsset,
+    String? imagenAsset,
     DateTime? fechaInicio,
     DateTime? fechaFin,
     List<CategoriaActividad>? categorias,
@@ -93,7 +93,7 @@ class Excursion {
       id: id,
       puntoInicio: puntoInicio ?? this.puntoInicio,
       puntoFin: puntoFin ?? this.puntoFin,
-      imageAsset: imageAsset ?? this.imageAsset,
+      imagenAsset: imagenAsset ?? this.imagenAsset,
       fechaInicio: fechaInicio ?? this.fechaInicio,
       fechaFin: fechaFin ?? this.fechaFin,
       categorias: categorias ?? this.categorias,

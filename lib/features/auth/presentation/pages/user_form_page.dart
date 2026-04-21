@@ -15,11 +15,12 @@ class UserFormPage extends StatefulWidget {
 
 class _UserFormPageState extends State<UserFormPage> {
   late final UserFormController _controller;
+  // TODO: Revisar pagina
 
   @override
   void initState() {
     super.initState();
-    _controller = UserFormController()..initialize(widget.usuario);
+    _controller = UserFormController()..inicializar(widget.usuario);
   }
 
   @override
@@ -29,15 +30,15 @@ class _UserFormPageState extends State<UserFormPage> {
   }
 
   void _submit() {
-    if (!_controller.submit()) return;
+    if (!_controller.validar()) return;
     // TODO: guardar usuario
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -45,7 +46,7 @@ class _UserFormPageState extends State<UserFormPage> {
         backgroundColor: cs.inverseSurface,
         foregroundColor: cs.onInverseSurface,
         title: Text(
-          _controller.isEditing ? 'Editar usuario' : 'Nuevo usuario',
+          _controller.editando ? 'Editar usuario' : 'Nuevo usuario',
           style: tt.titleMedium?.copyWith(color: cs.onInverseSurface),
         ),
       ),
@@ -66,7 +67,7 @@ class _UserFormPageState extends State<UserFormPage> {
                 controller: _controller.nombreController,
                 labelText: 'Nombre',
                 prefixIcon: Icons.person_outline,
-                validator: (v) {
+                validator: (String? v) {
                   if (v == null || v.trim().isEmpty) {
                     return 'Campo obligatorio';
                   }
@@ -79,7 +80,7 @@ class _UserFormPageState extends State<UserFormPage> {
                 controller: _controller.apellidosController,
                 labelText: 'Apellidos',
                 prefixIcon: Icons.badge_outlined,
-                validator: (v) {
+                validator: (String? v) {
                   if (v == null || v.trim().isEmpty) {
                     return 'Campo obligatorio';
                   }
@@ -92,7 +93,7 @@ class _UserFormPageState extends State<UserFormPage> {
                 controller: _controller.emailController,
                 labelText: 'Email',
                 prefixIcon: Icons.mail_outline,
-                validator: _controller.emailValidator,
+                validator: _controller.validadorEmail,
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 14),
@@ -113,19 +114,19 @@ class _UserFormPageState extends State<UserFormPage> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: TipoRol.values.map((rol) {
-                  final selected = _controller.rol == rol;
+                children: TipoRol.values.map((TipoRol rol) {
+                  final bool seleccionado = _controller.rol == rol;
                   return ChoiceChip(
                     label: Text(rol.nombre),
-                    selected: selected,
+                    selected: seleccionado,
                     onSelected: (_) => setState(() => _controller.rol = rol),
                     selectedColor: cs.primaryContainer,
                     backgroundColor: cs.onPrimary,
                     labelStyle: tt.labelMedium?.copyWith(
-                      color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+                      color: seleccionado ? cs.onPrimaryContainer : cs.onSurfaceVariant,
                     ),
                     side: BorderSide(
-                      color: selected ? cs.primary : cs.onSurfaceVariant,
+                      color: seleccionado ? cs.primary : cs.onSurfaceVariant,
                       width: 1.5,
                     ),
                     shape: RoundedRectangleBorder(
@@ -166,7 +167,7 @@ class _UserFormPageState extends State<UserFormPage> {
                     ),
                     Switch(
                       value: _controller.activo,
-                      onChanged: (v) => setState(() => _controller.activo = v),
+                      onChanged: (bool v) => setState(() => _controller.activo = v),
                     ),
                   ],
                 ),
@@ -182,16 +183,16 @@ class _UserFormPageState extends State<UserFormPage> {
 
               CustomInputField(
                 controller: _controller.passwordController,
-                labelText: _controller.isEditing ? 'Nueva contraseña (opcional)' : 'Contraseña',
+                labelText: _controller.editando ? 'Nueva contraseña (opcional)' : 'Contraseña',
                 prefixIcon: Icons.lock_outline,
-                obscureText: _controller.obscurePassword,
-                validator: _controller.passwordValidator,
+                obscureText: _controller.ocultarContrasena,
+                validator: _controller.validadorContrasena,
                 suffixIcon: IconButton(
                   onPressed: () {
-                    setState(() => _controller.obscurePassword = !_controller.obscurePassword);
+                    setState(() => _controller.ocultarContrasena = !_controller.ocultarContrasena);
                   },
                   icon: Icon(
-                    _controller.obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    _controller.ocultarContrasena ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                     color: cs.onSurfaceVariant,
                   ),
                 ),
@@ -200,16 +201,16 @@ class _UserFormPageState extends State<UserFormPage> {
 
               CustomInputField(
                 controller: _controller.confirmPasswordController,
-                labelText: _controller.isEditing ? 'Confirmar nueva contraseña' : 'Confirmar contraseña',
+                labelText: _controller.editando ? 'Confirmar nueva contraseña' : 'Confirmar contraseña',
                 prefixIcon: Icons.lock_reset_outlined,
-                obscureText: _controller.obscureConfirmPassword,
-                validator: _controller.confirmPasswordValidator,
+                obscureText: _controller.ocultarConfirmacionContrasena,
+                validator: _controller.validadorConfirmacionContrasena,
                 suffixIcon: IconButton(
                   onPressed: () {
-                    setState(() => _controller.obscureConfirmPassword = !_controller.obscureConfirmPassword);
+                    setState(() => _controller.ocultarConfirmacionContrasena = !_controller.ocultarConfirmacionContrasena);
                   },
                   icon: Icon(
-                    _controller.obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    _controller.ocultarConfirmacionContrasena ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                     color: cs.onSurfaceVariant,
                   ),
                 ),
@@ -230,9 +231,9 @@ class _UserFormPageState extends State<UserFormPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: PrimaryButton(
-                      label: _controller.isEditing ? 'Guardar cambios' : 'Crear usuario',
+                      label: _controller.editando ? 'Guardar cambios' : 'Crear usuario',
                       onPressed: _submit,
-                      icon: _controller.isEditing ? Icons.save_outlined : Icons.add,
+                      icon: _controller.editando ? Icons.save_outlined : Icons.add,
                     ),
                   ),
                 ],

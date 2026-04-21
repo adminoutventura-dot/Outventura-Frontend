@@ -7,6 +7,7 @@ class AppUserDropdown extends StatelessWidget {
   final ValueChanged<int?> onChanged;
   final String label;
   final String hint;
+  final String? Function(int?)? validator;
 
   const AppUserDropdown({
     super.key,
@@ -15,12 +16,13 @@ class AppUserDropdown extends StatelessWidget {
     required this.onChanged,
     this.label = 'Experto asignado',
     this.hint = 'Sin asignar',
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return DropdownButtonFormField<int?>(
       initialValue: value,
@@ -29,6 +31,8 @@ class AppUserDropdown extends StatelessWidget {
         Icons.keyboard_arrow_down_rounded,
         color: cs.primary.withValues(alpha: 0.7),
       ),
+      
+      // Estilo
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: cs.onSurfaceVariant),
@@ -54,8 +58,10 @@ class AppUserDropdown extends StatelessWidget {
         filled: false,
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
       ),
+
       hint: Text(hint, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-      items: [
+
+      items: <DropdownMenuItem<int?>>[
         DropdownMenuItem<int?>(
           value: null,
           child: Text(
@@ -63,7 +69,7 @@ class AppUserDropdown extends StatelessWidget {
             style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
         ),
-        for (var u in users)
+        for (Usuario u in users)
           DropdownMenuItem<int?>(
             value: u.id,
             child: Text(
@@ -73,6 +79,7 @@ class AppUserDropdown extends StatelessWidget {
           ),
       ],
       onChanged: onChanged,
+      validator: validator,
     );
   }
 }

@@ -1,31 +1,31 @@
 // Categorías de actividad disponibles en Outventura.
 enum CategoriaActividad {
-  acuatica,
+  acuatico,
   nieve,
-  montania,
-  acampada;
+  montana,
+  camping;
 
   // Devuelve el nombre legible de la categoría.
-  String get nombre {
+  String get label {
     switch (this) {
-      case CategoriaActividad.acuatica:
-        return 'Acuática';
+      case CategoriaActividad.acuatico:
+        return 'Acuático';
       case CategoriaActividad.nieve:
         return 'Nieve';
-      case CategoriaActividad.montania:
+      case CategoriaActividad.montana:
         return 'Montaña';
-      case CategoriaActividad.acampada:
-        return 'Acampada';
+      case CategoriaActividad.camping:
+        return 'Camping';
     }
   }
 
   // Crea una categoría a partir del valor en texto que devuelve el backend.
   static CategoriaActividad fromString(String value) {
-    for (var categoria in CategoriaActividad.values) {
-      if (categoria.name == value.toLowerCase()) {
-        return categoria;
+    for (CategoriaActividad category in CategoriaActividad.values) {
+      if (category.label.toLowerCase() == value.toLowerCase()) {
+        return category;
       }
     }
-    return CategoriaActividad.montania;
+    return CategoriaActividad.montana;
   }
 }

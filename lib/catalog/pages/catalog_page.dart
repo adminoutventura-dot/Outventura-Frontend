@@ -9,8 +9,8 @@ class CatalogPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Catálogo de Componentes')),
@@ -42,15 +42,14 @@ class CatalogPage extends StatelessWidget {
           // Inputs
           ListTile(
             title: Text(
-              'Inputs',
+              'Inputs & Widgets',
               style: tt.titleMedium?.copyWith(color: cs.onSurface),
             ),
             subtitle: Text(
-              'Variantes, estados y tamaños',
+              'Campos, chips, dropdowns, fechas, tags, diálogos',
               style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
             trailing: const Icon(Icons.chevron_right),
-            // Al pulsar, se navega a la pantalla InputsDemo
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const InputsDemo()),
@@ -67,11 +66,10 @@ class CatalogPage extends StatelessWidget {
               style: tt.titleMedium?.copyWith(color: cs.onSurface),
             ),
             subtitle: Text(
-              'Variantes, estados y tamaños',
+              'Excursión, solicitud, reserva, equipamiento, usuario',
               style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
             trailing: const Icon(Icons.chevron_right),
-            // Al pulsar, se navega a la pantalla CardsDemo
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const CardsDemo()),

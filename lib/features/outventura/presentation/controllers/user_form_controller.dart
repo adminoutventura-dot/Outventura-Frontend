@@ -3,23 +3,24 @@ import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 
 class UserFormController {
-  final formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  final nombre = TextEditingController();
-  final apellidos = TextEditingController();
-  final email = TextEditingController();
-  final telefono = TextEditingController();
-  final password = TextEditingController();
+  final TextEditingController nombre = TextEditingController();
+  final TextEditingController apellidos = TextEditingController();
+  final TextEditingController email = TextEditingController();
+  final TextEditingController telefono = TextEditingController();
+  final TextEditingController password = TextEditingController();
 
   TipoRol rol = TipoRol.usuario;
   bool activo = true;
-  bool isEditing = false;
+  String? foto;
+  bool editando = false;
 
   Usuario? seleccionado;
 
   // Cargar los datos
   void cargarUsuario(Usuario usuario) {
-    isEditing = true;
+    editando = true;
     seleccionado = usuario;
     nombre.text = usuario.nombre;
     apellidos.text = usuario.apellidos;
@@ -27,11 +28,12 @@ class UserFormController {
     telefono.text = usuario.telefono ?? '';
     rol = usuario.rol;
     activo = usuario.activo;
+    foto = usuario.foto;
   }
 
   // Limpiar todos los campos
   void limpiar() {
-    isEditing = false;
+    editando = false;
     seleccionado = null;
     nombre.clear();
     apellidos.clear();
@@ -42,7 +44,7 @@ class UserFormController {
     activo = true;
   }
 
-  bool submit() {
+  bool validar() {
     if (formKey.currentState == null) {
       return false;
     }

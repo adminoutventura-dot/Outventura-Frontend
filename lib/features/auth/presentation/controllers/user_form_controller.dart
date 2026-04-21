@@ -3,24 +3,24 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 
 class UserFormController {
-  final formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   
-  final nombreController = TextEditingController();
-  final apellidosController = TextEditingController();
-  final emailController = TextEditingController();
-  final telefonoController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
+  final TextEditingController nombreController = TextEditingController();
+  final TextEditingController apellidosController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController telefonoController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   
   TipoRol rol = TipoRol.usuario;
   bool activo = true;
-  bool obscurePassword = true;
-  bool obscureConfirmPassword = true;
+  bool ocultarContrasena = true;
+  bool ocultarConfirmacionContrasena = true;
   
   Usuario? _usuarioOriginal;
-  bool get isEditing => _usuarioOriginal != null;
+  bool get editando => _usuarioOriginal != null;
 
-  void initialize(Usuario? usuario) {
+  void inicializar(Usuario? usuario) {
     _usuarioOriginal = usuario;
     
     if (usuario != null) {
@@ -33,7 +33,7 @@ class UserFormController {
     }
   }
 
-  bool submit() {
+  bool validar() {
     return formKey.currentState?.validate() ?? false;
   }
 
@@ -47,20 +47,20 @@ class UserFormController {
   }
 
   // Validadores
-  String? emailValidator(String? value) {
+  String? validadorEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'El email es obligatorio';
     }
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    final RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
       return 'Introduce un email válido';
     }
     return null;
   }
 
-  String? passwordValidator(String? value) {
+  String? validadorContrasena(String? value) {
     // Solo requerido si es nuevo usuario
-    if (!isEditing && (value == null || value.isEmpty)) {
+    if (!editando && (value == null || value.isEmpty)) {
       return 'La contraseña es obligatoria';
     }
     if (value != null && value.isNotEmpty && value.length < 6) {
@@ -69,8 +69,8 @@ class UserFormController {
     return null;
   }
 
-  String? confirmPasswordValidator(String? value) {
-    if (!isEditing && (value == null || value.isEmpty)) {
+  String? validadorConfirmacionContrasena(String? value) {
+    if (!editando && (value == null || value.isEmpty)) {
       return 'Confirma la contraseña';
     }
     if (value != null && value != passwordController.text) {

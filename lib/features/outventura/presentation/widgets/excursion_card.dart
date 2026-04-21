@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
+import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 
 class ExcursionCard extends StatelessWidget {
   final Excursion excursion;
-  final String? imageAsset;
+  final String? imagenAsset;
   final VoidCallback? onEditar;
   final VoidCallback? onEliminar;
   final VoidCallback? onSolicitar;
@@ -13,7 +14,7 @@ class ExcursionCard extends StatelessWidget {
   const ExcursionCard({
     super.key,
     required this.excursion,
-    this.imageAsset,
+    this.imagenAsset,
     this.onEditar,
     this.onEliminar,
     this.onSolicitar,
@@ -22,9 +23,9 @@ class ExcursionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Obtiene el esquema de colores del tema actual.
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final resolvedImageAsset = imageAsset ?? excursion.imageAsset;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final String? imagenResuelta = imagenAsset ?? excursion.imagenAsset;
 
     return Container(
       decoration: BoxDecoration(
@@ -37,7 +38,7 @@ class ExcursionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (resolvedImageAsset != null)
+          if (imagenResuelta != null)
           // Contenedor para la imagen.
             SizedBox(
               height: 120,
@@ -46,7 +47,7 @@ class ExcursionCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   // Imagen.
-                  Image.asset(resolvedImageAsset, fit: BoxFit.cover),
+                  Image.asset(imagenResuelta, fit: BoxFit.cover),
                   // Degradado
                   DecoratedBox(
                     decoration: BoxDecoration(
@@ -55,7 +56,7 @@ class ExcursionCard extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         // Degradado oscuro.
                         colors: [Colors.transparent, cs.onSurface.withAlpha(250)],
-                        stops: [0.4, 1.0],
+                        stops: const <double>[0.4, 1.0],
                       ),
                     ),
                   ),
@@ -69,7 +70,7 @@ class ExcursionCard extends StatelessWidget {
                       '${excursion.puntoInicio} → ${excursion.puntoFin}',
                       style: tt.labelLarge?.copyWith(
                         color: cs.surfaceContainer,
-                        shadows: [Shadow(color: cs.onSurface.withAlpha(180), blurRadius: 4)],
+                        shadows: <Shadow>[Shadow(color: cs.onSurface.withAlpha(180), blurRadius: 4)],
                       ),
                     ),
                   ),
@@ -146,8 +147,8 @@ class ExcursionCard extends StatelessWidget {
                       runSpacing: 4,
                       // Categorías
                       children: excursion.categorias
-                          .map((c) => TagWidget(
-                                text: c.nombre,
+                          .map((CategoriaActividad c) => TagWidget(
+                                text: c.label,
                                 backgroundColor: cs.primaryContainer,
                                 textColor: cs.onPrimaryContainer,
                               ))
@@ -198,8 +199,9 @@ class ExcursionCard extends StatelessWidget {
   }
 }
 
+// TODO: Ese puede cambiar por el formato de fecha
 String _formatDate(DateTime dt) {
-  const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const List<String> months = <String>['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
   return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
 }
 

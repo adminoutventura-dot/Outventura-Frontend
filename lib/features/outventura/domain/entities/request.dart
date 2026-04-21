@@ -1,5 +1,3 @@
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-
 // Estados posibles de una solicitud.
 enum EstadoSolicitud {
   pendiente,
@@ -7,7 +5,7 @@ enum EstadoSolicitud {
   finalizada,
   cancelada;
 
-  String get nombre {
+  String get label {
     switch (this) {
       case EstadoSolicitud.pendiente:
         return 'Pendiente';
@@ -20,38 +18,29 @@ enum EstadoSolicitud {
     }
   }
 
+  // Crea un estado a partir del valor en texto que devuelve el backend.
   static EstadoSolicitud fromString(String value) {
-    for (var estado in EstadoSolicitud.values) {
-      if (estado.nombre.toLowerCase() == value.toLowerCase()) {
-        return estado;
+    for (EstadoSolicitud status in EstadoSolicitud.values) {
+      if (status.label.toLowerCase() == value.toLowerCase()) {
+        return status;
       }
     }
     return EstadoSolicitud.pendiente;
   }
 }
 
-// Entidad solicitud.
+// Entidad de solicitud.
 class Solicitud {
   final int id;
-  final String puntoInicio;
-  final String puntoFin;
-  final DateTime fechaInicio;
-  final DateTime fechaFin;
-  final List<CategoriaActividad> categorias;
+  final int idExcursion;
   final int numeroParticipantes;
-  final String? descripcion;
   final EstadoSolicitud estado;
   final int? idExperto;
 
   const Solicitud({
     required this.id,
-    required this.puntoInicio,
-    required this.puntoFin,
-    required this.fechaInicio,
-    required this.fechaFin,
-    required this.categorias,
+    required this.idExcursion,
     required this.numeroParticipantes,
-    this.descripcion,
     required this.estado,
     this.idExperto,
   });
@@ -60,41 +49,24 @@ class Solicitud {
   factory Solicitud.fromMap(Map<String, dynamic> map) {
     return Solicitud(
       id: map['id'] as int,
-      puntoInicio: map['puntoInicio'] as String,
-      puntoFin: map['puntoFin'] as String,
-      fechaInicio: DateTime.parse(map['fechaInicio'] as String),
-      fechaFin: DateTime.parse(map['fechaFin'] as String),
-      categorias: (map['categorias'] as List<dynamic>)
-          .map((e) => CategoriaActividad.fromString(e as String))
-          .toList(),
-      numeroParticipantes: map['numeroParticipantes'] as int,
-      descripcion: map['descripcion'] as String?,
-      estado: EstadoSolicitud.fromString(map['estado'] as String),
-      idExperto: map['idExperto'] as int?,
+      idExcursion: map['excursionId'] as int,
+      numeroParticipantes: map['participantCount'] as int,
+      estado: EstadoSolicitud.fromString(map['status'] as String),
+      idExperto: map['expertId'] as int?,
     );
   }
 
   // Crea una nueva solicitud a partir de la actual, permitiendo modificar algunos campos.
   Solicitud copyWith({
-    String? puntoInicio,
-    String? puntoFin,
-    DateTime? fechaInicio,
-    DateTime? fechaFin,
-    List<CategoriaActividad>? categorias,
+    int? idExcursion,
     int? numeroParticipantes,
-    String? descripcion,
     EstadoSolicitud? estado,
     int? idExperto,
   }) {
     return Solicitud(
       id: id,
-      puntoInicio: puntoInicio ?? this.puntoInicio,
-      puntoFin: puntoFin ?? this.puntoFin,
-      fechaInicio: fechaInicio ?? this.fechaInicio,
-      fechaFin: fechaFin ?? this.fechaFin,
-      categorias: categorias ?? this.categorias,
+      idExcursion: idExcursion ?? this.idExcursion,
       numeroParticipantes: numeroParticipantes ?? this.numeroParticipantes,
-      descripcion: descripcion ?? this.descripcion,
       estado: estado ?? this.estado,
       idExperto: idExperto ?? this.idExperto,
     );

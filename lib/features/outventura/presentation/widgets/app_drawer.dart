@@ -9,8 +9,8 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
 
     return Drawer(
       child: ListView(
@@ -23,7 +23,6 @@ class AppDrawer extends StatelessWidget {
               'Outventura',
               style: tt.headlineSmall?.copyWith(
                 color: cs.onPrimary,
-                fontWeight: FontWeight.bold,
               ),
             ),
           ),

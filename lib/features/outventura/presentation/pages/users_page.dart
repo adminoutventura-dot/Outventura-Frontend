@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/features/auth/data/fakes/usuarios_fake.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/user_form_page.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
 
-class UsersPage extends StatelessWidget {
+class UsersPage extends ConsumerWidget {
   const UsersPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final List<Usuario> usuarios = ref.watch(usuariosProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -46,16 +49,16 @@ class UsersPage extends StatelessWidget {
 
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
-        itemCount: usuariosFake.length,
+        itemCount: usuarios.length,
         separatorBuilder: (_, _) => const SizedBox(height: 10),
-        itemBuilder: (context, index) {
-          if (index < usuariosFake.length) {
+        itemBuilder: (BuildContext context, int index) {
+          if (index < usuarios.length) {
             return UserCard(
-              usuario: usuariosFake[index],
+              usuario: usuarios[index],
               onEditar: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => UserFormPage(usuario: usuariosFake[index]),
+                  builder: (_) => UserFormPage(usuario: usuarios[index]),
                 ),
               ),
               onEliminar: () {},

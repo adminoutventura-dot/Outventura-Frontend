@@ -11,6 +11,7 @@ final List<Usuario> usuariosFake = [
     email: 'superadmin@outventura.com',
     telefono: '600 111 222',
     rol: TipoRol.superadmin,
+    foto: 'assets/images/Camino.jpg',
     activo: true,
   ),
 
@@ -22,6 +23,7 @@ final List<Usuario> usuariosFake = [
     email: 'admin@outventura.com',
     telefono: '600 333 444',
     rol: TipoRol.admin,
+    foto: 'assets/images/Camino.jpg',
     activo: true,
   ),
 

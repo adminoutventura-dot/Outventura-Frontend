@@ -10,8 +10,8 @@ Future<bool> showConfirmDialog({
   String confirmLabel = 'Eliminar',
   bool isDanger = true,
 }) async {
-  final cs = Theme.of(context).colorScheme;
-  final result = await showDialog<bool>(
+  final ColorScheme cs = Theme.of(context).colorScheme;
+  final bool? result = await showDialog<bool>(
     context: context,
     builder: (_) => AlertDialog(
       title: Text(title),

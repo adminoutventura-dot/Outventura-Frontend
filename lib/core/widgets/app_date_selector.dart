@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/date_formatter.dart';
 
 class AppDateSelector extends StatelessWidget {
   final String label;
@@ -16,20 +17,15 @@ class AppDateSelector extends StatelessWidget {
     this.lastDate,
   });
 
-  static const _months = [
-    'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-    'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final formatted = '${date.day} ${_months[date.month - 1]} ${date.year}';
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final String formatted = FormateadorFecha.short(date);
 
     return InkWell(
       onTap: () async {
-        final picked = await showDatePicker(
+        final DateTime? picked = await showDatePicker(
           context: context,
           initialDate: date,
           firstDate: firstDate ?? DateTime(2020),

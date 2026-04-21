@@ -40,7 +40,7 @@ class ButtonsDemo extends StatelessWidget {
           const SizedBox(height: 16),
           const Text('PrimaryButton – Deshabilitado'),
           const SizedBox(height: 8),
-          PrimaryButton(
+          const PrimaryButton(
             label: 'Deshabilitado',
             onPressed: null,
           ),
@@ -97,7 +97,7 @@ class ButtonsDemo extends StatelessWidget {
           const SizedBox(height: 16),
           const Text('TertiaryButton – Deshabilitado'),
           const SizedBox(height: 8),
-          TertiaryButton(
+          const TertiaryButton(
             label: 'Deshabilitado',
             onPressed: null,
           ),

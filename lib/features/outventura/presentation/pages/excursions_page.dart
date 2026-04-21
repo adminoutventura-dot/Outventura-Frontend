@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
-import 'package:outventura/features/outventura/data/fakes/excursiones_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/excursion_form_page.dart';
+import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/excursion_category_tab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/excursion_card.dart';
 
-class ExcursionsPage extends StatefulWidget {
+class ExcursionsPage extends ConsumerStatefulWidget {
   const ExcursionsPage({super.key});
 
   @override
-  State<ExcursionsPage> createState() => _ExcursionsPageState();
+  ConsumerState<ExcursionsPage> createState() => _ExcursionsPageState();
 }
 
-class _ExcursionsPageState extends State<ExcursionsPage> {
-  CategoriaActividad? _selectedCategory;
-
-
-  // Filtra las excursiones según la categoría seleccionada
-  List<Excursion> get _filteredExcursions {
-    if (_selectedCategory == null) {
-      return excursionCatalog;
-    }
-    return excursionCatalog
-        .where((excursion) => excursion.categorias.contains(_selectedCategory))
-        .toList();
-  }
+class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
+  CategoriaActividad? _categoriaSeleccionada;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+    final List<Excursion> excursiones = ref.watch(excursionesProvider);
+
+    List<Excursion> excursionesFiltradas;
+    if (_categoriaSeleccionada == null) {
+      excursionesFiltradas = excursiones;
+    } else {
+      excursionesFiltradas = excursiones
+          .where((e) => e.categorias.contains(_categoriaSeleccionada))
+          .toList();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -41,7 +41,7 @@ class _ExcursionsPageState extends State<ExcursionsPage> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [ cs.inverseSurface, cs.primary],
+              colors: [cs.inverseSurface, cs.primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -69,16 +69,16 @@ class _ExcursionsPageState extends State<ExcursionsPage> {
               Expanded(
                 child: ExcursionCategoryTab(
                   label: 'Todos',
-                  selected: _selectedCategory == null,
-                  onTap: () => setState(() => _selectedCategory = null),
+                  seleccionado: _categoriaSeleccionada == null,
+                  onTap: () => setState(() => _categoriaSeleccionada = null),
                 ),
               ),
-              for (final categoria in CategoriaActividad.values)
+              for (final CategoriaActividad categoria in CategoriaActividad.values)
                 Expanded(
                   child: ExcursionCategoryTab(
-                    label: categoria.nombre,
-                    selected: _selectedCategory == categoria,
-                    onTap: () => setState(() => _selectedCategory = categoria),
+                    label: categoria.label,
+                    seleccionado: _categoriaSeleccionada == categoria,
+                    onTap: () => setState(() => _categoriaSeleccionada = categoria),
                   ),
                 ),
             ],
@@ -88,10 +88,10 @@ class _ExcursionsPageState extends State<ExcursionsPage> {
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.all(12),
-              itemCount: _filteredExcursions.isEmpty ? 1 : _filteredExcursions.length,
+              itemCount: excursionesFiltradas.isEmpty ? 1 : excursionesFiltradas.length,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                if (_filteredExcursions.isEmpty) {
+              itemBuilder: (BuildContext context, int index) {
+                if (excursionesFiltradas.isEmpty) {
                   return Center(
                     child: Text(
                       'No hay excursiones para esta categoría.',
@@ -99,7 +99,7 @@ class _ExcursionsPageState extends State<ExcursionsPage> {
                     ),
                   );
                 }
-                final excursion = _filteredExcursions[index];
+                final Excursion excursion = excursionesFiltradas[index];
                 return ExcursionCard(
                   excursion: excursion,
                   onEditar: () => Navigator.of(context).push(
@@ -108,13 +108,13 @@ class _ExcursionsPageState extends State<ExcursionsPage> {
                     ),
                   ),
                   onEliminar: () async {
-                    final confirm = await showConfirmDialog(
+                    final bool confirm = await showConfirmDialog(
                       context: context,
                       title: 'Eliminar excursión',
                       content: '¿Eliminar "${excursion.puntoInicio} → ${excursion.puntoFin}"?',
                     );
                     if (confirm) {
-                      setState(() => excursionCatalog.remove(excursion));
+                      ref.read(excursionesProvider.notifier).eliminar(excursion);
                     }
                   },
                 );

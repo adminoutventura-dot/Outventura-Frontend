@@ -2,13 +2,13 @@ import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
 // Fake excursion catalog data.
-final List<Excursion> excursionCatalog = [
+final List<Excursion> catalogoExcursiones = <Excursion>[
   // Excursión de senderismo y montaña en Mallorca.
   Excursion(
     id: 1,
     puntoInicio: 'Puerto de Sóller',
     puntoFin: 'Torre Picada',
-    categorias: [CategoriaActividad.acuatica, CategoriaActividad.montania],
+    categorias: <CategoriaActividad>[CategoriaActividad.acuatico, CategoriaActividad.montana],
     numeroParticipantes: 20,
     descripcion: 'Ruta sencilla con vistas al mar y a la montaña en la costa de Mallorca.',
     estado: EstadoExcursion.disponible,
@@ -21,8 +21,8 @@ final List<Excursion> excursionCatalog = [
     id: 2,
     puntoInicio: 'Deltebre',
     puntoFin: 'Isla de Buda',
-    imageAsset: 'assets/images/Camino.jpg',
-    categorias: [CategoriaActividad.acuatica],
+    imagenAsset: 'assets/images/Camino.jpg',
+    categorias: <CategoriaActividad>[CategoriaActividad.acuatico],
     numeroParticipantes: 15,
     descripcion: 'Recorrido en kayak por el Delta del Ebro, ideal para principiantes.',
     estado: EstadoExcursion.disponible,
@@ -35,8 +35,8 @@ final List<Excursion> excursionCatalog = [
     id: 3,
     puntoInicio: 'Fuente Dé',
     puntoFin: 'Torre de los Horcados Rojos',
-    imageAsset: 'assets/images/Camino.jpg',
-    categorias: [CategoriaActividad.acuatica, CategoriaActividad.montania],
+    imagenAsset: 'assets/images/Camino.jpg',
+    categorias: <CategoriaActividad>[CategoriaActividad.acuatico, CategoriaActividad.montana],
     numeroParticipantes: 10,
     descripcion: 'Ascensión técnica.',
     estado: EstadoExcursion.disponible,
@@ -49,8 +49,8 @@ final List<Excursion> excursionCatalog = [
     id: 4,
     puntoInicio: 'Benasque',
     puntoFin: 'Pico Cerler',
-    imageAsset: 'assets/images/Camino.jpg',
-    categorias: [CategoriaActividad.nieve],
+    imagenAsset: 'assets/images/Camino.jpg',
+    categorias: <CategoriaActividad>[CategoriaActividad.nieve],
     numeroParticipantes: 12,
     descripcion: 'Ruta guiada con raquetas de nieve por el valle de Benasque.',
     estado: EstadoExcursion.disponible,
@@ -58,5 +58,3 @@ final List<Excursion> excursionCatalog = [
     fechaFin: DateTime(2026, 12, 20, 15, 0),
   ),
 ];
-
-final List<Excursion> catalogoExcursiones = excursionCatalog;

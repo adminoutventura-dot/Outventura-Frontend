@@ -4,24 +4,24 @@ import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
 
 class RequestsPageController {
-  List<Solicitud> filterByEstado({
+  List<Solicitud> filtrarPorEstado({
     required List<Solicitud> solicitudes,
     required EstadoSolicitud? selectedEstado,
   }) {
     if (selectedEstado == null) {
       return solicitudes;
     }
-    return solicitudes.where((s) => s.estado == selectedEstado).toList();
+    return solicitudes.where((Solicitud s) => s.estado == selectedEstado).toList();
   }
 
-  int countByEstado({
+  int contarPorEstado({
     required List<Solicitud> solicitudes,
     required EstadoSolicitud estado,
   }) {
-    return solicitudes.where((s) => s.estado == estado).length;
+    return solicitudes.where((Solicitud s) => s.estado == estado).length;
   }
 
-  Future<Solicitud?> editSolicitud({
+  Future<Solicitud?> editarSolicitud({
     required BuildContext context,
     required Solicitud solicitud,
   }) {
@@ -38,7 +38,7 @@ class RequestsPageController {
     required Solicitud solicitud,
     required List<Solicitud> solicitudes,
   }) async {
-    final confirm = await showConfirmDialog(
+    final bool confirm = await showConfirmDialog(
       context: context,
       title: 'Aceptar solicitud',
       content:
@@ -50,7 +50,7 @@ class RequestsPageController {
       return false;
     }
 
-    replaceSolicitud(
+    reemplazarSolicitud(
       solicitudes: solicitudes,
       current: solicitud,
       updated: solicitud.copyWith(estado: EstadoSolicitud.confirmada),
@@ -63,7 +63,7 @@ class RequestsPageController {
     required Solicitud solicitud,
     required List<Solicitud> solicitudes,
   }) async {
-    final confirm = await showConfirmDialog(
+    final bool confirm = await showConfirmDialog(
       context: context,
       title: 'Rechazar solicitud',
       content: '¿Rechazar la solicitud #${solicitud.id}?',
@@ -73,7 +73,7 @@ class RequestsPageController {
       return false;
     }
 
-    replaceSolicitud(
+    reemplazarSolicitud(
       solicitudes: solicitudes,
       current: solicitud,
       updated: solicitud.copyWith(estado: EstadoSolicitud.cancelada),
@@ -81,12 +81,12 @@ class RequestsPageController {
     return true;
   }
 
-  void replaceSolicitud({
+  void reemplazarSolicitud({
     required List<Solicitud> solicitudes,
     required Solicitud current,
     required Solicitud updated,
   }) {
-    final index = solicitudes.indexOf(current);
+    final int index = solicitudes.indexOf(current);
     if (index != -1) {
       solicitudes[index] = updated;
     }
