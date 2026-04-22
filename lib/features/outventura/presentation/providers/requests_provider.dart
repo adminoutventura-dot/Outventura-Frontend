@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/outventura/data/fakes/requests_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 
+// Expone una lista de solicitudes y métodos para modificarlas
 final NotifierProvider<SolicitudesNotifier, List<Solicitud>> solicitudesProvider =
     NotifierProvider<SolicitudesNotifier, List<Solicitud>>(
   SolicitudesNotifier.new,
@@ -13,47 +14,36 @@ class SolicitudesNotifier extends Notifier<List<Solicitud>> {
 
   void agregar(Solicitud solicitud) {
     final List<Solicitud> listaActual = state;
-    final List<Solicitud> listaNueva = [...listaActual, solicitud];
-    state = listaNueva;
+    listaActual.add(solicitud);
+    state = listaActual;
   }
 
   void actualizar(Solicitud viejo, Solicitud nuevo) {
-    final List<Solicitud> listaActual = state;
-    final List<Solicitud> listaNueva = [];
+    final List<Solicitud> listaNueva = [...state];
+    final int index = listaNueva.indexOf(viejo);
 
-    for (final Solicitud solicitud in listaActual) {
-      if (solicitud == viejo) {
-        listaNueva.add(nuevo);
-      } else {
-        listaNueva.add(solicitud);
-      }
+    if (index != -1) {
+      listaNueva[index] = nuevo;
     }
 
     state = listaNueva;
   }
 
   void eliminar(Solicitud solicitud) {
-    final List<Solicitud> listaActual = state;
-    final List<Solicitud> listaNueva = [];
-
-    for (final Solicitud item in listaActual) {
-      if (item != solicitud) {
-        listaNueva.add(item);
-      }
-    }
-
+    final List<Solicitud> listaNueva = [...state];
+    listaNueva.remove(solicitud);
     state = listaNueva;
   }
 
-  int contarPorEstado(EstadoSolicitud estado) {
-    int contador = 0;
+  // int contarPorEstado(EstadoSolicitud estado) {
+  //   int contador = 0;
 
-    for (final Solicitud solicitud in state) {
-      if (solicitud.estado == estado) {
-        contador++;
-      }
-    }
+  //   for (final Solicitud solicitud in state) {
+  //     if (solicitud.estado == estado) {
+  //       contador++;
+  //     }
+  //   }
 
-    return contador;
-  }
+  //   return contador;
+  // }
 }

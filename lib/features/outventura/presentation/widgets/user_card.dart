@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
@@ -78,8 +79,9 @@ class UserCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                // Avatar con borde de color según rol
+                // Coloca el avatar sobre un contenedor circular con borde del color del rol
                 Stack(
+                  // Avatar con borde de color según rol
                   children: [
                     Container(
                       decoration: BoxDecoration(
@@ -157,7 +159,7 @@ class UserCard extends StatelessWidget {
                         ],
                       ),
 
-                      // Teléfono con icono (si existe)
+                      // Teléfono con icono
                       if (usuario.telefono != null) ...[
                         const SizedBox(height: 4),
                         Row(
@@ -178,35 +180,14 @@ class UserCard extends StatelessWidget {
                         ),
                       ],
 
-                      // Badge de inactivo si aplica
+                      // Badge de inactivo
                       if (!usuario.activo) ...[
                         const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: cs.errorContainer.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.block_outlined,
-                                size: 12,
-                                color: cs.error,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Cuenta inactiva',
-                                style: tt.labelSmall?.copyWith(
-                                  color: cs.error
-                                ),
-                              ),
-                            ],
-                          ),
+                        TagWidget(
+                          text: 'Cuenta inactiva',
+                          backgroundColor: cs.errorContainer.withValues(alpha: 0.3),
+                          textColor: cs.error,
+                          icon: Icons.block_outlined,
                         ),
                       ],
                     ],
@@ -220,24 +201,20 @@ class UserCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (onEditar != null)
-                      IconButton(
-                        onPressed: onEditar,
-                        icon: Icon(Icons.edit_outlined, color: cs.onPrimaryContainer),
-                        iconSize: 20,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
+                      ActionIcon(
+                        icon: Icons.edit_outlined,
+                        color: cs.onPrimaryContainer,
+                        onTap: onEditar!,
                       ),
                     
                     if (onEditar != null && onEliminar != null)
                       const SizedBox(height: 20),
 
                     if (onEliminar != null)
-                      IconButton(
-                        onPressed: onEliminar,
-                        icon: Icon(Icons.delete_outline, color: cs.error),
-                        iconSize: 20,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
+                      ActionIcon(
+                        icon: Icons.delete_outline,
+                        color: cs.error,
+                        onTap: onEliminar!,
                       ),
                   ],
                 ),

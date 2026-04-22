@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart' as entity;
 
-class EquipmentCard extends StatelessWidget {
+class EquipmentCard extends StatefulWidget {
   final entity.Equipamiento equipamiento;
   final VoidCallback? onEditar;
   final VoidCallback? onEliminar;
@@ -17,32 +18,34 @@ class EquipmentCard extends StatelessWidget {
   });
 
   @override
+  State<EquipmentCard> createState() => _EquipmentCardState();
+}
+
+class _EquipmentCardState extends State<EquipmentCard> {
+  @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
     Color badgeBg;
     final Color badgeFg = cs.onSurface;
-    switch (equipamiento.estado) {
+    switch (widget.equipamiento.estado) {
       case entity.EstadoEquipamiento.disponible:
         badgeBg = cs.primary;
-        // badgeFg = cs.onPrimary;
         break;
       case entity.EstadoEquipamiento.reservado:
         badgeBg = cs.secondaryContainer;
-        // badgeFg = cs.onSecondaryContainer;
         break;
       case entity.EstadoEquipamiento.mantenimiento:
         badgeBg = cs.secondaryContainer;
-        // badgeFg = cs.onSecondaryContainer;
         break;
       case entity.EstadoEquipamiento.fueraDeServicio:
         badgeBg = cs.errorContainer;
-        // badgeFg = cs.onErrorContainer;
         break;
     }
 
-    final double stockPorcentaje = (equipamiento.stock / 10).clamp(0.0, 1.0);
+    final double stockPorcentaje = (widget.equipamiento.stock / 10).clamp(0.0, 1.0);
+    final String? imagen = widget.equipamiento.imagenAsset;
 
     return Container(
       decoration: BoxDecoration(
@@ -54,16 +57,17 @@ class EquipmentCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            
-            // Imagen izquierda
+            // Imagen del equipamiento
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 bottomLeft: Radius.circular(16),
               ),
               child: SizedBox(
-                width: 90,
-                child: equipamiento.imagenAsset != null ? Image.asset(equipamiento.imagenAsset!, fit: BoxFit.cover) : ColoredBox(
+                width: 100,
+                child: imagen != null
+                    ? Image.asset(imagen, fit: BoxFit.cover)
+                    : ColoredBox(
                         color: cs.primaryContainer,
                         child: Icon(
                           Icons.inventory_2_outlined,
@@ -74,25 +78,25 @@ class EquipmentCard extends StatelessWidget {
               ),
             ),
 
-            // Contenido derecha 
+            // Contenido derecha
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 11, 11, 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Nombre + badge estado
+                    // Nombre del equipamiento + estado
                     Row(
                       children: [
                         Expanded(
                           child: Text(
-                            equipamiento.nombre,
+                            widget.equipamiento.nombre,
                             style: tt.labelLarge?.copyWith(color: cs.onSurface),
                           ),
                         ),
                         const SizedBox(width: 8),
                         TagWidget(
-                          text: equipamiento.estado.label,
+                          text: widget.equipamiento.estado.label,
                           backgroundColor: badgeBg.withValues(alpha: 0.35),
                           textColor: badgeFg,
                         ),
@@ -100,28 +104,29 @@ class EquipmentCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     
-                    // Descripción
-                    if (equipamiento.descripcion != null) 
+                    // Descripción del equipamiento 
+                    if (widget.equipamiento.descripcion != null)
                       Text(
-                        equipamiento.descripcion!,
-                        style: tt.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant),
+                        widget.equipamiento.descripcion!,
+                        style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
 
-                    // Precio / barra stock / acciones
+                    const Spacer(),
+                    
                     Row(
                       children: [
+                        // Precio de alquiler diario
                         Icon(Icons.sell_outlined, size: 11, color: cs.onSurfaceVariant),
                         const SizedBox(width: 3),
                         Text(
-                          '${equipamiento.precioAlquilerDiario.toStringAsFixed(2)}€/día',
+                          '${widget.equipamiento.precioAlquilerDiario.toStringAsFixed(2)}€/día',
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                         const SizedBox(width: 10),
                         
-                        // Mini barra de stock
+                        // Stock disponible
                         SizedBox(
                           width: 32,
                           height: 3,
@@ -129,45 +134,39 @@ class EquipmentCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(2),
                             child: LinearProgressIndicator(
                               value: stockPorcentaje,
-                              backgroundColor:
-                                  cs.onSurfaceVariant.withValues(alpha: 0.2),
+                              backgroundColor: cs.onSurfaceVariant.withValues(alpha: 0.2),
                             ),
                           ),
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${equipamiento.stock} uds',
+                          '${widget.equipamiento.stock} uds',
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
 
                         const Spacer(),
                         
-                        // Acciones
-                        if (onEditar != null)
-                          IconButton(
-                            onPressed: onEditar,
-                            icon: Icon(Icons.edit_outlined, color: cs.tertiary),
-                            iconSize: 18,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
+                        // Botones de acción
+                        if (widget.onEditar != null)
+                          ActionIcon(
+                            icon: Icons.edit_outlined,
+                            color: cs.tertiary,
+                            onTap: widget.onEditar!,
                           ),
                         const SizedBox(width: 10),
-                        if (onEliminar != null)
-                          IconButton(
-                            onPressed: onEliminar,
-                            icon: Icon(Icons.delete_outline, color: cs.error),
-                            iconSize: 18,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
+
+                        if (widget.onEliminar != null)
+                          ActionIcon(
+                            icon: Icons.delete_outline,
+                            color: cs.error,
+                            onTap: widget.onEliminar!,
                           ),
                           
-                        if (onAlquilar != null)
-                          IconButton(
-                            onPressed: onAlquilar,
-                            icon: Icon(Icons.add, color: cs.primary),
-                            iconSize: 18,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
+                        if (widget.onAlquilar != null)
+                          ActionIcon(
+                            icon: Icons.add,
+                            color: cs.primary,
+                            onTap: widget.onAlquilar!,
                           ),
                       ],
                     ),
@@ -181,4 +180,3 @@ class EquipmentCard extends StatelessWidget {
     );
   }
 }
-

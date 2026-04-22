@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/outventura/data/fakes/excursions_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 
+// Expone una lista de excursiones y métodos para modificarlos
 final NotifierProvider<ExcursionesNotifier, List<Excursion>> excursionesProvider =
     NotifierProvider<ExcursionesNotifier, List<Excursion>>(
   ExcursionesNotifier.new,
@@ -13,35 +14,25 @@ class ExcursionesNotifier extends Notifier<List<Excursion>> {
 
   void agregar(Excursion excursion) {
     final List<Excursion> listaActual = state;
-    final List<Excursion> listaNueva = [...listaActual, excursion];
-    state = listaNueva;
+    listaActual.add(excursion);
+    state = listaActual;
   }
 
   void actualizar(Excursion viejo, Excursion nuevo) {
-    final List<Excursion> listaActual = state;
-    final List<Excursion> listaNueva = [];
+    final List<Excursion> listaNueva = [...state];
+    final int index = listaNueva.indexOf(viejo);
 
-    for (final Excursion excursion in listaActual) {
-      if (excursion == viejo) {
-        listaNueva.add(nuevo);
-      } else {
-        listaNueva.add(excursion);
-      }
+    if (index != -1) {
+      listaNueva[index] = nuevo;
     }
 
     state = listaNueva;
   }
 
   void eliminar(Excursion excursion) {
-    final List<Excursion> listaActual = state;
-    final List<Excursion> listaNueva = [];
-
-    for (final Excursion item in listaActual) {
-      if (item != excursion) {
-        listaNueva.add(item);
-      }
-    }
-
+    final List<Excursion> listaNueva = [...state];
+    listaNueva.remove(excursion);
     state = listaNueva;
   }
+
 }

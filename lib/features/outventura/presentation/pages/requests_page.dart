@@ -6,7 +6,7 @@ import 'package:outventura/features/outventura/presentation/controllers/requests
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
-import 'package:outventura/features/outventura/presentation/widgets/excursion_category_tab.dart';
+import 'package:outventura/core/widgets/app_tab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 
 class RequestsPage extends ConsumerStatefulWidget {
@@ -78,7 +78,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
           Row(
             children: [
               Expanded(
-                child: ExcursionCategoryTab(
+                child: AppTab(
                   label: 'Todas',
                   seleccionado: _estadoSeleccionado == null,
                   onTap: () => setState(() => _estadoSeleccionado = null),
@@ -86,7 +86,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
               ),
               for (final EstadoSolicitud e in EstadoSolicitud.values)
                 Expanded(
-                  child: ExcursionCategoryTab(
+                  child: AppTab(
                     label: e.label,
                     seleccionado: _estadoSeleccionado == e,
                     onTap: () => setState(() => _estadoSeleccionado = e),

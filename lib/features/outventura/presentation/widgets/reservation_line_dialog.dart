@@ -7,6 +7,7 @@ Future<LineaReserva?> mostrarDialogoLineaReserva({
   required List<Equipamiento> equipamientos,
   LineaReserva? initialLinea,
 }) {
+  
   int? idEquipamiento = initialLinea?.idEquipamiento;
   final TextEditingController cantCtrl = TextEditingController(
     text: initialLinea != null ? '${initialLinea.cantidad}' : '1',
@@ -36,9 +37,9 @@ Future<LineaReserva?> mostrarDialogoLineaReserva({
                 ),
                 items: equipamientos
                     .map(
-                      (Equipamiento m) => DropdownMenuItem<int>(
-                        value: m.id,
-                        child: Text(m.nombre),
+                      (Equipamiento equip) => DropdownMenuItem<int>(
+                        value: equip.id,
+                        child: Text(equip.nombre),
                       ),
                     )
                     .toList(),

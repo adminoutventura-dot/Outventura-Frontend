@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/date_formatter.dart';
+import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
@@ -84,6 +86,7 @@ class SolicitudCard extends StatelessWidget {
                                 style: tt.labelLarge?.copyWith(color: cs.onSurface),
                                 overflow: TextOverflow.ellipsis,
                               ),
+
                               // Flecha
                               const SizedBox(width: 4),
                               Icon(
@@ -91,6 +94,7 @@ class SolicitudCard extends StatelessWidget {
                                 size: 13,
                                 color: cs.onSurfaceVariant,
                               ),
+
                               // Fin
                               const SizedBox(width: 4),
                               Text(
@@ -101,6 +105,7 @@ class SolicitudCard extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 3),
+
                           // ID + experto
                           Text(
                             '#${solicitud.id}  ·  ${solicitud.idExperto != null ? 'Experto asignado' : 'Sin experto'}',
@@ -110,6 +115,7 @@ class SolicitudCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 10),
+
                     // Badge estado
                     TagWidget(
                       text: solicitud.estado.label,
@@ -129,7 +135,7 @@ class SolicitudCard extends StatelessWidget {
                         size: 12, color: cs.onSurfaceVariant),
                     const SizedBox(width: 4),
                     Text(
-                      _formatDate(excursion.fechaInicio),
+                      FormateadorFecha.short(excursion.fechaInicio),
                       style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(width: 12),
@@ -154,6 +160,7 @@ class SolicitudCard extends StatelessWidget {
                 // Tags + acciones
                 Row(
                   children: [
+                    // Categorías
                     Row(
                       spacing: 5,
                       children: excursion.categorias
@@ -165,43 +172,45 @@ class SolicitudCard extends StatelessWidget {
                           .toList(),
                     ),
                     const Spacer(),
+
+                    // Acciones
                     Row(
                       children: [
-                        if (onCancelar != null)
-                          IconButton(
-                            onPressed: onCancelar,
-                            icon: Icon(Icons.close, color: cs.error),
-                            iconSize: 18,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
+                        if (onCancelar != null) ...[
+                          ActionIcon(
+                            icon: Icons.close,
+                            color: cs.error,
+                            onTap: onCancelar!,
                           ),
-                        if (onCancelar != null) const SizedBox(width: 8),
-                        if (onGestionar != null)
-                          IconButton(
-                            onPressed: onGestionar,
-                            icon: Icon(Icons.check_circle_outline, color: cs.primary),
-                            iconSize: 18,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
+                          const SizedBox(width: 8),
+                        ],
+
+                        if (onGestionar != null) ...[
+                          ActionIcon(
+                            icon: Icons.check_circle_outline,
+                            color: cs.primary,
+                            onTap: onGestionar!,
                           ),
-                        if (onGestionar != null) const SizedBox(width: 8),
-                        if (onEditar != null)
-                          IconButton(
-                            onPressed: onEditar,
-                            icon: Icon(Icons.edit_outlined, color: cs.onSurfaceVariant),
-                            iconSize: 18,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
+                          const SizedBox(width: 8),
+                        ],
+
+                        if (onEditar != null) ...[
+                          ActionIcon(
+                            icon: Icons.edit_outlined,
+                            color: cs.onSurfaceVariant,
+                            onTap: onEditar!,
                           ),
-                        if (onEditar != null) const SizedBox(width: 8),
-                        if (onVerDetalle != null)
-                          IconButton(
-                            onPressed: onVerDetalle,
-                            icon: Icon(Icons.chevron_right, color: cs.onPrimaryContainer),
-                            iconSize: 18,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
+                          const SizedBox(width: 8),
+                        ],
+
+                        if (onVerDetalle != null) ...[
+                          ActionIcon(
+                            icon: Icons.chevron_right,
+                            color: cs.onPrimaryContainer,
+                            onTap: onVerDetalle!,
                           ),
+                          const SizedBox(width: 8),
+                        ],
                       ],
                     ),
                   ],
@@ -212,14 +221,6 @@ class SolicitudCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _formatDate(DateTime dt) {
-    const List<String> m = [
-      'ene','feb','mar','abr','may','jun',
-      'jul','ago','sep','oct','nov','dic'
-    ];
-    return '${dt.day} ${m[dt.month - 1]} ${dt.year}';
   }
 }
 

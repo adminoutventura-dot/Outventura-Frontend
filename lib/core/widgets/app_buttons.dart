@@ -145,3 +145,29 @@ class MiniButton extends StatelessWidget {
     );
   }
 }
+
+class ActionIcon extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+  final double size;
+
+  const ActionIcon({
+    super.key,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+    this.size = 20,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: onTap,
+      icon: Icon(icon, color: color),
+      iconSize: size,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(),
+    );
+  }
+}

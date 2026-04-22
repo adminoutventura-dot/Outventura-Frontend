@@ -19,6 +19,7 @@ class StatCard extends StatelessWidget {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+        
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.onPrimary.withAlpha(80),
           borderRadius: BorderRadius.circular(12),
@@ -27,15 +28,18 @@ class StatCard extends StatelessWidget {
             width: 1,
           ),
         ),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Valor
             Text(
               value,
               style: textTheme.labelLarge?.copyWith(color: colorScheme.onSurface),
             ),
             const SizedBox(height: 2),
+            // Etiqueta
             Text(
               label,
               style: textTheme.labelSmall?.copyWith(

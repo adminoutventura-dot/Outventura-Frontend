@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/date_formatter.dart';
+import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 
@@ -44,7 +46,10 @@ class ReservaCard extends StatelessWidget {
       EstadoReserva.cancelada => (cs.error, cs.onError, cs.error),
     };
     // TODO: Revisar si poner o no imagenes
-    final String? firstImagen = lineas.isNotEmpty ? lineas.first.imagen : null;
+    final List<String> imagenes = lineas
+        .map((l) => l.imagen)
+        .whereType<String>()
+        .toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -64,26 +69,59 @@ class ReservaCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header: miniatura + info + badge
+                // Header: miniaturas apiladas + info + badge
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // primera imagen o icono genérico
+                    // Grid de imágenes de los equipamientos (máx. 4)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: SizedBox(
                         width: 64,
                         height: 64,
-                        child: firstImagen != null
-                            ? Image.asset(firstImagen, fit: BoxFit.cover)
-                            : ColoredBox(
+                        child: imagenes.isEmpty
+                            ? ColoredBox(
                                 color: cs.primaryContainer,
                                 child: Icon(
                                   Icons.inventory_2_outlined,
                                   color: cs.onPrimaryContainer.withValues(alpha: 0.5),
                                   size: 22,
                                 ),
-                              ),
+                              )
+                            : imagenes.length == 1
+                                ? Image.asset(imagenes[0], fit: BoxFit.cover)
+                                : GridView.count(
+                                    crossAxisCount: 2,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    mainAxisSpacing: 1,
+                                    crossAxisSpacing: 1,
+                                    children: [
+                                      for (int i = 0; i < imagenes.length && i < 3; i++)
+                                        Image.asset(imagenes[i], fit: BoxFit.cover),
+                                      if (imagenes.length >= 4)
+                                        Image.asset(imagenes[3], fit: BoxFit.cover)
+                                      else if (imagenes.length == 3)
+                                        ColoredBox(
+                                          color: cs.primaryContainer,
+                                          child: Center(
+                                            child: Text(
+                                              '3',
+                                              style: tt.labelSmall?.copyWith(color: cs.onPrimaryContainer),
+                                            ),
+                                          ),
+                                        ),
+                                      if (imagenes.length > 4)
+                                        ColoredBox(
+                                          color: cs.primaryContainer,
+                                          child: Center(
+                                            child: Text(
+                                              '+${imagenes.length - 3}',
+                                              style: tt.labelSmall?.copyWith(color: cs.onPrimaryContainer),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -102,7 +140,7 @@ class ReservaCard extends StatelessWidget {
                               Icon(Icons.calendar_today_outlined, size: 12, color: cs.onSurfaceVariant),
                               const SizedBox(width: 4),
                               Text(
-                                '${_fmt(reserva.fechaInicio)} → ${_fmt(reserva.fechaFin)}',
+                                '${FormateadorFecha.short(reserva.fechaInicio)} → ${FormateadorFecha.short(reserva.fechaFin)}',
                                 style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                               ),
                             ],
@@ -177,7 +215,7 @@ class ReservaCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (onEditar != null)
-                      _ActionIcon(
+                      ActionIcon(
                         icon: Icons.edit_outlined,
                         color: cs.onSurfaceVariant,
                         onTap: onEditar!,
@@ -197,18 +235,18 @@ class ReservaCard extends StatelessWidget {
                       ),
                     ],
                     if (onCancelar != null)
-                      _ActionIcon(icon: Icons.cancel_outlined, color: cs.error, onTap: onCancelar!),
+                      ActionIcon(icon: Icons.cancel_outlined, color: cs.error, onTap: onCancelar!),
                     if (onRechazar != null) ...[
                       const SizedBox(width: 8),
-                      _ActionIcon(icon: Icons.close, color: cs.error, onTap: onRechazar!),
+                      ActionIcon(icon: Icons.close, color: cs.error, onTap: onRechazar!),
                     ],
                     if (onAprobar != null) ...[
                       const SizedBox(width: 8),
-                      _ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onAprobar!),
+                      ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onAprobar!),
                     ],
                     if (onRegistrarDevolucion != null) ...[
                       const SizedBox(width: 8),
-                      _ActionIcon(icon: Icons.assignment_return_outlined, color: cs.secondary, onTap: onRegistrarDevolucion!),
+                      ActionIcon(icon: Icons.assignment_return_outlined, color: cs.secondary, onTap: onRegistrarDevolucion!),
                     ],
                   ],
                 ),
@@ -219,28 +257,6 @@ class ReservaCard extends StatelessWidget {
       ),
     );
   }
-
-  String _fmt(DateTime dt) {
-    const List<String> m = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    return '${dt.day} ${m[dt.month - 1]} ${dt.year}';
-  }
 }
 
-class _ActionIcon extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
 
-  const _ActionIcon({required this.icon, required this.color, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onTap,
-      icon: Icon(icon, color: color),
-      iconSize: 20,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(),
-    );
-  }
-}

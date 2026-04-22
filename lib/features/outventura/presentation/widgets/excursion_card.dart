@@ -3,6 +3,7 @@ import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/core/utils/date_formatter.dart';
 
 class ExcursionCard extends StatelessWidget {
   final Excursion excursion;
@@ -38,6 +39,7 @@ class ExcursionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Si hay imagen muestra el contenedor con la imagen y el texto 
           if (imagenResuelta != null)
           // Contenedor para la imagen.
             SizedBox(
@@ -60,6 +62,7 @@ class ExcursionCard extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   // Texto sobre la imagen.
                   Positioned(
                     bottom: 10,
@@ -78,6 +81,7 @@ class ExcursionCard extends StatelessWidget {
               ),
             )
           else
+          // Si no hay imagen muestra un contenedor con un icono y el texto.
           // Contenedor sin imagen.
             Container(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
@@ -94,10 +98,10 @@ class ExcursionCard extends StatelessWidget {
                       color: cs.surface,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    // Icono de paisaje.
                     child: Icon(Icons.landscape, size: 20, color: cs.inverseSurface),
                   ),
                   const SizedBox(width: 10),
+
                   // Texto
                   Expanded(
                     child: Text(
@@ -111,6 +115,7 @@ class ExcursionCard extends StatelessWidget {
                 ],
               ),
             ),
+            
           // Card - Parte Inferior
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
@@ -124,7 +129,7 @@ class ExcursionCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       // Fecha de inicio.
-                      _formatDate(excursion.fechaInicio),
+                      FormateadorFecha.short(excursion.fechaInicio),
                       style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(width: 10),
@@ -160,24 +165,20 @@ class ExcursionCard extends StatelessWidget {
                     // ACCIONES
                     // Icono Editar
                     if (onEditar != null)
-                      IconButton(
-                        onPressed: onEditar,
-                        icon: Icon(Icons.edit_outlined, color: cs.onPrimaryContainer),
-                        iconSize: 18,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
+                      ActionIcon(
+                        icon: Icons.edit_outlined,
+                        color: cs.onPrimaryContainer,
+                        onTap: onEditar!,
                       ),
 
                     const SizedBox(width: 10),
 
                     // Icono Eliminar
                     if (onEliminar != null)
-                      IconButton(
-                        onPressed: onEliminar,
-                        icon: Icon(Icons.delete_outline, color: cs.error),
-                        iconSize: 18,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
+                      ActionIcon(
+                        icon: Icons.delete_outline,
+                        color: cs.error,
+                        onTap: onEliminar!,
                       ),
 
                     // Botón Solicitar
@@ -199,10 +200,5 @@ class ExcursionCard extends StatelessWidget {
   }
 }
 
-// TODO: Ese puede cambiar por el formato de fecha
-String _formatDate(DateTime dt) {
-  const List<String> months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-  return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
-}
 
 

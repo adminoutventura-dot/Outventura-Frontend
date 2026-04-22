@@ -4,7 +4,7 @@ import 'package:outventura/features/outventura/domain/entities/reservation.dart'
 import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
-import 'package:outventura/features/outventura/presentation/widgets/excursion_category_tab.dart';
+import 'package:outventura/core/widgets/app_tab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_dialogs.dart';
 
@@ -55,7 +55,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
           Row(
             children: [
               Expanded(
-                child: ExcursionCategoryTab(
+                child: AppTab(
                   label: 'Todas',
                   seleccionado: _filtro == null,
                   onTap: () => setState(() => _filtro = null),
@@ -63,7 +63,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
               ),
               for (final EstadoReserva estadoR in EstadoReserva.values)
                 Expanded(
-                  child: ExcursionCategoryTab(
+                  child: AppTab(
                     label: estadoR.label,
                     seleccionado: _filtro == estadoR,
                     onTap: () => setState(() => _filtro = estadoR),

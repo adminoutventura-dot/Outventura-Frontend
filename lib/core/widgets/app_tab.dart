@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class ExcursionCategoryTab extends StatelessWidget {
+class AppTab extends StatelessWidget {
   final String label;
   final bool seleccionado;
   final VoidCallback onTap;
 
-  const ExcursionCategoryTab({
+  const AppTab({
     super.key,
     required this.label,
     required this.seleccionado,

@@ -6,7 +6,7 @@ import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/excursion_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
-import 'package:outventura/features/outventura/presentation/widgets/excursion_category_tab.dart';
+import 'package:outventura/core/widgets/app_tab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/excursion_card.dart';
 
 class ExcursionsPage extends ConsumerStatefulWidget {
@@ -70,7 +70,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
           Row(
             children: [
               Expanded(
-                child: ExcursionCategoryTab(
+                child: AppTab(
                   label: 'Todos',
                   seleccionado: _categoriaSeleccionada == null,
                   onTap: () => setState(() => _categoriaSeleccionada = null),
@@ -78,7 +78,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
               ),
               for (final CategoriaActividad categoria in CategoriaActividad.values)
                 Expanded(
-                  child: ExcursionCategoryTab(
+                  child: AppTab(
                     label: categoria.label,
                     seleccionado: _categoriaSeleccionada == categoria,
                     onTap: () => setState(() => _categoriaSeleccionada = categoria),
