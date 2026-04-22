@@ -24,6 +24,7 @@ Future<LineaReserva?> mostrarDialogoLineaReserva({
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // TODO: Cambiar a un dropdown con búsqueda si la lista de equipamientos es muy larga (crear widget).
               DropdownButtonFormField<int>(
                 initialValue: idEquipamiento,
                 decoration: InputDecoration(
@@ -46,6 +47,7 @@ Future<LineaReserva?> mostrarDialogoLineaReserva({
                 onChanged: (int? v) => setDialogState(() => idEquipamiento = v),
               ),
               const SizedBox(height: 16),
+              // TODO: Cambiar el TextField por un Stepper o algo similar para evitar problemas de input no numerico (crear widget). 
               TextField(
                 controller: cantCtrl,
                 keyboardType: TextInputType.number,

@@ -13,7 +13,7 @@ class ReservationFormController {
   DateTime? fechaDesde;
   DateTime? fechaHasta;
   EstadoReserva estado = EstadoReserva.pendiente;
-  
+
   // Líneas de la reserva (material + cantidad).
   List<LineaReserva> lineas = [];
 
@@ -26,10 +26,12 @@ class ReservationFormController {
   // Total de cargos por daños calculado a partir del mapa.
   double get totalCargoDanios {
     double total = 0;
-    
+
     for (final MapEntry<int, int> entry in cantidadesDaniadas.entries) {
       // Busca el equipamiento en la lista fake.
-      final Iterable<Equipamiento> coincidencias = equipamientosFake.where((Equipamiento e) => e.id == entry.key);
+      final Iterable<Equipamiento> coincidencias = equipamientosFake.where(
+        (Equipamiento e) => e.id == entry.key,
+      );
 
       // Si hay equipamiento con ese id, suma su cargo por daño multiplicado por la cantidad dañada.
       if (coincidencias.isNotEmpty) {
@@ -39,7 +41,6 @@ class ReservationFormController {
     }
     return total;
   }
-  
 
   bool validar() {
     if (formKey.currentState == null) {
@@ -87,7 +88,6 @@ class ReservationFormController {
     required void Function(VoidCallback) setState,
     int? index,
   }) async {
-
     final LineaReserva? linea;
     if (index != null) {
       linea = lineas[index];
@@ -115,10 +115,12 @@ class ReservationFormController {
 
   Reserva? crearReserva() {
     if (!validar()) {
-      
       return null;
     }
-    if (idUsuario == null || fechaDesde == null || fechaHasta == null || lineas.isEmpty) {
+    if (idUsuario == null ||
+        fechaDesde == null ||
+        fechaHasta == null ||
+        lineas.isEmpty) {
       return null;
     }
 
@@ -139,4 +141,3 @@ class ReservationFormController {
 
   void dispose() {}
 }
-

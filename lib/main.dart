@@ -6,10 +6,8 @@ import 'package:outventura/features/auth/presentation/pages/login_page.dart';
 import 'package:outventura/features/preferences/controllers/preferences_controller.dart';
 import 'package:outventura/features/preferences/data/models/preferences.dart';
 
-// TODO: Revisar la diferencia entre entities y models (Recordatorio)
+// TODO: Revisar si se divide entre entities y models (Recordatorio)
 // TODO: Arreglar tema oscuro (Recordatorio)
-// TODO: En que carpeta van los entities?
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
