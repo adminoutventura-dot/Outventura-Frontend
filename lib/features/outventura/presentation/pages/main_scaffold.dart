@@ -47,7 +47,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         selectedItemColor: cs.onPrimary,
         unselectedItemColor: cs.onSurfaceVariant,
         backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        items: const <BottomNavigationBarItem>[
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home),

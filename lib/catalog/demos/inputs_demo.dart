@@ -19,7 +19,7 @@ class InputsDemo extends StatefulWidget {
 
 class _InputsDemoState extends State<InputsDemo> {
   // Chips
-  final Set<CategoriaActividad> _chips = <CategoriaActividad>{};
+  final Set<CategoriaActividad> _chips = {};
 
   // Dropdowns
   int? _idUsuario;

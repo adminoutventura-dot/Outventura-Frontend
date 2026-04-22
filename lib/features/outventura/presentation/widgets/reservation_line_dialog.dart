@@ -36,13 +36,13 @@ Future<LineaReserva?> mostrarDialogoLineaReserva({
                 ),
                 items: equipamientos
                     .map(
-                      (m) => DropdownMenuItem<int>(
+                      (Equipamiento m) => DropdownMenuItem<int>(
                         value: m.id,
                         child: Text(m.nombre),
                       ),
                     )
                     .toList(),
-                onChanged: (v) => setDialogState(() => idEquipamiento = v),
+                onChanged: (int? v) => setDialogState(() => idEquipamiento = v),
               ),
               const SizedBox(height: 16),
               TextField(

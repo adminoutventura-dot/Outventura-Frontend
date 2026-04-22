@@ -69,9 +69,12 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               label: 'Excursión',
               hint: 'Selecciona una excursión',
               // El validador se asegura de que se haya seleccionado una excursión.
-              validator: (int? v) => ValidadoresFormulario.dropdownRequerido(v, 'Selecciona una excursión'),
-              // Cuando se selecciona una excursión, se actualiza el idExcursion en el controlador.
-              onChanged: (int? v) => setState(() => _controller.idExcursion = v),
+              validator: (int? v) {
+                return ValidadoresFormulario.dropdownRequerido(v, 'Selecciona una excursión');
+              },
+              onChanged: (int? v) {
+                setState(() => _controller.idExcursion = v);
+              },
             ),
 
             const SizedBox(height: 20),
@@ -113,7 +116,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             PrimaryButton(
               label: isEdit ? 'Guardar cambios' : 'Crear solicitud',
               onPressed: () {
-                final Solicitud? solicitud = _controller.guardar();
+                final Solicitud? solicitud = _controller.crearSolicitud();
                 if (solicitud == null) {
                   return;
                 }

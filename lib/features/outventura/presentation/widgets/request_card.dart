@@ -215,7 +215,7 @@ class SolicitudCard extends StatelessWidget {
   }
 
   String _formatDate(DateTime dt) {
-    const List<String> m = <String>[
+    const List<String> m = [
       'ene','feb','mar','abr','may','jun',
       'jul','ago','sep','oct','nov','dic'
     ];

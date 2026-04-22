@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 
 class AppUserDropdown extends StatelessWidget {
+  // TODO: Si es necesario se puede hacer generico.
   final int? value;
   final List<Usuario> users;
   final ValueChanged<int?> onChanged;
@@ -26,7 +27,7 @@ class AppUserDropdown extends StatelessWidget {
 
     return DropdownButtonFormField<int?>(
       initialValue: value,
-      style: TextStyle(color: cs.onSurface),
+      style: tt.bodyMedium?.copyWith(color: cs.onSurface),
       icon: Icon(
         Icons.keyboard_arrow_down_rounded,
         color: cs.primary.withValues(alpha: 0.7),
@@ -35,7 +36,7 @@ class AppUserDropdown extends StatelessWidget {
       // Estilo
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: cs.onSurfaceVariant),
+        labelStyle: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
         border: UnderlineInputBorder(
           borderSide: BorderSide(
             color: cs.onSurfaceVariant.withAlpha(50),
@@ -61,7 +62,7 @@ class AppUserDropdown extends StatelessWidget {
 
       hint: Text(hint, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
 
-      items: <DropdownMenuItem<int?>>[
+      items: [
         DropdownMenuItem<int?>(
           value: null,
           child: Text(

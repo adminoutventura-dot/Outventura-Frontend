@@ -83,27 +83,34 @@ class TertiaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final Color? textColor;
+  final IconData? icon;
 
   const TertiaryButton({
     super.key,
     required this.label,
     required this.onPressed,
     this.textColor,
+    this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
+    final Color color = textColor ?? Theme.of(context).colorScheme.secondary;
+    final TextStyle? style = Theme.of(context).textTheme.labelLarge?.copyWith(color: color);
+
+    if (icon != null) {
+      return TextButton.icon(
+        style: TextButton.styleFrom(textStyle: Theme.of(context).textTheme.labelLarge),
+        onPressed: onPressed,
+        icon: Icon(icon, size: 18, color: color),
+        label: Text(label, style: style),
+      );
+    }
+
     return TextButton(
-      style: TextButton.styleFrom(
-        textStyle: Theme.of(context).textTheme.labelLarge,
-      ),
+      style: TextButton.styleFrom(textStyle: Theme.of(context).textTheme.labelLarge),
       onPressed: onPressed,
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: textColor ?? Theme.of(context).colorScheme.secondary,
-        ),
-      ),
+      child: Text(label, style: style),
     );
   }
 }

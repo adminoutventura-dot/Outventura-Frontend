@@ -9,17 +9,17 @@ final NotifierProvider<SolicitudesNotifier, List<Solicitud>> solicitudesProvider
 
 class SolicitudesNotifier extends Notifier<List<Solicitud>> {
   @override
-  List<Solicitud> build() => <Solicitud>[...solicitudesFake];
+  List<Solicitud> build() => [...solicitudesFake];
 
   void agregar(Solicitud solicitud) {
     final List<Solicitud> listaActual = state;
-    final List<Solicitud> listaNueva = <Solicitud>[...listaActual, solicitud];
+    final List<Solicitud> listaNueva = [...listaActual, solicitud];
     state = listaNueva;
   }
 
   void actualizar(Solicitud viejo, Solicitud nuevo) {
     final List<Solicitud> listaActual = state;
-    final List<Solicitud> listaNueva = <Solicitud>[];
+    final List<Solicitud> listaNueva = [];
 
     for (final Solicitud solicitud in listaActual) {
       if (solicitud == viejo) {
@@ -34,7 +34,7 @@ class SolicitudesNotifier extends Notifier<List<Solicitud>> {
 
   void eliminar(Solicitud solicitud) {
     final List<Solicitud> listaActual = state;
-    final List<Solicitud> listaNueva = <Solicitud>[];
+    final List<Solicitud> listaNueva = [];
 
     for (final Solicitud item in listaActual) {
       if (item != solicitud) {

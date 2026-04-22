@@ -1,10 +1,10 @@
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 
-final List<Reserva> reservasFake = <Reserva>[
+final List<Reserva> reservasFake = [
   Reserva(
     id: 1,
     idUsuario: 3,
-    lineas: <LineaReserva>[
+    lineas: [
       const LineaReserva(idEquipamiento: 1, cantidad: 2),
       const LineaReserva(idEquipamiento: 3, cantidad: 1),
     ],
@@ -17,7 +17,7 @@ final List<Reserva> reservasFake = <Reserva>[
   Reserva(
     id: 2,
     idUsuario: 3,
-    lineas: <LineaReserva>[
+    lineas: [
       const LineaReserva(idEquipamiento: 3, cantidad: 1),
     ],
     fechaInicio: DateTime(2026, 5, 10),
@@ -28,7 +28,7 @@ final List<Reserva> reservasFake = <Reserva>[
   Reserva(
     id: 3,
     idUsuario: 3,
-    lineas: <LineaReserva>[
+    lineas: [
       const LineaReserva(idEquipamiento: 4, cantidad: 1),
       const LineaReserva(idEquipamiento: 2, cantidad: 3),
     ],
@@ -42,7 +42,7 @@ final List<Reserva> reservasFake = <Reserva>[
   Reserva(
     id: 4,
     idUsuario: 3,
-    lineas: <LineaReserva>[
+    lineas: [
       const LineaReserva(idEquipamiento: 2, cantidad: 3),
     ],
     fechaInicio: DateTime(2026, 6, 5),
@@ -53,7 +53,7 @@ final List<Reserva> reservasFake = <Reserva>[
   Reserva(
     id: 5,
     idUsuario: 3,
-    lineas: <LineaReserva>[
+    lineas: [
       const LineaReserva(idEquipamiento: 5, cantidad: 4),
       const LineaReserva(idEquipamiento: 1, cantidad: 2),
       const LineaReserva(idEquipamiento: 3, cantidad: 1),

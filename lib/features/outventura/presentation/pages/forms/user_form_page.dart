@@ -9,7 +9,7 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/presentation/controllers/user_form_controller.dart';
 
 class UserFormPage extends StatefulWidget {
-  /// Si se pasa un usuario, el formulario actúa como edición.
+  // Si se pasa un usuario, el formulario actúa como edición.
   final Usuario? usuario;
 
   const UserFormPage({super.key, this.usuario});

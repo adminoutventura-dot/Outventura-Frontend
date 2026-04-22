@@ -1,68 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
+import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 
 class RequestsPageController {
-  List<Solicitud> filtrarPorEstado({
-    required List<Solicitud> solicitudes,
-    required EstadoSolicitud? selectedEstado,
-  }) {
-    if (selectedEstado == null) {
-      return solicitudes;
-    }
-    return solicitudes.where((Solicitud s) => s.estado == selectedEstado).toList();
-  }
 
-  int contarPorEstado({
-    required List<Solicitud> solicitudes,
-    required EstadoSolicitud estado,
-  }) {
-    return solicitudes.where((Solicitud s) => s.estado == estado).length;
-  }
-
-  Future<Solicitud?> editarSolicitud({
-    required BuildContext context,
+  // Acepta una solicitud después de pedir confirmación al usuario.
+  Future<void> aceptar({
     required Solicitud solicitud,
-  }) {
-    return Navigator.push<Solicitud>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => SolicitudFormPage(solicitud: solicitud),
-      ),
-    );
-  }
-
-  Future<bool> aceptarSolicitud({
     required BuildContext context,
-    required Solicitud solicitud,
-    required List<Solicitud> solicitudes,
+    required WidgetRef ref,
+    required bool Function() isMounted,
   }) async {
+
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final bool confirm = await showConfirmDialog(
       context: context,
       title: 'Aceptar solicitud',
-      content:
-          '¿Aceptar la solicitud #${solicitud.id}?\nSe generará una excursión automáticamente.',
+      content: '¿Aceptar la solicitud #${solicitud.id}?\nSe generará una excursión automáticamente.',
       confirmLabel: 'Aceptar',
       isDanger: false,
     );
-    if (!confirm) {
-      return false;
-    }
 
-    reemplazarSolicitud(
-      solicitudes: solicitudes,
-      current: solicitud,
-      updated: solicitud.copyWith(estado: EstadoSolicitud.confirmada),
-    );
-    return true;
+    if (!confirm) {
+      return;
+    }
+    ref.read(solicitudesProvider.notifier).actualizar(
+          solicitud,
+          solicitud.copyWith(estado: EstadoSolicitud.confirmada),
+        );
+
+    if (isMounted()) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Solicitud aceptada. Excursión generada.')),
+      );
+    }
   }
 
-  Future<bool> rechazarSolicitud({
-    required BuildContext context,
+  // Navega a la página de edición de la solicitud. Si el resultado no es nulo, actualiza la solicitud con el resultado.
+  Future<void> editar({
     required Solicitud solicitud,
-    required List<Solicitud> solicitudes,
+    required BuildContext context,
+    required WidgetRef ref,
   }) async {
+    final Solicitud? result = await Navigator.push<Solicitud>(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext _) => SolicitudFormPage(solicitud: solicitud),
+      ),
+    );
+    
+    if (result == null) {
+      return;
+    }
+    ref.read(solicitudesProvider.notifier).actualizar(solicitud, result);
+  }
+
+  // Rechaza la solicitud después de pedir confirmación al usuario.
+  Future<void> rechazar({
+    required Solicitud solicitud,
+    required BuildContext context,
+    required WidgetRef ref,
+    required bool Function() isMounted,
+  }) async {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final bool confirm = await showConfirmDialog(
       context: context,
       title: 'Rechazar solicitud',
@@ -70,25 +73,18 @@ class RequestsPageController {
       confirmLabel: 'Rechazar',
     );
     if (!confirm) {
-      return false;
+      return;
     }
 
-    reemplazarSolicitud(
-      solicitudes: solicitudes,
-      current: solicitud,
-      updated: solicitud.copyWith(estado: EstadoSolicitud.cancelada),
-    );
-    return true;
-  }
+    ref.read(solicitudesProvider.notifier).actualizar(
+          solicitud,
+          solicitud.copyWith(estado: EstadoSolicitud.cancelada),
+        );
 
-  void reemplazarSolicitud({
-    required List<Solicitud> solicitudes,
-    required Solicitud current,
-    required Solicitud updated,
-  }) {
-    final int index = solicitudes.indexOf(current);
-    if (index != -1) {
-      solicitudes[index] = updated;
+    if (isMounted()) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Solicitud rechazada.')),
+      );
     }
   }
 }

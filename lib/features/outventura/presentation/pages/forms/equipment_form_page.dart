@@ -4,8 +4,8 @@ import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/utils/form_validators.dart';
+import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-
 import 'package:outventura/features/outventura/presentation/controllers/equipment_form_controller.dart';
 
 class EquipmentFormPage extends StatefulWidget {
@@ -102,12 +102,11 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               const SizedBox(height: 8),
               AppFilterChipFormField(
                 seleccionados: _controller.categorias,
-                onToggle: (cat) => setState(() => _controller.alternarCategoria(cat)),
-                validator: (v) {
-                  if (v == null || v.isEmpty) {
-                    return 'Selecciona al menos una categoría';
-                  }
-                  return null;
+                onToggle: (CategoriaActividad cat) {
+                  setState(() => _controller.alternarCategoria(cat));
+                },
+                validator: (List<CategoriaActividad>? v) {
+                  return ValidadoresFormulario.listaRequerida(v, 'Selecciona una ctegoría');
                 },
               ),
               const SizedBox(height: 20),
@@ -124,7 +123,9 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                   return AppChoiceChip(
                     label: est.label,
                     seleccionado: seleccionado,
-                    onSelected: (_) => setState(() => _controller.estado = est),
+                    onSelected: (_) {
+                      setState(() => _controller.estado = est);
+                    },
                     selectedColor: cs.secondaryContainer,
                     selectedBorderColor: cs.tertiary,
                   );

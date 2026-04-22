@@ -18,16 +18,6 @@ class ReservationsPage extends ConsumerStatefulWidget {
 class _ReservationsPageState extends ConsumerState<ReservationsPage> {
   EstadoReserva? _filtro;
 
-  // TODO: Esto puede ser mejor moverlo a otro archivo
-  Future<void> _abrirEdicion(Reserva r) async {
-    final Reserva? resultado = await Navigator.of(context).push<Reserva>(
-      MaterialPageRoute(builder: (_) => ReservationFormPage(reserva: r)),
-    );
-    if (resultado != null) {
-      ref.read(reservasProvider.notifier).actualizar(r, resultado);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
@@ -39,7 +29,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
     if (_filtro == null) {
       filtradas = reservas;
     } else {
-      filtradas = reservas.where((r) => r.estado == _filtro).toList();
+      filtradas = reservas.where((Reserva res) => res.estado == _filtro).toList();
     }
 
     return Scaffold(
@@ -71,12 +61,12 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                   onTap: () => setState(() => _filtro = null),
                 ),
               ),
-              for (final EstadoReserva e in EstadoReserva.values)
+              for (final EstadoReserva estadoR in EstadoReserva.values)
                 Expanded(
                   child: ExcursionCategoryTab(
-                    label: e.label,
-                    seleccionado: _filtro == e,
-                    onTap: () => setState(() => _filtro = e),
+                    label: estadoR.label,
+                    seleccionado: _filtro == estadoR,
+                    onTap: () => setState(() => _filtro = estadoR),
                   ),
                 ),
             ],
@@ -92,38 +82,46 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                     itemCount: filtradas.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (_, int i) {
-                      final Reserva r = filtradas[i];
+                      final Reserva res = filtradas[i];
 
                       VoidCallback? onAprobar;
-                      if (r.estado == EstadoReserva.pendiente) {
-                        onAprobar = () => mostrarDialogoAprobacion(context, r, () => notifier.aprobar(r));
+                      if (res.estado == EstadoReserva.pendiente) {
+                        onAprobar = () => mostrarDialogoAprobacion(context, res, () => notifier.aprobar(res));
                       }
 
                       VoidCallback? onRechazar;
-                      if (r.estado == EstadoReserva.pendiente) {
-                        onRechazar = () => mostrarDialogoRechazo(context, r, () => notifier.rechazar(r));
+                      if (res.estado == EstadoReserva.pendiente) {
+                        onRechazar = () => mostrarDialogoRechazo(context, res, () => notifier.rechazar(res));
                       }
 
                       VoidCallback? onRegistrarDevolucion;
-                      if (r.estado == EstadoReserva.confirmada) {
-                        onRegistrarDevolucion = () => mostrarDialogoDevolucion(context, r, () => notifier.registrarDevolucion(r));
+                      if (res.estado == EstadoReserva.confirmada) {
+                        onRegistrarDevolucion = () => mostrarDialogoDevolucion(context, res, () => notifier.registrarDevolucion(res));
                       }
 
                       VoidCallback? onCancelar;
-                      if (r.estado == EstadoReserva.confirmada) {
-                        onCancelar = () => mostrarDialogoCancelacion(context, r, () => notifier.cancelar(r));
+                      if (res.estado == EstadoReserva.confirmada) {
+                        onCancelar = () => mostrarDialogoCancelacion(context, res, () => notifier.cancelar(res));
                       }
 
                       return ReservaCard(
-                        reserva: r,
-                        lineas: r.lineas.map((LineaReserva l) => (
-                          nombre: notifier.nombreEquipamiento(l.idEquipamiento),
-                          imagen: notifier.imagenEquipamiento(l.idEquipamiento),
-                          cantidad: l.cantidad,
+                        reserva: res,
+                        lineas: res.lineas.map((LineaReserva linea) => (
+                          nombre: notifier.nombreEquipamiento(linea.idEquipamiento),
+                          imagen: notifier.imagenEquipamiento(linea.idEquipamiento),
+                          cantidad: linea.cantidad,
                         )).toList(),
-                        nombreUsuario: notifier.nombreUsuario(r.idUsuario),
-                        nombreExcursion: notifier.nombreExcursion(r.idExcursion),
-                        onEditar: () => _abrirEdicion(r),
+                        
+                        nombreUsuario: notifier.nombreUsuario(res.idUsuario),
+                        nombreExcursion: notifier.nombreExcursion(res.idExcursion),
+                        onEditar: () async {
+                          final Reserva? resultado = await Navigator.of(context).push<Reserva>(
+                            MaterialPageRoute(builder: (BuildContext _) => ReservationFormPage(reserva: res)),
+                          );
+                          if (resultado != null) {
+                            notifier.actualizar(res, resultado);
+                          }
+                        },
                         onAprobar: onAprobar,
                         onRechazar: onRechazar,
                         onRegistrarDevolucion: onRegistrarDevolucion,

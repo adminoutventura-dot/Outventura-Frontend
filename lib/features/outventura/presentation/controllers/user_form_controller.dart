@@ -18,6 +18,13 @@ class UserFormController {
 
   Usuario? seleccionado;
 
+  bool validar() {
+    if (formKey.currentState == null) {
+      return false;
+    }
+    return formKey.currentState!.validate();
+  }
+
   // Cargar los datos
   void cargarUsuario(Usuario usuario) {
     editando = true;
@@ -42,13 +49,6 @@ class UserFormController {
     password.clear();
     rol = TipoRol.usuario;
     activo = true;
-  }
-
-  bool validar() {
-    if (formKey.currentState == null) {
-      return false;
-    }
-    return formKey.currentState!.validate();
   }
 
   void dispose() {

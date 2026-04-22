@@ -65,8 +65,8 @@ class Reserva {
     required this.fechaFin,
     required this.estado,
     this.cargoDanios = 0,
-    // idEquipamiento → cantidad dañada.
-    this.itemsDaniados = const <int, int>{},
+    // idEquipamiento - cantidad dañada.
+    this.itemsDaniados = const {},
   });
 
   Reserva copyWith({

@@ -35,17 +35,10 @@ class CustomInputField extends StatelessWidget {
       validator: validator,
       maxLines: maxLines,
       minLines: minLines,
-      style: TextStyle(
-        color: colorScheme.onSurface,
-        fontSize: 15,
-        fontWeight: FontWeight.w500,
-      ),
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: TextStyle(
-          color: colorScheme.onSurfaceVariant,
-          fontSize: 14,
-        ),
+        labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
         prefixIcon: prefixIcon != null
             ? Icon(
                 prefixIcon,
@@ -55,6 +48,7 @@ class CustomInputField extends StatelessWidget {
             : null,
         suffixIcon: suffixIcon,
         
+        // Estilo de los bordes
         border: UnderlineInputBorder(
           borderSide: BorderSide(
             color: colorScheme.onSurfaceVariant.withAlpha(50),

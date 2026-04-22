@@ -13,7 +13,7 @@ Future<bool> showConfirmDialog({
   final ColorScheme cs = Theme.of(context).colorScheme;
   final bool? result = await showDialog<bool>(
     context: context,
-    builder: (_) => AlertDialog(
+    builder: (BuildContext _) => AlertDialog(
       title: Text(title),
       content: Text(content),
       actions: [

@@ -73,4 +73,12 @@ class ValidadoresFormulario {
     }
     return null;
   }
+
+  // Devuelve error si la lista de selección está vacía.
+  static String? listaRequerida<T>(List<T>? valor, String mensaje) {
+    if (valor == null || valor.isEmpty) {
+      return mensaje;
+    }
+    return null;
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
@@ -15,7 +16,7 @@ class UserFormPage extends StatefulWidget {
 
 class _UserFormPageState extends State<UserFormPage> {
   late final UserFormController _controller;
-  // TODO: Revisar pagina
+  // TODO: Página para rehacer
 
   @override
   void initState() {
@@ -31,7 +32,6 @@ class _UserFormPageState extends State<UserFormPage> {
 
   void _submit() {
     if (!_controller.validar()) return;
-    // TODO: guardar usuario
     Navigator.of(context).pop();
   }
 
@@ -93,7 +93,7 @@ class _UserFormPageState extends State<UserFormPage> {
                 controller: _controller.emailController,
                 labelText: 'Email',
                 prefixIcon: Icons.mail_outline,
-                validator: _controller.validadorEmail,
+                validator: ValidadoresFormulario.email,
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 14),

@@ -10,13 +10,9 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/controllers/reservation_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
+import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
-import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
 
-// TODO: Arreglar el tema de los controllers, no es necesario que cada página tenga uno, 
-// se pueden compartir y pasar la reserva a cargar como parámetro del método cargarReserva. 
-// Revisar también el tema de los dispose, no es necesario que se llame en cada página, 
-// con que se llame una vez al cerrar la app es suficiente. (Recordatorio)
 class ReservationFormPage extends ConsumerStatefulWidget {
   final Reserva reserva;
 
@@ -27,40 +23,29 @@ class ReservationFormPage extends ConsumerStatefulWidget {
 }
 
 class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
-  late final ReservationFormController _ctrl;
+  late final ReservationFormController _controller;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = ReservationFormController();
-    _ctrl.cargarReserva(widget.reserva);
+    _controller = ReservationFormController();
+    _controller.cargarReserva(widget.reserva);
   }
 
   @override
   void dispose() {
-    _ctrl.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   // Abre un diálogo para anadir o editar una lí­nea de reserva.
   Future<void> _mostrarDialogoLinea({int? index}) async {
-    final LineaReserva? linea = index != null ? _ctrl.lineas[index] : null;
-    final LineaReserva? result = await mostrarDialogoLineaReserva(
+    await _controller.mostrarDialogoLinea(
       context: context,
       equipamientos: ref.read(equipamientosProvider),
-      initialLinea: linea,
+      setState: setState,
+      index: index,
     );
-
-    if (result == null) {
-      return;
-    }
-    setState(() {
-      if (index == null) {
-        _ctrl.agregarLinea(result);
-      } else {
-        _ctrl.actualizarLinea(index, result);
-      }
-    });
   }
 
   @override
@@ -82,31 +67,42 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
-          key: _ctrl.formKey,
+          key: _controller.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               // Usuario
               const SizedBox(height: 8),
               AppUserDropdown(
-                value: _ctrl.idUsuario,
+                value: _controller.idUsuario,
                 users: ref.read(usuariosProvider),
                 label: 'Usuario',
                 hint: 'Selecciona un usuario',
-                onChanged: (int? v) => setState(() => _ctrl.idUsuario = v),
-                validator: (int? v) => v == null ? 'Selecciona un usuario' : null,
+
+                // id usuario es = v, significa que se ha seleccionado un usuario, si es null, no se ha seleccionado ninguno.
+                // v es el id del usuario seleccionado.
+                onChanged: (int? v) {
+                  setState(() => _controller.idUsuario = v);
+                },
+                validator: (int? v) {
+                  if (v == null) {
+                    return 'Selecciona un usuario';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
 
-              //── Excursión (opcional) ──────────────────────────
+              // Excursión (opcional) 
               AppExcursionDropdown(
-                value: _ctrl.idExcursion,
+                value: _controller.idExcursion,
                 excursiones: ref.read(excursionesProvider),
-                onChanged: (int? v) => setState(() => _ctrl.idExcursion = v),
+                onChanged: (int? v) => setState(() => _controller.idExcursion = v),
               ),
               const SizedBox(height: 20),
 
-              // ── Fechas ────────────────────────────────────────
+              // Fechas
               Text('Fechas', style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
               const SizedBox(height: 8),
               Row(
@@ -114,59 +110,62 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   Expanded(
                     child: AppDateSelector(
                       label: 'Desde',
-                      date: _ctrl.fechaDesde ?? DateTime.now(),
+                      date: _controller.fechaDesde ?? DateTime.now(),
                       firstDate: DateTime(2020),
                       lastDate: DateTime(2030),
-                      onDateSelected: (DateTime d) => setState(() => _ctrl.fechaDesde = d),
+                      onDateSelected: (DateTime d) => setState(() => _controller.fechaDesde = d),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: AppDateSelector(
                       label: 'Hasta',
-                      date: _ctrl.fechaHasta ?? DateTime.now(),
+                      date: _controller.fechaHasta ?? DateTime.now(),
                       firstDate: DateTime(2020),
                       lastDate: DateTime(2030),
-                      onDateSelected: (DateTime d) => setState(() => _ctrl.fechaHasta = d),
+                      onDateSelected: (DateTime d) => setState(() => _controller.fechaHasta = d),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
 
-              // Lienas de Reserva
+              // Lineas de Reserva
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Líneas de reserva', style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
-                  TextButton.icon(
+                  TertiaryButton(
+                    label: 'Añadir',
+                    icon: Icons.add,
                     onPressed: () => _mostrarDialogoLinea(),
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Añadir'),
                   ),
                 ],
               ),
-              if (_ctrl.lineas.isEmpty)
+              if (_controller.lineas.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    'Sin materiales. Añade al menos uno.',
+                    'Sin materiales.',
                     style: tt.bodySmall?.copyWith(color: cs.error),
                   ),
                 )
               else
                 ListView.builder(
+                  // Hace que el ListView solo ocupe el espacio necesario para mostrar sus hijos.
                   shrinkWrap: true,
+                  // Desactiva el scroll del ListView, para que el scroll lo maneje el SingleChildScrollView.
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _ctrl.lineas.length,
+                  itemCount: _controller.lineas.length,
                   itemBuilder: (_, int i) {
-                    final LineaReserva linea = _ctrl.lineas[i];
+
+                    final LineaReserva linea = _controller.lineas[i];
 
                     // Buscar el equipamiento que corresponde a esta línea.
-                    Equipamiento mat = equipamientos.first;
-                    for (final Equipamiento m in equipamientos) {
-                      if (m.id == linea.idEquipamiento) {
-                        mat = m;
+                    Equipamiento equip = equipamientos.first;
+                    for (final Equipamiento eq in equipamientos) {
+                      if (eq.id == linea.idEquipamiento) {
+                        equip = eq;
                         break;
                       }
                     }
@@ -174,17 +173,14 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: Icon(Icons.inventory_2_outlined, color: cs.primary),
-                      title: Text(mat.nombre, style: tt.bodyMedium),
+                      title: Text(equip.nombre, style: tt.bodyMedium),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: cs.primaryContainer,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text('x${linea.cantidad}', style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
+                          TagWidget(
+                            text: 'x${linea.cantidad}',
+                            backgroundColor: cs.primaryContainer,
+                            textColor: cs.onPrimaryContainer,
                           ),
                           IconButton(
                             icon: Icon(Icons.edit_outlined, size: 18, color: cs.onSurfaceVariant),
@@ -192,7 +188,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                           ),
                           IconButton(
                             icon: Icon(Icons.delete_outline, size: 18, color: cs.error),
-                            onPressed: () => setState(() => _ctrl.eliminarLinea(i)),
+                            onPressed: () => setState(() => _controller.eliminarLinea(i)),
                           ),
                         ],
                       ),
@@ -201,16 +197,16 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 ),
               const SizedBox(height: 20),
 
-              // ── Estado ────────────────────────────────────────
+              // Estado
               Text('Estado', style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
               const SizedBox(height: 8),
               AppChipWrap(
                 children: EstadoReserva.values.map((EstadoReserva e) {
-                  final bool seleccionado = _ctrl.estado == e;
+                  final bool seleccionado = _controller.estado == e;
                   return AppChoiceChip(
                     label: e.label,
                     seleccionado: seleccionado,
-                    onSelected: (_) => setState(() => _ctrl.estado = e),
+                    onSelected: (_) => setState(() => _controller.estado = e),
                     selectedColor: cs.secondaryContainer,
                     selectedBorderColor: cs.tertiary,
                   );
@@ -218,23 +214,25 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // ── Daños por material ────────────────────────────
-              if (_ctrl.lineas.isNotEmpty) ...[
+              // TODO: Revisar esto a ver si se puede evitar hacer dos listas con los equipamientos.
+              // Daños por material
+              if (_controller.lineas.isNotEmpty) ...[
                 Text('Daños por material', style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
                 const SizedBox(height: 4),
-                ...List.generate(_ctrl.lineas.length, (int i) {
-                  final LineaReserva linea = _ctrl.lineas[i];
+                
+                ...List.generate(_controller.lineas.length, (int i) {
+                  final LineaReserva linea = _controller.lineas[i];
 
                   // Buscar el equipamiento que corresponde a esta línea.
-                  Equipamiento mat = equipamientos.first;
-                  for (final Equipamiento m in equipamientos) {
-                    if (m.id == linea.idEquipamiento) {
-                      mat = m;
-                      break;
+                  Equipamiento equip = equipamientos.first;
+                    for (final Equipamiento eq in equipamientos) {
+                      if (eq.id == linea.idEquipamiento) {
+                        equip = eq;
+                        break;
+                      }
                     }
-                  }
 
-                  final int daniadas = _ctrl.cantidadDaniada(linea.idEquipamiento);
+                  final int daniadas = _controller.cantidadDaniada(linea.idEquipamiento);
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Row(
@@ -243,9 +241,9 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(mat.nombre, style: tt.bodyMedium),
+                              Text(equip.nombre, style: tt.bodyMedium),
                               Text(
-                                '${mat.cargoPorDanio.toStringAsFixed(2)} €/ud.',
+                                '${equip.cargoPorDanio.toStringAsFixed(2)} €/ud.',
                                 style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                               ),
                             ],
@@ -254,21 +252,21 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                         IconButton(
                           icon: const Icon(Icons.remove, size: 18),
                           onPressed: daniadas > 0
-                              ? () => setState(() => _ctrl.establecerCantidadDaniada(linea.idEquipamiento, daniadas - 1))
+                              ? () => setState(() => _controller.establecerCantidadDaniada(linea.idEquipamiento, daniadas - 1))
                               : null,
                         ),
                         Text('$daniadas / ${linea.cantidad}', style: tt.bodyMedium),
                         IconButton(
                           icon: const Icon(Icons.add, size: 18),
                           onPressed: daniadas < linea.cantidad
-                              ? () => setState(() => _ctrl.establecerCantidadDaniada(linea.idEquipamiento, daniadas + 1))
+                              ? () => setState(() => _controller.establecerCantidadDaniada(linea.idEquipamiento, daniadas + 1))
                               : null,
                         ),
                         SizedBox(
                           width: 64,
                           child: daniadas > 0
                               ? Text(
-                                  '${(daniadas * mat.cargoPorDanio).toStringAsFixed(2)} €',
+                                  '${(daniadas * equip.cargoPorDanio).toStringAsFixed(2)} €',
                                   style: tt.labelMedium?.copyWith(color: cs.error),
                                   textAlign: TextAlign.end,
                                 )
@@ -278,15 +276,17 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                     ),
                   );
                 }),
-                if (_ctrl.totalCargoDanios > 0) ...[
+
+                // Total cargos por daños
+                if (_controller.totalCargoDanios > 0) ...[
                   const Divider(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Total daños', style: tt.labelMedium),
                       Text(
-                        '${_ctrl.totalCargoDanios.toStringAsFixed(2)} €',
-                        style: tt.labelMedium?.copyWith(color: cs.error, fontWeight: FontWeight.bold),
+                        '${_controller.totalCargoDanios.toStringAsFixed(2)} €',
+                        style: tt.labelMedium?.copyWith(color: cs.error),
                       ),
                     ],
                   ),
@@ -294,7 +294,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               ],
               const SizedBox(height: 32),
 
-              // ── Botones ───────────────────────────────────────
+              // Botones
               Row(
                 children: [
                   Expanded(
@@ -311,13 +311,14 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                       label: 'Guardar',
                       icon: Icons.save_outlined,
                       onPressed: () {
-                        if (_ctrl.lineas.isEmpty) {
+                        // TODO: Validar el formulario antes de crear la reserva.
+                        if (_controller.lineas.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('AÃ±ade al menos una lÃ­nea de reserva.')),
+                            const SnackBar(content: Text('Añade al menos una línea de reserva.')),
                           );
                           return;
                         }
-                        final Reserva? reserva = _ctrl.crearReserva();
+                        final Reserva? reserva = _controller.crearReserva();
                         if (reserva == null) {
                           return;
                         }

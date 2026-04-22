@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
+import 'package:outventura/features/outventura/presentation/controllers/requests_page_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
@@ -19,58 +18,28 @@ class RequestsPage extends ConsumerStatefulWidget {
 
 class _RequestsPageState extends ConsumerState<RequestsPage> {
   EstadoSolicitud? _estadoSeleccionado;
+  final RequestsPageController _controller = RequestsPageController();
 
-  // TODO: Mover estas funciones a un controller para RequestsPage
-  void _aceptar(Solicitud s) async {
-    final bool confirm = await showConfirmDialog(
-      context: context,
-      title: 'Aceptar solicitud',
-      content:
-          '¿Aceptar la solicitud #${s.id}?\nSe generará una excursión automáticamente.',
-      confirmLabel: 'Aceptar',
-      isDanger: false,
-    );
-    if (!confirm) return;
-    ref.read(solicitudesProvider.notifier).actualizar(
-          s,
-          s.copyWith(estado: EstadoSolicitud.confirmada),
-        );
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Solicitud aceptada. Excursión generada.')),
+  // TODO: En equipamiento las acciones estaban en ek mismo  onEditar, onEliminar...
+  void _aceptar(Solicitud soli) => _controller.aceptar(
+        solicitud: soli,
+        context: context,
+        ref: ref,
+        isMounted: () => mounted,
       );
-    }
-  }
 
-  void _editar(Solicitud s) async {
-    final Solicitud? result = await Navigator.push<Solicitud>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => SolicitudFormPage(solicitud: s),
-      ),
-    );
-    if (result == null) return;
-    ref.read(solicitudesProvider.notifier).actualizar(s, result);
-  }
-
-  void _rechazar(Solicitud s) async {
-    final bool confirm = await showConfirmDialog(
-      context: context,
-      title: 'Rechazar solicitud',
-      content: '¿Rechazar la solicitud #${s.id}?',
-      confirmLabel: 'Rechazar',
-    );
-    if (!confirm) return;
-    ref.read(solicitudesProvider.notifier).actualizar(
-          s,
-          s.copyWith(estado: EstadoSolicitud.cancelada),
-        );
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Solicitud rechazada.')),
+  void _editar(Solicitud soli) => _controller.editar(
+        solicitud: soli,
+        context: context,
+        ref: ref,
       );
-    }
-  }
+
+  void _rechazar(Solicitud soli) => _controller.rechazar(
+        solicitud: soli,
+        context: context,
+        ref: ref,
+        isMounted: () => mounted,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +52,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
     if (_estadoSeleccionado == null) {
       filtradas = solicitudes;
     } else {
-      filtradas = solicitudes.where((Solicitud s) => s.estado == _estadoSeleccionado).toList();
+      filtradas = solicitudes.where((Solicitud soli) => soli.estado == _estadoSeleccionado).toList();
     }
 
     return Scaffold(
@@ -101,6 +70,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
         ),
       ),
       drawer: const AppDrawer(),
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -140,17 +110,22 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                     itemCount: filtradas.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (BuildContext context, int index) {
-                      final Solicitud s = filtradas[index];
-                      final Excursion excursion = excursiones.firstWhere(
-                        (e) => e.id == s.idExcursion,
-                        orElse: () => excursiones.first,
-                      );
+
+                      final Solicitud soli = filtradas[index];
+                      Excursion excursion = excursiones.first;
+                      for (final Excursion e in excursiones) {
+                        if (e.id == soli.idExcursion) {
+                          excursion = e;
+                          break;
+                        }
+                      }
+
                       return SolicitudCard(
-                        solicitud: s,
+                        solicitud: soli,
                         excursion: excursion,
-                        onGestionar: s.estado == EstadoSolicitud.pendiente ? () => _aceptar(s) : null,
-                        onCancelar: s.estado == EstadoSolicitud.pendiente ? () => _rechazar(s) : null,
-                        onEditar: () => _editar(s),
+                        onGestionar: soli.estado == EstadoSolicitud.pendiente ? () => _aceptar(soli) : null,
+                        onCancelar: soli.estado == EstadoSolicitud.pendiente ? () => _rechazar(soli) : null,
+                        onEditar: () => _editar(soli),
                         onVerDetalle: () {} 
                         // => showSolicitudDetailSheet(
                         //   context: context,

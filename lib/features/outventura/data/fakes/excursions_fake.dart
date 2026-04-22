@@ -2,13 +2,13 @@ import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
 // Fake excursion catalog data.
-final List<Excursion> catalogoExcursiones = <Excursion>[
+final List<Excursion> catalogoExcursiones = [
   // Excursión de senderismo y montaña en Mallorca.
   Excursion(
     id: 1,
     puntoInicio: 'Puerto de Sóller',
     puntoFin: 'Torre Picada',
-    categorias: <CategoriaActividad>[CategoriaActividad.acuatico, CategoriaActividad.montana],
+    categorias: [CategoriaActividad.acuatico, CategoriaActividad.montana],
     numeroParticipantes: 20,
     descripcion: 'Ruta sencilla con vistas al mar y a la montaña en la costa de Mallorca.',
     estado: EstadoExcursion.disponible,
@@ -22,7 +22,7 @@ final List<Excursion> catalogoExcursiones = <Excursion>[
     puntoInicio: 'Deltebre',
     puntoFin: 'Isla de Buda',
     imagenAsset: 'assets/images/Camino.jpg',
-    categorias: <CategoriaActividad>[CategoriaActividad.acuatico],
+    categorias: [CategoriaActividad.acuatico],
     numeroParticipantes: 15,
     descripcion: 'Recorrido en kayak por el Delta del Ebro, ideal para principiantes.',
     estado: EstadoExcursion.disponible,
@@ -36,7 +36,7 @@ final List<Excursion> catalogoExcursiones = <Excursion>[
     puntoInicio: 'Fuente Dé',
     puntoFin: 'Torre de los Horcados Rojos',
     imagenAsset: 'assets/images/Camino.jpg',
-    categorias: <CategoriaActividad>[CategoriaActividad.acuatico, CategoriaActividad.montana],
+    categorias: [CategoriaActividad.acuatico, CategoriaActividad.montana],
     numeroParticipantes: 10,
     descripcion: 'Ascensión técnica.',
     estado: EstadoExcursion.disponible,
@@ -50,7 +50,7 @@ final List<Excursion> catalogoExcursiones = <Excursion>[
     puntoInicio: 'Benasque',
     puntoFin: 'Pico Cerler',
     imagenAsset: 'assets/images/Camino.jpg',
-    categorias: <CategoriaActividad>[CategoriaActividad.nieve],
+    categorias: [CategoriaActividad.nieve],
     numeroParticipantes: 12,
     descripcion: 'Ruta guiada con raquetas de nieve por el valle de Benasque.',
     estado: EstadoExcursion.disponible,

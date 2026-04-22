@@ -9,17 +9,17 @@ final NotifierProvider<EquipamientosNotifier, List<Equipamiento>> equipamientosP
 
 class EquipamientosNotifier extends Notifier<List<Equipamiento>> {
   @override
-  List<Equipamiento> build() => <Equipamiento>[...equipamientosFake];
+  List<Equipamiento> build() => [...equipamientosFake];
 
   void agregar(Equipamiento equipamiento) {
     final List<Equipamiento> listaActual = state;
-    final List<Equipamiento> listaNueva = <Equipamiento>[...listaActual, equipamiento];
+    final List<Equipamiento> listaNueva = [...listaActual, equipamiento];
     state = listaNueva;
   }
 
   void actualizar(Equipamiento viejo, Equipamiento nuevo) {
     final List<Equipamiento> listaActual = state;
-    final List<Equipamiento> listaNueva = <Equipamiento>[];
+    final List<Equipamiento> listaNueva = [];
 
     for (final Equipamiento equipamiento in listaActual) {
       if (equipamiento == viejo) {
@@ -34,7 +34,7 @@ class EquipamientosNotifier extends Notifier<List<Equipamiento>> {
 
   void eliminar(Equipamiento equipamiento) {
     final List<Equipamiento> listaActual = state;
-    final List<Equipamiento> listaNueva = <Equipamiento>[];
+    final List<Equipamiento> listaNueva = [];
 
     for (final Equipamiento item in listaActual) {
       if (item != equipamiento) {

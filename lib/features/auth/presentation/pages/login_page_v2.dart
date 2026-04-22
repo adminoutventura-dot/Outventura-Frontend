@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
+import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/auth/data/fakes/users_fake.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
@@ -70,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(24),
-                      boxShadow: <BoxShadow>[
+                      boxShadow: [
                         BoxShadow(
                           color: colorScheme.onSurface.withAlpha(20),
                           blurRadius: 30,
@@ -124,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                             labelText: 'Email',
                             prefixIcon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
-                            validator: _controller.validadorEmail,
+                            validator: ValidadoresFormulario.email,
                           ),
                           const SizedBox(height: 16),
 
@@ -184,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) =>
+                                    builder: (BuildContext _) =>
                                         MainScaffold(usuario: usuario),
                                   ),
                                 );

@@ -14,16 +14,21 @@ class SolicitudFormController {
   bool editando = false;
   Solicitud? seleccionado;
 
-  void cargarSolicitud(Solicitud s) {
-    editando = true;
-    seleccionado = s;
-    idExcursion = s.idExcursion;
-    participantesCtrl.text = '${s.numeroParticipantes}';
-    estado = s.estado;
-    idExperto = s.idExperto;
+  bool validar() {
+    if (formKey.currentState == null) return false;
+    return formKey.currentState!.validate();
   }
 
-  Solicitud? guardar() {
+  void cargarSolicitud(Solicitud solicitud) {
+    editando = true;
+    seleccionado = solicitud;
+    idExcursion = solicitud.idExcursion;
+    participantesCtrl.text = '${solicitud.numeroParticipantes}';
+    estado = solicitud.estado;
+    idExperto = solicitud.idExperto;
+  }
+
+  Solicitud? crearSolicitud() {
     if (!validar()) {
       return null;
     }
@@ -46,11 +51,6 @@ class SolicitudFormController {
     participantesCtrl.clear();
     estado = EstadoSolicitud.pendiente;
     idExperto = null;
-  }
-
-  bool validar() {
-    if (formKey.currentState == null) return false;
-    return formKey.currentState!.validate();
   }
 
   void dispose() {

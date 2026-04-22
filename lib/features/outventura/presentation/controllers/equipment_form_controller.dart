@@ -12,12 +12,29 @@ class EquipmentFormController {
   final TextEditingController precioController = TextEditingController();
   final TextEditingController tarifaController = TextEditingController();
 
-  List<CategoriaActividad> categorias = <CategoriaActividad>[];
+  List<CategoriaActividad> categorias = [];
   EstadoEquipamiento estado = EstadoEquipamiento.disponible;
   String? imagenAsset;
   bool editando = false;
 
   Equipamiento? seleccionado;
+
+  // Valida el formulario antes de enviarlo.
+  bool validar() {
+    if (formKey.currentState == null) {
+      return false;
+    }
+    return formKey.currentState!.validate();
+  }
+
+  // Alternar la selección de una categoría
+  void alternarCategoria(CategoriaActividad cat) {
+    if (categorias.contains(cat)) {
+      categorias.remove(cat);
+    } else {
+      categorias.add(cat);
+    }
+  }
 
   // Cargar los datos de un material
   void cargarEquipo(Equipamiento equipamiento) {
@@ -32,36 +49,6 @@ class EquipmentFormController {
     categorias = List<CategoriaActividad>.from(equipamiento.categorias);
     estado = equipamiento.estado;
     imagenAsset = equipamiento.imagenAsset;
-  }
-
-  // Limpiar todos los campos
-  void limpiar() {
-    editando = false;
-    seleccionado = null;
-    nombreController.clear();
-    descripcionController.clear();
-    stockController.clear();
-    precioController.clear();
-    tarifaController.clear();
-    categorias = <CategoriaActividad>[];
-    estado = EstadoEquipamiento.disponible;
-  }
-
-  // Alternar la selección de una categoría
-  void alternarCategoria(CategoriaActividad cat) {
-    if (categorias.contains(cat)) {
-      categorias.remove(cat);
-    } else {
-      categorias.add(cat);
-    }
-  }
-
-  // Valida el formulario antes de enviarlo.
-  bool validar() {
-    if (formKey.currentState == null) {
-      return false;
-    }
-    return formKey.currentState!.validate();
   }
 
   // Construye el objeto Equipamiento con los datos del formulario.
@@ -84,6 +71,19 @@ class EquipmentFormController {
     );
   }
 
+  // Limpiar todos los campos
+  void limpiar() {
+    editando = false;
+    seleccionado = null;
+    nombreController.clear();
+    descripcionController.clear();
+    stockController.clear();
+    precioController.clear();
+    tarifaController.clear();
+    categorias = [];
+    estado = EstadoEquipamiento.disponible;
+  }
+
   // Libera de la memoria los TextEditingController
   void dispose() {
     nombreController.dispose();
@@ -92,4 +92,6 @@ class EquipmentFormController {
     precioController.dispose();
     tarifaController.dispose();
   }
+
+  
 }

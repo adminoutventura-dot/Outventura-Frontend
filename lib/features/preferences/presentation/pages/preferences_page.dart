@@ -31,7 +31,7 @@ class PreferencesPage extends ConsumerWidget {
                 Text('Idioma', style: tt.titleMedium),
                 DropdownButton<String>(
                   value: prefs.idioma,
-                  items: <DropdownMenuItem<String>>[
+                  items: [
                     DropdownMenuItem(
                       value: 'es',
                       child: Text('Español', style: tt.bodyMedium),

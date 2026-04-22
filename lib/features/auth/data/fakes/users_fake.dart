@@ -2,7 +2,7 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 
 // Usuarios de prueba: un superadmin, un admin y un cliente.
-final List<Usuario> usuariosFake = <Usuario>[
+final List<Usuario> usuariosFake = [
   // Administrador jefe con acceso total al sistema.
   const Usuario(
     id: 1,

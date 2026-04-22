@@ -1,50 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/id_generator.dart';
 import 'package:outventura/features/outventura/data/fakes/equipment_fake.dart';
+import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
 
 class ReservationFormController {
-  final formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   int? idUsuario;
   int? idExcursion;
   DateTime? fechaDesde;
   DateTime? fechaHasta;
   EstadoReserva estado = EstadoReserva.pendiente;
-  bool editando = false;
-
+  
   // Líneas de la reserva (material + cantidad).
   List<LineaReserva> lineas = [];
 
   // Daños por línea: idEquipamiento - cantidad dañada.
   Map<int, int> cantidadesDaniadas = {};
 
-  Reserva? _original;
+  bool editando = false;
+  Reserva? seleccionado;
 
   // Total de cargos por daños calculado a partir del mapa.
   double get totalCargoDanios {
     double total = 0;
-    for (final entry in cantidadesDaniadas.entries) {
+    
+    for (final MapEntry<int, int> entry in cantidadesDaniadas.entries) {
       // Busca el equipamiento en la lista fake.
-      final coincidencias = equipamientosFake.where((e) => e.id == entry.key);
+      final Iterable<Equipamiento> coincidencias = equipamientosFake.where((Equipamiento e) => e.id == entry.key);
+
       // Si hay equipamiento con ese id, suma su cargo por daño multiplicado por la cantidad dañada.
       if (coincidencias.isNotEmpty) {
-        final eq = coincidencias.first;
+        final Equipamiento eq = coincidencias.first;
         total += eq.cargoPorDanio * entry.value;
       }
     }
     return total;
   }
+  
 
-  void cargarReserva(Reserva r) {
+  bool validar() {
+    if (formKey.currentState == null) {
+      return false;
+    }
+    return formKey.currentState!.validate();
+  }
+
+  int cantidadDaniada(int idEquipamiento) {
+    return cantidadesDaniadas[idEquipamiento] ?? 0;
+  }
+
+  void cargarReserva(Reserva reserva) {
     editando = true;
-    _original = r;
-    idUsuario = r.idUsuario;
-    lineas = List.from(r.lineas);
-    idExcursion = r.idExcursion;
-    fechaDesde = r.fechaInicio;
-    fechaHasta = r.fechaFin;
-    cantidadesDaniadas = Map.from(r.itemsDaniados);
-    estado = r.estado;
+    seleccionado = reserva;
+    idUsuario = reserva.idUsuario;
+    lineas = List.from(reserva.lineas);
+    idExcursion = reserva.idExcursion;
+    fechaDesde = reserva.fechaInicio;
+    fechaHasta = reserva.fechaFin;
+    cantidadesDaniadas = Map.from(reserva.itemsDaniados);
+    estado = reserva.estado;
   }
 
   void agregarLinea(LineaReserva linea) {
@@ -59,12 +76,41 @@ class ReservationFormController {
     lineas.removeAt(index);
   }
 
-  int cantidadDaniada(int idEquipamiento) {
-    return cantidadesDaniadas[idEquipamiento] ?? 0;
-  }
-
   void establecerCantidadDaniada(int idEquipamiento, int cantidad) {
     cantidadesDaniadas[idEquipamiento] = cantidad;
+  }
+
+  // Abre un diálogo para añadir o editar una línea de reserva.
+  Future<void> mostrarDialogoLinea({
+    required BuildContext context,
+    required List<Equipamiento> equipamientos,
+    required void Function(VoidCallback) setState,
+    int? index,
+  }) async {
+
+    final LineaReserva? linea;
+    if (index != null) {
+      linea = lineas[index];
+    } else {
+      linea = null;
+    }
+
+    final LineaReserva? result = await mostrarDialogoLineaReserva(
+      context: context,
+      equipamientos: equipamientos,
+      initialLinea: linea,
+    );
+    if (result == null) {
+      return;
+    }
+
+    setState(() {
+      if (index == null) {
+        agregarLinea(result);
+      } else {
+        actualizarLinea(index, result);
+      }
+    });
   }
 
   Reserva? crearReserva() {
@@ -75,8 +121,11 @@ class ReservationFormController {
     if (idUsuario == null || fechaDesde == null || fechaHasta == null || lineas.isEmpty) {
       return null;
     }
+
+    final int id = seleccionado?.id ?? GeneradorId.idEntero();
+
     return Reserva(
-      id: _original?.id ?? 0,
+      id: id,
       idUsuario: idUsuario!,
       lineas: List.unmodifiable(lineas),
       idExcursion: idExcursion,
@@ -86,10 +135,6 @@ class ReservationFormController {
       cargoDanios: totalCargoDanios,
       itemsDaniados: Map.from(cantidadesDaniadas),
     );
-  }
-
-  bool validar() {
-    return formKey.currentState?.validate() ?? false;
   }
 
   void dispose() {}

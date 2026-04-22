@@ -63,7 +63,7 @@ class Material {
       nombre: map['nombre'] as String,
       descripcion: map['descripcion'] as String?,
       categorias: (map['categorias'] as List<dynamic>)
-          .map((e) => CategoriaActividad.fromString(e as String))
+          .map((dynamic e) => CategoriaActividad.fromString(e as String))
           .toList(),
       stock: map['stock'] as int,
       estado: EstadoMaterial.fromString(map['estado'] as String),

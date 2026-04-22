@@ -14,11 +14,26 @@ class ExcursionFormController {
   DateTime fechaInicio = DateTime.now();
   DateTime fechaFin = DateTime.now().add(const Duration(days: 1));
   EstadoExcursion estado = EstadoExcursion.disponible;
-  List<CategoriaActividad> categorias = <CategoriaActividad>[];
+  List<CategoriaActividad> categorias = [];
   String? imagenAsset;
   bool editando = false;
 
   Excursion? seleccionado;
+
+  bool validar() {
+    if (formKey.currentState == null) {
+      return false;
+    }
+    return formKey.currentState!.validate();
+  }
+  
+  void alternarCategoria(CategoriaActividad cat) {
+    if (categorias.contains(cat)) {
+      categorias.remove(cat);
+    } else {
+      categorias.add(cat);
+    }
+  }
 
   // Cargar los datos de una excursión en los input
   void cargarExcursion(Excursion excursion) {
@@ -46,7 +61,7 @@ class ExcursionFormController {
     fechaInicio = DateTime.now();
     fechaFin = DateTime.now().add(const Duration(days: 1));
     estado = EstadoExcursion.disponible;
-    categorias = <CategoriaActividad>[];
+    categorias = [];
   }
 
   void establecerFecha({required bool isStart, required DateTime value}) {
@@ -60,27 +75,9 @@ class ExcursionFormController {
     fechaFin = value;
   }
 
-  void alternarCategoria(CategoriaActividad cat) {
-    if (categorias.contains(cat)) {
-      categorias.remove(cat);
-    } else {
-      categorias.add(cat);
-    }
+  String formatearFecha(DateTime dt) {
+    return FormateadorFecha.short(dt);
   }
-
-  bool validar() {
-    if (formKey.currentState == null) {
-      return false;
-    }
-    if (categorias.isEmpty) {
-      return false;
-    }
-    return formKey.currentState!.validate();
-  }
-
-  bool get hasCategorias => categorias.isNotEmpty;
-
-  String formatearFecha(DateTime dt) => FormateadorFecha.short(dt);
 
   void dispose() {
     puntoInicioController.dispose();

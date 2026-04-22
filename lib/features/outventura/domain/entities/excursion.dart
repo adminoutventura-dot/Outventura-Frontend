@@ -69,7 +69,7 @@ class Excursion {
       fechaInicio: DateTime.parse(map['startDate'] as String),
       fechaFin: DateTime.parse(map['endDate'] as String),
       categorias: (map['categories'] as List<dynamic>)
-          .map((e) => CategoriaActividad.fromString(e as String))
+          .map((dynamic e) => CategoriaActividad.fromString(e as String))
           .toList(),
       numeroParticipantes: map['participantCount'] as int,
       descripcion: map['description'] as String?,

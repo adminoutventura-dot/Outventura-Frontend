@@ -43,7 +43,7 @@ class ReservaCard extends StatelessWidget {
       EstadoReserva.devuelta => (cs.primaryContainer, cs.onPrimaryContainer, cs.primaryContainer),
       EstadoReserva.cancelada => (cs.error, cs.onError, cs.error),
     };
-
+    // TODO: Revisar si poner o no imagenes
     final String? firstImagen = lineas.isNotEmpty ? lineas.first.imagen : null;
 
     return Container(
@@ -221,7 +221,7 @@ class ReservaCard extends StatelessWidget {
   }
 
   String _fmt(DateTime dt) {
-    const List<String> m = <String>['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const List<String> m = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
     return '${dt.day} ${m[dt.month - 1]} ${dt.year}';
   }
 }

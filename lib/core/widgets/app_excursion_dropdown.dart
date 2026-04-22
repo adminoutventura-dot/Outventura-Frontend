@@ -26,14 +26,14 @@ class AppExcursionDropdown extends StatelessWidget {
 
     return DropdownButtonFormField<int?>(
       initialValue: value,
-      style: TextStyle(color: cs.onSurface),
+      style: tt.bodyMedium?.copyWith(color: cs.onSurface),
       icon: Icon(
         Icons.keyboard_arrow_down_rounded,
         color: cs.primary.withValues(alpha: 0.7),
       ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: cs.onSurfaceVariant),
+        labelStyle: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
         prefixIcon: const Icon(Icons.hiking_outlined),
         border: UnderlineInputBorder(
           borderSide: BorderSide(
@@ -57,7 +57,7 @@ class AppExcursionDropdown extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
       ),
       hint: Text(hint, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-      items: <DropdownMenuItem<int?>>[
+      items: [
         DropdownMenuItem<int?>(
           value: null,
           child: Text(

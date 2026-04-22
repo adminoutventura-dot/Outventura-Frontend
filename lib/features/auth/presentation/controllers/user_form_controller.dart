@@ -47,17 +47,6 @@ class UserFormController {
   }
 
   // Validadores
-  String? validadorEmail(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'El email es obligatorio';
-    }
-    final RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(value)) {
-      return 'Introduce un email válido';
-    }
-    return null;
-  }
-
   String? validadorContrasena(String? value) {
     // Solo requerido si es nuevo usuario
     if (!editando && (value == null || value.isEmpty)) {

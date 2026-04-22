@@ -16,18 +16,18 @@ final NotifierProvider<ReservasNotifier, List<Reserva>> reservasProvider =
 class ReservasNotifier extends Notifier<List<Reserva>> {
   // TODO: Revisar
   @override
-  List<Reserva> build() => <Reserva>[...reservasFake];
+  List<Reserva> build() => [...reservasFake];
 
   // CRUD 
   void agregar(Reserva reserva) {
     final List<Reserva> listaActual = state;
-    final List<Reserva> listaNueva = <Reserva>[...listaActual, reserva];
+    final List<Reserva> listaNueva = [...listaActual, reserva];
     state = listaNueva;
   }
 
   void actualizar(Reserva viejo, Reserva nuevo) {
     final List<Reserva> listaActual = state;
-    final List<Reserva> listaNueva = <Reserva>[];
+    final List<Reserva> listaNueva = [];
 
     for (final Reserva reserva in listaActual) {
       if (reserva == viejo) {
@@ -42,7 +42,7 @@ class ReservasNotifier extends Notifier<List<Reserva>> {
 
   void eliminar(Reserva reserva) {
     final List<Reserva> listaActual = state;
-    final List<Reserva> listaNueva = <Reserva>[];
+    final List<Reserva> listaNueva = [];
 
     for (final Reserva item in listaActual) {
       if (item != reserva) {

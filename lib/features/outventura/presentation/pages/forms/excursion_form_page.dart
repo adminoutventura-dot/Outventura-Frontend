@@ -109,7 +109,9 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                       date: _controller.fechaInicio,
                       firstDate: DateTime.now(),
                       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-                      onDateSelected: (DateTime picked) => setState(() => _controller.establecerFecha(isStart: true, value: picked)),
+                      onDateSelected: (DateTime picked) {
+                        setState(() => _controller.establecerFecha(isStart: true, value: picked));
+                      },
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -119,8 +121,9 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                       date: _controller.fechaFin,
                       firstDate: _controller.fechaInicio,
                       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-                      // TODO: Explicar que hace esto.
-                      onDateSelected: (DateTime picked) => setState(() => _controller.establecerFecha(isStart: false, value: picked)),
+                      onDateSelected: (DateTime picked) {
+                        setState(() => _controller.establecerFecha(isStart: false, value: picked));
+                      },
                     ),
                   ),
                 ],
@@ -143,16 +146,15 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              AppChipWrap(
-                children: CategoriaActividad.values.map((CategoriaActividad cat) {
-                  final bool seleccionado = _controller.categorias.contains(cat);
-                  return AppFilterChip(
-                    label: cat.label,
-                    seleccionado: seleccionado,
-                    // TODO: Explicar que hace esto.
-                    onSelected: (_) => setState(() => _controller.alternarCategoria(cat)),
-                  );
-                }).toList(),
+              AppFilterChipFormField(
+                seleccionados: _controller.categorias,
+                onToggle: (CategoriaActividad cat) {
+                  setState(() => _controller.alternarCategoria(cat));
+                },
+                // El validator recibe la lista de categorías seleccionadas y devuelve un mensaje de error si la lista está vacía.
+                validator: (List<CategoriaActividad>? v) {
+                  return ValidadoresFormulario.listaRequerida(v, 'Selecciona una ctegoría');
+                },
               ),
               const SizedBox(height: 20),
 
@@ -168,7 +170,9 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                   return AppChoiceChip(
                     label: est.label,
                     seleccionado: seleccionado,
-                    onSelected: (_) => setState(() => _controller.estado = est),
+                    onSelected: (_) {
+                      setState(() => _controller.estado = est);
+                    },
                     selectedColor: cs.secondaryContainer,
                     selectedBorderColor: cs.tertiary,
                   );

@@ -9,17 +9,17 @@ final NotifierProvider<ExcursionesNotifier, List<Excursion>> excursionesProvider
 
 class ExcursionesNotifier extends Notifier<List<Excursion>> {
   @override
-  List<Excursion> build() => <Excursion>[...catalogoExcursiones];
+  List<Excursion> build() => [...catalogoExcursiones];
 
   void agregar(Excursion excursion) {
     final List<Excursion> listaActual = state;
-    final List<Excursion> listaNueva = <Excursion>[...listaActual, excursion];
+    final List<Excursion> listaNueva = [...listaActual, excursion];
     state = listaNueva;
   }
 
   void actualizar(Excursion viejo, Excursion nuevo) {
     final List<Excursion> listaActual = state;
-    final List<Excursion> listaNueva = <Excursion>[];
+    final List<Excursion> listaNueva = [];
 
     for (final Excursion excursion in listaActual) {
       if (excursion == viejo) {
@@ -34,7 +34,7 @@ class ExcursionesNotifier extends Notifier<List<Excursion>> {
 
   void eliminar(Excursion excursion) {
     final List<Excursion> listaActual = state;
-    final List<Excursion> listaNueva = <Excursion>[];
+    final List<Excursion> listaNueva = [];
 
     for (final Excursion item in listaActual) {
       if (item != excursion) {

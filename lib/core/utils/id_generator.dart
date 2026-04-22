@@ -5,9 +5,14 @@ class GeneradorId {
 
   static const Uuid _uuid = Uuid();
 
+  // Para datos fake
   // Genera un ID entero único basado en UUID v4.
-  static int idEntero() => _uuid.v4().hashCode.abs();
+  static int idEntero(){
+    return _uuid.v4().hashCode.abs();
+  }
 
   // Genera un UUID v4 como String (listo para backend).
-  static String idTexto() => _uuid.v4();
+  static String idTexto(){ 
+    return _uuid.v4();
+  }
 }

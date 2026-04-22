@@ -30,7 +30,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
       excursionesFiltradas = excursiones;
     } else {
       excursionesFiltradas = excursiones
-          .where((e) => e.categorias.contains(_categoriaSeleccionada))
+          .where((Excursion e) => e.categorias.contains(_categoriaSeleccionada))
           .toList();
     }
 
@@ -49,6 +49,8 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
         ),
       ),
       drawer: const AppDrawer(),
+      
+      // Boton Add
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const ExcursionFormPage()),
@@ -61,6 +63,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
         ),
         child: const Icon(Icons.add),
       ),
+
       body: Column(
         // Barra de categorías
         children: [
@@ -104,7 +107,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                   excursion: excursion,
                   onEditar: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => ExcursionFormPage(excursion: excursion),
+                      builder: (BuildContext _) => ExcursionFormPage(excursion: excursion),
                     ),
                   ),
                   onEliminar: () async {

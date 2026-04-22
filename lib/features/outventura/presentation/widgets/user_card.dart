@@ -121,7 +121,6 @@ class UserCard extends StatelessWidget {
                               '${usuario.nombre} ${usuario.apellidos}',
                               style: tt.titleMedium?.copyWith(
                                 color: cs.onSurface,
-                                fontWeight: FontWeight.w700,
                                 letterSpacing: 0.2,
                               ),
                               overflow: TextOverflow.ellipsis,

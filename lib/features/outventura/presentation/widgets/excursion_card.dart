@@ -56,7 +56,7 @@ class ExcursionCard extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         // Degradado oscuro.
                         colors: [Colors.transparent, cs.onSurface.withAlpha(250)],
-                        stops: const <double>[0.4, 1.0],
+                        stops: const [0.4, 1.0],
                       ),
                     ),
                   ),
@@ -70,7 +70,7 @@ class ExcursionCard extends StatelessWidget {
                       '${excursion.puntoInicio} → ${excursion.puntoFin}',
                       style: tt.labelLarge?.copyWith(
                         color: cs.surfaceContainer,
-                        shadows: <Shadow>[Shadow(color: cs.onSurface.withAlpha(180), blurRadius: 4)],
+                        shadows: [Shadow(color: cs.onSurface.withAlpha(180), blurRadius: 4)],
                       ),
                     ),
                   ),
@@ -201,7 +201,7 @@ class ExcursionCard extends StatelessWidget {
 
 // TODO: Ese puede cambiar por el formato de fecha
 String _formatDate(DateTime dt) {
-  const List<String> months = <String>['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const List<String> months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
   return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
 }
 

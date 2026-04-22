@@ -10,13 +10,13 @@ final NotifierProvider<UsuariosNotifier, List<Usuario>> usuariosProvider = Notif
 // Notifier que implementa la lógica de gestión de usuarios.
 class UsuariosNotifier extends Notifier<List<Usuario>> {
   @override
-  List<Usuario> build() => <Usuario>[...usuariosFake];
+  List<Usuario> build() => [...usuariosFake];
 
   // Método para agregar usuarios.
   void agregar(Usuario usuario) {
     // State es una variable de riverpod.
     final List<Usuario> listaActual = state;
-    final List<Usuario> listaNueva = <Usuario>[...listaActual, usuario];
+    final List<Usuario> listaNueva = [...listaActual, usuario];
     state = listaNueva;
   }
 
@@ -35,7 +35,7 @@ class UsuariosNotifier extends Notifier<List<Usuario>> {
 
   // Método para eliminar un usuario.
   void eliminar(Usuario eliminado) {
-    final List<Usuario> listaNueva = <Usuario>[...state];
+    final List<Usuario> listaNueva = [...state];
     listaNueva.removeWhere((Usuario usuario) => usuario.id == eliminado.id);
     state = listaNueva;
   }

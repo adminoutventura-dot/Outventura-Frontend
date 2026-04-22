@@ -64,7 +64,7 @@ class Equipamiento {
       descripcion: map['description'] as String?,
       // Convierte la lista JSON de categorías en una lista de objetos CategoriaActividad.
       categorias: (map['categories'] as List<dynamic>)
-          .map((e) => CategoriaActividad.fromString(e as String))
+          .map((dynamic e) => CategoriaActividad.fromString(e as String))
           .toList(),
       stock: map['stock'] as int,
       estado: EstadoEquipamiento.fromString(map['status'] as String),

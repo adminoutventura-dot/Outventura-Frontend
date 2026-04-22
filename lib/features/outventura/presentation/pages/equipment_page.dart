@@ -30,7 +30,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
       equipamientosFiltrados = equipamientos;
     } else {
       equipamientosFiltrados = equipamientos
-          .where((e) => e.categorias.contains(_categoriaSeleccionada))
+          .where((Equipamiento e) => e.categorias.contains(_categoriaSeleccionada))
           .toList();
     }
 
@@ -49,6 +49,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
         ),
       ),
       drawer: const AppDrawer(),
+      // TODO: Hacer widget reutilizable
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final Equipamiento? nuevo = await Navigator.of(context).push<Equipamiento>(
@@ -112,7 +113,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                   onEditar: () async {
                     final Equipamiento? actualizado = await Navigator.of(context).push<Equipamiento>(
                       MaterialPageRoute(
-                        builder: (_) => EquipmentFormPage(equipamiento: equipamiento),
+                        builder: (BuildContext _) => EquipmentFormPage(equipamiento: equipamiento),
                       ),
                     );
                     if (actualizado != null) {
