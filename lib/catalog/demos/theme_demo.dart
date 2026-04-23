@@ -24,12 +24,12 @@ class ThemeDemo extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          const Text('AppColors – darkBrown'),
+          const Text('AppColors – onSecondaryContainer'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.darkBrown,
+              color: AppColors.onSecondaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
@@ -44,12 +44,12 @@ class ThemeDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – brown'),
+          const Text('AppColors – onPrimaryContainer'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.brown,
+              color: AppColors.onPrimaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
@@ -64,12 +64,12 @@ class ThemeDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – tan'),
+          const Text('AppColors – secondary'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.tan,
+              color: AppColors.secondary,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
@@ -84,12 +84,12 @@ class ThemeDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – green'),
+          const Text('AppColors – primary'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.green,
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
@@ -104,12 +104,12 @@ class ThemeDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – darkGreen'),
+          const Text('AppColors – inverseSurface'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.darkGreen,
+              color: AppColors.inverseSurface,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
@@ -124,14 +124,14 @@ class ThemeDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – offWhite'),
+          const Text('AppColors – onPrimary'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.offWhite,
+              color: AppColors.onPrimary,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.gray.withAlpha(80)),
+              border: Border.all(color: AppColors.onSurfaceVariant.withAlpha(80)),
             ),
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -139,19 +139,18 @@ class ThemeDemo extends StatelessWidget {
               '#F2F0F2',
               style: TextStyle(
                 fontSize: 11,
-                color: AppColors.gray,
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ),
 
-
           const SizedBox(height: 12),
-          const Text('AppColors – gray'),
+          const Text('AppColors – onSurfaceVariant'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.gray,
+              color: AppColors.onSurfaceVariant,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
@@ -166,14 +165,14 @@ class ThemeDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – white'),
+          const Text('AppColors – surface'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.gray.withAlpha(80)),
+              border: Border.all(color: AppColors.onSurfaceVariant.withAlpha(80)),
             ),
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -181,24 +180,24 @@ class ThemeDemo extends StatelessWidget {
               '#FFFFFF',
               style: TextStyle(
                 fontSize: 11,
-                color: AppColors.gray,
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – black'),
+          const Text('AppColors – onSurface'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.black,
+              color: AppColors.onSurface,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
-              '#000000',
+              '#1C1C1C',
               style: TextStyle(
                 fontSize: 11,
                 color: Colors.white.withAlpha(200),
@@ -207,52 +206,52 @@ class ThemeDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – lightGreen'),
+          const Text('AppColors – onSecondary'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.lightBrown,
+              color: AppColors.onSecondary,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: const Text(
-              '#F4F8EF',
+              '#F7EDE6',
               style: TextStyle(
                 fontSize: 11,
-                color: AppColors.gray,
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – paleGreen'),
+          const Text('AppColors – primaryContainer'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.paleGreen,
+              color: AppColors.primaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: const Text(
-              '#F1EFE8',
+              '#D4E8C2',
               style: TextStyle(
                 fontSize: 11,
-                color: AppColors.gray,
+                color: AppColors.onSurfaceVariant,
               ),
             ),
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – red'),
+          const Text('AppColors – error'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.red,
+              color: AppColors.error,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
@@ -267,12 +266,12 @@ class ThemeDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – lightBlue'),
+          const Text('AppColors – secondaryContainer'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.lightBlue,
+              color: AppColors.secondaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,
@@ -287,12 +286,12 @@ class ThemeDemo extends StatelessWidget {
           ),
 
           const SizedBox(height: 12),
-          const Text('AppColors – darkBlue'),
+          const Text('AppColors – tertiary'),
           const SizedBox(height: 8),
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.darkBlue,
+              color: AppColors.tertiary,
               borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.centerRight,

@@ -3,15 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
-import 'package:outventura/core/widgets/app_excursion_dropdown.dart';
+import 'package:outventura/core/widgets/app_dropdown_field.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
-import 'package:outventura/core/widgets/app_user_dropdown.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/controllers/request_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 
 class SolicitudFormPage extends ConsumerStatefulWidget {
+
+  // TODO: Falta indicar que usuario(cliente) ha solicitado la excursion
   final Solicitud? solicitud;
 
   const SolicitudFormPage({super.key, this.solicitud});
@@ -63,15 +66,15 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
           padding: const EdgeInsets.all(16),
           children: [
             // Excursión
-            AppExcursionDropdown(
+            AppDropdownField<Excursion>(
               value: _controller.idExcursion,
-              excursiones: ref.read(excursionesProvider),
+              items: ref.read(excursionesProvider),
+              itemValue: (e) => e.id,
+              itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
+              prefixIcon: Icons.hiking_outlined,
               label: 'Excursión',
               hint: 'Selecciona una excursión',
-              // El validador se asegura de que se haya seleccionado una excursión.
-              validator: (int? v) {
-                return ValidadoresFormulario.dropdownRequerido(v, 'Selecciona una excursión');
-              },
+              isRequired: true,
               onChanged: (int? v) {
                 setState(() => _controller.idExcursion = v);
               },
@@ -105,9 +108,14 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
             const SizedBox(height: 20),
             // Experto
-            AppUserDropdown(
+            AppDropdownField<Usuario>(
               value: _controller.idExperto,
-              users: ref.read(usuariosProvider),
+              items: ref.read(usuariosProvider),
+              itemValue: (Usuario user) => user.id,
+              itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
+              prefixIcon: Icons.person_outline,
+              label: 'Experto',
+              hint: 'Selecciona un experto',
               onChanged: (int? val) => setState(() => _controller.idExperto = val),
             ),
 

@@ -41,15 +41,13 @@ class ReservaCard extends StatelessWidget {
 
     final (Color badgeBg, Color badgeFg, Color accentColor) = switch (reserva.estado) {
       EstadoReserva.pendiente => (cs.tertiaryContainer, cs.onTertiary, cs.tertiary),
-      EstadoReserva.confirmada => (cs.secondaryContainer, cs.onSecondaryContainer, cs.secondaryContainer),
-      EstadoReserva.devuelta => (cs.primaryContainer, cs.onPrimaryContainer, cs.primaryContainer),
+      EstadoReserva.confirmada => (cs.primary, cs.onPrimary, cs.primary),
+      EstadoReserva.devuelta => (cs.onSecondary, cs.onPrimaryContainer, cs.onSecondary),
       EstadoReserva.cancelada => (cs.error, cs.onError, cs.error),
     };
-    // TODO: Revisar si poner o no imagenes
-    final List<String> imagenes = lineas
-        .map((l) => l.imagen)
-        .whereType<String>()
-        .toList();
+
+    // Lista de imágenes de los equipamientos, filtrando los nulos
+    final List<String> imagenes = lineas.map((l) => l.imagen).whereType<String>().toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -177,7 +175,6 @@ class ReservaCard extends StatelessWidget {
                 const SizedBox(height: 10),
 
                 //  Líneas de la reserva
-                // TODO: Revisar diseño para muchas líneas
                 ...lineas.map((LineaDisplayInfo l) => Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(
@@ -191,16 +188,10 @@ class ReservaCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: cs.primaryContainer,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          'x${l.cantidad}',
-                          style: tt.labelSmall?.copyWith(color: cs.onPrimaryContainer),
-                        ),
+                      TagWidget(
+                        text: 'x${l.cantidad}',
+                        backgroundColor: cs.onSecondary,
+                        textColor: cs.onPrimaryContainer,
                       ),
                     ],
                   ),

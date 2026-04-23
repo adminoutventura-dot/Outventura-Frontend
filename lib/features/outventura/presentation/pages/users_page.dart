@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/user_form_page.dart';
+import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
 
@@ -33,18 +34,12 @@ class UsersPage extends ConsumerWidget {
         ),
       ),
       drawer: const AppDrawer(),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: AddFab(
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const UserFormPage()),
         ),
-        backgroundColor: cs.secondaryContainer,
-        foregroundColor: cs.onSecondary,
-        elevation: 2,
-        shape: CircleBorder(
-          side: BorderSide(color: cs.onSecondary, width: 3),
-        ),
-        child: const Icon(Icons.person_add_outlined),
+        icon: Icons.person_add_outlined,
       ),
 
       body: ListView.separated(

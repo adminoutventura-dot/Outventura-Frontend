@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_date_selector.dart';
-import 'package:outventura/core/widgets/app_excursion_dropdown.dart';
-import 'package:outventura/core/widgets/app_user_dropdown.dart';
+import 'package:outventura/core/widgets/app_dropdown_field.dart';
+import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
@@ -74,9 +75,11 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
             children: [
               // Usuario
               const SizedBox(height: 8),
-              AppUserDropdown(
+              AppDropdownField<Usuario>(
                 value: _controller.idUsuario,
-                users: ref.read(usuariosProvider),
+                items: ref.read(usuariosProvider),
+                itemValue: (Usuario user) => user.id,
+                itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
                 label: 'Usuario',
                 hint: 'Selecciona un usuario',
 
@@ -95,11 +98,22 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               const SizedBox(height: 20),
 
               // Excursión (opcional)
-              AppExcursionDropdown(
+              AppDropdownField<Excursion>(
                 value: _controller.idExcursion,
-                excursiones: ref.read(excursionesProvider),
+                items: ref.read(excursionesProvider),
+                itemValue: (e) => e.id,
+                itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
+                prefixIcon: Icons.hiking_outlined,
+                label: 'Excursión',
+                hint: 'Ninguna',
                 onChanged: (int? v) =>
                     setState(() => _controller.idExcursion = v),
+                validator: (int? v) {
+                  if (v == null) {
+                    return 'Selecciona una Excursión';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 20),
 
@@ -114,7 +128,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   Expanded(
                     child: AppDateSelector(
                       label: 'Desde',
-                      date: _controller.fechaDesde ?? DateTime.now(),
+                      date: _controller.fechaDesde,
                       firstDate: DateTime(2020),
                       lastDate: DateTime(2030),
                       onDateSelected: (DateTime d) =>
@@ -125,7 +139,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   Expanded(
                     child: AppDateSelector(
                       label: 'Hasta',
-                      date: _controller.fechaHasta ?? DateTime.now(),
+                      date: _controller.fechaHasta,
                       firstDate: DateTime(2020),
                       lastDate: DateTime(2030),
                       onDateSelected: (DateTime d) =>
@@ -201,7 +215,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                     final int daniadas = _controller.cantidadDaniada(
                       linea.idEquipamiento,
                     );
-
+                    // Card de la línea de reserva
                     return ReservationLineCard(
                       linea: linea,
                       equipamiento: equip,
@@ -263,9 +277,6 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                       label: 'Guardar',
                       icon: Icons.save_outlined,
                       onPressed: () {
-                        // TODO: Cuando se borra una linea, se deberia restablecer su cargo por daños a 0, porque sino se queda en el total.
-                        // TODO: Añadir una protección extra para cuando editas una línea y cambias de equipamiento (mover/limpiar daños del id anterior), que también se mantiene en el total.
-                        // TODO: Validar el formulario antes de crear la reserva.
                         if (_controller.lineas.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

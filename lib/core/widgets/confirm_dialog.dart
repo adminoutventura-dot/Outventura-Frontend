@@ -7,7 +7,7 @@ Future<bool> showConfirmDialog({
   required String title,
   required String content,
   String cancelLabel = 'Cancelar',
-  String confirmLabel = 'Eliminar',
+  String confirmLabel = 'Aceptar',
   bool isDanger = true,
 }) async {
   final ColorScheme cs = Theme.of(context).colorScheme;

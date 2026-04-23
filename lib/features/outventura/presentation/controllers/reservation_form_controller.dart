@@ -10,8 +10,8 @@ class ReservationFormController {
 
   int? idUsuario;
   int? idExcursion;
-  DateTime? fechaDesde;
-  DateTime? fechaHasta;
+  DateTime fechaDesde = DateTime.now();
+  DateTime fechaHasta = DateTime.now();
   EstadoReserva estado = EstadoReserva.pendiente;
 
   // Líneas de la reserva (material + cantidad).
@@ -74,6 +74,8 @@ class ReservationFormController {
   }
 
   void eliminarLinea(int index) {
+    final LineaReserva linea = lineas[index];
+    cantidadesDaniadas.remove(linea.idEquipamiento);
     lineas.removeAt(index);
   }
 
@@ -108,6 +110,10 @@ class ReservationFormController {
       if (index == null) {
         agregarLinea(result);
       } else {
+        // Si el equipamiento cambió, limpia los daños del id anterior.
+        if (linea != null && linea.idEquipamiento != result.idEquipamiento) {
+          cantidadesDaniadas.remove(linea.idEquipamiento);
+        }
         actualizarLinea(index, result);
       }
     });
@@ -117,10 +123,7 @@ class ReservationFormController {
     if (!validar()) {
       return null;
     }
-    if (idUsuario == null ||
-        fechaDesde == null ||
-        fechaHasta == null ||
-        lineas.isEmpty) {
+    if (idUsuario == null || lineas.isEmpty) {
       return null;
     }
 
@@ -131,8 +134,8 @@ class ReservationFormController {
       idUsuario: idUsuario!,
       lineas: List.unmodifiable(lineas),
       idExcursion: idExcursion,
-      fechaInicio: fechaDesde!,
-      fechaFin: fechaHasta!,
+      fechaInicio: fechaDesde,
+      fechaFin: fechaHasta,
       estado: estado,
       cargoDanios: totalCargoDanios,
       itemsDaniados: Map.from(cantidadesDaniadas),

@@ -31,9 +31,9 @@ class SolicitudCard extends StatelessWidget {
 
     final (Color badgeBg, Color badgeFg, Color accentColor) = switch (solicitud.estado) {
       EstadoSolicitud.confirmada => (
-          cs.secondaryContainer,
-          cs.onSecondaryContainer,
-          cs.secondaryContainer,
+          cs.primary,
+          cs.onPrimary,
+          cs.primary,
         ),
       EstadoSolicitud.pendiente  => (
           cs.tertiaryContainer,
@@ -41,9 +41,9 @@ class SolicitudCard extends StatelessWidget {
           cs.tertiary,
         ),
       EstadoSolicitud.finalizada => (
-          cs.primaryContainer,
+          cs.onSecondary,
           cs.onPrimaryContainer,
-          cs.primaryContainer,
+          cs.onSecondary,
         ),
       EstadoSolicitud.cancelada => (
           cs.error,
@@ -166,7 +166,7 @@ class SolicitudCard extends StatelessWidget {
                       children: excursion.categorias
                           .map((CategoriaActividad c) => TagWidget(
                                 text: c.label,
-                                backgroundColor: cs.onPrimary,
+                                backgroundColor: cs.onSecondary,
                                 textColor: cs.onPrimaryContainer,
                               ))
                           .toList(),

@@ -154,7 +154,7 @@ class ExcursionCard extends StatelessWidget {
                       children: excursion.categorias
                           .map((CategoriaActividad c) => TagWidget(
                                 text: c.label,
-                                backgroundColor: cs.primaryContainer,
+                                backgroundColor: cs.onSecondary,
                                 textColor: cs.onPrimaryContainer,
                               ))
                           .toList(),
