@@ -49,9 +49,6 @@ class ReservaCard extends StatelessWidget {
     // Lista de imágenes de los equipamientos, filtrando los nulos
     final List<String> imagenes = lineas.map((l) => l.imagen).whereType<String>().toList();
 
-    // Lista de imágenes de los equipamientos, filtrando los nulos
-    final List<String> imagenes = lineas.map((l) => l.imagen).whereType<String>().toList();
-
     return Container(
       decoration: BoxDecoration(
         color: cs.surface,
@@ -194,10 +191,6 @@ class ReservaCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      TagWidget(
-                        text: 'x${l.cantidad}',
-                        backgroundColor: cs.onSecondary,
-                        textColor: cs.onPrimaryContainer,
                       TagWidget(
                         text: 'x${l.cantidad}',
                         backgroundColor: cs.onSecondary,
