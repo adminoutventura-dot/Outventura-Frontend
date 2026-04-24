@@ -36,6 +36,9 @@ class SolicitudCard extends StatelessWidget {
           cs.primary,
           cs.onPrimary,
           cs.primary,
+          cs.primary,
+          cs.onPrimary,
+          cs.primary,
         ),
       EstadoSolicitud.pendiente  => (
           cs.tertiaryContainer,
@@ -155,6 +158,7 @@ class SolicitudCard extends StatelessWidget {
                       children: excursion.categorias
                           .map((CategoriaActividad c) => TagWidget(
                                 text: c.label,
+                                backgroundColor: cs.onSecondary,
                                 backgroundColor: cs.onSecondary,
                                 textColor: cs.onPrimaryContainer,
                               ))

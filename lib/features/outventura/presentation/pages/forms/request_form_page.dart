@@ -6,6 +6,9 @@ import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/core/widgets/app_dropdown_field.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
@@ -79,13 +82,19 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             const SizedBox(height: 20),
             // Excursión
             AppDropdownField<Excursion>(
+            AppDropdownField<Excursion>(
               value: _controller.idExcursion,
+              items: ref.read(excursionesProvider),
+              itemValue: (e) => e.id,
+              itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
+              prefixIcon: Icons.hiking_outlined,
               items: ref.read(excursionesProvider),
               itemValue: (e) => e.id,
               itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
               prefixIcon: Icons.hiking_outlined,
               label: 'Excursión',
               hint: 'Selecciona una excursión',
+              isRequired: true,
               isRequired: true,
               onChanged: (int? v) {
                 setState(() => _controller.idExcursion = v);
@@ -119,7 +128,14 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             const SizedBox(height: 20),
             // Experto
             AppDropdownField<Usuario>(
+            AppDropdownField<Usuario>(
               value: _controller.idExperto,
+              items: ref.read(usuariosProvider),
+              itemValue: (Usuario user) => user.id,
+              itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
+              prefixIcon: Icons.person_outline,
+              label: 'Experto',
+              hint: 'Selecciona un experto',
               items: ref.read(usuariosProvider),
               itemValue: (Usuario user) => user.id,
               itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
