@@ -6,7 +6,8 @@ import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/presentation/controllers/user_form_controller.dart';
+import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
+import 'package:outventura/features/auth/presentation/controllers/user_form_controller.dart';
 
 class UserFormPage extends StatefulWidget {
   // Si se pasa un usuario, el formulario actúa como edición.
@@ -20,11 +21,13 @@ class UserFormPage extends StatefulWidget {
 
 class _UserFormPageState extends State<UserFormPage> {
   late final UserFormController _controller;
+  late final LoginController _loginController;
 
   @override
   void initState() {
     super.initState();
     _controller = UserFormController();
+    _loginController = LoginController();
     if (widget.usuario != null) {
       _controller.cargarUsuario(widget.usuario!);
     }
@@ -33,6 +36,7 @@ class _UserFormPageState extends State<UserFormPage> {
   @override
   void dispose() {
     _controller.dispose();
+    _loginController.dispose();
     super.dispose();
   }
 
@@ -58,7 +62,7 @@ class _UserFormPageState extends State<UserFormPage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
         child: Form(
           key: _controller.formKey,
           child: Column(
@@ -122,7 +126,7 @@ class _UserFormPageState extends State<UserFormPage> {
               // Contraseña (solo en creación)
               if (!_controller.editando) ...[
                 CustomInputField(
-                  controller: _controller.password,
+                  controller: _loginController.passwordController,
                   labelText: 'Contraseña',
                   prefixIcon: Icons.lock_outline,
                   obscureText: true,
@@ -145,8 +149,6 @@ class _UserFormPageState extends State<UserFormPage> {
                     label: rol.nombre,
                     seleccionado: seleccionado,
                     onSelected: (_) => setState(() => _controller.rol = rol),
-                    selectedColor: cs.secondaryContainer,
-                    selectedBorderColor: cs.tertiary,
                   );
                 }).toList(),
               ),
@@ -164,6 +166,11 @@ class _UserFormPageState extends State<UserFormPage> {
                     value: _controller.activo,
                     onChanged: (bool v) => setState(() => _controller.activo = v),
                     activeThumbColor: cs.primary,
+                    activeTrackColor: cs.primaryContainer,
+                    inactiveThumbColor: cs.onSurfaceVariant,
+                    inactiveTrackColor: cs.onSurfaceVariant.withValues(alpha: 0.35),
+                    // Quita el borde del track en todos los estados
+                    trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
                   ),
                 ],
               ),

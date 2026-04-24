@@ -48,27 +48,29 @@ class PrimaryButton extends StatelessWidget {
 class SecondaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
-  final Color backgroundColor;
-  final Color borderColor;
+  final Color? backgroundColor;
+  final Color? borderColor;
   final double borderRadius;
 
   const SecondaryButton({
     super.key,
     required this.label,
     required this.onPressed,
-    required this.backgroundColor,
-    required this.borderColor,
+    this.backgroundColor,
+    this.borderColor,
     this.borderRadius = 15,
   });
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final Color effectiveBorder = borderColor ?? cs.onSurfaceVariant.withValues(alpha: 0.4);
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         backgroundColor: backgroundColor,
-        foregroundColor: borderColor,
+        foregroundColor: effectiveBorder,
         textStyle: Theme.of(context).textTheme.labelLarge,
-        side: BorderSide(color: borderColor, width: 2),
+        side: BorderSide(color: effectiveBorder, width: 2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
@@ -162,12 +164,13 @@ class ActionIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onTap,
-      icon: Icon(icon, color: color),
-      iconSize: size,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(size),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(4, 4, 4, 6),
+        child: Icon(icon, color: color, size: size),
+      ),
     );
   }
 }

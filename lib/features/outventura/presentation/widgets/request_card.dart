@@ -9,6 +9,7 @@ import 'package:outventura/features/outventura/domain/entities/request.dart';
 class SolicitudCard extends StatelessWidget {
   final Solicitud solicitud;
   final Excursion excursion;
+  final String? nombreUsuario;
   final VoidCallback? onGestionar;
   final VoidCallback? onCancelar;
   final VoidCallback? onEditar;
@@ -18,6 +19,7 @@ class SolicitudCard extends StatelessWidget {
     super.key,
     required this.solicitud,
     required this.excursion,
+    this.nombreUsuario,
     this.onGestionar,
     this.onCancelar,
     this.onEditar,
@@ -31,9 +33,9 @@ class SolicitudCard extends StatelessWidget {
 
     final (Color badgeBg, Color badgeFg, Color accentColor) = switch (solicitud.estado) {
       EstadoSolicitud.confirmada => (
-          cs.secondaryContainer,
-          cs.onSecondaryContainer,
-          cs.secondaryContainer,
+          cs.primary,
+          cs.onPrimary,
+          cs.primary,
         ),
       EstadoSolicitud.pendiente  => (
           cs.tertiaryContainer,
@@ -41,9 +43,9 @@ class SolicitudCard extends StatelessWidget {
           cs.tertiary,
         ),
       EstadoSolicitud.finalizada => (
-          cs.primaryContainer,
+          cs.secondary.withValues(alpha: 0.35),
           cs.onPrimaryContainer,
-          cs.primaryContainer,
+          cs.secondary.withValues(alpha: 0.35),
         ),
       EstadoSolicitud.cancelada => (
           cs.error,
@@ -78,44 +80,31 @@ class SolicitudCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Puntos inicio → fin
-                          Row(
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 4,
+                            runSpacing: 2,
                             children: [
-                              // Inicio
-                              Text(
-                                excursion.puntoInicio,
-                                style: tt.labelLarge?.copyWith(color: cs.onSurface),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-
-                              // Flecha
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.arrow_forward,
-                                size: 13,
-                                color: cs.onSurfaceVariant,
-                              ),
-
-                              // Fin
-                              const SizedBox(width: 4),
-                              Text(
-                                excursion.puntoFin,
-                                style: tt.labelLarge?.copyWith(color: cs.onSurface),
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                              Text(excursion.puntoInicio, style: tt.labelLarge?.copyWith(color: cs.onSurface)),
+                              Icon(Icons.arrow_forward, size: 13, color: cs.onSurfaceVariant),
+                              Text(excursion.puntoFin, style: tt.labelLarge?.copyWith(color: cs.onSurface)),
                             ],
                           ),
                           const SizedBox(height: 3),
-
-                          // ID + experto
+                          // Cliente + experto
                           Text(
-                            '#${solicitud.id}  ·  ${solicitud.idExperto != null ? 'Experto asignado' : 'Sin experto'}',
+                            [
+                              '#${solicitud.id}',
+                              if (nombreUsuario != null) nombreUsuario,
+                              solicitud.idExperto != null ? 'Experto asignado' : 'Sin experto',
+                              // Separa por guion
+                            ].join('  -  '),
                             style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 10),
-
                     // Badge estado
                     TagWidget(
                       text: solicitud.estado.label,
@@ -166,7 +155,7 @@ class SolicitudCard extends StatelessWidget {
                       children: excursion.categorias
                           .map((CategoriaActividad c) => TagWidget(
                                 text: c.label,
-                                backgroundColor: cs.onPrimary,
+                                backgroundColor: cs.onSecondary,
                                 textColor: cs.onPrimaryContainer,
                               ))
                           .toList(),
@@ -197,8 +186,8 @@ class SolicitudCard extends StatelessWidget {
                         if (onEditar != null) ...[
                           ActionIcon(
                             icon: Icons.edit_outlined,
-                            color: cs.onSurfaceVariant,
-                            onTap: onEditar!,
+                            color: cs.tertiary,
+                            onTap: onEditar!
                           ),
                           const SizedBox(width: 8),
                         ],

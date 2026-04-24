@@ -10,6 +10,7 @@ class SolicitudFormController {
   int get numeroParticipantes => int.tryParse(participantesCtrl.text) ?? 1;
   EstadoSolicitud estado = EstadoSolicitud.pendiente;
   int? idExperto;
+  int? idUsuario;
 
   bool editando = false;
   Solicitud? seleccionado;
@@ -26,6 +27,7 @@ class SolicitudFormController {
     participantesCtrl.text = '${solicitud.numeroParticipantes}';
     estado = solicitud.estado;
     idExperto = solicitud.idExperto;
+    idUsuario = solicitud.idUsuario;
   }
 
   Solicitud? crearSolicitud() {
@@ -41,6 +43,7 @@ class SolicitudFormController {
       numeroParticipantes: numeroParticipantes,
       estado: estado,
       idExperto: idExperto,
+      idUsuario: idUsuario,
     );
   }
 
@@ -51,6 +54,7 @@ class SolicitudFormController {
     participantesCtrl.clear();
     estado = EstadoSolicitud.pendiente;
     idExperto = null;
+    idUsuario = null;
   }
 
   void dispose() {

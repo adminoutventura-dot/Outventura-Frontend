@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_date_selector.dart';
-import 'package:outventura/core/widgets/app_excursion_dropdown.dart';
+import 'package:outventura/core/widgets/app_dropdown_field.dart';
+import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
-import 'package:outventura/core/widgets/app_user_dropdown.dart';
 import 'package:outventura/features/auth/data/fakes/users_fake.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/data/fakes/excursions_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
@@ -64,6 +65,47 @@ class _InputsDemoState extends State<InputsDemo> {
             obscureText: true,
             suffixIcon: const Icon(Icons.visibility_off_outlined),
           ),
+
+          // AppDropdownField (Usuario)
+          const SizedBox(height: 24),
+          Text('AppDropdownField – Usuario', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 8),
+          AppDropdownField<Usuario>(
+            value: _idUsuario,
+            items: usuariosFake,
+            itemValue: (Usuario u) => u.id,
+            itemLabel: (Usuario u) => '${u.nombre} ${u.apellidos}',
+            prefixIcon: Icons.person_outline,
+            label: 'Experto asignado',
+            hint: 'Sin asignar',
+            onChanged: (int? v) => setState(() => _idUsuario = v),
+          ),
+
+          // AppExcursionDropdown 
+          const SizedBox(height: 24),
+          Text('AppExcursionDropdown', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 8),
+          AppDropdownField<Excursion>(
+            value: _idExcursion,
+            items: catalogoExcursiones,
+            itemValue: (e) => e.id,
+            itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
+            prefixIcon: Icons.hiking_outlined,
+            label: 'Excursión',
+            hint: 'Selecciona una excursión',
+            onChanged: (int? v) => setState(() => _idExcursion = v),
+          ),
+
+          // AppDateSelector
+          const SizedBox(height: 24),
+          Text('AppDateSelector', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 8),
+          AppDateSelector(
+            label: 'Fecha de inicio',
+            date: _fecha,
+            onDateSelected: (DateTime d) => setState(() => _fecha = d),
+          ),
+
           // TagWidget
           const SizedBox(height: 24),
           Text('TagWidget', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
@@ -95,40 +137,6 @@ class _InputsDemoState extends State<InputsDemo> {
                 }
               }),
             )).toList(),
-          ),
-
-          // AppDateSelector
-          const SizedBox(height: 24),
-          Text('AppDateSelector', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
-          const SizedBox(height: 8),
-          AppDateSelector(
-            label: 'Fecha de inicio',
-            date: _fecha,
-            onDateSelected: (DateTime d) => setState(() => _fecha = d),
-          ),
-
-          // AppUserDropdown
-          const SizedBox(height: 24),
-          Text('AppUserDropdown', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
-          const SizedBox(height: 8),
-          AppUserDropdown(
-            value: _idUsuario,
-            users: usuariosFake,
-            label: 'Experto asignado',
-            hint: 'Sin asignar',
-            onChanged: (int? v) => setState(() => _idUsuario = v),
-          ),
-
-          // AppExcursionDropdown 
-          const SizedBox(height: 24),
-          Text('AppExcursionDropdown', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
-          const SizedBox(height: 8),
-          AppExcursionDropdown(
-            value: _idExcursion,
-            excursiones: catalogoExcursiones,
-            label: 'Excursión',
-            hint: 'Selecciona una excursión',
-            onChanged: (int? v) => setState(() => _idExcursion = v),
           ),
 
           // AppImagePickerField           

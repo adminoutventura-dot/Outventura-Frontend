@@ -1,23 +1,31 @@
-import 'package:flutter/material.dart';
-import 'package:outventura/features/auth/domain/entities/user.dart';
+﻿import 'package:flutter/material.dart';
 
-class AppUserDropdown extends StatelessWidget {
-  // TODO: Si es necesario se puede hacer generico.
+class AppDropdownField<T> extends StatelessWidget {
   final int? value;
-  final List<Usuario> users;
+  final List<T> items;
+  final int? Function(T) itemValue;
+  final String Function(T) itemLabel;
   final ValueChanged<int?> onChanged;
   final String label;
   final String hint;
+  final IconData? prefixIcon;
   final String? Function(int?)? validator;
+  final bool isRequired;
+  final String? errorText;
 
-  const AppUserDropdown({
+  const AppDropdownField({
     super.key,
     required this.value,
-    required this.users,
+    required this.items,
+    required this.itemValue,
+    required this.itemLabel,
     required this.onChanged,
-    this.label = 'Experto asignado',
-    this.hint = 'Sin asignar',
+    required this.label,
+    required this.hint,
+    this.prefixIcon,
     this.validator,
+    this.isRequired = false,
+    this.errorText,
   });
 
   @override
@@ -32,11 +40,12 @@ class AppUserDropdown extends StatelessWidget {
         Icons.keyboard_arrow_down_rounded,
         color: cs.primary.withValues(alpha: 0.7),
       ),
-      
-      // Estilo
       decoration: InputDecoration(
         labelText: label,
         labelStyle: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+        prefixIcon: prefixIcon != null
+            ? Icon(prefixIcon, color: cs.primary.withAlpha(150), size: 22)
+            : null,
         border: UnderlineInputBorder(
           borderSide: BorderSide(
             color: cs.onSurfaceVariant.withAlpha(50),
@@ -51,36 +60,30 @@ class AppUserDropdown extends StatelessWidget {
         ),
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
-            color: cs.primary.withAlpha(150),
+            color: cs.primaryContainer,
             width: 2,
           ),
         ),
-        // Indica que el campo no tiene fondo, solo una línea inferior
         filled: false,
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+        errorText: errorText,
       ),
-
+      isExpanded: true,
+      menuMaxHeight: 240,
       hint: Text(hint, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-
       items: [
         DropdownMenuItem<int?>(
           value: null,
-          child: Text(
-            hint,
-            style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-          ),
+          child: Text(hint, overflow: TextOverflow.ellipsis, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
         ),
-        for (Usuario u in users)
+        for (final T item in items)
           DropdownMenuItem<int?>(
-            value: u.id,
-            child: Text(
-              '${u.nombre} ${u.apellidos}',
-              style: tt.bodyMedium?.copyWith(color: cs.onSurface),
-            ),
+            value: itemValue(item),
+            child: Text(itemLabel(item), overflow: TextOverflow.ellipsis, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
           ),
       ],
       onChanged: onChanged,
-      validator: validator,
+      validator: validator ?? (isRequired ? (int? v) => v == null ? 'Selecciona una opción' : null : null),
     );
   }
 }

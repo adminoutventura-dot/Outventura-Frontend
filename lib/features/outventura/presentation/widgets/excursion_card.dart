@@ -154,7 +154,7 @@ class ExcursionCard extends StatelessWidget {
                       children: excursion.categorias
                           .map((CategoriaActividad c) => TagWidget(
                                 text: c.label,
-                                backgroundColor: cs.primaryContainer,
+                                backgroundColor: cs.onSecondary,
                                 textColor: cs.onPrimaryContainer,
                               ))
                           .toList(),
@@ -167,8 +167,8 @@ class ExcursionCard extends StatelessWidget {
                     if (onEditar != null)
                       ActionIcon(
                         icon: Icons.edit_outlined,
-                        color: cs.onPrimaryContainer,
-                        onTap: onEditar!,
+                        color: cs.tertiary,
+                        onTap: onEditar!
                       ),
 
                     const SizedBox(width: 10),

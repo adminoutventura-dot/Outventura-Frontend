@@ -59,14 +59,19 @@ class PreferencesPage extends ConsumerWidget {
               children: [
                 Text('Tema oscuro', style: tt.titleMedium),
                 Switch(
-                  value: prefs.temaOscuro,
-                  onChanged: (bool value) {
-                    // Actualiza la preferencia de tema oscuro.
-                    ref.read(preferenciasProvider.notifier).actualizarPreferencias(
-                      prefs.copyWith(temaOscuro: value),
-                    );
-                  },
-                ),
+                    value: prefs.temaOscuro,
+                    onChanged: (bool value) {
+                      // Actualiza la preferencia de tema oscuro.
+                      ref.read(preferenciasProvider.notifier).actualizarPreferencias(
+                        prefs.copyWith(temaOscuro: value),
+                      );
+                    },
+                    activeThumbColor: cs.primary,
+                    activeTrackColor: cs.primaryContainer,
+                    inactiveThumbColor: cs.onSurfaceVariant,
+                    inactiveTrackColor: cs.onSurfaceVariant.withValues(alpha: 0.35),
+                    trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+                  ),
               ],
             ),
           ],

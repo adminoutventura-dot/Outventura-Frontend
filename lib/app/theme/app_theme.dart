@@ -7,47 +7,44 @@ class AppTheme {
 
   static ThemeData get light => ThemeData(
     brightness: Brightness.light,
-    scaffoldBackgroundColor: AppColors.offWhite,
+    scaffoldBackgroundColor: AppColors.onPrimary,
     appBarTheme: AppBarTheme(
       elevation: 0,
-      backgroundColor: AppColors.darkGreen,
-      // Color del texto y los íconos
-      foregroundColor: AppColors.offWhite,
-      // Reacción del AppBar al scroll
+      backgroundColor: AppColors.inverseSurface,
+      foregroundColor: AppColors.onPrimary,
       surfaceTintColor: Colors.transparent,
-      // Estilo del título del AppBar
       titleTextStyle: AppTextStyles.headlineSmall.copyWith(
-        color: AppColors.offWhite,
+        color: AppColors.onPrimary,
       ),
     ),
 
     colorScheme: const ColorScheme.light(
-      primary: AppColors.green,
-      onPrimary: AppColors.offWhite,        
+      primary: AppColors.primary,
+      onPrimary: AppColors.onPrimary,
 
-      secondary: AppColors.tan,
-      onSecondary: AppColors.lightBrown,
+      secondary: AppColors.secondary,
+      onSecondary: AppColors.onSecondary,
 
-      tertiary: AppColors.darkBlue,
-      onTertiary: AppColors.offWhite,
+      tertiary: AppColors.tertiary,
+      onTertiary: AppColors.onPrimary,
 
-      primaryContainer: AppColors.paleGreen,
-      onPrimaryContainer: AppColors.brown,
+      primaryContainer: AppColors.primaryContainer,
+      onPrimaryContainer: AppColors.onPrimaryContainer,
 
-      secondaryContainer: AppColors.lightBlue,
-      onSecondaryContainer: AppColors.darkBrown,
+      secondaryContainer: AppColors.secondaryContainer,
+      onSecondaryContainer: AppColors.onSecondaryContainer,
 
-      surface: AppColors.white,
-      onSurface: AppColors.black,  
+      surface: AppColors.surface,
+      onSurface: AppColors.onSurface,
 
-      inverseSurface: AppColors.darkGreen,
-      onInverseSurface: AppColors.white,
+      inverseSurface: AppColors.inverseSurface,
+      onInverseSurface: AppColors.surface,
 
-      surfaceContainer: AppColors.white,      
-      onSurfaceVariant: AppColors.gray,      
+      surfaceContainer: AppColors.surface,
+      onSurfaceVariant: AppColors.onSurfaceVariant,
 
-      error: AppColors.red,
-      onError: AppColors.offWhite,
+      error: AppColors.error,
+      onError: AppColors.onPrimary,
     ),
     
     textTheme: const TextTheme(
@@ -67,42 +64,46 @@ class AppTheme {
 
   static ThemeData get dark => ThemeData(
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: AppColors.darkBlue,
-    appBarTheme: const AppBarTheme(
+    scaffoldBackgroundColor: AppColors.darkOnPrimary,
+    appBarTheme: AppBarTheme(
       elevation: 0,
-      // Los colores se tomarán del Theme (colorScheme) automáticamente
+      backgroundColor: AppColors.darkInverseSurface,
+      foregroundColor: AppColors.darkOnPrimary,
+      surfaceTintColor: Colors.transparent,
+      titleTextStyle: AppTextStyles.headlineSmall.copyWith(
+        color: AppColors.darkOnPrimary,
+      ),
     ),
     colorScheme: const ColorScheme.dark(
-      primary: AppColors.green,
-      onPrimary: AppColors.offWhite,
+      primary: AppColors.darkPrimary,
+      onPrimary: AppColors.darkOnPrimary,
 
-      secondary: AppColors.tan,
-      onSecondary: AppColors.offWhite,
+      secondary: AppColors.darkSecondary,
+      onSecondary: AppColors.darkOnSecondary,
 
-      tertiary: AppColors.lightBlue,
-      onTertiary: AppColors.offWhite,
+      tertiary: AppColors.darkTertiary,
+      onTertiary: AppColors.darkOnPrimary,
 
-      primaryContainer: AppColors.darkGreen,
-      onPrimaryContainer: AppColors.white,
+      primaryContainer: AppColors.darkPrimaryContainer,
+      onPrimaryContainer: AppColors.darkOnPrimaryContainer,
 
-      secondaryContainer: AppColors.darkBrown,
-      onSecondaryContainer: AppColors.lightBlue,
+      secondaryContainer: AppColors.darkSecondaryContainer,
+      onSecondaryContainer: AppColors.darkOnSecondaryContainer,
 
-      surface: AppColors.darkBlue,
-      onSurface: AppColors.offWhite,
+      surface: AppColors.darkSurface,
+      onSurface: AppColors.darkOnSurface,
 
-      inverseSurface: AppColors.white,
-      onInverseSurface: AppColors.darkGreen,
+      inverseSurface: AppColors.darkInverseSurface,
+      onInverseSurface: AppColors.darkSurface,
 
-      surfaceContainer: AppColors.darkBlue,
-      onSurfaceVariant: AppColors.gray,
+      surfaceContainer: AppColors.darkSurface,
+      onSurfaceVariant: AppColors.darkOnSurfaceVariant,
 
-      error: AppColors.red,
-      onError: AppColors.offWhite,
+      error: AppColors.darkError,
+      onError: AppColors.darkOnPrimary,
     ),
-    
     textTheme: const TextTheme(
-      titleLarge: AppTextStyles.titleLarge, 
+      titleLarge: AppTextStyles.titleLarge,
       headlineSmall: AppTextStyles.headlineSmall,
       titleMedium: AppTextStyles.titleMedium,
       bodyLarge: AppTextStyles.bodyLarge,
@@ -111,7 +112,8 @@ class AppTheme {
       labelLarge: AppTextStyles.labelLarge,
       labelMedium: AppTextStyles.labelMedium,
       labelSmall: AppTextStyles.labelSmall,
-      titleSmall: AppTextStyles.titleSmall,  
+      titleSmall: AppTextStyles.titleSmall,
     ),
+
   );
 }

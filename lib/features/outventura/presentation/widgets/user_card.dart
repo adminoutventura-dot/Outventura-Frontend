@@ -117,15 +117,16 @@ class UserCard extends StatelessWidget {
                     children: [
                       // Nombre + Badge de rol en la misma línea
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Flexible(
+                          Expanded(
                             child: Text(
                               '${usuario.nombre} ${usuario.apellidos}',
                               style: tt.titleMedium?.copyWith(
                                 color: cs.onSurface,
                                 letterSpacing: 0.2,
                               ),
-                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -149,10 +150,13 @@ class UserCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           
-                          Text(
-                            usuario.email,
-                            style: tt.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
+                          Expanded(
+                            child: Text(
+                              usuario.email,
+                              style: tt.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                              softWrap: true,
                             ),
                           ),
                         
@@ -180,43 +184,48 @@ class UserCard extends StatelessWidget {
                         ),
                       ],
 
-                      // Badge de inactivo
-                      if (!usuario.activo) ...[
+                      
+
+                      // Botones de acción
+                      if (onEditar != null || onEliminar != null) ...[
                         const SizedBox(height: 8),
-                        TagWidget(
-                          text: 'Cuenta inactiva',
-                          backgroundColor: cs.errorContainer.withValues(alpha: 0.3),
-                          textColor: cs.error,
-                          icon: Icons.block_outlined,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // Badge de inactivo
+                            if (!usuario.activo) ...[
+                              const SizedBox(height: 8),
+                              TagWidget(
+                                text: 'Cuenta inactiva',
+                                backgroundColor: cs.errorContainer.withValues(alpha: 0.3),
+                                textColor: cs.error,
+                                icon: Icons.block_outlined,
+                              ),
+                            ],
+
+                            const Spacer(),
+
+                            if (onEditar != null)
+                              ActionIcon(
+                                icon: Icons.edit_outlined,
+                                color: cs.tertiary,
+                                onTap: onEditar!
+                              ),
+                              
+                            if (onEditar != null && onEliminar != null)
+                              const SizedBox(width: 4),
+
+                            if (onEliminar != null)
+                              ActionIcon(
+                                icon: Icons.delete_outline,
+                                color: cs.error,
+                                onTap: onEliminar!,
+                              ),
+                          ],
                         ),
                       ],
                     ],
                   ),
-                ),
-
-                const SizedBox(width: 10),
-
-                // Botones de acción
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (onEditar != null)
-                      ActionIcon(
-                        icon: Icons.edit_outlined,
-                        color: cs.onPrimaryContainer,
-                        onTap: onEditar!,
-                      ),
-                    
-                    if (onEditar != null && onEliminar != null)
-                      const SizedBox(height: 20),
-
-                    if (onEliminar != null)
-                      ActionIcon(
-                        icon: Icons.delete_outline,
-                        color: cs.error,
-                        onTap: onEliminar!,
-                      ),
-                  ],
                 ),
               ],
             ),

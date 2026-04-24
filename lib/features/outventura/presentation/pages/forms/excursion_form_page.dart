@@ -52,7 +52,7 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
         child: Form(
           key: _controller.formKey,
           child: Column(
@@ -173,8 +173,6 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                     onSelected: (_) {
                       setState(() => _controller.estado = est);
                     },
-                    selectedColor: cs.secondaryContainer,
-                    selectedBorderColor: cs.tertiary,
                   );
                 }).toList(),
               ),

@@ -3,6 +3,7 @@ import 'package:outventura/catalog/demos/buttons_demo.dart';
 import 'package:outventura/catalog/demos/cards_demo.dart';
 import 'package:outventura/catalog/demos/inputs_demo.dart';
 import 'package:outventura/catalog/demos/theme_demo.dart';
+import 'package:outventura/catalog/demos/misc_demo.dart';
 
 class CatalogPage extends StatelessWidget {
   const CatalogPage({super.key});
@@ -94,6 +95,26 @@ class CatalogPage extends StatelessWidget {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ThemeDemo()),
+              );
+            },
+          ),
+
+          const SizedBox(height: 8),
+
+          // Otros widgets
+          ListTile(
+            title: Text(
+              'Otros Widgets',
+              style: tt.titleMedium?.copyWith(color: cs.onSurface),
+            ),
+            subtitle: Text(
+              'Tabs, diálogos, FAB personalizados y chips avanzados',
+              style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const MiscDemo()),
               );
             },
           ),

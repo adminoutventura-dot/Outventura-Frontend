@@ -78,7 +78,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
             child: filtradas.isEmpty
                 ? Center(child: Text('No hay reservas', style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)))
                 : ListView.separated(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
                     itemCount: filtradas.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (_, int i) {

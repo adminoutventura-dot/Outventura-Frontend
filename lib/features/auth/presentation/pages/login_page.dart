@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/auth/data/fakes/users_fake.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/main_scaffold.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final LoginController _controller = LoginController();
 
   @override
@@ -29,6 +31,7 @@ class _LoginPageState extends State<LoginPage> {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           // Imagen de fondo
@@ -54,8 +57,8 @@ class _LoginPageState extends State<LoginPage> {
 
           // Contenido
           Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -169,6 +172,7 @@ class _LoginPageState extends State<LoginPage> {
                                   orElse: () => usuariosFake[0],
                                 );
 
+                                ref.read(currentUserProvider.notifier).setUsuario(usuario);
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(

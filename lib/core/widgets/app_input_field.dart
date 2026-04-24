@@ -57,7 +57,7 @@ class CustomInputField extends StatelessWidget {
         ),
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
-            color: colorScheme.primary.withAlpha(150),
+            color: colorScheme.primaryContainer,
             width: 2,
           ),
         ),

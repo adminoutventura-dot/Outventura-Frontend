@@ -5,6 +5,7 @@ import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
+import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
@@ -20,6 +21,7 @@ class HomeAdminPage extends ConsumerWidget {
     final List<Excursion> excursiones = ref.watch(excursionesProvider);
     final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider);
     final List<Solicitud> solicitudes = ref.watch(solicitudesProvider);
+    final usuarios = ref.watch(usuariosProvider);
 
     return Scaffold(
       // Barra superior con título y fondo degradado.
@@ -125,6 +127,12 @@ class HomeAdminPage extends ConsumerWidget {
                         (Excursion e) => e.id == solicitud.idExcursion,
                         orElse: () => excursiones.first,
                       ),
+                      nombreUsuario: solicitud.idUsuario != null
+                          ? () {
+                              final u = usuarios.firstWhere((u) => u.id == solicitud.idUsuario, orElse: () => usuarios.first);
+                              return '${u.nombre} ${u.apellidos}';
+                            }()
+                          : null,
                     ),
                   ),
               ],

@@ -47,14 +47,14 @@ class ReservationLineCard extends StatelessWidget {
                 ),
                 TagWidget(
                   text: 'x${linea.cantidad}',
-                  backgroundColor: cs.primaryContainer,
+                  backgroundColor: cs.onSecondary,
                   textColor: cs.onPrimaryContainer,
                 ),
                 const SizedBox(width: 4),
                 ActionIcon(
                   icon: Icons.edit_outlined,
                   size: 18,
-                  color: cs.onSurfaceVariant,
+                  color: cs.tertiary,
                   onTap: onEdit,
                 ),
                 const SizedBox(width: 8),

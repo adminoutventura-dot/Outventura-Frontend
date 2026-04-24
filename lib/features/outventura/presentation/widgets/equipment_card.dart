@@ -87,6 +87,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                   children: [
                     // Nombre del equipamiento + estado
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Text(
@@ -94,7 +95,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                             style: tt.labelLarge?.copyWith(color: cs.onSurface),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 3),
                         TagWidget(
                           text: widget.equipamiento.estado.label,
                           backgroundColor: badgeBg.withValues(alpha: 0.35),
@@ -113,11 +114,11 @@ class _EquipmentCardState extends State<EquipmentCard> {
                         overflow: TextOverflow.ellipsis,
                       ),
 
-                    const Spacer(),
+                    const SizedBox(height: 10),
                     
+                    // Precio y stock
                     Row(
                       children: [
-                        // Precio de alquiler diario
                         Icon(Icons.sell_outlined, size: 11, color: cs.onSurfaceVariant),
                         const SizedBox(width: 3),
                         Text(
@@ -125,8 +126,6 @@ class _EquipmentCardState extends State<EquipmentCard> {
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                         const SizedBox(width: 10),
-                        
-                        // Stock disponible
                         SizedBox(
                           width: 32,
                           height: 3,
@@ -143,31 +142,43 @@ class _EquipmentCardState extends State<EquipmentCard> {
                           '${widget.equipamiento.stock} uds',
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
-
-                        const Spacer(),
-                        
-                        // Botones de acción
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    // Botones de acción
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // Editar
                         if (widget.onEditar != null)
                           ActionIcon(
                             icon: Icons.edit_outlined,
                             color: cs.tertiary,
-                            onTap: widget.onEditar!,
+                            onTap: widget.onEditar!
                           ),
-                        const SizedBox(width: 10),
 
+                        if (widget.onEditar != null && (widget.onEliminar != null || widget.onAlquilar != null))
+                          const SizedBox(width: 10),
+                        
+                        // Eliminar
                         if (widget.onEliminar != null)
                           ActionIcon(
                             icon: Icons.delete_outline,
                             color: cs.error,
                             onTap: widget.onEliminar!,
                           ),
-                          
-                        if (widget.onAlquilar != null)
+
+                        // Alquilar
+                        if (widget.onAlquilar != null) ...[
+                          if (widget.onEliminar != null)
+                          const SizedBox(width: 10),
+
                           ActionIcon(
                             icon: Icons.add,
                             color: cs.primary,
                             onTap: widget.onAlquilar!,
                           ),
+                        ],
                       ],
                     ),
                   ],

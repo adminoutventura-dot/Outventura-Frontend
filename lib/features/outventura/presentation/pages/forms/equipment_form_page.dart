@@ -53,7 +53,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
 
       // SingleChildScrollView permite que un solo hijo sea scrollable. 
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
         child: Form(
           key: _controller.formKey,
           child: Column(
@@ -126,8 +126,6 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                     onSelected: (_) {
                       setState(() => _controller.estado = est);
                     },
-                    selectedColor: cs.secondaryContainer,
-                    selectedBorderColor: cs.tertiary,
                   );
                 }).toList(),
               ),

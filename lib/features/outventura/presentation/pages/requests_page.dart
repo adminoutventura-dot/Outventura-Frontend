@@ -7,6 +7,7 @@ import 'package:outventura/features/outventura/presentation/providers/excursions
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/core/widgets/app_tab.dart';
+import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 
 class RequestsPage extends ConsumerStatefulWidget {
@@ -106,7 +107,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                     ),
                   )
                 : ListView.separated(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
                     itemCount: filtradas.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (BuildContext context, int index) {
@@ -120,9 +121,15 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                         }
                       }
 
+                      final usuarios = ref.read(usuariosProvider);
+                      final usuario = soli.idUsuario != null
+                          ? usuarios.firstWhere((u) => u.id == soli.idUsuario, orElse: () => usuarios.first)
+                          : null;
+
                       return SolicitudCard(
                         solicitud: soli,
                         excursion: excursion,
+                        nombreUsuario: usuario != null ? '${usuario.nombre} ${usuario.apellidos}' : null,
                         onGestionar: soli.estado == EstadoSolicitud.pendiente ? () => _aceptar(soli) : null,
                         onCancelar: soli.estado == EstadoSolicitud.pendiente ? () => _rechazar(soli) : null,
                         onEditar: () => _editar(soli),

@@ -1,70 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
 
 class UserFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  
-  final TextEditingController nombreController = TextEditingController();
-  final TextEditingController apellidosController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController telefonoController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
-  
+
+  final TextEditingController nombre = TextEditingController();
+  final TextEditingController apellidos = TextEditingController();
+  final TextEditingController email = TextEditingController();
+  final TextEditingController telefono = TextEditingController();
+
   TipoRol rol = TipoRol.usuario;
   bool activo = true;
-  bool ocultarContrasena = true;
-  bool ocultarConfirmacionContrasena = true;
-  
-  Usuario? _usuarioOriginal;
-  bool get editando => _usuarioOriginal != null;
+  String? foto;
+  bool editando = false;
 
-  void inicializar(Usuario? usuario) {
-    _usuarioOriginal = usuario;
-    
-    if (usuario != null) {
-      nombreController.text = usuario.nombre;
-      apellidosController.text = usuario.apellidos;
-      emailController.text = usuario.email;
-      telefonoController.text = usuario.telefono ?? '';
-      rol = usuario.rol;
-      activo = usuario.activo;
-    }
-  }
+  Usuario? seleccionado;
 
   bool validar() {
     return formKey.currentState?.validate() ?? false;
   }
 
+  // Cargar los datos
+  void cargarUsuario(Usuario usuario) {
+    editando = true;
+    seleccionado = usuario;
+    nombre.text = usuario.nombre;
+    apellidos.text = usuario.apellidos;
+    email.text = usuario.email;
+    telefono.text = usuario.telefono ?? '';
+    rol = usuario.rol;
+    activo = usuario.activo;
+    foto = usuario.foto;
+  }
+
+  // Limpiar todos los campos
+  void limpiar() {
+    editando = false;
+    seleccionado = null;
+    nombre.clear();
+    apellidos.clear();
+    email.clear();
+    telefono.clear();
+    rol = TipoRol.usuario;
+    activo = true;
+  }
+
   void dispose() {
-    nombreController.dispose();
-    apellidosController.dispose();
-    emailController.dispose();
-    telefonoController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
-  }
-
-  // Validadores
-  String? validadorContrasena(String? value) {
-    // Solo requerido si es nuevo usuario
-    if (!editando && (value == null || value.isEmpty)) {
-      return 'La contraseña es obligatoria';
-    }
-    if (value != null && value.isNotEmpty && value.length < 6) {
-      return 'Mínimo 6 caracteres';
-    }
-    return null;
-  }
-
-  String? validadorConfirmacionContrasena(String? value) {
-    if (!editando && (value == null || value.isEmpty)) {
-      return 'Confirma la contraseña';
-    }
-    if (value != null && value != passwordController.text) {
-      return 'Las contraseñas no coinciden';
-    }
-    return null;
+    nombre.dispose();
+    apellidos.dispose();
+    email.dispose();
+    telefono.dispose();
   }
 }
+

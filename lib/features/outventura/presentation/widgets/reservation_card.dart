@@ -41,15 +41,13 @@ class ReservaCard extends StatelessWidget {
 
     final (Color badgeBg, Color badgeFg, Color accentColor) = switch (reserva.estado) {
       EstadoReserva.pendiente => (cs.tertiaryContainer, cs.onTertiary, cs.tertiary),
-      EstadoReserva.confirmada => (cs.secondaryContainer, cs.onSecondaryContainer, cs.secondaryContainer),
-      EstadoReserva.devuelta => (cs.primaryContainer, cs.onPrimaryContainer, cs.primaryContainer),
+      EstadoReserva.confirmada => (cs.primary, cs.onPrimary, cs.primary),
+      EstadoReserva.devuelta => (cs.secondary.withValues(alpha: 0.35), cs.onPrimaryContainer, cs.secondary.withValues(alpha: 0.35)),
       EstadoReserva.cancelada => (cs.error, cs.onError, cs.error),
     };
-    // TODO: Revisar si poner o no imagenes
-    final List<String> imagenes = lineas
-        .map((l) => l.imagen)
-        .whereType<String>()
-        .toList();
+
+    // Lista de imágenes de los equipamientos, filtrando los nulos
+    final List<String> imagenes = lineas.map((l) => l.imagen).whereType<String>().toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -139,9 +137,12 @@ class ReservaCard extends StatelessWidget {
                             children: [
                               Icon(Icons.calendar_today_outlined, size: 12, color: cs.onSurfaceVariant),
                               const SizedBox(width: 4),
-                              Text(
-                                '${FormateadorFecha.short(reserva.fechaInicio)} → ${FormateadorFecha.short(reserva.fechaFin)}',
-                                style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                              Expanded(
+                                child: Text(
+                                  '${FormateadorFecha.short(reserva.fechaInicio)} → ${FormateadorFecha.short(reserva.fechaFin)}',
+                                  style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                                  softWrap: true,
+                                ),
                               ),
                             ],
                           ),
@@ -177,7 +178,6 @@ class ReservaCard extends StatelessWidget {
                 const SizedBox(height: 10),
 
                 //  Líneas de la reserva
-                // TODO: Revisar diseño para muchas líneas
                 ...lineas.map((LineaDisplayInfo l) => Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(
@@ -191,16 +191,10 @@ class ReservaCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: cs.primaryContainer,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          'x${l.cantidad}',
-                          style: tt.labelSmall?.copyWith(color: cs.onPrimaryContainer),
-                        ),
+                      TagWidget(
+                        text: 'x${l.cantidad}',
+                        backgroundColor: cs.onSecondary,
+                        textColor: cs.onPrimaryContainer,
                       ),
                     ],
                   ),
@@ -217,8 +211,8 @@ class ReservaCard extends StatelessWidget {
                     if (onEditar != null)
                       ActionIcon(
                         icon: Icons.edit_outlined,
-                        color: cs.onSurfaceVariant,
-                        onTap: onEditar!,
+                        color: cs.tertiary,
+                        onTap: onEditar!
                       ),
                     const Spacer(),
                     if (reserva.cargoDanios > 0) ...[

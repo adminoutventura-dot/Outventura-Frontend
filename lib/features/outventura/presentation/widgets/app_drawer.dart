@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/catalog/pages/catalog_page.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/pages/login_page.dart';
-import 'package:outventura/features/auth/presentation/pages/user_form_page.dart';
+import 'package:outventura/features/auth/presentation/pages/profile_form_page.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/preferences/presentation/pages/preferences_page.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Usuario? usuario = ref.watch(currentUserProvider);
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
@@ -28,17 +32,18 @@ class AppDrawer extends StatelessWidget {
           ),
           // Crear/Editar usuario
           ListTile(
-            leading: Icon(Icons.person_add_alt_1, color: cs.onSurface),
+            leading: Icon(Icons.person, color: cs.onSurface),
             title: Text(
-              'Crear/Editar usuario',
+              'Perfil',
               style: tt.titleMedium?.copyWith(color: cs.onSurface),
             ),
             onTap: () {
+              if (usuario == null) return;
               Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const UserFormPage(),
+                  builder: (_) => ProfileFormPage(usuario: usuario),
                 ),
               );
             },

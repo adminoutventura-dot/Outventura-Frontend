@@ -36,6 +36,7 @@ class Solicitud {
   final int numeroParticipantes;
   final EstadoSolicitud estado;
   final int? idExperto;
+  final int? idUsuario;
 
   const Solicitud({
     required this.id,
@@ -43,6 +44,7 @@ class Solicitud {
     required this.numeroParticipantes,
     required this.estado,
     this.idExperto,
+    this.idUsuario,
   });
 
   // Crea una Solicitud a partir del JSON que devuelve el backend.
@@ -53,6 +55,7 @@ class Solicitud {
       numeroParticipantes: map['participantCount'] as int,
       estado: EstadoSolicitud.fromString(map['status'] as String),
       idExperto: map['expertId'] as int?,
+      idUsuario: map['userId'] as int?,
     );
   }
 
@@ -62,6 +65,7 @@ class Solicitud {
     int? numeroParticipantes,
     EstadoSolicitud? estado,
     int? idExperto,
+    int? idUsuario,
   }) {
     return Solicitud(
       id: id,
@@ -69,6 +73,7 @@ class Solicitud {
       numeroParticipantes: numeroParticipantes ?? this.numeroParticipantes,
       estado: estado ?? this.estado,
       idExperto: idExperto ?? this.idExperto,
+      idUsuario: idUsuario ?? this.idUsuario,
     );
   }
 }

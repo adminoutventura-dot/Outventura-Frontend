@@ -38,17 +38,18 @@ class AppChoiceChip extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final Color selColor = selectedColor ?? cs.primaryContainer;
-    final Color selBorder = selectedBorderColor ?? cs.primary;
+    final Color selColor = selectedColor ?? cs.secondaryContainer;
+    final Color selBorder = selectedBorderColor ?? cs.onSecondaryContainer;
 
     return ChoiceChip(
       label: Text(label),
       selected: seleccionado,
       onSelected: onSelected,
       selectedColor: selColor,
+      checkmarkColor: cs.onSurface,
       backgroundColor: cs.onPrimary,
       labelStyle: tt.labelMedium?.copyWith(
-        color: seleccionado ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+        color: seleccionado ? cs.onSurface : cs.onSurfaceVariant,
       ),
       side: BorderSide(
         color: seleccionado ? selBorder : cs.onSurfaceVariant,
@@ -85,7 +86,7 @@ class AppFilterChip extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final Color selColor = selectedColor ?? cs.primaryContainer;
+    final Color selColor = selectedColor ?? cs.secondary.withValues(alpha: 0.2);
     final Color selBorder = selectedBorderColor ?? cs.primary;
 
     return FilterChip(
@@ -95,6 +96,7 @@ class AppFilterChip extends StatelessWidget {
       // Callback que se ejecuta cuando el usuario pulsa el chip.
       onSelected: onSelected,
       selectedColor: selColor,
+      checkmarkColor: cs.onPrimaryContainer,
       backgroundColor: cs.onPrimary,
       labelStyle: tt.labelMedium?.copyWith(
         color: seleccionado ? cs.onPrimaryContainer : cs.onSurfaceVariant,

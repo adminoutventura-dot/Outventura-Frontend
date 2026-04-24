@@ -6,6 +6,7 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/equipment_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
+import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_tab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/equipment_card.dart';
 
@@ -49,8 +50,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
         ),
       ),
       drawer: const AppDrawer(),
-      // TODO: Hacer widget reutilizable
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: AddFab(
         onPressed: () async {
           final Equipamiento? nuevo = await Navigator.of(context).push<Equipamiento>(
             MaterialPageRoute(builder: (_) => const EquipmentFormPage()),
@@ -59,13 +59,6 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
             ref.read(equipamientosProvider.notifier).agregar(nuevo);
           }
         },
-        backgroundColor: cs.secondaryContainer,
-        foregroundColor: cs.onSecondary,
-        elevation: 2,
-        shape: CircleBorder(
-          side: BorderSide(color: cs.onSecondary, width: 3),
-        ),
-        child: const Icon(Icons.add),
       ),
       body: Column(
         // Barra de categorías
@@ -93,7 +86,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
           // Lista de materiales filtrados
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
               // Si no hay materiales muestra un mensaje en lugar de la lista.
               itemCount: equipamientosFiltrados.isEmpty ? 1 : equipamientosFiltrados.length,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
@@ -133,7 +126,8 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                 );
               },
             ),
-          )
+          ),
+          
         ],
       ),
     );

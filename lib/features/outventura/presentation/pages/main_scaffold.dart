@@ -44,9 +44,9 @@ class _MainScaffoldState extends State<MainScaffold> {
         currentIndex: _indiceActual,
         onTap: (int index) => setState(() => _indiceActual = index),
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: cs.onPrimary,
+        selectedItemColor: cs.primary,
         unselectedItemColor: cs.onSurfaceVariant,
-        backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),

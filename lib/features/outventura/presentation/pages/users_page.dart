@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/user_form_page.dart';
+import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
 
@@ -33,26 +34,30 @@ class UsersPage extends ConsumerWidget {
         ),
       ),
       drawer: const AppDrawer(),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: AddFab(
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const UserFormPage()),
         ),
-        backgroundColor: cs.secondaryContainer,
-        foregroundColor: cs.onSecondary,
-        elevation: 2,
-        shape: CircleBorder(
-          side: BorderSide(color: cs.onSecondary, width: 3),
-        ),
-        child: const Icon(Icons.person_add_outlined),
+        icon: Icons.person_add_outlined,
       ),
 
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: usuarios.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 10),
-        itemBuilder: (BuildContext context, int index) {
-          if (index < usuarios.length) {
+      body: Padding(
+        padding: const EdgeInsetsGeometry.only(bottom: 50),
+        child: ListView.separated(
+          padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
+          itemCount: usuarios.isEmpty ? 1 : usuarios.length,
+          separatorBuilder: (_, _) => const SizedBox(height: 10),
+          itemBuilder: (BuildContext context, int index) {
+            if (usuarios.isEmpty) {
+              return Center(
+                child: Text(
+                  'No hay usuarios',
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                ),
+              );
+            }
+
             return UserCard(
               usuario: usuarios[index],
               onEditar: () => Navigator.push(
@@ -63,16 +68,8 @@ class UsersPage extends ConsumerWidget {
               ),
               onEliminar: () {},
             );
-          }
-
-          return Center(
-            child: Text(
-              'No hay usuarios',
-              style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-            ),
-          );
-          
-        },
+          },
+        ),
       ),
     );
   }
