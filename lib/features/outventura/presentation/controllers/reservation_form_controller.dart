@@ -65,6 +65,25 @@ class ReservationFormController {
     estado = reserva.estado;
   }
 
+  void aplicarValoresIniciales({
+    int? idUsuario,
+    int? idExcursion,
+    int? idEquipamiento,
+    int cantidadEquipamiento = 1,
+  }) {
+    this.idUsuario = idUsuario;
+    this.idExcursion = idExcursion;
+
+    if (idEquipamiento != null && lineas.isEmpty) {
+      lineas.add(
+        LineaReserva(
+          idEquipamiento: idEquipamiento,
+          cantidad: cantidadEquipamiento,
+        ),
+      );
+    }
+  }
+
   void agregarLinea(LineaReserva linea) {
     lineas.add(linea);
   }

@@ -45,6 +45,8 @@ class Excursion {
   final int numeroParticipantes;
   final String? descripcion;
   final EstadoExcursion estado;
+  // Material recomendado por participante: {idEquipamiento: cantidadPorPersona}.
+  final Map<int, int> materialesPorParticipante;
 
   const Excursion({
     required this.id,
@@ -57,6 +59,7 @@ class Excursion {
     required this.numeroParticipantes,
     this.descripcion,
     required this.estado,
+    this.materialesPorParticipante = const {},
   });
 
   // Crea una Excursion a partir del JSON que devuelve el backend.
@@ -74,6 +77,12 @@ class Excursion {
       numeroParticipantes: map['participantCount'] as int,
       descripcion: map['description'] as String?,
       estado: EstadoExcursion.fromString(map['status'] as String),
+      materialesPorParticipante:
+          (map['materialsPerParticipant'] as Map<String, dynamic>?)?.map(
+            (String key, dynamic value) =>
+                MapEntry(int.parse(key), (value as num).toInt()),
+          ) ??
+          const {},
     );
   }
 
@@ -88,6 +97,7 @@ class Excursion {
     int? numeroParticipantes,
     String? descripcion,
     EstadoExcursion? estado,
+    Map<int, int>? materialesPorParticipante,
   }) {
     return Excursion(
       id: id,
@@ -100,6 +110,7 @@ class Excursion {
       numeroParticipantes: numeroParticipantes ?? this.numeroParticipantes,
       descripcion: descripcion ?? this.descripcion,
       estado: estado ?? this.estado,
+      materialesPorParticipante: materialesPorParticipante ?? this.materialesPorParticipante,
     );
   }
 }

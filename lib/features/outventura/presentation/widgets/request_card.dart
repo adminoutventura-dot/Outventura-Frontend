@@ -13,6 +13,7 @@ class SolicitudCard extends StatelessWidget {
   final VoidCallback? onGestionar;
   final VoidCallback? onCancelar;
   final VoidCallback? onEditar;
+  final VoidCallback? onEditarReserva;
   final VoidCallback? onVerDetalle;
 
   const SolicitudCard({
@@ -23,6 +24,7 @@ class SolicitudCard extends StatelessWidget {
     this.onGestionar,
     this.onCancelar,
     this.onEditar,
+    this.onEditarReserva,
     this.onVerDetalle,
   });
 
@@ -31,27 +33,23 @@ class SolicitudCard extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final (Color badgeBg, Color badgeFg, Color accentColor) = switch (solicitud.estado) {
-      EstadoSolicitud.confirmada => (
-          cs.primary,
-          cs.onPrimary,
-          cs.primary,
-        ),
-      EstadoSolicitud.pendiente  => (
-          cs.tertiaryContainer,
-          cs.onTertiary,
-          cs.tertiary,
-        ),
+    final (
+      Color badgeBg,
+      Color badgeFg,
+      Color accentColor,
+    ) = switch (solicitud.estado) {
+      EstadoSolicitud.confirmada => (cs.primary, cs.onPrimary, cs.primary),
+      EstadoSolicitud.pendiente => (
+        cs.tertiaryContainer,
+        cs.onTertiary,
+        cs.tertiary,
+      ),
       EstadoSolicitud.finalizada => (
-          cs.secondary.withValues(alpha: 0.35),
-          cs.onPrimaryContainer,
-          cs.secondary.withValues(alpha: 0.35),
-        ),
-      EstadoSolicitud.cancelada => (
-          cs.error,
-          cs.onError,
-          cs.error,
-        ),
+        cs.secondary.withValues(alpha: 0.35),
+        cs.onPrimaryContainer,
+        cs.secondary.withValues(alpha: 0.35),
+      ),
+      EstadoSolicitud.cancelada => (cs.error, cs.onError, cs.error),
     };
 
     return Container(
@@ -64,7 +62,7 @@ class SolicitudCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Línea según estado 
+          // Línea según estado
           Container(height: 3, color: accentColor),
 
           Padding(
@@ -85,9 +83,23 @@ class SolicitudCard extends StatelessWidget {
                             spacing: 4,
                             runSpacing: 2,
                             children: [
-                              Text(excursion.puntoInicio, style: tt.labelLarge?.copyWith(color: cs.onSurface)),
-                              Icon(Icons.arrow_forward, size: 13, color: cs.onSurfaceVariant),
-                              Text(excursion.puntoFin, style: tt.labelLarge?.copyWith(color: cs.onSurface)),
+                              Text(
+                                excursion.puntoInicio,
+                                style: tt.labelLarge?.copyWith(
+                                  color: cs.onSurface,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward,
+                                size: 13,
+                                color: cs.onSurfaceVariant,
+                              ),
+                              Text(
+                                excursion.puntoFin,
+                                style: tt.labelLarge?.copyWith(
+                                  color: cs.onSurface,
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 3),
@@ -96,10 +108,14 @@ class SolicitudCard extends StatelessWidget {
                             [
                               '#${solicitud.id}',
                               if (nombreUsuario != null) nombreUsuario,
-                              solicitud.idExperto != null ? 'Experto asignado' : 'Sin experto',
+                              solicitud.idExperto != null
+                                  ? 'Experto asignado'
+                                  : 'Sin experto',
                               // Separa por guion
                             ].join('  -  '),
-                            style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                            style: tt.labelSmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ),
@@ -120,30 +136,41 @@ class SolicitudCard extends StatelessWidget {
                 Row(
                   children: [
                     // Icono + fecha
-                    Icon(Icons.calendar_today_outlined,
-                        size: 12, color: cs.onSurfaceVariant),
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 12,
+                      color: cs.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       FormateadorFecha.short(excursion.fechaInicio),
-                      style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                      style: tt.labelSmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(width: 12),
 
                     // Icono + participantes
-                    Icon(Icons.group_outlined,
-                        size: 12, color: cs.onSurfaceVariant),
+                    Icon(
+                      Icons.group_outlined,
+                      size: 12,
+                      color: cs.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${solicitud.numeroParticipantes} personas',
-                      style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                      style: tt.labelSmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 9),
                 Divider(
-                    height: 1,
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.2)),
+                  height: 1,
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.2),
+                ),
                 const SizedBox(height: 9),
 
                 // Tags + acciones
@@ -153,11 +180,13 @@ class SolicitudCard extends StatelessWidget {
                     Row(
                       spacing: 5,
                       children: excursion.categorias
-                          .map((CategoriaActividad c) => TagWidget(
-                                text: c.label,
-                                backgroundColor: cs.onSecondary,
-                                textColor: cs.onPrimaryContainer,
-                              ))
+                          .map(
+                            (CategoriaActividad c) => TagWidget(
+                              text: c.label,
+                              backgroundColor: cs.onSecondary,
+                              textColor: cs.onPrimaryContainer,
+                            ),
+                          )
                           .toList(),
                     ),
                     const Spacer(),
@@ -187,7 +216,16 @@ class SolicitudCard extends StatelessWidget {
                           ActionIcon(
                             icon: Icons.edit_outlined,
                             color: cs.tertiary,
-                            onTap: onEditar!
+                            onTap: onEditar!,
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+
+                        if (onEditarReserva != null) ...[
+                          ActionIcon(
+                            icon: Icons.book_online_outlined,
+                            color: cs.secondary,
+                            onTap: onEditarReserva!,
                           ),
                           const SizedBox(width: 8),
                         ],
@@ -212,4 +250,3 @@ class SolicitudCard extends StatelessWidget {
     );
   }
 }
-

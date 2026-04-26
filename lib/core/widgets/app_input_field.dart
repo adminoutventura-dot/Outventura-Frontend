@@ -8,6 +8,7 @@ class CustomInputField extends StatelessWidget {
   final Widget? suffixIcon;
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
+  final ValueChanged<String>? onChanged;
   final int? maxLines;
   final int? minLines;
 
@@ -20,6 +21,7 @@ class CustomInputField extends StatelessWidget {
     this.suffixIcon,
     this.keyboardType = TextInputType.text,
     this.validator,
+    this.onChanged,
     this.maxLines = 1,
     this.minLines,
   });
@@ -33,12 +35,17 @@ class CustomInputField extends StatelessWidget {
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
+      onChanged: onChanged,
       maxLines: maxLines,
       minLines: minLines,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+        labelStyle: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
         prefixIcon: prefixIcon != null
             ? Icon(
                 prefixIcon,
@@ -47,7 +54,7 @@ class CustomInputField extends StatelessWidget {
               )
             : null,
         suffixIcon: suffixIcon,
-        
+
         // Estilo de los bordes
         border: UnderlineInputBorder(
           borderSide: BorderSide(
@@ -56,22 +63,13 @@ class CustomInputField extends StatelessWidget {
           ),
         ),
         focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: colorScheme.primaryContainer,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: colorScheme.primaryContainer, width: 2),
         ),
         errorBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: colorScheme.error,
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: colorScheme.error, width: 1.5),
         ),
         focusedErrorBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: colorScheme.error,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: colorScheme.error, width: 2),
         ),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(
@@ -80,10 +78,7 @@ class CustomInputField extends StatelessWidget {
           ),
         ),
         filled: false,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 0,
-          vertical: 12,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
       ),
     );
   }

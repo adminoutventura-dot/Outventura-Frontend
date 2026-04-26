@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
@@ -9,7 +11,14 @@ import 'package:outventura/features/outventura/presentation/widgets/reservation_
 import 'package:outventura/features/outventura/presentation/widgets/reservation_dialogs.dart';
 
 class ReservationsPage extends ConsumerStatefulWidget {
-  const ReservationsPage({super.key});
+  final bool puedeGestionar;
+  final bool puedeCrear;
+
+  const ReservationsPage({
+    super.key,
+    this.puedeGestionar = true,
+    this.puedeCrear = true,
+  });
 
   @override
   ConsumerState<ReservationsPage> createState() => _ReservationsPageState();
@@ -22,19 +31,27 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final usuarioActual = ref.watch(currentUserProvider);
     final List<Reserva> reservas = ref.watch(reservasProvider);
     final ReservasNotifier notifier = ref.read(reservasProvider.notifier);
 
+    List<Reserva> base = reservas;
+    if (!widget.puedeGestionar && usuarioActual != null) {
+      base = reservas
+          .where((Reserva r) => r.idUsuario == usuarioActual.id)
+          .toList();
+    }
+
     List<Reserva> filtradas;
     if (_filtro == null) {
-      filtradas = reservas;
+      filtradas = base;
     } else {
-      filtradas = reservas.where((Reserva res) => res.estado == _filtro).toList();
+      filtradas = base.where((Reserva res) => res.estado == _filtro).toList();
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestión de reservas'),
+        title: Text(widget.puedeGestionar ? 'Gestión de reservas' : 'Reservas'),
         automaticallyImplyLeading: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -47,11 +64,25 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
         ),
       ),
       drawer: const AppDrawer(),
+      floatingActionButton: widget.puedeCrear
+          ? AddFab(
+              onPressed: () async {
+                final Reserva? nueva = await Navigator.of(context)
+                    .push<Reserva>(
+                      MaterialPageRoute(
+                        builder: (_) => const ReservationFormPage(),
+                      ),
+                    );
+                if (nueva != null) {
+                  notifier.agregar(nueva);
+                }
+              },
+            )
+          : null,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          
-          // Filtros 
+          // Filtros
           Row(
             children: [
               Expanded(
@@ -70,7 +101,6 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                   ),
                 ),
             ],
-            
           ),
 
           // Lista
@@ -85,23 +115,25 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                       final Reserva res = filtradas[i];
 
                       VoidCallback? onAprobar;
-                      if (res.estado == EstadoReserva.pendiente) {
+                      if (widget.puedeGestionar && res.estado == EstadoReserva.pendiente) {
                         onAprobar = () => mostrarDialogoAprobacion(context, res, () => notifier.aprobar(res));
                       }
 
                       VoidCallback? onRechazar;
-                      if (res.estado == EstadoReserva.pendiente) {
+                      if (widget.puedeGestionar && res.estado == EstadoReserva.pendiente) {
                         onRechazar = () => mostrarDialogoRechazo(context, res, () => notifier.rechazar(res));
                       }
 
                       VoidCallback? onRegistrarDevolucion;
-                      if (res.estado == EstadoReserva.confirmada) {
+                      if (widget.puedeGestionar && res.estado == EstadoReserva.pendiente) {
                         onRegistrarDevolucion = () => mostrarDialogoDevolucion(context, res, () => notifier.registrarDevolucion(res));
                       }
 
                       VoidCallback? onCancelar;
-                      if (res.estado == EstadoReserva.confirmada) {
-                        onCancelar = () => mostrarDialogoCancelacion(context, res, () => notifier.cancelar(res));
+                      if (widget.puedeGestionar && res.estado == EstadoReserva.confirmada) {
+                        onCancelar = () => mostrarDialogoCancelacion( context, res, () => notifier.cancelar(res));
+                      } else if (!widget.puedeGestionar && (res.estado == EstadoReserva.pendiente || res.estado == EstadoReserva.confirmada)) {
+                        onCancelar = () => mostrarDialogoCancelacion( context, res, () => notifier.cancelar(res));
                       }
 
                       return ReservaCard(
@@ -114,9 +146,12 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         
                         nombreUsuario: notifier.nombreUsuario(res.idUsuario),
                         nombreExcursion: notifier.nombreExcursion(res.idExcursion),
-                        onEditar: () async {
-                          final Reserva? resultado = await Navigator.of(context).push<Reserva>(
-                            MaterialPageRoute(builder: (BuildContext _) => ReservationFormPage(reserva: res)),
+                        onEditar: () async { 
+                          final Reserva? resultado = await Navigator.of(context) .push<Reserva>(
+                            MaterialPageRoute( 
+                              builder: (BuildContext _) =>
+                              ReservationFormPage( reserva: res, initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id),
+                            ),
                           );
                           if (resultado != null) {
                             notifier.actualizar(res, resultado);

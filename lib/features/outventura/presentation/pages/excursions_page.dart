@@ -1,17 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/excursion_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_tab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/excursion_card.dart';
 
 class ExcursionsPage extends ConsumerStatefulWidget {
-  const ExcursionsPage({super.key});
+  final bool puedeGestionar;
+  final bool puedeSolicitar;
+
+  const ExcursionsPage({
+    super.key,
+    this.puedeGestionar = true,
+    this.puedeSolicitar = false,
+  });
 
   @override
   ConsumerState<ExcursionsPage> createState() => _ExcursionsPageState();
@@ -50,12 +61,13 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
         ),
       ),
       drawer: const AppDrawer(),
-      
-      floatingActionButton: AddFab(
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const ExcursionFormPage()),
-        ),
-      ),
+      floatingActionButton: widget.puedeGestionar
+          ? AddFab(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ExcursionFormPage()),
+              ),
+            )
+          : null,
 
       body: Column(
         // Barra de categorías
@@ -98,25 +110,67 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                 final Excursion excursion = excursionesFiltradas[index];
                 return ExcursionCard(
                   excursion: excursion,
-                  onEditar: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (BuildContext _) => ExcursionFormPage(excursion: excursion),
-                    ),
-                  ),
-                  onEliminar: () async {
-                    final bool confirm = await showConfirmDialog(
-                      context: context,
-                      title: 'Eliminar excursión',
-                      content: '¿Eliminar "${excursion.puntoInicio} → ${excursion.puntoFin}"?',
-                    );
-                    if (confirm) {
-                      ref.read(excursionesProvider.notifier).eliminar(excursion);
-                    }
-                  },
+                  onEditar: widget.puedeGestionar
+                      ? () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (BuildContext _) =>
+                                ExcursionFormPage(excursion: excursion),
+                          ),
+                        )
+                      : null,
+                  onEliminar: widget.puedeGestionar
+                      ? () async {
+                          final bool confirm = await showConfirmDialog(
+                            context: context,
+                            title: 'Eliminar excursión',
+                            content:
+                                '¿Eliminar "${excursion.puntoInicio} → ${excursion.puntoFin}"?',
+                          );
+                          if (confirm) {
+                            ref
+                                .read(excursionesProvider.notifier)
+                                .eliminar(excursion);
+                          }
+                        }
+                      : null,
+                  onSolicitar: widget.puedeSolicitar
+                      ? () async {
+                          final usuario = ref.read(currentUserProvider);
+                          if (usuario == null) {
+                            return;
+                          }
+
+                          final Solicitud? solicitud =
+                              await Navigator.of(context).push<Solicitud>(
+                                MaterialPageRoute(
+                                  builder: (_) => SolicitudFormPage(
+                                    initialIdExcursion: excursion.id,
+                                    initialIdUsuario: usuario.id,
+                                  ),
+                                ),
+                              );
+
+                          if (solicitud == null) {
+                            return;
+                          }
+
+                          ref
+                              .read(solicitudesProvider.notifier)
+                              .agregar(solicitud);
+                          if (!context.mounted) {
+                            return;
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Solicitud creada correctamente.'),
+                            ),
+                          );
+                        }
+                      : null,
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );

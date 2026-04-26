@@ -6,6 +6,7 @@ import 'package:outventura/core/widgets/app_date_selector.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
@@ -15,9 +16,20 @@ import 'package:outventura/features/outventura/presentation/providers/excursions
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
 
 class ReservationFormPage extends ConsumerStatefulWidget {
-  final Reserva reserva;
+  final Reserva? reserva;
+  final int? initialIdUsuario;
+  final int? initialIdExcursion;
+  final int? initialIdEquipamiento;
+  final int initialCantidadEquipamiento;
 
-  const ReservationFormPage({super.key, required this.reserva});
+  const ReservationFormPage({
+    super.key,
+    this.reserva,
+    this.initialIdUsuario,
+    this.initialIdExcursion,
+    this.initialIdEquipamiento,
+    this.initialCantidadEquipamiento = 1,
+  });
 
   @override
   ConsumerState<ReservationFormPage> createState() =>
@@ -31,7 +43,19 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
   void initState() {
     super.initState();
     _controller = ReservationFormController();
-    _controller.cargarReserva(widget.reserva);
+    if (widget.reserva != null) {
+      _controller.cargarReserva(widget.reserva!);
+      if (widget.initialIdUsuario != null) {
+        _controller.idUsuario = widget.initialIdUsuario;
+      }
+    } else {
+      _controller.aplicarValoresIniciales(
+        idUsuario: widget.initialIdUsuario,
+        idExcursion: widget.initialIdExcursion,
+        idEquipamiento: widget.initialIdEquipamiento,
+        cantidadEquipamiento: widget.initialCantidadEquipamiento,
+      );
+    }
   }
 
   @override
@@ -55,6 +79,16 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider);
+    final Usuario? usuarioActual = ref.watch(currentUserProvider);
+    final bool modoCliente = widget.initialIdUsuario != null;
+    final int? idUsuarioFijado = widget.initialIdUsuario ?? usuarioActual?.id;
+
+    List<Usuario> usuariosDisponibles = ref.read(usuariosProvider);
+    if (modoCliente && idUsuarioFijado != null) {
+      usuariosDisponibles = usuariosDisponibles
+          .where((Usuario u) => u.id == idUsuarioFijado)
+          .toList();
+    }
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -62,12 +96,14 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
         backgroundColor: cs.inverseSurface,
         foregroundColor: cs.onInverseSurface,
         title: Text(
-          'Editar reserva #${widget.reserva.id}',
+          widget.reserva != null
+              ? 'Editar reserva #${widget.reserva!.id}'
+              : 'Nueva reserva',
           style: tt.titleMedium?.copyWith(color: cs.onInverseSurface),
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
+        padding: EdgeInsets.fromLTRB( 20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
         child: Form(
           key: _controller.formKey,
           child: Column(
@@ -77,15 +113,18 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               const SizedBox(height: 8),
               AppDropdownField<Usuario>(
                 value: _controller.idUsuario,
-                items: ref.read(usuariosProvider),
+                items: usuariosDisponibles,
                 itemValue: (Usuario user) => user.id,
                 itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
                 label: 'Usuario',
-                hint: 'Selecciona un usuario',
+                hint: modoCliente ? 'Tu usuario' : 'Selecciona un usuario',
 
                 // id usuario es = v, significa que se ha seleccionado un usuario, si es null, no se ha seleccionado ninguno.
                 // v es el id del usuario seleccionado.
                 onChanged: (int? v) {
+                  if (modoCliente) {
+                    return;
+                  }
                   setState(() => _controller.idUsuario = v);
                 },
                 validator: (int? v) {

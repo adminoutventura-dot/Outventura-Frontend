@@ -37,6 +37,9 @@ class Solicitud {
   final EstadoSolicitud estado;
   final int? idExperto;
   final int? idUsuario;
+  final int? idReserva;
+  // Materiales solicitados finales: {idEquipamiento: cantidad}.
+  final Map<int, int> materialesSolicitados;
 
   const Solicitud({
     required this.id,
@@ -45,6 +48,8 @@ class Solicitud {
     required this.estado,
     this.idExperto,
     this.idUsuario,
+    this.idReserva,
+    this.materialesSolicitados = const {},
   });
 
   // Crea una Solicitud a partir del JSON que devuelve el backend.
@@ -56,6 +61,14 @@ class Solicitud {
       estado: EstadoSolicitud.fromString(map['status'] as String),
       idExperto: map['expertId'] as int?,
       idUsuario: map['userId'] as int?,
+      idReserva: map['reservationId'] as int?,
+      materialesSolicitados:
+          // El backend devuelve los materiales solicitados como un mapa de strings a números, por ejemplo: {"1": 2, "3": 5}.
+          (map['requestedMaterials'] as Map<String, dynamic>?)?.map(
+            (String key, dynamic value) =>
+                MapEntry(int.parse(key), (value as num).toInt()),
+          ) ??
+          const {},
     );
   }
 
@@ -66,6 +79,8 @@ class Solicitud {
     EstadoSolicitud? estado,
     int? idExperto,
     int? idUsuario,
+    int? idReserva,
+    Map<int, int>? materialesSolicitados,
   }) {
     return Solicitud(
       id: id,
@@ -74,6 +89,9 @@ class Solicitud {
       estado: estado ?? this.estado,
       idExperto: idExperto ?? this.idExperto,
       idUsuario: idUsuario ?? this.idUsuario,
+      idReserva: idReserva ?? this.idReserva,
+      materialesSolicitados:
+          materialesSolicitados ?? this.materialesSolicitados,
     );
   }
 }

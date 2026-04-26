@@ -35,6 +35,17 @@ final List<Usuario> usuariosFake = [
     email: 'cliente@outventura.com',
     telefono: '600 555 666',
     rol: TipoRol.usuario,
-    activo: false,
+    activo: true,
+  ),
+
+  // Segundo cliente para probar filtros admin/cliente.
+  const Usuario(
+    id: 4,
+    nombre: 'Diego',
+    apellidos: 'Navarro Pérez',
+    email: 'cliente2@outventura.com',
+    telefono: '600 777 888',
+    rol: TipoRol.usuario,
+    activo: true,
   ),
 ];

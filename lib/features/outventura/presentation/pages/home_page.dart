@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
@@ -28,7 +31,7 @@ class HomeAdminPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Panel de Administración'),
         // Icono del Drawer
-        automaticallyImplyLeading: true, 
+        automaticallyImplyLeading: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -62,7 +65,7 @@ class HomeAdminPage extends ConsumerWidget {
                       color: cs.onInverseSurface,
                       border: Border(
                         bottom: BorderSide(
-                          color:   cs.onSurfaceVariant.withAlpha(100),
+                          color: cs.onSurfaceVariant.withAlpha(100),
                           width: 2,
                         ),
                       ),
@@ -91,7 +94,8 @@ class HomeAdminPage extends ConsumerWidget {
                           StatCard(
                             colorScheme: cs,
                             textTheme: tt,
-                            value: '${solicitudes.where((Solicitud s) => s.estado == EstadoSolicitud.pendiente).length}',
+                            value:
+                                '${solicitudes.where((Solicitud s) => s.estado == EstadoSolicitud.pendiente).length}',
                             label: 'PENDIENTES',
                           ),
                         ],
@@ -111,9 +115,7 @@ class HomeAdminPage extends ConsumerWidget {
                 // Título de sección.
                 Text(
                   'SOLICITUDES RECIENTES',
-                  style: tt.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
 
@@ -129,12 +131,151 @@ class HomeAdminPage extends ConsumerWidget {
                       ),
                       nombreUsuario: solicitud.idUsuario != null
                           ? () {
-                              final u = usuarios.firstWhere((u) => u.id == solicitud.idUsuario, orElse: () => usuarios.first);
+                              final u = usuarios.firstWhere(
+                                (u) => u.id == solicitud.idUsuario,
+                                orElse: () => usuarios.first,
+                              );
                               return '${u.nombre} ${u.apellidos}';
                             }()
                           : null,
                     ),
                   ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class HomeClientePage extends ConsumerWidget {
+  final Usuario usuario;
+
+  const HomeClientePage({super.key, required this.usuario});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final TextTheme tt = Theme.of(context).textTheme;
+
+    final List<Excursion> excursiones = ref.watch(excursionesProvider);
+    final List<Reserva> reservas = ref.watch(reservasProvider);
+    final List<Solicitud> solicitudes = ref.watch(solicitudesProvider);
+
+    final List<Reserva> misReservas = reservas
+        .where((Reserva r) => r.idUsuario == usuario.id)
+        .toList();
+    final List<Solicitud> misSolicitudes = solicitudes
+        .where((Solicitud s) => s.idUsuario == usuario.id)
+        .toList();
+    final int solicitudesPendientes = misSolicitudes
+        .where((Solicitud s) => s.estado == EstadoSolicitud.pendiente)
+        .length;
+    final Map<int, Excursion> excursionesPorId = {
+      for (final Excursion e in excursiones) e.id: e,
+    };
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Panel de Cliente'),
+        automaticallyImplyLeading: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.inverseSurface,
+                Theme.of(context).colorScheme.primary,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
+      drawer: const AppDrawer(),
+      body: Column(
+        children: [
+          Container(
+            color: cs.inverseSurface,
+            child: SafeArea(
+              bottom: false,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: cs.onInverseSurface,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.35),
+                      width: 2,
+                    ),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  child: Row(
+                    children: [
+                      StatCard(
+                        colorScheme: cs,
+                        textTheme: tt,
+                        value: '${misReservas.length}',
+                        label: 'MIS RESERVAS',
+                      ),
+                      const SizedBox(width: 10),
+                      StatCard(
+                        colorScheme: cs,
+                        textTheme: tt,
+                        value: '${misSolicitudes.length}',
+                        label: 'MIS SOLICITUDES',
+                      ),
+                      const SizedBox(width: 10),
+                      StatCard(
+                        colorScheme: cs,
+                        textTheme: tt,
+                        value: '$solicitudesPendientes',
+                        label: 'PENDIENTES',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                Text(
+                  'Hola, ${usuario.nombre}',
+                  style: tt.titleLarge?.copyWith(color: cs.onSurface),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Desde aquí puedes crear y revisar tus reservas y solicitudes.',
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'SOLICITUDES RECIENTES',
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                ),
+                const SizedBox(height: 12),
+                if (misSolicitudes.isEmpty)
+                  Text(
+                    'No tienes solicitudes todavía.',
+                    style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                  )
+                else
+                  for (final Solicitud solicitud in misSolicitudes.take(3))
+                    if (excursionesPorId[solicitud.idExcursion] != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: SolicitudCard(
+                          solicitud: solicitud,
+                          excursion: excursionesPorId[solicitud.idExcursion]!,
+                          nombreUsuario:
+                              '${usuario.nombre} ${usuario.apellidos}',
+                        ),
+                      ),
               ],
             ),
           ),

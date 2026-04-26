@@ -6,7 +6,6 @@ import 'package:outventura/features/outventura/presentation/pages/forms/request_
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 
 class RequestsPageController {
-
   // Acepta una solicitud después de pedir confirmación al usuario.
   Future<void> aceptar({
     required Solicitud solicitud,
@@ -14,12 +13,12 @@ class RequestsPageController {
     required WidgetRef ref,
     required bool Function() isMounted,
   }) async {
-
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final bool confirm = await showConfirmDialog(
       context: context,
       title: 'Aceptar solicitud',
-      content: '¿Aceptar la solicitud #${solicitud.id}?\nSe generará una excursión automáticamente.',
+      content:
+          '¿Aceptar la solicitud #${solicitud.id}?\nSe generará una excursión automáticamente.',
       confirmLabel: 'Aceptar',
       isDanger: false,
     );
@@ -27,14 +26,13 @@ class RequestsPageController {
     if (!confirm) {
       return;
     }
-    ref.read(solicitudesProvider.notifier).actualizar(
-          solicitud,
-          solicitud.copyWith(estado: EstadoSolicitud.confirmada),
-        );
+    ref.read(solicitudesProvider.notifier).actualizar(solicitud, solicitud.copyWith(estado: EstadoSolicitud.confirmada));
 
     if (isMounted()) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Solicitud aceptada. Excursión generada.')),
+        const SnackBar(
+          content: Text('Solicitud aceptada. Excursión generada.'),
+        ),
       );
     }
   }
@@ -44,14 +42,18 @@ class RequestsPageController {
     required Solicitud solicitud,
     required BuildContext context,
     required WidgetRef ref,
+    int? fixedIdUsuario,
   }) async {
     final Solicitud? result = await Navigator.push<Solicitud>(
       context,
       MaterialPageRoute(
-        builder: (BuildContext _) => SolicitudFormPage(solicitud: solicitud),
+        builder: (BuildContext _) => SolicitudFormPage(
+          solicitud: solicitud,
+          initialIdUsuario: fixedIdUsuario,
+        ),
       ),
     );
-    
+
     if (result == null) {
       return;
     }
@@ -76,10 +78,7 @@ class RequestsPageController {
       return;
     }
 
-    ref.read(solicitudesProvider.notifier).actualizar(
-          solicitud,
-          solicitud.copyWith(estado: EstadoSolicitud.cancelada),
-        );
+    ref.read(solicitudesProvider.notifier).actualizar(solicitud, solicitud.copyWith(estado: EstadoSolicitud.cancelada));
 
     if (isMounted()) {
       messenger.showSnackBar(

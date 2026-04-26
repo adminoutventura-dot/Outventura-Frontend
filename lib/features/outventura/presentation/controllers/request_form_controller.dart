@@ -11,6 +11,8 @@ class SolicitudFormController {
   EstadoSolicitud estado = EstadoSolicitud.pendiente;
   int? idExperto;
   int? idUsuario;
+  int? idReserva;
+  Map<int, int> materialesSolicitados = {};
 
   bool editando = false;
   Solicitud? seleccionado;
@@ -28,6 +30,39 @@ class SolicitudFormController {
     estado = solicitud.estado;
     idExperto = solicitud.idExperto;
     idUsuario = solicitud.idUsuario;
+    idReserva = solicitud.idReserva;
+    materialesSolicitados = Map<int, int>.from(solicitud.materialesSolicitados);
+  }
+
+  void aplicarValoresIniciales({int? idExcursion, int? idUsuario}) {
+    this.idExcursion = idExcursion;
+    this.idUsuario = idUsuario;
+    if (participantesCtrl.text.trim().isEmpty) {
+      participantesCtrl.text = '1';
+    }
+  }
+
+  void recalcularMaterialesDesdePlantilla(Map<int, int> porParticipante) {
+    final int participantes = numeroParticipantes;
+    final Map<int, int> recalculado = {};
+
+    porParticipante.forEach((int idEquipamiento, int cantidadPorPersona) {
+      final int cantidad = cantidadPorPersona * participantes;
+      if (cantidad > 0) {
+        recalculado[idEquipamiento] = cantidad;
+      }
+    });
+
+    materialesSolicitados = recalculado;
+  }
+
+  // Calcula el total de materiales solicitados sumando las cantidades de cada equipamiento.
+  void establecerCantidadMaterial(int idEquipamiento, int cantidad) {
+    if (cantidad <= 0) {
+      materialesSolicitados.remove(idEquipamiento);
+      return;
+    }
+    materialesSolicitados[idEquipamiento] = cantidad;
   }
 
   Solicitud? crearSolicitud() {
@@ -44,6 +79,8 @@ class SolicitudFormController {
       estado: estado,
       idExperto: idExperto,
       idUsuario: idUsuario,
+      idReserva: idReserva,
+      materialesSolicitados: Map<int, int>.from(materialesSolicitados),
     );
   }
 
@@ -55,6 +92,8 @@ class SolicitudFormController {
     estado = EstadoSolicitud.pendiente;
     idExperto = null;
     idUsuario = null;
+    idReserva = null;
+    materialesSolicitados = {};
   }
 
   void dispose() {
