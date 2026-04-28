@@ -42,8 +42,8 @@ class _UserFormPageState extends State<UserFormPage> {
 
   void _submit() {
     if (!_controller.validar()) return;
-    // TODO: enviar datos al repositorio
-    Navigator.of(context).pop();
+    final Usuario usuario = _controller.construirUsuario();
+    Navigator.of(context).pop(usuario);
   }
 
   @override
@@ -54,11 +54,15 @@ class _UserFormPageState extends State<UserFormPage> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: cs.inverseSurface,
-        foregroundColor: cs.onInverseSurface,
-        title: Text(
-          _controller.editando ? 'Editar usuario' : 'Nuevo usuario',
-          style: tt.titleMedium?.copyWith(color: cs.onInverseSurface),
+        title: Text(_controller.editando ? 'Editar usuario' : 'Nuevo usuario'),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [cs.surfaceContainer, cs.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(

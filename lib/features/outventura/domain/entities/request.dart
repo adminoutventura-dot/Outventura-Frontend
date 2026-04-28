@@ -40,6 +40,8 @@ class Solicitud {
   final int? idReserva;
   // Materiales solicitados finales: {idEquipamiento: cantidad}.
   final Map<int, int> materialesSolicitados;
+  // Precio total calculado (excursión + materiales).
+  final double precioTotal;
 
   const Solicitud({
     required this.id,
@@ -50,6 +52,7 @@ class Solicitud {
     this.idUsuario,
     this.idReserva,
     this.materialesSolicitados = const {},
+    this.precioTotal = 0,
   });
 
   // Crea una Solicitud a partir del JSON que devuelve el backend.
@@ -69,6 +72,7 @@ class Solicitud {
                 MapEntry(int.parse(key), (value as num).toInt()),
           ) ??
           const {},
+      precioTotal: (map['totalPrice'] as num?)?.toDouble() ?? 0,
     );
   }
 
@@ -81,6 +85,7 @@ class Solicitud {
     int? idUsuario,
     int? idReserva,
     Map<int, int>? materialesSolicitados,
+    double? precioTotal,
   }) {
     return Solicitud(
       id: id,
@@ -92,6 +97,7 @@ class Solicitud {
       idReserva: idReserva ?? this.idReserva,
       materialesSolicitados:
           materialesSolicitados ?? this.materialesSolicitados,
+      precioTotal: precioTotal ?? this.precioTotal,
     );
   }
 }

@@ -12,6 +12,7 @@ class AppDropdownField<T> extends StatelessWidget {
   final String? Function(int?)? validator;
   final bool isRequired;
   final String? errorText;
+  final bool enabled;
 
   const AppDropdownField({
     super.key,
@@ -26,6 +27,7 @@ class AppDropdownField<T> extends StatelessWidget {
     this.validator,
     this.isRequired = false,
     this.errorText,
+    this.enabled = true,
   });
 
   @override
@@ -36,11 +38,15 @@ class AppDropdownField<T> extends StatelessWidget {
     return DropdownButtonFormField<int?>(
       initialValue: value,
       style: tt.bodyMedium?.copyWith(color: cs.onSurface),
-      icon: Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: cs.primary.withValues(alpha: 0.7),
-      ),
+      // Cuando el dropdown está deshabilitado, no mostrar el ícono de flecha
+      icon: enabled
+          ? Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: cs.primary.withValues(alpha: 0.7),
+            )
+          : const SizedBox.shrink(),
       decoration: InputDecoration(
+        // Texto que estará encima del campo, siempre visible
         labelText: label,
         labelStyle: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
         prefixIcon: prefixIcon != null
@@ -70,6 +76,7 @@ class AppDropdownField<T> extends StatelessWidget {
       ),
       isExpanded: true,
       menuMaxHeight: 240,
+      // El hint se muestra como la primera opción del dropdown, con un estilo diferente
       hint: Text(hint, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
       items: [
         DropdownMenuItem<int?>(
@@ -77,12 +84,14 @@ class AppDropdownField<T> extends StatelessWidget {
           child: Text(hint, overflow: TextOverflow.ellipsis, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
         ),
         for (final T item in items)
+        // Cada opción del dropdown, con su valor y etiqueta 
           DropdownMenuItem<int?>(
             value: itemValue(item),
             child: Text(itemLabel(item), overflow: TextOverflow.ellipsis, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
           ),
       ],
-      onChanged: onChanged,
+      // Si el campo está deshabilitado, no permitir cambios
+      onChanged: enabled ? onChanged : null,
       validator: validator ?? (isRequired ? (int? v) => v == null ? 'Selecciona una opción' : null : null),
     );
   }

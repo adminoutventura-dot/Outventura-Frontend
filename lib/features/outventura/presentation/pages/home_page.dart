@@ -36,7 +36,7 @@ class HomeAdminPage extends ConsumerWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Theme.of(context).colorScheme.inverseSurface,
+                Theme.of(context).colorScheme.surfaceContainer,
                 Theme.of(context).colorScheme.primary,
               ],
               begin: Alignment.topLeft,
@@ -53,7 +53,7 @@ class HomeAdminPage extends ConsumerWidget {
         children: [
           // Contenedor de estadísticas.
           Container(
-            color: cs.inverseSurface,
+            color: cs.surfaceContainer,
             child: SafeArea(
               bottom: false,
               child: Column(
@@ -62,10 +62,10 @@ class HomeAdminPage extends ConsumerWidget {
                   // Fila de tarjetas de estadísticas.
                   Container(
                     decoration: BoxDecoration(
-                      color: cs.onInverseSurface,
+                      color: cs.onPrimary,
                       border: Border(
                         bottom: BorderSide(
-                          color: cs.onSurfaceVariant.withAlpha(100),
+                          color: cs.onSurfaceVariant.withAlpha(50),
                           width: 2,
                         ),
                       ),
@@ -184,7 +184,7 @@ class HomeClientePage extends ConsumerWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Theme.of(context).colorScheme.inverseSurface,
+                Theme.of(context).colorScheme.surfaceContainer,
                 Theme.of(context).colorScheme.primary,
               ],
               begin: Alignment.topLeft,
@@ -197,12 +197,12 @@ class HomeClientePage extends ConsumerWidget {
       body: Column(
         children: [
           Container(
-            color: cs.inverseSurface,
+            color: cs.surfaceContainer,
             child: SafeArea(
               bottom: false,
               child: Container(
                 decoration: BoxDecoration(
-                  color: cs.onInverseSurface,
+                  color: cs.onSurfaceVariant,
                   border: Border(
                     bottom: BorderSide(
                       color: cs.onSurfaceVariant.withValues(alpha: 0.35),

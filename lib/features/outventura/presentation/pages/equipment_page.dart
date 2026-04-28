@@ -55,7 +55,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [cs.inverseSurface, cs.primary],
+              colors: [cs.surfaceContainer, cs.primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -72,9 +72,16 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                         builder: (_) => const EquipmentFormPage(),
                       ),
                     );
-                if (nuevo != null) {
-                  ref.read(equipamientosProvider.notifier).agregar(nuevo);
+                if (nuevo == null) {
+                  return;
                 }
+                ref.read(equipamientosProvider.notifier).agregar(nuevo);
+                if (!context.mounted) {
+                  return;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Material creado correctamente.')),
+                );
               },
             )
           : null,
@@ -143,11 +150,18 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                                       ),
                                 ),
                               );
-                          if (actualizado != null) {
-                            ref
-                                .read(equipamientosProvider.notifier)
-                                .actualizar(equipamiento, actualizado);
+                          if (actualizado == null) {
+                            return;
                           }
+                          ref
+                              .read(equipamientosProvider.notifier)
+                              .actualizar(equipamiento, actualizado);
+                          if (!context.mounted) {
+                            return;
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Material actualizado correctamente.')),
+                          );
                         }
                       : null,
                   onEliminar: widget.puedeGestionar

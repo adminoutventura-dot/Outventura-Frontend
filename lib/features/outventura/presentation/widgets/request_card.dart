@@ -38,18 +38,26 @@ class SolicitudCard extends StatelessWidget {
       Color badgeFg,
       Color accentColor,
     ) = switch (solicitud.estado) {
-      EstadoSolicitud.confirmada => (cs.primary, cs.onPrimary, cs.primary),
+      EstadoSolicitud.confirmada => (
+        cs.primary, 
+        cs.onPrimary, 
+        cs.primary
+      ),
       EstadoSolicitud.pendiente => (
-        cs.tertiaryContainer,
-        cs.onTertiary,
         cs.tertiary,
+        cs.onPrimary,
+        cs.onTertiary,
       ),
       EstadoSolicitud.finalizada => (
         cs.secondary.withValues(alpha: 0.35),
         cs.onPrimaryContainer,
         cs.secondary.withValues(alpha: 0.35),
       ),
-      EstadoSolicitud.cancelada => (cs.error, cs.onError, cs.error),
+      EstadoSolicitud.cancelada => (
+        cs.error, 
+        cs.onError, 
+        cs.error
+      ),
     };
 
     return Container(
@@ -183,7 +191,7 @@ class SolicitudCard extends StatelessWidget {
                           .map(
                             (CategoriaActividad c) => TagWidget(
                               text: c.label,
-                              backgroundColor: cs.onSecondary,
+                              backgroundColor: cs.secondary.withValues(alpha: 0.15),
                               textColor: cs.onPrimaryContainer,
                             ),
                           )
@@ -250,3 +258,4 @@ class SolicitudCard extends StatelessWidget {
     );
   }
 }
+

@@ -10,7 +10,7 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.onPrimary,
     appBarTheme: AppBarTheme(
       elevation: 0,
-      backgroundColor: AppColors.inverseSurface,
+      backgroundColor: AppColors.surfaceContainer,
       foregroundColor: AppColors.onPrimary,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: AppTextStyles.headlineSmall.copyWith(
@@ -19,32 +19,24 @@ class AppTheme {
     ),
 
     colorScheme: const ColorScheme.light(
+      primaryContainer: AppColors.primaryContainer,
+      surfaceContainer: AppColors.surfaceContainer,
       primary: AppColors.primary,
+
+      onPrimaryContainer: AppColors.onPrimaryContainer,
+      onSurfaceVariant: AppColors.onSurfaceVariant,
       onPrimary: AppColors.onPrimary,
 
       secondary: AppColors.secondary,
-      onSecondary: AppColors.onSecondary,
 
       tertiary: AppColors.tertiary,
-      onTertiary: AppColors.onPrimary,
-
-      primaryContainer: AppColors.primaryContainer,
-      onPrimaryContainer: AppColors.onPrimaryContainer,
-
-      secondaryContainer: AppColors.secondaryContainer,
-      onSecondaryContainer: AppColors.onSecondaryContainer,
-
-      surface: AppColors.surface,
-      onSurface: AppColors.onSurface,
-
-      inverseSurface: AppColors.inverseSurface,
-      onInverseSurface: AppColors.surface,
-
-      surfaceContainer: AppColors.surface,
-      onSurfaceVariant: AppColors.onSurfaceVariant,
+      onTertiary: AppColors.onTertiary,
 
       error: AppColors.error,
       onError: AppColors.onPrimary,
+
+      surface: AppColors.surface,
+      onSurface: AppColors.onSurface,
     ),
     
     textTheme: const TextTheme(
@@ -67,7 +59,7 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.darkOnPrimary,
     appBarTheme: AppBarTheme(
       elevation: 0,
-      backgroundColor: AppColors.darkInverseSurface,
+      backgroundColor: AppColors.darkSurfaceContainer,
       foregroundColor: AppColors.darkOnPrimary,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: AppTextStyles.headlineSmall.copyWith(
@@ -75,33 +67,26 @@ class AppTheme {
       ),
     ),
     colorScheme: const ColorScheme.dark(
+      primaryContainer: AppColors.darkPrimaryContainer,
+      surfaceContainer: AppColors.darkSurfaceContainer,
       primary: AppColors.darkPrimary,
+
+      onPrimaryContainer: AppColors.darkOnPrimaryContainer,
+      onSurfaceVariant: AppColors.darkOnSurfaceVariant,
       onPrimary: AppColors.darkOnPrimary,
 
       secondary: AppColors.darkSecondary,
-      onSecondary: AppColors.darkOnSecondary,
 
       tertiary: AppColors.darkTertiary,
-      onTertiary: AppColors.darkOnPrimary,
-
-      primaryContainer: AppColors.darkPrimaryContainer,
-      onPrimaryContainer: AppColors.darkOnPrimaryContainer,
-
-      secondaryContainer: AppColors.darkSecondaryContainer,
-      onSecondaryContainer: AppColors.darkOnSecondaryContainer,
-
-      surface: AppColors.darkSurface,
-      onSurface: AppColors.darkOnSurface,
-
-      inverseSurface: AppColors.darkInverseSurface,
-      onInverseSurface: AppColors.darkSurface,
-
-      surfaceContainer: AppColors.darkSurface,
-      onSurfaceVariant: AppColors.darkOnSurfaceVariant,
+      onTertiary: AppColors.darkOnTertiary,
 
       error: AppColors.darkError,
       onError: AppColors.darkOnPrimary,
+
+      surface: AppColors.darkSurface,
+      onSurface: AppColors.darkOnSurface,
     ),
+    
     textTheme: const TextTheme(
       titleLarge: AppTextStyles.titleLarge,
       headlineSmall: AppTextStyles.headlineSmall,

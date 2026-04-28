@@ -56,7 +56,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [cs.inverseSurface, cs.primary],
+              colors: [cs.surfaceContainer, cs.primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -73,9 +73,16 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         builder: (_) => const ReservationFormPage(),
                       ),
                     );
-                if (nueva != null) {
-                  notifier.agregar(nueva);
+                if (nueva == null) {
+                  return;
                 }
+                notifier.agregar(nueva);
+                if (!context.mounted) {
+                  return;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Reserva creada correctamente.')),
+                );
               },
             )
           : null,
@@ -153,9 +160,16 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                               ReservationFormPage( reserva: res, initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id),
                             ),
                           );
-                          if (resultado != null) {
-                            notifier.actualizar(res, resultado);
+                          if (resultado == null) {
+                            return;
                           }
+                          notifier.actualizar(res, resultado);
+                          if (!context.mounted) {
+                            return;
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Reserva actualizada correctamente.')),
+                          );
                         },
                         onAprobar: onAprobar,
                         onRechazar: onRechazar,

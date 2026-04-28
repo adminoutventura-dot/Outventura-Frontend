@@ -7,7 +7,6 @@ import 'package:outventura/features/preferences/controllers/preferences_controll
 import 'package:outventura/features/preferences/data/models/preferences.dart';
 
 // TODO: Revisar si se divide entre entities y models (Recordatorio)
-// TODO: Arreglar tema oscuro (Recordatorio)
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

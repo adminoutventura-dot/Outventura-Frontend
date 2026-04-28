@@ -14,13 +14,11 @@ class AppTextStyles {
   static const TextStyle titleMedium = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
-    letterSpacing: 0.5,
   );
 
   // titleSmall
   static const TextStyle titleSmall = TextStyle(
     fontSize: 9,
-    letterSpacing: 1.5,
     fontWeight: FontWeight.w500,
     decoration: TextDecoration.none,
   );
@@ -29,7 +27,6 @@ class AppTextStyles {
   static const TextStyle headlineSmall = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold,
-    letterSpacing: 1.2,
   );
 
   // bodyLarge

@@ -58,6 +58,14 @@ class RequestsPageController {
       return;
     }
     ref.read(solicitudesProvider.notifier).actualizar(solicitud, result);
+    if (!context.mounted) {
+      return;
+    }
+    if (result.idReserva != null && solicitud.idReserva == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reserva de materiales creada correctamente.')),
+      );
+    }
   }
 
   // Rechaza la solicitud después de pedir confirmación al usuario.

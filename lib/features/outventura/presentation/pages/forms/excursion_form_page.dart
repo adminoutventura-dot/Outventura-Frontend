@@ -44,11 +44,15 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: cs.inverseSurface,
-        foregroundColor: cs.onInverseSurface,
-        title: Text(
-          _controller.editando ? 'Editar excursión' : 'Nueva excursión',
-          style: tt.titleMedium?.copyWith(color: cs.onInverseSurface),
+        title: Text(_controller.editando ? 'Editar excursión' : 'Nueva excursión'),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [cs.surfaceContainer, cs.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -92,6 +96,16 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                 labelText: 'Descripción (opcional)',
                 prefixIcon: Icons.notes_outlined,
                 keyboardType: TextInputType.multiline,
+              ),
+              const SizedBox(height: 14),
+
+              // Precio por participante
+              CustomInputField(
+                controller: _controller.precioController,
+                labelText: 'Precio por participante (€)',
+                prefixIcon: Icons.euro_outlined,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: ValidadoresFormulario.decimalPositivo,
               ),
               const SizedBox(height: 20),
 
@@ -197,8 +211,8 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                         if (!_controller.validar()) {
                           return;
                         }
-                        // TODO: enviar datos al repositorio
-                        Navigator.of(context).pop();
+                        final Excursion excursion = _controller.construirExcursion();
+                        Navigator.of(context).pop(excursion);
                       },
                       icon: _controller.editando ? Icons.save_outlined : Icons.add,
                     ),

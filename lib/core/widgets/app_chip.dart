@@ -38,8 +38,8 @@ class AppChoiceChip extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final Color selColor = selectedColor ?? cs.secondaryContainer;
-    final Color selBorder = selectedBorderColor ?? cs.onSecondaryContainer;
+    final Color selColor = selectedColor ?? cs.onTertiary;
+    final Color selBorder = selectedBorderColor ?? cs.tertiary;
 
     return ChoiceChip(
       label: Text(label),

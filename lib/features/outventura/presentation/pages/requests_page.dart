@@ -90,7 +90,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [cs.inverseSurface, cs.primary],
+              colors: [cs.surfaceContainer, cs.primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -107,9 +107,19 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                         builder: (_) => const SolicitudFormPage(),
                       ),
                     );
-                if (nueva != null) {
-                  ref.read(solicitudesProvider.notifier).agregar(nueva);
+                if (nueva == null) {
+                  return;
                 }
+                ref.read(solicitudesProvider.notifier).agregar(nueva);
+                if (!context.mounted) {
+                  return;
+                }
+                final String mensaje = nueva.idReserva != null
+                    ? 'Solicitud creada con reserva de materiales.'
+                    : 'Solicitud creada correctamente.';
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(mensaje)),
+                );
               },
             )
           : null,

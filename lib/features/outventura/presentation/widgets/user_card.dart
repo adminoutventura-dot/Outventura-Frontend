@@ -32,15 +32,15 @@ class UserCard extends StatelessWidget {
       bordeColor = cs.error;
     } else if (usuario.rol == TipoRol.admin) {
       badgeBg = cs.tertiary;
-      badgeFg = cs.onTertiary;
+      badgeFg = cs.onPrimary;
       bordeColor = cs.tertiary;
     } else if (usuario.rol == TipoRol.experto) {
-      badgeBg = cs.inverseSurface;
-      badgeFg = cs.onInverseSurface;
-      bordeColor = cs.inverseSurface;
+      badgeBg = cs.surfaceContainer;
+      badgeFg = cs.onSurfaceVariant;
+      bordeColor = cs.surfaceContainer;
     } else if (usuario.rol == TipoRol.usuario) {
       badgeBg = cs.secondary;
-      badgeFg = cs.onSecondary;
+      badgeFg = cs.onPrimary;
       bordeColor = cs.secondary;
     } else {
       badgeBg = cs.onSurfaceVariant.withValues(alpha: 0.15);
@@ -197,7 +197,7 @@ class UserCard extends StatelessWidget {
                               const SizedBox(height: 8),
                               TagWidget(
                                 text: 'Cuenta inactiva',
-                                backgroundColor: cs.errorContainer.withValues(alpha: 0.3),
+                                backgroundColor: cs.error.withValues(alpha: 0.3),
                                 textColor: cs.error,
                                 icon: Icons.block_outlined,
                               ),

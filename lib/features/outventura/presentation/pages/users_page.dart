@@ -24,7 +24,7 @@ class UsersPage extends ConsumerWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                cs.inverseSurface,
+                cs.surfaceContainer,
                 cs.primary,
               ],
               begin: Alignment.topLeft,
@@ -35,10 +35,22 @@ class UsersPage extends ConsumerWidget {
       ),
       drawer: const AppDrawer(),
       floatingActionButton: AddFab(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const UserFormPage()),
-        ),
+        onPressed: () async {
+          final Usuario? nuevo = await Navigator.push<Usuario>(
+            context,
+            MaterialPageRoute(builder: (_) => const UserFormPage()),
+          );
+          if (nuevo == null) {
+            return;
+          }
+          ref.read(usuariosProvider.notifier).agregar(nuevo);
+          if (!context.mounted) {
+            return;
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Usuario creado correctamente.')),
+          );
+        },
         icon: Icons.person_add_outlined,
       ),
 
@@ -60,12 +72,24 @@ class UsersPage extends ConsumerWidget {
 
             return UserCard(
               usuario: usuarios[index],
-              onEditar: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (BuildContext _) => UserFormPage(usuario: usuarios[index]),
-                ),
-              ),
+              onEditar: () async {
+                final Usuario? actualizado = await Navigator.push<Usuario>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext _) => UserFormPage(usuario: usuarios[index]),
+                  ),
+                );
+                if (actualizado == null) {
+                  return;
+                }
+                ref.read(usuariosProvider.notifier).actualizar(usuarios[index], actualizado);
+                if (!context.mounted) {
+                  return;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Usuario actualizado correctamente.')),
+                );
+              },
               onEliminar: () {},
             );
           },

@@ -21,11 +21,11 @@ class AddFab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    final Color fg = foregroundColor ?? cs.onSecondaryContainer;
+    final Color fg = foregroundColor ?? cs.secondary.withValues(alpha: 0.7);
 
     return FloatingActionButton(
       onPressed: onPressed,
-      backgroundColor: backgroundColor ?? cs.secondaryContainer,
+      backgroundColor: backgroundColor ?? cs.surface,
       foregroundColor: fg,
       elevation: elevation,
       shape: CircleBorder(
@@ -35,3 +35,4 @@ class AddFab extends StatelessWidget {
     );
   }
 }
+

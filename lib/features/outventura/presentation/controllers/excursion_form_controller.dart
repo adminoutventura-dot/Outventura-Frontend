@@ -10,6 +10,7 @@ class ExcursionFormController {
   final TextEditingController puntoFinController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
   final TextEditingController participantesController = TextEditingController();
+  late final TextEditingController precioController = TextEditingController(text: '0');
 
   DateTime fechaInicio = DateTime.now();
   DateTime fechaFin = DateTime.now().add(const Duration(days: 1));
@@ -48,6 +49,7 @@ class ExcursionFormController {
     estado = excursion.estado;
     categorias = List<CategoriaActividad>.from(excursion.categorias);
     imagenAsset = excursion.imagenAsset;
+    precioController.text = excursion.precio.toStringAsFixed(2);
   }
 
   // Limpiar todos los campos
@@ -79,10 +81,29 @@ class ExcursionFormController {
     return FormateadorFecha.short(dt);
   }
 
+  // Construye una excursión a partir de los datos del formulario.
+  Excursion construirExcursion() {
+    return Excursion(
+      id: seleccionado?.id ?? DateTime.now().millisecondsSinceEpoch,
+      puntoInicio: puntoInicioController.text.trim(),
+      puntoFin: puntoFinController.text.trim(),
+      descripcion: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
+      numeroParticipantes: int.tryParse(participantesController.text) ?? 1,
+      fechaInicio: fechaInicio,
+      fechaFin: fechaFin,
+      estado: estado,
+      categorias: List<CategoriaActividad>.from(categorias),
+      imagenAsset: imagenAsset,
+      precio: double.tryParse(precioController.text.replaceAll(',', '.')) ?? 0,
+      materialesPorParticipante: seleccionado?.materialesPorParticipante ?? {},
+    );
+  }
+
   void dispose() {
     puntoInicioController.dispose();
     puntoFinController.dispose();
     descripcionController.dispose();
     participantesController.dispose();
+    precioController.dispose();
   }
 }

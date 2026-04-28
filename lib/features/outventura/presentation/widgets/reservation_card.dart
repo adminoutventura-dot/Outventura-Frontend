@@ -40,7 +40,7 @@ class ReservaCard extends StatelessWidget {
     final TextTheme tt = Theme.of(context).textTheme;
 
     final (Color badgeBg, Color badgeFg, Color accentColor) = switch (reserva.estado) {
-      EstadoReserva.pendiente => (cs.tertiaryContainer, cs.onTertiary, cs.tertiary),
+      EstadoReserva.pendiente => (cs.tertiary, cs.onPrimary, cs.onTertiary),
       EstadoReserva.confirmada => (cs.primary, cs.onPrimary, cs.primary),
       EstadoReserva.devuelta => (cs.secondary.withValues(alpha: 0.35), cs.onPrimaryContainer, cs.secondary.withValues(alpha: 0.35)),
       EstadoReserva.cancelada => (cs.error, cs.onError, cs.error),
@@ -193,7 +193,7 @@ class ReservaCard extends StatelessWidget {
                       ),
                       TagWidget(
                         text: 'x${l.cantidad}',
-                        backgroundColor: cs.onSecondary,
+                        backgroundColor: cs.secondary.withValues(alpha: 0.15),
                         textColor: cs.onPrimaryContainer,
                       ),
                     ],
@@ -252,5 +252,6 @@ class ReservaCard extends StatelessWidget {
     );
   }
 }
+
 
 

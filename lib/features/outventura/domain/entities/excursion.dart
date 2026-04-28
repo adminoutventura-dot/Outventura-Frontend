@@ -45,6 +45,8 @@ class Excursion {
   final int numeroParticipantes;
   final String? descripcion;
   final EstadoExcursion estado;
+  // Precio base por participante.
+  final double precio;
   // Material recomendado por participante: {idEquipamiento: cantidadPorPersona}.
   final Map<int, int> materialesPorParticipante;
 
@@ -59,6 +61,7 @@ class Excursion {
     required this.numeroParticipantes,
     this.descripcion,
     required this.estado,
+    this.precio = 0,
     this.materialesPorParticipante = const {},
   });
 
@@ -77,6 +80,7 @@ class Excursion {
       numeroParticipantes: map['participantCount'] as int,
       descripcion: map['description'] as String?,
       estado: EstadoExcursion.fromString(map['status'] as String),
+      precio: (map['price'] as num?)?.toDouble() ?? 0,
       materialesPorParticipante:
           (map['materialsPerParticipant'] as Map<String, dynamic>?)?.map(
             (String key, dynamic value) =>
@@ -97,6 +101,7 @@ class Excursion {
     int? numeroParticipantes,
     String? descripcion,
     EstadoExcursion? estado,
+    double? precio,
     Map<int, int>? materialesPorParticipante,
   }) {
     return Excursion(
@@ -110,6 +115,7 @@ class Excursion {
       numeroParticipantes: numeroParticipantes ?? this.numeroParticipantes,
       descripcion: descripcion ?? this.descripcion,
       estado: estado ?? this.estado,
+      precio: precio ?? this.precio,
       materialesPorParticipante: materialesPorParticipante ?? this.materialesPorParticipante,
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
+import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/core/widgets/app_date_selector.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
@@ -13,6 +14,7 @@ import 'package:outventura/features/outventura/domain/entities/reservation.dart'
 import 'package:outventura/features/outventura/presentation/controllers/reservation_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
 
 class ReservationFormPage extends ConsumerStatefulWidget {
@@ -43,11 +45,14 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
   void initState() {
     super.initState();
     _controller = ReservationFormController();
+    // Si se ha pasado una reserva, cargar sus datos en el controlador.
     if (widget.reserva != null) {
       _controller.cargarReserva(widget.reserva!);
       if (widget.initialIdUsuario != null) {
         _controller.idUsuario = widget.initialIdUsuario;
       }
+
+      // Si no, aplicar valores iniciales (como el idUsuario).
     } else {
       _controller.aplicarValoresIniciales(
         idUsuario: widget.initialIdUsuario,
@@ -93,13 +98,15 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: cs.inverseSurface,
-        foregroundColor: cs.onInverseSurface,
-        title: Text(
-          widget.reserva != null
-              ? 'Editar reserva #${widget.reserva!.id}'
-              : 'Nueva reserva',
-          style: tt.titleMedium?.copyWith(color: cs.onInverseSurface),
+        title: Text(widget.reserva != null ? 'Editar reserva #${widget.reserva!.id}' : 'Nueva reserva'),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [cs.surfaceContainer, cs.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -118,6 +125,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
                 label: 'Usuario',
                 hint: modoCliente ? 'Tu usuario' : 'Selecciona un usuario',
+                enabled: !modoCliente && widget.reserva == null,
 
                 // id usuario es = v, significa que se ha seleccionado un usuario, si es null, no se ha seleccionado ninguno.
                 // v es el id del usuario seleccionado.
@@ -136,25 +144,28 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Excursión (opcional)
-              AppDropdownField<Excursion>(
-                value: _controller.idExcursion,
-                items: ref.read(excursionesProvider),
-                itemValue: (e) => e.id,
-                itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
-                prefixIcon: Icons.hiking_outlined,
-                label: 'Excursión',
-                hint: 'Ninguna',
-                onChanged: (int? v) =>
-                    setState(() => _controller.idExcursion = v),
-                validator: (int? v) {
-                  if (v == null) {
-                    return 'Selecciona una Excursión';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
+              // Excursión (solo editable para administradores; visible en modo edición)
+              if (!modoCliente || widget.reserva != null) ...[
+                AppDropdownField<Excursion>(
+                  value: _controller.idExcursion,
+                  items: ref.read(excursionesProvider),
+                  itemValue: (e) => e.id,
+                  itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
+                  prefixIcon: Icons.hiking_outlined,
+                  label: 'Excursión',
+                  hint: 'Ninguna',
+                  enabled: !modoCliente && widget.reserva == null,
+                  onChanged: (int? v) =>
+                      setState(() => _controller.idExcursion = v),
+                  validator: (int? v) {
+                    if (v == null) {
+                      return 'Selecciona una Excursión';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+              ],
 
               // Fechas
               Text(
@@ -297,7 +308,32 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               ],
               const SizedBox(height: 32),
 
-              // Botones
+              // Botón borrar reserva (solo al editar)
+              if (widget.reserva != null) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: SecondaryButton(
+                    label: 'Borrar reserva',
+                    onPressed: () async {
+                      final bool confirmar = await showConfirmDialog(
+                        context: context,
+                        title: 'Borrar reserva',
+                        content: '¿Estás seguro de que quieres borrar esta reserva? Esta acción no se puede deshacer.',
+                        confirmLabel: 'Borrar',
+                      );
+                      if (confirmar && context.mounted) {
+                        ref.read(reservasProvider.notifier).eliminar(widget.reserva!);
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    backgroundColor: cs.error,
+                    borderColor: cs.error,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+
+              // Botones Cancelar / Guardar
               Row(
                 children: [
                   Expanded(

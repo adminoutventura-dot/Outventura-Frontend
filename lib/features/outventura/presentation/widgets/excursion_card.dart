@@ -72,7 +72,7 @@ class ExcursionCard extends StatelessWidget {
                       // Punto de inicio y fin.
                       '${excursion.puntoInicio} → ${excursion.puntoFin}',
                       style: tt.labelLarge?.copyWith(
-                        color: cs.surfaceContainer,
+                        color: cs.surface,
                         shadows: [Shadow(color: cs.onSurface.withAlpha(180), blurRadius: 4)],
                       ),
                     ),
@@ -98,7 +98,7 @@ class ExcursionCard extends StatelessWidget {
                       color: cs.surface,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.landscape, size: 20, color: cs.inverseSurface),
+                    child: Icon(Icons.landscape, size: 20, color: cs.surfaceContainer),
                   ),
                   const SizedBox(width: 10),
 
@@ -141,6 +141,13 @@ class ExcursionCard extends StatelessWidget {
                       '${excursion.numeroParticipantes} plazas',
                       style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
+                    if (excursion.precio > 0) ...[
+                      const SizedBox(width: 10),
+                      Text(
+                        '${excursion.precio.toStringAsFixed(0)}€/persona',
+                        style: tt.labelMedium?.copyWith(color: cs.primary),
+                      ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -154,7 +161,7 @@ class ExcursionCard extends StatelessWidget {
                       children: excursion.categorias
                           .map((CategoriaActividad c) => TagWidget(
                                 text: c.label,
-                                backgroundColor: cs.onSecondary,
+                                backgroundColor: cs.secondary.withValues(alpha: 0.15),
                                 textColor: cs.onPrimaryContainer,
                               ))
                           .toList(),
@@ -186,8 +193,8 @@ class ExcursionCard extends StatelessWidget {
                       MiniButton(
                         label: 'Solicitar',
                         onPressed: onSolicitar,
-                        textColor: cs.onSecondaryContainer,
-                        backgroundColor: cs.secondaryContainer,
+                        textColor: cs.secondary.withValues(alpha: 0.15),
+                        backgroundColor: cs.secondary,
                       ),
                   ],
                 ),
@@ -199,6 +206,7 @@ class ExcursionCard extends StatelessWidget {
     );
   }
 }
+
 
 
 

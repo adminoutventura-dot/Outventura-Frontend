@@ -46,6 +46,20 @@ class UserFormController {
     activo = true;
   }
 
+  // Construye un Usuario a partir de los datos del formulario.
+  Usuario construirUsuario() {
+    return Usuario(
+      id: seleccionado?.id ?? DateTime.now().millisecondsSinceEpoch,
+      nombre: nombre.text.trim(),
+      apellidos: apellidos.text.trim(),
+      email: email.text.trim(),
+      telefono: telefono.text.trim().isEmpty ? null : telefono.text.trim(),
+      rol: rol,
+      activo: activo,
+      foto: foto,
+    );
+  }
+
   void dispose() {
     nombre.dispose();
     apellidos.dispose();

@@ -46,11 +46,11 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: cs.inverseSurface,
-        foregroundColor: cs.onInverseSurface,
+        backgroundColor: cs.surfaceContainer,
+        foregroundColor: cs.onSurfaceVariant,
         title: Text(
           'Editar perfil',
-          style: tt.titleMedium?.copyWith(color: cs.onInverseSurface),
+          style: tt.titleMedium?.copyWith(color: cs.onSurfaceVariant),
         ),
       ),
       body: Form(

@@ -34,13 +34,13 @@ class _EquipmentCardState extends State<EquipmentCard> {
         badgeBg = cs.primary;
         break;
       case entity.EstadoEquipamiento.reservado:
-        badgeBg = cs.secondaryContainer;
+        badgeBg = cs.tertiary;
         break;
       case entity.EstadoEquipamiento.mantenimiento:
-        badgeBg = cs.secondaryContainer;
+        badgeBg = cs.onSurfaceVariant;
         break;
       case entity.EstadoEquipamiento.fueraDeServicio:
-        badgeBg = cs.errorContainer;
+        badgeBg = cs.error;
         break;
     }
 

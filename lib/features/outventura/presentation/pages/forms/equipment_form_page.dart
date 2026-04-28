@@ -43,11 +43,15 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: cs.inverseSurface,
-        foregroundColor: cs.onInverseSurface,
-        title: Text(
-          _controller.editando ? 'Editar equipamiento' : 'Nuevo equipamiento',
-          style: tt.titleMedium?.copyWith(color: cs.onInverseSurface),
+        title: Text(_controller.editando ? 'Editar equipamiento' : 'Nuevo equipamiento'),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [cs.surfaceContainer, cs.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
         ),
       ),
 

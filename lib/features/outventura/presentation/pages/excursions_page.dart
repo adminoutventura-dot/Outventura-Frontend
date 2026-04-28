@@ -53,7 +53,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [cs.inverseSurface, cs.primary],
+              colors: [cs.surfaceContainer, cs.primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -63,9 +63,22 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
       drawer: const AppDrawer(),
       floatingActionButton: widget.puedeGestionar
           ? AddFab(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ExcursionFormPage()),
-              ),
+              onPressed: () async {
+                final Excursion? nueva = await Navigator.of(context)
+                    .push<Excursion>(
+                      MaterialPageRoute(builder: (_) => const ExcursionFormPage()),
+                    );
+                if (nueva == null) {
+                  return;
+                }
+                ref.read(excursionesProvider.notifier).agregar(nueva);
+                if (!context.mounted) {
+                  return;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Excursión creada correctamente.')),
+                );
+              },
             )
           : null,
 
@@ -111,12 +124,27 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                 return ExcursionCard(
                   excursion: excursion,
                   onEditar: widget.puedeGestionar
-                      ? () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (BuildContext _) =>
-                                ExcursionFormPage(excursion: excursion),
-                          ),
-                        )
+                      ? () async {
+                          final Excursion? actualizada =
+                              await Navigator.of(context).push<Excursion>(
+                                MaterialPageRoute(
+                                  builder: (BuildContext _) =>
+                                      ExcursionFormPage(excursion: excursion),
+                                ),
+                              );
+                          if (actualizada == null) {
+                            return;
+                          }
+                          ref
+                              .read(excursionesProvider.notifier)
+                              .actualizar(excursion, actualizada);
+                          if (!context.mounted) {
+                            return;
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Excursión actualizada correctamente.')),
+                          );
+                        }
                       : null,
                   onEliminar: widget.puedeGestionar
                       ? () async {
@@ -160,11 +188,10 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                           if (!context.mounted) {
                             return;
                           }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Solicitud creada correctamente.'),
-                            ),
-                          );
+                          final String mensaje = solicitud.idReserva != null
+                              ? 'Solicitud creada con reserva de materiales.'
+                              : 'Solicitud creada correctamente.';
+                          ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(mensaje)) );
                         }
                       : null,
                 );
