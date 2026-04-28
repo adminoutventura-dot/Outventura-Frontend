@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
-import 'package:outventura/features/outventura/domain/entities/equipment.dart' as entity;
+import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 
 class EquipmentCard extends StatefulWidget {
-  final entity.Equipamiento equipamiento;
+  final Equipamiento equipamiento;
   final VoidCallback? onEditar;
   final VoidCallback? onEliminar;
   final VoidCallback? onAlquilar;
@@ -29,17 +29,18 @@ class _EquipmentCardState extends State<EquipmentCard> {
 
     Color badgeBg;
     final Color badgeFg = cs.onSurface;
+    // Widget es la clase que recibe los datos, luego el state (_EquipmentCardState) usa esos datos con widget.equipamiento.
     switch (widget.equipamiento.estado) {
-      case entity.EstadoEquipamiento.disponible:
+      case EstadoEquipamiento.disponible:
         badgeBg = cs.primary;
         break;
-      case entity.EstadoEquipamiento.reservado:
+      case EstadoEquipamiento.reservado:
         badgeBg = cs.tertiary;
         break;
-      case entity.EstadoEquipamiento.mantenimiento:
+      case EstadoEquipamiento.mantenimiento:
         badgeBg = cs.onSurfaceVariant;
         break;
-      case entity.EstadoEquipamiento.fueraDeServicio:
+      case EstadoEquipamiento.fueraDeServicio:
         badgeBg = cs.error;
         break;
     }

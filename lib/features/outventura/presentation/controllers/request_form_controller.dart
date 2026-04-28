@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/utils/id_generator.dart';import 'package:outventura/features/outventura/domain/entities/equipment.dart';import 'package:outventura/features/outventura/domain/entities/equipment.dart';
+import 'package:outventura/core/utils/id_generator.dart';
+import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
