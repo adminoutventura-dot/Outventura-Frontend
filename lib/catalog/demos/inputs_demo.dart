@@ -114,7 +114,7 @@ class _InputsDemoState extends State<InputsDemo> {
             spacing: 8,
             children: [
               TagWidget(text: 'Pendiente',    backgroundColor: cs.tertiary,  textColor: cs.onPrimary),
-              TagWidget(text: 'Confirmada',   backgroundColor: cs.secondary, textColor: cs.secondary.withValues(alpha: 0.15)),
+              TagWidget(text: 'Confirmada',   backgroundColor: cs.secondary, textColor: cs.onPrimary),
               TagWidget(text: 'Finalizada',   backgroundColor: cs.primaryContainer,   textColor: cs.onPrimaryContainer),
               TagWidget(text: 'Cancelada',    backgroundColor: cs.error,              textColor: cs.onError),
               TagWidget(text: 'Acuático',     backgroundColor: cs.onPrimary,          textColor: cs.onPrimaryContainer),

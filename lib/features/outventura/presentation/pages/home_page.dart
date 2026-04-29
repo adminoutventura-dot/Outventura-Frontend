@@ -202,10 +202,10 @@ class HomeClientePage extends ConsumerWidget {
               bottom: false,
               child: Container(
                 decoration: BoxDecoration(
-                  color: cs.onSurfaceVariant,
+                  color: cs.onPrimary,
                   border: Border(
                     bottom: BorderSide(
-                      color: cs.onSurfaceVariant.withValues(alpha: 0.35),
+                      color: cs.onSurfaceVariant.withAlpha(50),
                       width: 2,
                     ),
                   ),
@@ -244,6 +244,7 @@ class HomeClientePage extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                const SizedBox(height: 24),
                 Text(
                   'Hola, ${usuario.nombre}',
                   style: tt.titleLarge?.copyWith(color: cs.onSurface),

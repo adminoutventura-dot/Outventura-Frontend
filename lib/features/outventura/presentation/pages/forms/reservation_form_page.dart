@@ -326,7 +326,6 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                         Navigator.of(context).pop();
                       }
                     },
-                    backgroundColor: cs.error,
                     borderColor: cs.error,
                   ),
                 ),
@@ -340,8 +339,6 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                     child: SecondaryButton(
                       label: 'Cancelar',
                       onPressed: () => Navigator.of(context).pop(),
-                      backgroundColor: cs.onError,
-                      borderColor: cs.error,
                     ),
                   ),
                   const SizedBox(width: 12),

@@ -193,8 +193,8 @@ class ExcursionCard extends StatelessWidget {
                       MiniButton(
                         label: 'Solicitar',
                         onPressed: onSolicitar,
-                        textColor: cs.secondary.withValues(alpha: 0.15),
-                        backgroundColor: cs.secondary,
+                        textColor: cs.onTertiary,
+                        backgroundColor: cs.onPrimary,
                       ),
                   ],
                 ),

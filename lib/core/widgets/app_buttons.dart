@@ -64,7 +64,7 @@ class SecondaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    final Color effectiveBorder = borderColor ?? cs.onSurfaceVariant.withValues(alpha: 0.4);
+    final Color effectiveBorder = borderColor ?? cs.primary;
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         backgroundColor: backgroundColor,

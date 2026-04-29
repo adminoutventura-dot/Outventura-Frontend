@@ -60,6 +60,7 @@ class _MiscDemoState extends State<MiscDemo> {
                 content: '¿Estás seguro de que quieres eliminar este elemento?',
                 isDanger: true,
               );
+              if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ok ? 'Confirmado' : 'Cancelado')));
             },
           ),

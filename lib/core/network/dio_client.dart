@@ -13,7 +13,6 @@
 //   );
 
 //   // TODO: Añadir interceptor de autenticación con flutter_secure_storage.
-//   // TODO: Añadir interceptor de logging en modo debug.
 
 //   ref.onDispose(() => dio.close());
 
