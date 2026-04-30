@@ -14,7 +14,6 @@ import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/controllers/request_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 
 class SolicitudFormPage extends ConsumerStatefulWidget {
   final Solicitud? solicitud;
@@ -43,31 +42,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
       return null;
     }
     return _controller.crearReserva();
-  }
-
-  Future<void> _editarReservaAsociada() async {
-    final Reserva? reserva = _controller.buscarReservaActual();
-    if (reserva == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se encontró la reserva asociada.')),
-      );
-      return;
-    }
-
-    final Reserva? resultado = await Navigator.of(context).push<Reserva>(
-      MaterialPageRoute(
-        builder: (_) => ReservationFormPage(
-          reserva: reserva,
-          initialIdUsuario: widget.initialIdUsuario,
-        ),
-      ),
-    );
-
-    if (!_controller.reservaExiste()) {
-      setState(() => _controller.idReserva = null);
-    } else if (resultado != null) {
-      setState(() => _controller.actualizarDesdeReserva(reserva, resultado));
-    }
   }
 
   @override
@@ -302,31 +276,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                   ),
                 );
               }),
-            if (excursionSeleccionada != null) ...[
-              const SizedBox(height: 12),
-              // Mostrar el botón de reservar sólo si hay materiales recomendados (cantidad > 0).
-              if (_controller.idReserva == null && _controller.tieneMateriales)
-                SecondaryButton(
-                  label: 'Reservar materiales',
-                  onPressed: () {
-                    final Reserva? reserva = _crearReservaDesdeSolicitud();
-                    if (reserva == null) {
-                      return;
-                    }
-                    setState(() {});
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Reserva creada correctamente.'),
-                      ),
-                    );
-                  },
-                )
-              else if (_controller.idReserva != null)
-                SecondaryButton(
-                  label: 'Editar reserva asociada',
-                  onPressed: _editarReservaAsociada,
-                ),
-            ],
             if (!modoCliente) ...[
               const SizedBox(height: 20),
               // Estado
