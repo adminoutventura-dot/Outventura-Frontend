@@ -51,6 +51,7 @@ class SecondaryButton extends StatelessWidget {
   final Color? backgroundColor;
   final Color? borderColor;
   final double borderRadius;
+  final IconData? icon;
 
   const SecondaryButton({
     super.key,
@@ -59,6 +60,7 @@ class SecondaryButton extends StatelessWidget {
     this.backgroundColor,
     this.borderColor,
     this.borderRadius = 15,
+    this.icon,
   });
 
   @override
@@ -76,7 +78,16 @@ class SecondaryButton extends StatelessWidget {
         ),
       ),
       onPressed: onPressed,
-      child: Text(label),
+      child: icon != null
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 16),
+                const SizedBox(width: 6),
+                Text(label),
+              ],
+            )
+          : Text(label),
     );
   }
 }

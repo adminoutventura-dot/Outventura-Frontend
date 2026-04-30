@@ -1,38 +1,56 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/core/network/api_delay.dart';
 import 'package:outventura/features/outventura/data/fakes/excursions_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 
-// Expone una lista de excursiones y métodos para modificarlos
-final NotifierProvider<ExcursionesNotifier, List<Excursion>> excursionesProvider =
-    NotifierProvider<ExcursionesNotifier, List<Excursion>>(
-  ExcursionesNotifier.new,
-);
+// Expone una lista de excursiones. Simula llamadas al backend.
+final AsyncNotifierProvider<ExcursionesNotifier, List<Excursion>> excursionesProvider =
+    AsyncNotifierProvider<ExcursionesNotifier, List<Excursion>>(ExcursionesNotifier.new);
 
-class ExcursionesNotifier extends Notifier<List<Excursion>> {
+// Filtra excursiones por ruta (puntoInicio + puntoFin). Simula búsqueda en backend.
+final excursionesFiltadasProvider = Provider.family<AsyncValue<List<Excursion>>, String>((ref, query) {
+  final AsyncValue<List<Excursion>> asyncTodas = ref.watch(excursionesProvider);
+  return asyncTodas.whenData((List<Excursion> todas) {
+    if (query.isEmpty) return todas;
+    final String q = query.toLowerCase();
+    return todas.where((Excursion e) =>
+      '${e.puntoInicio} ${e.puntoFin}'.toLowerCase().contains(q)
+    ).toList();
+  });
+});
+
+class ExcursionesNotifier extends AsyncNotifier<List<Excursion>> {
   @override
-  List<Excursion> build() => [...catalogoExcursiones];
+  Future<List<Excursion>> build() async {
+    // Simula GET /api/excursiones
+    await Future.delayed(ApiDelay.carga);
+    return [...catalogoExcursiones];
+  }
 
-  void agregar(Excursion excursion) {
-    final List<Excursion> listaActual = state;
+  // Simula POST /api/excursiones
+  Future<void> agregar(Excursion excursion) async {
+    await Future.delayed(ApiDelay.accion);
+    final List<Excursion> listaActual = [...(state.value ?? [])];
     listaActual.add(excursion);
-    state = listaActual;
+    state = AsyncData(listaActual);
   }
 
-  void actualizar(Excursion viejo, Excursion nuevo) {
-    final List<Excursion> listaNueva = [...state];
-    final int index = listaNueva.indexOf(viejo);
-
+  // Simula PUT /api/excursiones/:id
+  Future<void> actualizar(Excursion viejo, Excursion nuevo) async {
+    await Future.delayed(ApiDelay.accion);
+    final List<Excursion> listaActual = [...(state.value ?? [])];
+    final int index = listaActual.indexWhere((Excursion e) => e.id == viejo.id);
     if (index != -1) {
-      listaNueva[index] = nuevo;
+      listaActual[index] = nuevo;
     }
-
-    state = listaNueva;
+    state = AsyncData(listaActual);
   }
 
-  void eliminar(Excursion excursion) {
-    final List<Excursion> listaNueva = [...state];
-    listaNueva.remove(excursion);
-    state = listaNueva;
+  // Simula DELETE /api/excursiones/:id
+  Future<void> eliminar(Excursion excursion) async {
+    await Future.delayed(ApiDelay.accion);
+    final List<Excursion> listaActual = [...(state.value ?? [])];
+    listaActual.removeWhere((Excursion e) => e.id == excursion.id);
+    state = AsyncData(listaActual);
   }
-
 }

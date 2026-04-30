@@ -8,7 +8,7 @@ import 'package:outventura/features/outventura/presentation/providers/equipment_
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
-import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
@@ -21,10 +21,9 @@ class HomeAdminPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final List<Excursion> excursiones = ref.watch(excursionesProvider);
-    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider);
-    final List<Solicitud> solicitudes = ref.watch(solicitudesProvider);
-    final usuarios = ref.watch(usuariosProvider);
+    final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
+    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
+    final List<Solicitud> solicitudes = ref.watch(solicitudesProvider).value ?? [];
 
     return Scaffold(
       // Barra superior con título y fondo degradado.
@@ -125,18 +124,9 @@ class HomeAdminPage extends ConsumerWidget {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: SolicitudCard(
                       solicitud: solicitud,
-                      excursion: excursiones.firstWhere(
-                        (Excursion e) => e.id == solicitud.idExcursion,
-                        orElse: () => excursiones.first,
-                      ),
+                      excursion: ref.watch(excursionPorIdProvider(solicitud.idExcursion)) ?? excursiones.first,
                       nombreUsuario: solicitud.idUsuario != null
-                          ? () {
-                              final u = usuarios.firstWhere(
-                                (u) => u.id == solicitud.idUsuario,
-                                orElse: () => usuarios.first,
-                              );
-                              return '${u.nombre} ${u.apellidos}';
-                            }()
+                          ? ref.watch(nombreUsuarioProvider(solicitud.idUsuario!))
                           : null,
                     ),
                   ),
@@ -159,22 +149,15 @@ class HomeClientePage extends ConsumerWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final List<Excursion> excursiones = ref.watch(excursionesProvider);
-    final List<Reserva> reservas = ref.watch(reservasProvider);
-    final List<Solicitud> solicitudes = ref.watch(solicitudesProvider);
-
-    final List<Reserva> misReservas = reservas
+    final List<Reserva> misReservas = (ref.watch(reservasProvider).value ?? [])
         .where((Reserva r) => r.idUsuario == usuario.id)
         .toList();
-    final List<Solicitud> misSolicitudes = solicitudes
+    final List<Solicitud> misSolicitudes = (ref.watch(solicitudesProvider).value ?? [])
         .where((Solicitud s) => s.idUsuario == usuario.id)
         .toList();
     final int solicitudesPendientes = misSolicitudes
         .where((Solicitud s) => s.estado == EstadoSolicitud.pendiente)
         .length;
-    final Map<int, Excursion> excursionesPorId = {
-      for (final Excursion e in excursiones) e.id: e,
-    };
 
     return Scaffold(
       appBar: AppBar(
@@ -267,16 +250,19 @@ class HomeClientePage extends ConsumerWidget {
                   )
                 else
                   for (final Solicitud solicitud in misSolicitudes.take(3))
-                    if (excursionesPorId[solicitud.idExcursion] != null)
-                      Padding(
+                    Builder(builder: (context) {
+                      final Excursion? exc = ref.watch(excursionPorIdProvider(solicitud.idExcursion));
+                      if (exc == null) return const SizedBox.shrink();
+                      return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: SolicitudCard(
                           solicitud: solicitud,
-                          excursion: excursionesPorId[solicitud.idExcursion]!,
+                          excursion: exc,
                           nombreUsuario:
                               '${usuario.nombre} ${usuario.apellidos}',
                         ),
-                      ),
+                      );
+                    }),
               ],
             ),
           ),

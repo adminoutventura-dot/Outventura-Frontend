@@ -26,7 +26,7 @@ class RequestsPageController {
     if (!confirm) {
       return;
     }
-    ref.read(solicitudesProvider.notifier).actualizar(solicitud, solicitud.copyWith(estado: EstadoSolicitud.confirmada));
+    ref.read(solicitudesProvider.notifier).aceptar(solicitud);
 
     if (isMounted()) {
       messenger.showSnackBar(
@@ -86,7 +86,7 @@ class RequestsPageController {
       return;
     }
 
-    ref.read(solicitudesProvider.notifier).actualizar(solicitud, solicitud.copyWith(estado: EstadoSolicitud.cancelada));
+    ref.read(solicitudesProvider.notifier).rechazar(solicitud);
 
     if (isMounted()) {
       messenger.showSnackBar(

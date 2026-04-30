@@ -6,13 +6,13 @@ import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/controllers/requests_page_controller.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
-import 'package:outventura/core/widgets/app_tab.dart';
-import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
+import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 
@@ -31,7 +31,7 @@ class RequestsPage extends ConsumerStatefulWidget {
 }
 
 class _RequestsPageState extends ConsumerState<RequestsPage> {
-  EstadoSolicitud? _estadoSeleccionado;
+  final SearchFieldController _search = SearchFieldController();
   final RequestsPageController _controller = RequestsPageController();
 
   // TODO: En equipamiento las acciones estaban en ek mismo  onEditar, onEliminar...
@@ -57,29 +57,20 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
   );
 
   @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final usuarioActual = ref.watch(currentUserProvider);
-    final List<Solicitud> solicitudes = ref.watch(solicitudesProvider);
-    final List<Excursion> excursiones = ref.watch(excursionesProvider);
-    final List<Reserva> reservas = ref.watch(reservasProvider);
-
-    List<Solicitud> base = solicitudes;
-    if (!widget.puedeGestionar && usuarioActual != null) {
-      base = solicitudes
-          .where((Solicitud s) => s.idUsuario == usuarioActual.id)
-          .toList();
-    }
-
-    List<Solicitud> filtradas;
-    if (_estadoSeleccionado == null) {
-      filtradas = base;
-    } else {
-      filtradas = base
-          .where((Solicitud soli) => soli.estado == _estadoSeleccionado)
-          .toList();
-    }
+    final AsyncValue<List<Solicitud>> filtradas = ref.watch(solicitudesFiltadasProvider((
+      query: _search.query,
+      idUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+    )));
 
     return Scaffold(
       appBar: AppBar(
@@ -87,6 +78,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
           widget.puedeGestionar ? 'Gestión de solicitudes' : 'Solicitudes',
         ),
         automaticallyImplyLeading: true,
+        actions: const [],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -127,30 +119,29 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Filtros
-          Row(
-            children: [
-              Expanded(
-                child: AppTab(
-                  label: 'Todas',
-                  seleccionado: _estadoSeleccionado == null,
-                  onTap: () => setState(() => _estadoSeleccionado = null),
-                ),
-              ),
-              for (final EstadoSolicitud e in EstadoSolicitud.values)
-                Expanded(
-                  child: AppTab(
-                    label: e.label,
-                    seleccionado: _estadoSeleccionado == e,
-                    onTap: () => setState(() => _estadoSeleccionado = e),
-                  ),
-                ),
-            ],
+          // Barra de búsqueda
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+            child: CustomInputField(
+              controller: _search.controller,
+              labelText: 'Buscar por excursión (ruta)...',
+              prefixIcon: Icons.search,
+              suffixIcon: _search.query.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => setState(_search.clear),
+                    )
+                  : null,
+              onChanged: (String v) => setState(() => _search.query = v),
+            ),
           ),
 
           // Lista
           Expanded(
-            child: filtradas.isEmpty
+            child: filtradas.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Center(child: Text('Error: $error')),
+              data: (List<Solicitud> lista) => lista.isEmpty
                 ? Center(
                     child: Text(
                       'No hay solicitudes',
@@ -159,41 +150,28 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                   )
                 : ListView.separated(
                     padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
-                    itemCount: filtradas.length,
+                    itemCount: lista.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (BuildContext context, int index) {
-                      final Solicitud soli = filtradas[index];
-                      Excursion excursion = excursiones.first;
-                      for (final Excursion e in excursiones) {
-                        if (e.id == soli.idExcursion) {
-                          excursion = e;
-                          break;
-                        }
-                      }
+                      final Solicitud soli = lista[index];
+                      final Excursion? excursion = ref.watch(excursionPorIdProvider(soli.idExcursion));
 
-                      final usuarios = ref.read(usuariosProvider);
-                      final usuario = soli.idUsuario != null
-                          ? usuarios.firstWhere((u) => u.id == soli.idUsuario, orElse: () => usuarios.first)
+                      final String? nombreUsuario = soli.idUsuario != null
+                          ? ref.watch(nombreUsuarioProvider(soli.idUsuario!))
                           : null;
 
-                      Reserva? reservaAsociada;
-                      if (soli.idReserva != null) {
-                        for (final Reserva r in reservas) {
-                          if (r.id == soli.idReserva) {
-                            reservaAsociada = r;
-                            break;
-                          }
-                        }
-                      }
+                      final Reserva? reservaAsociada = soli.idReserva != null
+                          ? ref.watch(reservaPorIdProvider(soli.idReserva!))
+                          : null;
+
+                      if (excursion == null) return const SizedBox.shrink();
 
                       return SolicitudCard(
                         solicitud: soli,
                         excursion: excursion,
                         nombreUsuario: (!widget.puedeGestionar)
                             ? null
-                            : usuario != null
-                            ? '${usuario.nombre} ${usuario.apellidos}'
-                            : null,
+                            : nombreUsuario,
                         onGestionar:
                             widget.puedeGestionar &&
                                 soli.estado == EstadoSolicitud.pendiente
@@ -223,7 +201,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                                   ref
                                       .read(reservasProvider.notifier)
                                       .actualizar(
-                                        reservaAsociada!,
+                                        reservaAsociada,
                                         actualizada,
                                       );
 
@@ -255,6 +233,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                       );
                     },
                   ),
+            ),
           ),
         ],
       ),

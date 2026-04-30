@@ -3,23 +3,39 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/user_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
+import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
 
-class UsersPage extends ConsumerWidget {
+class UsersPage extends ConsumerStatefulWidget {
   const UsersPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<UsersPage> createState() => _UsersPageState();
+}
+
+class _UsersPageState extends ConsumerState<UsersPage> {
+  final SearchFieldController _search = SearchFieldController();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final List<Usuario> usuarios = ref.watch(usuariosProvider);
+    final AsyncValue<List<Usuario>> filtrados = ref.watch(usuariosFiltradosProvider(_search.query));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Usuarios'),
         automaticallyImplyLeading: true,
+        actions: const [],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -54,46 +70,75 @@ class UsersPage extends ConsumerWidget {
         icon: Icons.person_add_outlined,
       ),
 
-      body: Padding(
-        padding: const EdgeInsetsGeometry.only(bottom: 50),
-        child: ListView.separated(
-          padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
-          itemCount: usuarios.isEmpty ? 1 : usuarios.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 10),
-          itemBuilder: (BuildContext context, int index) {
-            if (usuarios.isEmpty) {
-              return Center(
-                child: Text(
-                  'No hay usuarios',
-                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
-              );
-            }
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Barra de búsqueda
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+            child: CustomInputField(
+              controller: _search.controller,
+              labelText: 'Buscar por nombre, email o teléfono...',
+              prefixIcon: Icons.search,
+              suffixIcon: _search.query.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => setState(_search.clear),
+                    )
+                  : null,
+              onChanged: (String v) => setState(() => _search.query = v),
+            ),
+          ),
 
-            return UserCard(
-              usuario: usuarios[index],
-              onEditar: () async {
-                final Usuario? actualizado = await Navigator.push<Usuario>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext _) => UserFormPage(usuario: usuarios[index]),
-                  ),
-                );
-                if (actualizado == null) {
-                  return;
-                }
-                ref.read(usuariosProvider.notifier).actualizar(usuarios[index], actualizado);
-                if (!context.mounted) {
-                  return;
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Usuario actualizado correctamente.')),
-                );
-              },
-              onEliminar: () {},
-            );
-          },
-        ),
+          // Lista
+          Expanded(
+            child: filtrados.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Center(child: Text('Error: $error')),
+              data: (List<Usuario> usuarios) => ListView.separated(
+                padding: EdgeInsets.fromLTRB(
+                    12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
+                itemCount: usuarios.isEmpty ? 1 : usuarios.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
+                itemBuilder: (BuildContext context, int index) {
+                  if (usuarios.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No hay usuarios',
+                        style:
+                            tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                    );
+                  }
+
+                  return UserCard(
+                    usuario: usuarios[index],
+                    onEditar: () async {
+                      final Usuario? actualizado = await Navigator.push<Usuario>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext _) =>
+                              UserFormPage(usuario: usuarios[index]),
+                        ),
+                      );
+                      if (actualizado == null) {
+                        return;
+                      }
+                      ref.read(usuariosProvider.notifier).actualizar(usuarios[index], actualizado);
+                      if (!context.mounted) {
+                        return;
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Usuario actualizado correctamente.')),
+                      );
+                    },
+                    onEliminar: () {},
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

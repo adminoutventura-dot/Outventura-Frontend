@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
+import 'package:outventura/core/utils/id_generator.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 
@@ -84,7 +85,7 @@ class ExcursionFormController {
   // Construye una excursión a partir de los datos del formulario.
   Excursion construirExcursion() {
     return Excursion(
-      id: seleccionado?.id ?? DateTime.now().millisecondsSinceEpoch,
+      id: seleccionado?.id ?? GeneradorId.idEntero(),
       puntoInicio: puntoInicioController.text.trim(),
       puntoFin: puntoFinController.text.trim(),
       descripcion: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),

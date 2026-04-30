@@ -14,6 +14,7 @@ import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/controllers/request_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 
 class SolicitudFormPage extends ConsumerStatefulWidget {
   final Solicitud? solicitud;
@@ -41,13 +42,18 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
       return null;
     }
-    return _controller.crearReserva();
+    final List<Excursion> excursiones = ref.read(excursionesProvider).value ?? [];
+    final Reserva? reserva = _controller.crearReserva(excursiones);
+    if (reserva != null) {
+      ref.read(reservasProvider.notifier).agregar(reserva);
+    }
+    return reserva;
   }
 
   @override
   void initState() {
     super.initState();
-    _controller = SolicitudFormController(ref);
+    _controller = SolicitudFormController();
     // Si se ha pasado una solicitud, cargar sus datos en el controlador. 
     if (widget.solicitud != null) {
       _controller.cargarSolicitud(widget.solicitud!);
@@ -67,7 +73,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
         if (!mounted) {
           return;
         }
-        setState(() => _controller.recalcularMateriales(ref.read(excursionesProvider)));
+        setState(() => _controller.recalcularMateriales(ref.read(excursionesProvider).value ?? []));
       });
     }
   }
@@ -83,13 +89,13 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final bool isEdit = _controller.editando;
-    final List<Excursion> excursiones = ref.watch(excursionesProvider);
-    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider);
+    final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
+    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
 
     // Indica si estamos en modo cliente (se ha pasado un idUsuario fijo).
     final bool modoCliente = widget.initialIdUsuario != null;
 
-    List<Usuario> usuariosDisponibles = ref.read(usuariosProvider);
+    List<Usuario> usuariosDisponibles = ref.read(usuariosProvider).value ?? [];
     if (modoCliente && widget.initialIdUsuario != null) {
       usuariosDisponibles = usuariosDisponibles
           .where((Usuario u) => u.id == widget.initialIdUsuario)
@@ -299,7 +305,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               // Experto
               AppDropdownField<Usuario>(
                 value: _controller.idExperto,
-                items: ref.read(usuariosProvider),
+                items: ref.read(usuariosProvider).value ?? [],
                 itemValue: (Usuario user) => user.id,
                 itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
                 prefixIcon: Icons.person_outline,
@@ -379,8 +385,15 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                   return;
                 }
 
-                // Crea o actualiza la reserva asociada a la solicitud en el provider.
-                _controller.sincronizarReservaConSolicitud(solicitud);
+                // Sincroniza la reserva asociada a la solicitud con los datos actuales.
+                final List<Reserva> reservasActuales = ref.read(reservasProvider).value ?? [];
+                final Reserva? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
+                if (reservaActualizada != null && solicitud.idReserva != null) {
+                  final Reserva? original = _controller.buscarReserva(reservasActuales, solicitud.idReserva!);
+                  if (original != null) {
+                    ref.read(reservasProvider.notifier).actualizar(original, reservaActualizada);
+                  }
+                }
 
                 // Cierra la página y devuelve el nuevo equipamiento a la página anterior
                 Navigator.of(context).pop(solicitud);

@@ -73,7 +73,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
   Future<void> _mostrarDialogoLinea({int? index}) async {
     await _controller.mostrarDialogoLinea(
       context: context,
-      equipamientos: ref.read(equipamientosProvider),
+      equipamientos: ref.read(equipamientosProvider).value ?? [],
       setState: setState,
       index: index,
     );
@@ -83,12 +83,12 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider);
+    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
     final Usuario? usuarioActual = ref.watch(currentUserProvider);
     final bool modoCliente = widget.initialIdUsuario != null;
     final int? idUsuarioFijado = widget.initialIdUsuario ?? usuarioActual?.id;
 
-    List<Usuario> usuariosDisponibles = ref.read(usuariosProvider);
+    List<Usuario> usuariosDisponibles = ref.read(usuariosProvider).value ?? [];
     if (modoCliente && idUsuarioFijado != null) {
       usuariosDisponibles = usuariosDisponibles
           .where((Usuario u) => u.id == idUsuarioFijado)
@@ -148,7 +148,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               if (!modoCliente || widget.reserva != null) ...[
                 AppDropdownField<Excursion>(
                   value: _controller.idExcursion,
-                  items: ref.read(excursionesProvider),
+                  items: ref.read(excursionesProvider).value ?? [],
                   itemValue: (e) => e.id,
                   itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
                   prefixIcon: Icons.hiking_outlined,
@@ -292,14 +292,14 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 ),
 
               // Total cargos por daños
-              if (_controller.totalCargoDanios > 0) ...[
+              if (_controller.totalCargoDanios(equipamientos) > 0) ...[
                 const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Total daños', style: tt.labelMedium),
                     Text(
-                      '${_controller.totalCargoDanios.toStringAsFixed(2)} €',
+                      '${_controller.totalCargoDanios(equipamientos).toStringAsFixed(2)} €',
                       style: tt.labelMedium?.copyWith(color: cs.error),
                     ),
                   ],
@@ -357,7 +357,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                           );
                           return;
                         }
-                        final Reserva? reserva = _controller.crearReserva();
+                        final Reserva? reserva = _controller.crearReserva(equipamientos);
                         if (reserva == null) {
                           return;
                         }

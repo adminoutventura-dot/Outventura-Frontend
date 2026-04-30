@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/equipment_form_page.dart';
@@ -10,8 +9,9 @@ import 'package:outventura/features/outventura/presentation/pages/forms/reservat
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
-import 'package:outventura/core/widgets/app_tab.dart';
+import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/equipment_card.dart';
 
 class EquipmentPage extends ConsumerStatefulWidget {
@@ -29,29 +29,26 @@ class EquipmentPage extends ConsumerStatefulWidget {
 }
 
 class _EquipmentPageState extends ConsumerState<EquipmentPage> {
-  CategoriaActividad? _categoriaSeleccionada;
+  final SearchFieldController _search = SearchFieldController();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider);
 
-    List<Equipamiento> equipamientosFiltrados;
-    if (_categoriaSeleccionada == null) {
-      equipamientosFiltrados = equipamientos;
-    } else {
-      equipamientosFiltrados = equipamientos
-          .where(
-            (Equipamiento e) => e.categorias.contains(_categoriaSeleccionada),
-          )
-          .toList();
-    }
+    final AsyncValue<List<Equipamiento>> equipamientosFiltrados = ref.watch(equipamientosFiltradosProvider(_search.query));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Equipamiento'),
         automaticallyImplyLeading: true,
+        actions: const [],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -86,57 +83,49 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
             )
           : null,
       body: Column(
-        // Barra de categorías
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: AppTab(
-                  label: 'Todos',
-                  seleccionado: _categoriaSeleccionada == null,
-                  onTap: () => setState(() => _categoriaSeleccionada = null),
-                ),
-              ),
-              for (final CategoriaActividad categoria
-                  in CategoriaActividad.values)
-                Expanded(
-                  child: AppTab(
-                    label: categoria.label,
-                    seleccionado: _categoriaSeleccionada == categoria,
-                    onTap: () =>
-                        setState(() => _categoriaSeleccionada = categoria),
-                  ),
-                ),
-            ],
+          // Barra de búsqueda
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+            child: CustomInputField(
+              controller: _search.controller,
+              labelText: 'Buscar por nombre...',
+              prefixIcon: Icons.search,
+              suffixIcon: _search.query.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => setState(_search.clear),
+                    )
+                  : null,
+              onChanged: (String v) => setState(() => _search.query = v),
+            ),
           ),
 
           // Lista de materiales filtrados
           Expanded(
-            child: ListView.separated(
+            child: equipamientosFiltrados.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Center(child: Text('Error: $error')),
+              data: (List<Equipamiento> lista) => ListView.separated(
               padding: EdgeInsets.fromLTRB(
                 12,
                 12,
                 12,
                 MediaQuery.of(context).padding.bottom + 80,
               ),
-              // Si no hay materiales muestra un mensaje en lugar de la lista.
-              itemCount: equipamientosFiltrados.isEmpty
-                  ? 1
-                  : equipamientosFiltrados.length,
+              itemCount: lista.isEmpty ? 1 : lista.length,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (BuildContext context, int index) {
-                if (equipamientosFiltrados.isEmpty) {
+                if (lista.isEmpty) {
                   return Center(
                     child: Text(
                       'No hay equipamientos para esta categoría.',
-                      style: tt.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
+                      style: tt.bodyMedium!.copyWith(color: cs.onSurfaceVariant),
                     ),
                   );
                 }
 
-                final Equipamiento equipamiento = equipamientosFiltrados[index];
+                final Equipamiento equipamiento = lista[index];
                 return EquipmentCard(
                   equipamiento: equipamiento,
                   onEditar: widget.puedeGestionar
@@ -153,9 +142,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           if (actualizado == null) {
                             return;
                           }
-                          ref
-                              .read(equipamientosProvider.notifier)
-                              .actualizar(equipamiento, actualizado);
+                          ref.read(equipamientosProvider.notifier).actualizar(equipamiento, actualizado);
                           if (!context.mounted) {
                             return;
                           }
@@ -172,9 +159,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             content: '¿Eliminar "${equipamiento.nombre}"?',
                           );
                           if (confirm) {
-                            ref
-                                .read(equipamientosProvider.notifier)
-                                .eliminar(equipamiento);
+                            ref.read(equipamientosProvider.notifier).eliminar(equipamiento);
                           }
                         }
                       : null,
@@ -204,14 +189,13 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             return;
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Reserva creada correctamente.'),
-                            ),
+                            const SnackBar(content: Text('Reserva creada correctamente.')),
                           );
                         }
                       : null,
                 );
               },
+            ),
             ),
           ),
         ],

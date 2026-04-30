@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
+import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
-import 'package:outventura/core/widgets/app_tab.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_dialogs.dart';
 
@@ -25,34 +27,30 @@ class ReservationsPage extends ConsumerStatefulWidget {
 }
 
 class _ReservationsPageState extends ConsumerState<ReservationsPage> {
-  EstadoReserva? _filtro;
+  final SearchFieldController _search = SearchFieldController();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final usuarioActual = ref.watch(currentUserProvider);
-    final List<Reserva> reservas = ref.watch(reservasProvider);
     final ReservasNotifier notifier = ref.read(reservasProvider.notifier);
-
-    List<Reserva> base = reservas;
-    if (!widget.puedeGestionar && usuarioActual != null) {
-      base = reservas
-          .where((Reserva r) => r.idUsuario == usuarioActual.id)
-          .toList();
-    }
-
-    List<Reserva> filtradas;
-    if (_filtro == null) {
-      filtradas = base;
-    } else {
-      filtradas = base.where((Reserva res) => res.estado == _filtro).toList();
-    }
+    final AsyncValue<List<Reserva>> filtradas = ref.watch(reservasFiltadasProvider((
+      query: _search.query,
+      idUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+    )));
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.puedeGestionar ? 'Gestión de reservas' : 'Reservas'),
         automaticallyImplyLeading: true,
+        actions: const [],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -89,37 +87,36 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Filtros
-          Row(
-            children: [
-              Expanded(
-                child: AppTab(
-                  label: 'Todas',
-                  seleccionado: _filtro == null,
-                  onTap: () => setState(() => _filtro = null),
-                ),
-              ),
-              for (final EstadoReserva estadoR in EstadoReserva.values)
-                Expanded(
-                  child: AppTab(
-                    label: estadoR.label,
-                    seleccionado: _filtro == estadoR,
-                    onTap: () => setState(() => _filtro = estadoR),
-                  ),
-                ),
-            ],
+          // Barra de búsqueda
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+            child: CustomInputField(
+              controller: _search.controller,
+              labelText: 'Buscar por usuario o excursión...',
+              prefixIcon: Icons.search,
+              suffixIcon: _search.query.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => setState(_search.clear),
+                    )
+                  : null,
+              onChanged: (String v) => setState(() => _search.query = v),
+            ),
           ),
 
           // Lista
           Expanded(
-            child: filtradas.isEmpty
+            child: filtradas.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Center(child: Text('Error: $error')),
+              data: (List<Reserva> lista) => lista.isEmpty
                 ? Center(child: Text('No hay reservas', style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)))
                 : ListView.separated(
                     padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
-                    itemCount: filtradas.length,
+                    itemCount: lista.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (_, int i) {
-                      final Reserva res = filtradas[i];
+                      final Reserva res = lista[i];
 
                       VoidCallback? onAprobar;
                       if (widget.puedeGestionar && res.estado == EstadoReserva.pendiente) {
@@ -146,13 +143,13 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                       return ReservaCard(
                         reserva: res,
                         lineas: res.lineas.map((LineaReserva linea) => (
-                          nombre: notifier.nombreEquipamiento(linea.idEquipamiento),
-                          imagen: notifier.imagenEquipamiento(linea.idEquipamiento),
+                          nombre: ref.watch(nombreEquipamientoProvider(linea.idEquipamiento)),
+                          imagen: ref.watch(imagenEquipamientoProvider(linea.idEquipamiento)),
                           cantidad: linea.cantidad,
                         )).toList(),
                         
-                        nombreUsuario: notifier.nombreUsuario(res.idUsuario),
-                        nombreExcursion: notifier.nombreExcursion(res.idExcursion),
+                        nombreUsuario: ref.watch(nombreUsuarioProvider(res.idUsuario)),
+                        nombreExcursion: ref.watch(nombreExcursionProvider(res.idExcursion)),
                         onEditar: () async { 
                           final Reserva? resultado = await Navigator.of(context) .push<Reserva>(
                             MaterialPageRoute( 
@@ -178,6 +175,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                       );
                     },
                   ),
+            ),
           ),
         ],
       ),

@@ -1,115 +1,101 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/core/network/api_delay.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/data/fakes/reservations_fake.dart';
-import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
-import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/services/resolvers.dart';
 
-// Expone una lista de reservas y métodos para modificarlas
-final NotifierProvider<ReservasNotifier, List<Reserva>> reservasProvider =
-    NotifierProvider<ReservasNotifier, List<Reserva>>(
-  ReservasNotifier.new,
-);
+// Expone una lista de reservas. Simula llamadas al backend.
+final AsyncNotifierProvider<ReservasNotifier, List<Reserva>> reservasProvider =
+    AsyncNotifierProvider<ReservasNotifier, List<Reserva>>(ReservasNotifier.new);
 
-class ReservasNotifier extends Notifier<List<Reserva>> {
+// Filtra reservas por nombre de usuario o excursión. Simula búsqueda en backend.
+typedef ReservasFiltroParams = ({String query, int? idUsuario});
+
+final reservasFiltadasProvider = Provider.family<AsyncValue<List<Reserva>>, ReservasFiltroParams>((ref, params) {
+  final AsyncValue<List<Reserva>> asyncTodas = ref.watch(reservasProvider);
+  final List<Usuario> usuarios = ref.watch(usuariosProvider).value ?? [];
+  final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
+
+  return asyncTodas.whenData((List<Reserva> todas) {
+    final List<Reserva> base = params.idUsuario != null
+        ? todas.where((Reserva r) => r.idUsuario == params.idUsuario).toList()
+        : todas;
+
+    if (params.query.isEmpty) return base;
+    final String q = params.query.toLowerCase();
+    return base.where((Reserva r) {
+      final String nombreU = resolverNombreUsuario(r.idUsuario, usuarios);
+      final String nombreExc = resolverNombreExcursion(r.idExcursion, excursiones) ?? '';
+      return nombreU.toLowerCase().contains(q) || nombreExc.toLowerCase().contains(q);
+    }).toList();
+  });
+});
+
+// --- Notifier ---
+class ReservasNotifier extends AsyncNotifier<List<Reserva>> {
   @override
-  List<Reserva> build() => [...reservasFake];
+  Future<List<Reserva>> build() async {
+    // Simula GET /api/reservas
+    await Future.delayed(ApiDelay.carga);
+    return [...reservasFake];
+  }
 
-  // CRUD 
-  void agregar(Reserva reserva) {
-    final List<Reserva> listaActual = state;
+  // Simula POST /api/reservas
+  Future<void> agregar(Reserva reserva) async {
+    await Future.delayed(ApiDelay.accion);
+    final List<Reserva> listaActual = [...(state.value ?? [])];
     listaActual.add(reserva);
-    state = listaActual;
+    state = AsyncData(listaActual);
   }
 
-  void actualizar(Reserva viejo, Reserva nuevo) {
-    final List<Reserva> listaNueva = [...state];
-    final int index = listaNueva.indexOf(viejo);
-
+  // Simula PUT /api/reservas/:id
+  Future<void> actualizar(Reserva viejo, Reserva nuevo) async {
+    await Future.delayed(ApiDelay.accion);
+    final List<Reserva> listaActual = [...(state.value ?? [])];
+    final int index = listaActual.indexWhere((Reserva r) => r.id == viejo.id);
     if (index != -1) {
-      listaNueva[index] = nuevo;
+      listaActual[index] = nuevo;
     }
-
-    state = listaNueva;
+    state = AsyncData(listaActual);
   }
 
-  void eliminar(Reserva reserva) {
-    final List<Reserva> listaNueva = [...state];
-    listaNueva.remove(reserva);
-    state = listaNueva;
+  // Simula DELETE /api/reservas/:id
+  Future<void> eliminar(Reserva reserva) async {
+    await Future.delayed(ApiDelay.accion);
+    final List<Reserva> listaActual = [...(state.value ?? [])];
+    listaActual.removeWhere((Reserva r) => r.id == reserva.id);
+    state = AsyncData(listaActual);
   }
 
-  //  Acciones 
-  void aprobar(Reserva reserva) {
-    // Crea una nueva reserva con el mismo contenido pero con estado confirmado
-    final Reserva reservaAprobada = reserva.copyWith(estado: EstadoReserva.confirmada);
-    // Actualiza la reserva antigua por la nueva
-    actualizar(reserva, reservaAprobada);
+  // Simula PATCH /api/reservas/:id/aprobar
+  Future<void> aprobar(Reserva reserva) async {
+    await Future.delayed(ApiDelay.accion);
+    final Reserva aprobada = reserva.copyWith(estado: EstadoReserva.confirmada);
+    await actualizar(reserva, aprobada);
   }
 
-  void rechazar(Reserva reserva) {
-    final Reserva reservaRechazada = reserva.copyWith(estado: EstadoReserva.cancelada);
-    actualizar(reserva, reservaRechazada);
+  // Simula PATCH /api/reservas/:id/rechazar
+  Future<void> rechazar(Reserva reserva) async {
+    await Future.delayed(ApiDelay.accion);
+    final Reserva rechazada = reserva.copyWith(estado: EstadoReserva.cancelada);
+    await actualizar(reserva, rechazada);
   }
 
-  void cancelar(Reserva reserva) {
-    final Reserva reservaCancelada = reserva.copyWith(estado: EstadoReserva.cancelada);
-    actualizar(reserva, reservaCancelada);
+  // Simula PATCH /api/reservas/:id/cancelar
+  Future<void> cancelar(Reserva reserva) async {
+    await Future.delayed(ApiDelay.accion);
+    final Reserva cancelada = reserva.copyWith(estado: EstadoReserva.cancelada);
+    await actualizar(reserva, cancelada);
   }
 
-  void registrarDevolucion(Reserva reserva) {
-    final Reserva reservaDevuelta = reserva.copyWith(estado: EstadoReserva.devuelta);
-    actualizar(reserva, reservaDevuelta);
+  // Simula PATCH /api/reservas/:id/devolver
+  Future<void> registrarDevolucion(Reserva reserva) async {
+    await Future.delayed(ApiDelay.accion);
+    final Reserva devuelta = reserva.copyWith(estado: EstadoReserva.devuelta);
+    await actualizar(reserva, devuelta);
   }
-
-  // TODO: Pueden ir en un archivo service/resolvers.dart
-  // Resolvers
-  String nombreEquipamiento(int id) {
-    final List<Equipamiento> equipamientos = ref.read(equipamientosProvider);
-    final int index = equipamientos.indexWhere((Equipamiento equip) => equip.id == id);
-    if (index == -1) {
-      return 'Desconocido';
-    }
-    return equipamientos[index].nombre;
-  }
-
-  String? imagenEquipamiento(int id) {
-    final List<Equipamiento> equipamientos = ref.read(equipamientosProvider);
-    final int index = equipamientos.indexWhere((Equipamiento equip) => equip.id == id);
-    if (index == -1) {
-      return null;
-    }
-    return equipamientos[index].imagenAsset;
-  }
-
-  String nombreUsuario(int id) {
-    final List<Usuario> usuarios = ref.read(usuariosProvider);
-    final int index = usuarios.indexWhere((Usuario usuario) => usuario.id == id);
-    if (index == -1) {
-      return 'Usuario desconocido';
-    }
-    final Usuario usuario = usuarios[index];
-    return '${usuario.nombre} ${usuario.apellidos}';
-  }
-
-  // Devuelve el nombre de la excursión en formato "PuntoInicio → PuntoFin"
-  String? nombreExcursion(int? id) {
-    if (id == null) {
-      return null;
-    }
-    final List<Excursion> excursiones = ref.read(excursionesProvider);
-
-    final int index = excursiones.indexWhere((Excursion excursion) => excursion.id == id);
-    if (index == -1) {
-      return null;
-    }
-    
-    final Excursion excursion = excursiones[index];
-
-    return '${excursion.puntoInicio} → ${excursion.puntoFin}';
-  }
-
 }

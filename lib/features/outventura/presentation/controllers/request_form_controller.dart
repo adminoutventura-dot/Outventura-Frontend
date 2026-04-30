@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/id_generator.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
-import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/services/pricing_service.dart';
 
 class SolicitudFormController {
-  // Referencia al WidgetRef para leer/escribir providers
-  final WidgetRef _ref;
-
-  // Constructor que recibe el WidgetRef para acceder a los providers necesarios.
-  SolicitudFormController(this._ref);
-
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController participantesCtrl = TextEditingController();
 
@@ -219,81 +211,48 @@ class SolicitudFormController {
     );
   }
 
-  // Crea una reserva y la añade al provider. Devuelve null si hay error de validación.
-  Reserva? crearReserva() {
-    final Reserva? reserva = construirReserva(_ref.read(excursionesProvider));
-    if (reserva == null) {
-      return null;
-    }
-    _ref.read(reservasProvider.notifier).agregar(reserva);
+  // Crea una reserva a partir de los datos actuales. Devuelve null si hay error de validación.
+  Reserva? crearReserva(List<Excursion> excursiones) {
+    final Reserva? reserva = construirReserva(excursiones);
     return reserva;
   }
 
-  // Sincroniza la reserva asociada a la solicitud con los datos actuales, actualizando el provider.
-  void sincronizarReservaConSolicitud(Solicitud solicitud) {
-    // Reservas actuales.
-    final List<Reserva> reservas = _ref.read(reservasProvider);
-
-    // Reserva actualizada con los datos de la solicitud. 
+  // Sincroniza la reserva asociada a la solicitud con los datos actuales. Devuelve la reserva actualizada.
+  Reserva? sincronizarReservaConSolicitud(Solicitud solicitud, List<Reserva> reservas) {
     final Reserva? actualizada = sincronizarReserva(solicitud, reservas);
-    if (actualizada == null) {
-      return;
-    }
-
-    // Reserva original antes de la actualización.
-    final Reserva? original = buscarReserva(reservas, solicitud.idReserva!);
-
-    // Si no hay reserva original, significa que es una nueva reserva que debe añadirse.
-    if (original != null) {
-      _ref.read(reservasProvider.notifier).actualizar(original, actualizada);
-    }
+    return actualizada;
   }
 
-  // Devuelve la reserva actual del provider, o null si no hay ninguna asociada.
-  Reserva? buscarReservaActual() {
+  // Devuelve la reserva actual, o null si no hay ninguna asociada.
+  Reserva? buscarReservaActual(List<Reserva> reservas) {
     if (idReserva == null) {
       return null;
     }
-    return buscarReserva(_ref.read(reservasProvider), idReserva!);
+    return buscarReserva(reservas, idReserva!);
   }
 
-  // Comprueba si la reserva asociada sigue existiendo en el provider.
-  bool reservaExiste() {
+  // Comprueba si la reserva asociada sigue existiendo en la lista.
+  bool reservaExiste(List<Reserva> reservas) {
     if (idReserva == null) {
       return false;
     }
-    return _ref.read(reservasProvider).any((Reserva r) => r.id == idReserva);
+    return reservas.any((Reserva r) => r.id == idReserva);
   }
 
-  // Actualiza la reserva en el provider y sincroniza los materiales del formulario.
-  void actualizarDesdeReserva(Reserva original, Reserva resultado) {
-    _ref.read(reservasProvider.notifier).actualizar(original, resultado);
+  // Actualiza los materiales del formulario a partir de la reserva resultado.
+  void actualizarDesdeReserva(Reserva resultado) {
     materialesSolicitados = materialesDesdeLineas(resultado.lineas);
   }
 
-  // Calcula el precio total de la solicitud: precio excursión × participantes + alquiler materiales.
+  // Calcula el precio total de la solicitud delegando al servicio de pricing.
   double calcularPrecioTotal(List<Excursion> excursiones, List<Equipamiento> equipamientos) {
-    final Excursion? excursion = buscarExcursionSeleccionada(excursiones);
-    if (excursion == null) {
-      return 0;
-    }
-
-    // Precio base de la excursión.
-    double total = excursion.precio * numeroParticipantes;
-
-    // Precio de los materiales: precio diario × cantidad × días de la excursión.
-    final int dias = excursion.fechaFin.difference(excursion.fechaInicio).inDays.clamp(1, 999);
-    final Map<int, Equipamiento> equipPorId = {
-      for (final Equipamiento e in equipamientos) e.id: e,
-    };
-    for (final MapEntry<int, int> entry in materialesSolicitados.entries) {
-      final Equipamiento? equip = equipPorId[entry.key];
-      if (equip != null) {
-        total += equip.precioAlquilerDiario * entry.value * dias;
-      }
-    }
-
-    return total;
+    return calcularPrecioSolicitud(
+      idExcursion: idExcursion,
+      numeroParticipantes: numeroParticipantes,
+      materialesSolicitados: materialesSolicitados,
+      excursiones: excursiones,
+      equipamientos: equipamientos,
+    );
   }
 
   bool get tieneMateriales {

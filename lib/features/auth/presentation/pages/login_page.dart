@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
-import 'package:outventura/features/auth/data/fakes/users_fake.dart';
-import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/main_scaffold.dart';
@@ -163,16 +161,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           // Botón principal
                           PrimaryButton(
                             label: 'Iniciar sesión',
-                            onPressed: () {
+                            onPressed: () async {
                               if (_controller.formKey.currentState?.validate() ?? false) {
-                                // Busca el usuario y si no lo encuentra usa el primero de la lista.
                                 final String email = _controller.emailController.text.trim();
-                                final Usuario usuario = usuariosFake.firstWhere(
-                                  (Usuario u) => u.email == email,
-                                  orElse: () => usuariosFake[0],
-                                );
-
-                                ref.read(currentUserProvider.notifier).setUsuario(usuario);
+                                final usuario = await ref.read(currentUserProvider.notifier).login(email);
+                                if (!context.mounted || usuario == null) return;
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(

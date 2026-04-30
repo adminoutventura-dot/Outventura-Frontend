@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/id_generator.dart';
-import 'package:outventura/features/outventura/data/fakes/equipment_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
+import 'package:outventura/features/outventura/services/pricing_service.dart';
 
 class ReservationFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -23,23 +23,12 @@ class ReservationFormController {
   bool editando = false;
   Reserva? seleccionado;
 
-  // Total de cargos por daños calculado a partir del mapa.
-  double get totalCargoDanios {
-    double total = 0;
-
-    for (final MapEntry<int, int> entry in cantidadesDaniadas.entries) {
-      // Busca el equipamiento en la lista fake.
-      final Iterable<Equipamiento> coincidencias = equipamientosFake.where(
-        (Equipamiento e) => e.id == entry.key,
-      );
-
-      // Si hay equipamiento con ese id, suma su cargo por daño multiplicado por la cantidad dañada.
-      if (coincidencias.isNotEmpty) {
-        final Equipamiento eq = coincidencias.first;
-        total += eq.cargoPorDanio * entry.value;
-      }
-    }
-    return total;
+  // Total de cargos por daños calculado usando el servicio de pricing.
+  double totalCargoDanios(List<Equipamiento> equipamientos) {
+    return calcularCargoDanios(
+      cantidadesDaniadas: cantidadesDaniadas,
+      equipamientos: equipamientos,
+    );
   }
 
   bool validar() {
@@ -138,7 +127,7 @@ class ReservationFormController {
     });
   }
 
-  Reserva? crearReserva() {
+  Reserva? crearReserva(List<Equipamiento> equipamientos) {
     if (!validar()) {
       return null;
     }
@@ -156,7 +145,7 @@ class ReservationFormController {
       fechaInicio: fechaDesde,
       fechaFin: fechaHasta,
       estado: estado,
-      cargoDanios: totalCargoDanios,
+      cargoDanios: totalCargoDanios(equipamientos),
       itemsDaniados: Map.from(cantidadesDaniadas),
     );
   }
