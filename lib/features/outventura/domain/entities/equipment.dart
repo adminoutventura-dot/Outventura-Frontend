@@ -3,7 +3,7 @@ import 'activity_category.dart';
 // Estados posibles de un material.
 enum EstadoEquipamiento {
   disponible,
-  reservado,
+  agotado,
   mantenimiento,
   fueraDeServicio;
 
@@ -12,8 +12,8 @@ enum EstadoEquipamiento {
     switch (this) {
       case EstadoEquipamiento.disponible:
         return 'Disponible';
-      case EstadoEquipamiento.reservado:
-        return 'Reservado';
+      case EstadoEquipamiento.agotado:
+        return 'Agotado';
       case EstadoEquipamiento.mantenimiento:
         return 'En mantenimiento';
       case EstadoEquipamiento.fueraDeServicio:
@@ -27,6 +27,9 @@ enum EstadoEquipamiento {
       if (status.label.toLowerCase() == value.toLowerCase()) {
         return status;
       }
+    }
+    if (value.toLowerCase() == 'reservado') {
+      return EstadoEquipamiento.agotado;
     }
     return EstadoEquipamiento.disponible;
   }

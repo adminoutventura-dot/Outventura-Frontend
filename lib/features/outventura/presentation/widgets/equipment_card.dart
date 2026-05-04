@@ -34,7 +34,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
       case EstadoEquipamiento.disponible:
         badgeBg = cs.primary;
         break;
-      case EstadoEquipamiento.reservado:
+      case EstadoEquipamiento.agotado:
         badgeBg = cs.tertiary;
         break;
       case EstadoEquipamiento.mantenimiento:

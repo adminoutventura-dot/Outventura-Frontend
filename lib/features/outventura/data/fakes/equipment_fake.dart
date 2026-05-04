@@ -46,7 +46,7 @@ final List<Equipamiento> equipamientosFake = [
     categorias: [CategoriaActividad.acuatico],
     stock: 3,
     stockTotal: 6,
-    estado: EstadoEquipamiento.reservado,
+    estado: EstadoEquipamiento.agotado,
     precioAlquilerDiario: 20.0,
     cargoPorDanio: 200.0,
     imagenAsset: 'assets/images/Camino.jpg',

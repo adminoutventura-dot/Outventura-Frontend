@@ -35,13 +35,16 @@ class AppDropdownField<T> extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    // Si value no está en la lista de items, usar null para evitar errores del dropdown.
-    // El ValueKey fuerza la recreación del FormField cuando el valor pasa a estar disponible.
-    // TODO: REVISAR
-    final bool valueEncontrado = items.any((T item) => itemValue(item) == value);
-    final int? safeValue = valueEncontrado ? value : null;
+    // Si el valor actual no está en la lista de opciones, usar null para mostrar el hint
+    int? safeValue;
+    if (items.any((item) => itemValue(item) == value)) {
+      safeValue = value;
+    } else {
+      safeValue = null;
+    }
 
     return DropdownButtonFormField<int?>(
+      // Key sirve para forzar a Flutter a reconstruir el widget cuando el valor cambia.
       key: ValueKey(safeValue),
       initialValue: safeValue,
       style: tt.bodyMedium?.copyWith(color: cs.onSurface),
