@@ -161,12 +161,14 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                                 isMounted: () => mounted,
                               )
                             : null,
-                        onEditar: () => _controller.editar(
-                          solicitud: soli,
-                          context: context,
-                          ref: ref,
-                          fixedIdUsuario: widget.puedeGestionar ? null : ref.read(currentUserProvider)?.id,
-                        ),
+                        onEditar: (!widget.puedeGestionar && soli.estado != EstadoSolicitud.pendiente)
+                            ? null
+                            : () => _controller.editar(
+                                solicitud: soli,
+                                context: context,
+                                ref: ref,
+                                fixedIdUsuario: widget.puedeGestionar ? null : ref.read(currentUserProvider)?.id,
+                              ),
                         onVerDetalle: () {},
                         // => showSolicitudDetailSheet(
                         //   context: context,

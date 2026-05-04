@@ -99,7 +99,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     // Indica si estamos en modo cliente (se ha pasado un idUsuario fijo).
     final bool modoCliente = widget.initialIdUsuario != null;
 
-    List<Usuario> usuariosDisponibles = ref.read(usuariosProvider).value ?? [];
+    List<Usuario> usuariosDisponibles = ref.watch(usuariosProvider).value ?? [];
     if (modoCliente) {
       usuariosDisponibles = usuariosDisponibles
           .where((Usuario u) => u.id == widget.initialIdUsuario)
@@ -353,7 +353,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               // Experto
               AppDropdownField<Usuario>(
                 value: _controller.idExperto,
-                items: ref.read(usuariosProvider).value ?? [],
+                items: ref.watch(usuariosProvider).value ?? [],
                 itemValue: (Usuario user) => user.id,
                 itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
                 prefixIcon: Icons.person_outline,

@@ -181,8 +181,12 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                       date: _controller.fechaDesde,
                       firstDate: DateTime(2020),
                       lastDate: DateTime(2030),
-                      onDateSelected: (DateTime d) =>
-                          setState(() => _controller.fechaDesde = d),
+                      onDateSelected: (DateTime d) => setState(() {
+                        _controller.fechaDesde = d;
+                        if (_controller.fechaHasta.isBefore(d)) {
+                          _controller.fechaHasta = d;
+                        }
+                      }),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -190,7 +194,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                     child: AppDateSelector(
                       label: 'Hasta',
                       date: _controller.fechaHasta,
-                      firstDate: DateTime(2020),
+                      firstDate: _controller.fechaDesde,
                       lastDate: DateTime(2030),
                       onDateSelected: (DateTime d) =>
                           setState(() => _controller.fechaHasta = d),
@@ -200,23 +204,25 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Estado
-              Text(
-                'Estado',
-                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-              ),
-              const SizedBox(height: 8),
-              AppChipWrap(
-                children: EstadoReserva.values.map((EstadoReserva e) {
-                  final bool seleccionado = _controller.estado == e;
-                  return AppChoiceChip(
-                    label: e.label,
-                    seleccionado: seleccionado,
-                    onSelected: (_) => setState(() => _controller.estado = e),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 20),
+              // Estado (solo visible para trabajadores)
+              if (!modoCliente) ...[
+                Text(
+                  'Estado',
+                  style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                ),
+                const SizedBox(height: 8),
+                AppChipWrap(
+                  children: EstadoReserva.values.map((EstadoReserva e) {
+                    final bool seleccionado = _controller.estado == e;
+                    return AppChoiceChip(
+                      label: e.label,
+                      seleccionado: seleccionado,
+                      onSelected: (_) => setState(() => _controller.estado = e),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+              ],
 
               // Lineas de Reserva
               Row(

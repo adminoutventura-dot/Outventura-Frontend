@@ -150,7 +150,9 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         
                         nombreUsuario: ref.watch(nombreUsuarioProvider(res.idUsuario)),
                         nombreExcursion: ref.watch(nombreExcursionProvider(res.idExcursion)),
-                        onEditar: () async { 
+                        onEditar: (!widget.puedeGestionar && res.estado != EstadoReserva.pendiente)
+                            ? null
+                            : () async { 
                           final Reserva? resultado = await Navigator.of(context) .push<Reserva>(
                             MaterialPageRoute( 
                               builder: (BuildContext _) =>

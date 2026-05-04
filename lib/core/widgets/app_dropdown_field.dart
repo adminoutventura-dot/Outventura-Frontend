@@ -35,8 +35,15 @@ class AppDropdownField<T> extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
+    // Si value no está en la lista de items, usar null para evitar errores del dropdown.
+    // El ValueKey fuerza la recreación del FormField cuando el valor pasa a estar disponible.
+    // TODO: REVISAR
+    final bool valueEncontrado = items.any((T item) => itemValue(item) == value);
+    final int? safeValue = valueEncontrado ? value : null;
+
     return DropdownButtonFormField<int?>(
-      initialValue: value,
+      key: ValueKey(safeValue),
+      initialValue: safeValue,
       style: tt.bodyMedium?.copyWith(color: cs.onSurface),
       // Cuando el dropdown está deshabilitado, no mostrar el ícono de flecha
       icon: enabled
