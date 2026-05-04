@@ -4,17 +4,14 @@ import 'package:outventura/features/auth/presentation/providers/current_user_pro
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/controllers/requests_page_controller.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 
 class RequestsPage extends ConsumerStatefulWidget {
   final bool puedeGestionar;
@@ -33,28 +30,6 @@ class RequestsPage extends ConsumerStatefulWidget {
 class _RequestsPageState extends ConsumerState<RequestsPage> {
   final SearchFieldController _search = SearchFieldController();
   final RequestsPageController _controller = RequestsPageController();
-
-  // TODO: En equipamiento las acciones estaban en ek mismo  onEditar, onEliminar...
-  void _aceptar(Solicitud soli) => _controller.aceptar(
-    solicitud: soli,
-    context: context,
-    ref: ref,
-    isMounted: () => mounted,
-  );
-
-  void _editar(Solicitud soli) => _controller.editar(
-    solicitud: soli,
-    context: context,
-    ref: ref,
-    fixedIdUsuario: widget.puedeGestionar ? null : ref.read(currentUserProvider)?.id,
-  );
-
-  void _rechazar(Solicitud soli) => _controller.rechazar(
-    solicitud: soli,
-    context: context,
-    ref: ref,
-    isMounted: () => mounted,
-  );
 
   @override
   void dispose() {
@@ -160,10 +135,6 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                           ? ref.watch(nombreUsuarioProvider(soli.idUsuario!))
                           : null;
 
-                      final Reserva? reservaAsociada = soli.idReserva != null
-                          ? ref.watch(reservaPorIdProvider(soli.idReserva!))
-                          : null;
-
                       if (excursion == null) return const SizedBox.shrink();
 
                       return SolicitudCard(
@@ -175,54 +146,27 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                         onGestionar:
                             widget.puedeGestionar &&
                                 soli.estado == EstadoSolicitud.pendiente
-                            ? () => _aceptar(soli)
+                            ? () => _controller.aceptar(
+                                solicitud: soli,
+                                context: context,
+                                ref: ref,
+                                isMounted: () => mounted,
+                              )
                             : null,
                         onCancelar: soli.estado == EstadoSolicitud.pendiente
-                            ? () => _rechazar(soli)
+                            ? () => _controller.rechazar(
+                                solicitud: soli,
+                                context: context,
+                                ref: ref,
+                                isMounted: () => mounted,
+                              )
                             : null,
-                        onEditar: () => _editar(soli),
-                        onEditarReserva: reservaAsociada == null
-                            ? null
-                            : () async {
-                                final Reserva? actualizada =
-                                    await Navigator.of(context).push<Reserva>(
-                                      MaterialPageRoute(
-                                        builder: (_) => ReservationFormPage(
-                                          reserva: reservaAsociada,
-                                          initialIdUsuario:
-                                              widget.puedeGestionar
-                                              ? null
-                                              : usuarioActual?.id,
-                                        ),
-                                      ),
-                                    );
-
-                                if (actualizada != null) {
-                                  ref
-                                      .read(reservasProvider.notifier)
-                                      .actualizar(
-                                        reservaAsociada,
-                                        actualizada,
-                                      );
-
-                                  final Map<int, int> materialesActualizados = {
-                                    for (final LineaReserva linea
-                                        in actualizada.lineas)
-                                      linea.idEquipamiento: linea.cantidad,
-                                  };
-
-                                  ref
-                                      .read(solicitudesProvider.notifier)
-                                      .actualizar(
-                                        soli,
-                                        soli.copyWith(
-                                          materialesSolicitados:
-                                              materialesActualizados,
-                                          idReserva: actualizada.id,
-                                        ),
-                                      );
-                                }
-                              },
+                        onEditar: () => _controller.editar(
+                          solicitud: soli,
+                          context: context,
+                          ref: ref,
+                          fixedIdUsuario: widget.puedeGestionar ? null : ref.read(currentUserProvider)?.id,
+                        ),
                         onVerDetalle: () {},
                         // => showSolicitudDetailSheet(
                         //   context: context,

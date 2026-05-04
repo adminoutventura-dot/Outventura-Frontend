@@ -30,6 +30,17 @@ class AppDateSelector extends StatelessWidget {
           initialDate: date,
           firstDate: firstDate ?? DateTime(2020),
           lastDate: lastDate ?? DateTime(2100),
+          builder: (BuildContext context, Widget? child) {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                datePickerTheme: DatePickerThemeData(
+                  // Tipografía del texto "Select date"
+                  headerHeadlineStyle: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              child: child!,
+            );
+          },
         );
         if (picked != null) onDateSelected(picked);
       },

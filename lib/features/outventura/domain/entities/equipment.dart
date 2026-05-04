@@ -39,6 +39,7 @@ class Equipamiento {
   final String? descripcion;
   final List<CategoriaActividad> categorias;
   final int stock;
+  final int stockTotal;
   final EstadoEquipamiento estado;
   final double precioAlquilerDiario;
   final double cargoPorDanio;
@@ -50,6 +51,7 @@ class Equipamiento {
     this.descripcion,
     required this.categorias,
     required this.stock,
+    required this.stockTotal,
     required this.estado,
     required this.precioAlquilerDiario,
     required this.cargoPorDanio,
@@ -67,6 +69,7 @@ class Equipamiento {
           .map((dynamic e) => CategoriaActividad.fromString(e as String))
           .toList(),
       stock: map['stock'] as int,
+      stockTotal: map['stockTotal'] as int? ?? map['stock'] as int,
       estado: EstadoEquipamiento.fromString(map['status'] as String),
       precioAlquilerDiario: (map['dailyRentalPrice'] as num).toDouble(),
       cargoPorDanio: (map['damageFee'] as num).toDouble(),
@@ -80,6 +83,7 @@ class Equipamiento {
     String? descripcion,
     List<CategoriaActividad>? categorias,
     int? stock,
+    int? stockTotal,
     EstadoEquipamiento? estado,
     double? precioAlquilerDiario,
     double? cargoPorDanio,
@@ -91,6 +95,7 @@ class Equipamiento {
       descripcion: descripcion ?? this.descripcion,
       categorias: categorias ?? this.categorias,
       stock: stock ?? this.stock,
+      stockTotal: stockTotal ?? this.stockTotal,
       estado: estado ?? this.estado,
       precioAlquilerDiario: precioAlquilerDiario ?? this.precioAlquilerDiario,
       cargoPorDanio: cargoPorDanio ?? this.cargoPorDanio,

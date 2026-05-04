@@ -45,7 +45,9 @@ class _EquipmentCardState extends State<EquipmentCard> {
         break;
     }
 
-    final double stockPorcentaje = (widget.equipamiento.stock / 10).clamp(0.0, 1.0);
+    final double stockPorcentaje = widget.equipamiento.stockTotal > 0
+        ? (widget.equipamiento.stock / widget.equipamiento.stockTotal).clamp(0.0, 1.0)
+        : 0.0;
     final String? imagen = widget.equipamiento.imagenAsset;
 
     return Container(
@@ -140,7 +142,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${widget.equipamiento.stock} uds',
+                          '${widget.equipamiento.stock}/${widget.equipamiento.stockTotal} uds',
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                       ],

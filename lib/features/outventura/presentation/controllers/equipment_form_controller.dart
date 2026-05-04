@@ -9,6 +9,7 @@ class EquipmentFormController {
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
   final TextEditingController stockController = TextEditingController();
+  final TextEditingController stockTotalController = TextEditingController();
   final TextEditingController precioController = TextEditingController();
   final TextEditingController tarifaController = TextEditingController();
 
@@ -43,6 +44,7 @@ class EquipmentFormController {
     nombreController.text = equipamiento.nombre;
     descripcionController.text = equipamiento.descripcion ?? '';
     stockController.text = '${equipamiento.stock}';
+    stockTotalController.text = '${equipamiento.stockTotal}';
     // toStringAsFixed(2) convierte un double a String con exactamente 2 decimales.
     precioController.text = equipamiento.precioAlquilerDiario.toStringAsFixed(2);
     tarifaController.text = equipamiento.cargoPorDanio.toStringAsFixed(2);
@@ -64,6 +66,7 @@ class EquipmentFormController {
       descripcion: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
       categorias: List<CategoriaActividad>.from(categorias),
       stock: int.tryParse(stockController.text) ?? 0,
+      stockTotal: int.tryParse(stockTotalController.text) ?? 0,
       estado: estado,
       precioAlquilerDiario: double.tryParse(precioController.text) ?? 0,
       cargoPorDanio: double.tryParse(tarifaController.text) ?? 0,

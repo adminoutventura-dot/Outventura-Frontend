@@ -13,7 +13,6 @@ class SolicitudCard extends StatelessWidget {
   final VoidCallback? onGestionar;
   final VoidCallback? onCancelar;
   final VoidCallback? onEditar;
-  final VoidCallback? onEditarReserva;
   final VoidCallback? onVerDetalle;
 
   const SolicitudCard({
@@ -24,7 +23,6 @@ class SolicitudCard extends StatelessWidget {
     this.onGestionar,
     this.onCancelar,
     this.onEditar,
-    this.onEditarReserva,
     this.onVerDetalle,
   });
 
@@ -225,15 +223,6 @@ class SolicitudCard extends StatelessWidget {
                             icon: Icons.edit_outlined,
                             color: cs.tertiary,
                             onTap: onEditar!,
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-
-                        if (onEditarReserva != null) ...[
-                          ActionIcon(
-                            icon: Icons.book_online_outlined,
-                            color: cs.secondary,
-                            onTap: onEditarReserva!,
                           ),
                           const SizedBox(width: 8),
                         ],

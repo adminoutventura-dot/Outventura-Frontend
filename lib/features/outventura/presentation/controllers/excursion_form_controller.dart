@@ -15,6 +15,8 @@ class ExcursionFormController {
 
   DateTime fechaInicio = DateTime.now();
   DateTime fechaFin = DateTime.now().add(const Duration(days: 1));
+  TimeOfDay horaInicio = const TimeOfDay(hour: 9, minute: 0);
+  TimeOfDay horaFin = const TimeOfDay(hour: 17, minute: 0);
   EstadoExcursion estado = EstadoExcursion.disponible;
   List<CategoriaActividad> categorias = [];
   String? imagenAsset;
@@ -47,6 +49,8 @@ class ExcursionFormController {
     participantesController.text = '${excursion.numeroParticipantes}';
     fechaInicio = excursion.fechaInicio;
     fechaFin = excursion.fechaFin;
+    horaInicio = TimeOfDay.fromDateTime(excursion.fechaInicio);
+    horaFin = TimeOfDay.fromDateTime(excursion.fechaFin);
     estado = excursion.estado;
     categorias = List<CategoriaActividad>.from(excursion.categorias);
     imagenAsset = excursion.imagenAsset;
@@ -63,6 +67,8 @@ class ExcursionFormController {
     participantesController.clear();
     fechaInicio = DateTime.now();
     fechaFin = DateTime.now().add(const Duration(days: 1));
+    horaInicio = const TimeOfDay(hour: 9, minute: 0);
+    horaFin = const TimeOfDay(hour: 17, minute: 0);
     estado = EstadoExcursion.disponible;
     categorias = [];
   }
@@ -90,8 +96,8 @@ class ExcursionFormController {
       puntoFin: puntoFinController.text.trim(),
       descripcion: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
       numeroParticipantes: int.tryParse(participantesController.text) ?? 1,
-      fechaInicio: fechaInicio,
-      fechaFin: fechaFin,
+      fechaInicio: fechaInicio.copyWith(hour: horaInicio.hour, minute: horaInicio.minute, second: 0),
+      fechaFin: fechaFin.copyWith(hour: horaFin.hour, minute: horaFin.minute, second: 0),
       estado: estado,
       categorias: List<CategoriaActividad>.from(categorias),
       imagenAsset: imagenAsset,

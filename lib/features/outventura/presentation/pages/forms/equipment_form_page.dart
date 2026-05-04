@@ -135,16 +135,31 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Stock
-              CustomInputField(
-                controller: _controller.stockController,
-                labelText: 'Stock (unidades)',
-                prefixIcon: Icons.format_list_numbered,
-                keyboardType: TextInputType.number,
-                validator: ValidadoresFormulario.enteroPositivo,
+              // Stock disponible y total
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomInputField(
+                      controller: _controller.stockController,
+                      labelText: 'Stock disponible',
+                      prefixIcon: Icons.format_list_numbered,
+                      keyboardType: TextInputType.number,
+                      validator: ValidadoresFormulario.enteroPositivo,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: CustomInputField(
+                      controller: _controller.stockTotalController,
+                      labelText: 'Stock total',
+                      prefixIcon: Icons.inventory_2_outlined,
+                      keyboardType: TextInputType.number,
+                      validator: ValidadoresFormulario.enteroPositivo,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 14),
-
 
               // Tarifas
               Text(

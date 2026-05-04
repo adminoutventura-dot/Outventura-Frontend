@@ -15,6 +15,7 @@ import 'package:outventura/features/outventura/presentation/controllers/request_
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 
 class SolicitudFormPage extends ConsumerStatefulWidget {
   final Solicitud? solicitud;
@@ -366,6 +367,28 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               ),
               const SizedBox(height: 16),
             ],
+            // Botón para editar la reserva asociada (solo si existe)
+            if (isEdit && _controller.idReserva != null) ...[             
+              const SizedBox(height: 12),
+              SecondaryButton(
+                label: 'Editar reserva',
+                icon: Icons.book_online_outlined,
+                onPressed: () async {
+                  final List<Reserva> reservas = ref.read(reservasProvider).value ?? [];
+                  final Reserva? reservaAsociada = _controller.buscarReserva(reservas, _controller.idReserva!);
+                  if (reservaAsociada == null) return;
+                  final Reserva? actualizada = await Navigator.of(context).push<Reserva>(
+                    MaterialPageRoute(
+                      builder: (_) => ReservationFormPage(reserva: reservaAsociada),
+                    ),
+                  );
+                  if (actualizada != null) {
+                    ref.read(reservasProvider.notifier).actualizar(reservaAsociada, actualizada);
+                  }
+                },
+              ),
+            ],
+            const SizedBox(height: 12),
             // Guardar
             PrimaryButton(
               label: isEdit ? 'Guardar' : 'Crear',

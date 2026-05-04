@@ -3,6 +3,7 @@ import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_date_selector.dart';
+import 'package:outventura/core/widgets/app_time_selector.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
@@ -137,6 +138,31 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
                       onDateSelected: (DateTime picked) {
                         setState(() => _controller.establecerFecha(isStart: false, value: picked));
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Horas de inicio y fin
+              Row(
+                children: [
+                  Expanded(
+                    child: AppTimeSelector(
+                      label: 'Hora inicio',
+                      time: _controller.horaInicio,
+                      onTimeSelected: (TimeOfDay picked) {
+                        setState(() => _controller.horaInicio = picked);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: AppTimeSelector(
+                      label: 'Hora fin',
+                      time: _controller.horaFin,
+                      onTimeSelected: (TimeOfDay picked) {
+                        setState(() => _controller.horaFin = picked);
                       },
                     ),
                   ),
