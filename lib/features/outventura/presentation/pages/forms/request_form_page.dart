@@ -33,7 +33,7 @@ class SolicitudFormPage extends ConsumerStatefulWidget {
 }
 
 class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
-  late final SolicitudFormController _controller;
+  late final RequestFormController _controller;
 
   // Funcion para crear una reserva a partir de la solicitud actual. Si hay un error, muestra un mensaje y devuelve null.
   Reserva? _crearReservaDesdeSolicitud() {
@@ -53,7 +53,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
   @override
   void initState() {
     super.initState();
-    _controller = SolicitudFormController();
+    _controller = RequestFormController();
     // Si se ha pasado una solicitud, cargar sus datos en el controlador. 
     if (widget.solicitud != null) {
       _controller.cargarSolicitud(widget.solicitud!);

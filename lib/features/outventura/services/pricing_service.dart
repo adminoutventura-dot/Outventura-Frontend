@@ -2,6 +2,7 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 
 // Calcula el precio total de una solicitud: precio excursión × participantes + alquiler materiales.
+// TEMPORAL: lógica local mientras no hay backend.
 double calcularPrecioSolicitud({
   required int? idExcursion,
   required int numeroParticipantes,
@@ -9,23 +10,39 @@ double calcularPrecioSolicitud({
   required List<Excursion> excursiones,
   required List<Equipamiento> equipamientos,
 }) {
-  if (idExcursion == null) return 0;
-  final int index = excursiones.indexWhere((Excursion e) => e.id == idExcursion);
-  if (index == -1) return 0;
-  final Excursion excursion = excursiones[index];
+  // Si no hay excursión asociada, el precio es 0 (no se puede calcular).
+  if (idExcursion == null) {
+    return 0;
+  }
 
+  // Busca la excursión por su ID. Si no se encuentra, el precio es 0 (no se puede calcular).
+  final int index = excursiones.indexWhere((Excursion e) => e.id == idExcursion);
+  if (index == -1) {
+    return 0;
+  }
+
+  // Si se encuentra la excursión, calcula el precio total.
+  final Excursion excursion = excursiones[index];
   // Precio base de la excursión.
   double total = excursion.precio * numeroParticipantes;
 
-  // Precio de los materiales: precio diario × cantidad × días de la excursión.
+
+  // Calcula la diferencia entre la fecha de fin y la de inicio, obteniendo una Duration.
+  // .inDays - Convierte esa duración a días enteros.
+  // .clamp(1, 999) - Asegura que el número de días sea al menos 1 y no más de 999.
   final int dias = excursion.fechaFin.difference(excursion.fechaInicio).inDays.clamp(1, 999);
-  final Map<int, Equipamiento> equipPorId = {
-    for (final Equipamiento e in equipamientos) e.id: e,
-  };
+  
+  // Guarda los equipamientos en un mapa para acceso rápido por ID (idEquipamiento → Equipamiento).
+  final Map<int, Equipamiento> equipPorId = {};
+  for (final Equipamiento e in equipamientos) {
+    equipPorId[e.id] = e;
+  }
+
+  // Suma el costo de alquiler de cada material solicitado: precioAlquilerDiario × cantidad × días.
   for (final MapEntry<int, int> entry in materialesSolicitados.entries) {
     final Equipamiento? equip = equipPorId[entry.key];
     if (equip != null) {
-      total += equip.precioAlquilerDiario * entry.value * dias;
+      total = equip.precioAlquilerDiario * entry.value * dias + total;
     }
   }
 
@@ -33,6 +50,7 @@ double calcularPrecioSolicitud({
 }
 
 // Calcula el total de cargos por daños a equipamientos.
+// TEMPORAL: lógica local mientras no hay backend.
 double calcularCargoDanios({
   required Map<int, int> cantidadesDaniadas,
   required List<Equipamiento> equipamientos,
@@ -43,7 +61,7 @@ double calcularCargoDanios({
       (Equipamiento e) => e.id == entry.key,
     );
     if (coincidencias.isNotEmpty) {
-      total += coincidencias.first.cargoPorDanio * entry.value;
+      total = coincidencias.first.cargoPorDanio * entry.value + total;
     }
   }
   return total;

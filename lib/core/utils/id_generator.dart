@@ -5,6 +5,7 @@ class GeneradorId {
 
   static const Uuid _uuid = Uuid();
 
+  // TEMPORAL: idEntero() se elimina al conectar el backend. El backend asignará los IDs reales.
   // Para datos fake
   // Genera un ID entero único basado en UUID v4.
   static int idEntero(){

@@ -4,15 +4,25 @@ import 'package:outventura/features/auth/data/fakes/users_fake.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 
 // Provider que gestiona la lista de usuarios. Simula llamadas al backend.
-final AsyncNotifierProvider<UsuariosNotifier, List<Usuario>> usuariosProvider =
-    AsyncNotifierProvider<UsuariosNotifier, List<Usuario>>(UsuariosNotifier.new);
+final AsyncNotifierProvider<UsersNotifier, List<Usuario>> usuariosProvider =
+    AsyncNotifierProvider<UsersNotifier, List<Usuario>>(UsersNotifier.new);
 
+// TEMPORAL: el filtro se moverá al backend → GET /api/usuarios?q=... Eliminar este provider y llamar directamente al endpoint filtrado.
 // Filtra usuarios por nombre, apellidos, email o teléfono. Simula búsqueda en backend.
 final usuariosFiltradosProvider = Provider.family<AsyncValue<List<Usuario>>, String>((ref, query) {
+
+  // Observa el estado asíncrono de todos los usuarios (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Usuario>> asyncTodos = ref.watch(usuariosProvider);
+  
+  // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodos.whenData((List<Usuario> todos) {
-    if (query.isEmpty) return todos;
+    // Si no hay query, devuelve todos los usuarios sin filtrar
+    if (query.isEmpty) {
+      return todos;
+    }
     final String q = query.toLowerCase();
+    
+    // Filtra por nombre, apellidos, email o teléfono
     return todos.where((Usuario u) =>
       '${u.nombre} ${u.apellidos} ${u.email} ${u.telefono ?? ''}'.toLowerCase().contains(q)
     ).toList();
@@ -20,42 +30,53 @@ final usuariosFiltradosProvider = Provider.family<AsyncValue<List<Usuario>>, Str
 });
 
 // Notifier que implementa la lógica de gestión de usuarios.
-class UsuariosNotifier extends AsyncNotifier<List<Usuario>> {
+class UsersNotifier extends AsyncNotifier<List<Usuario>> {
   @override
+  // TEMPORAL: reemplazar cuerpo por await dio.get('/usuarios') y eliminar import de users_fake.dart.
   Future<List<Usuario>> build() async {
     // Simula GET /api/usuarios
     await Future.delayed(ApiDelay.carga);
     return [...usuariosFake];
   }
 
+  // TEMPORAL: reemplazar cuerpo por await dio.post('/usuarios', data: usuario.toJson()).
   // Simula POST /api/usuarios
   Future<void> agregar(Usuario usuario) async {
     await Future.delayed(ApiDelay.accion);
-    final List<Usuario> listaActual = state.value ?? [];
-
-    // AsyncValue envuelve los estados loading, error y data
-    // AsyncData = AsyncValue.data, AsyncError = AsyncValue.error, AsyncLoading = AsyncValue.loading
-    state = AsyncData([...listaActual, usuario]);
+    // Saca la lista actual o una vacía si es nula
+    final List<Usuario> listaActual = [...(state.value ?? [])];
+    // Agrega el nuevo usuario a la lista
+    listaActual.add(usuario);
+    // Actualiza el estado con la nueva lista
+    state = AsyncData(listaActual);
   }
 
+  // TEMPORAL: reemplazar cuerpo por await dio.put('/usuarios/${viejo.id}', data: nuevo.toJson()).
   // Simula PUT /api/usuarios/:id
   Future<void> actualizar(Usuario viejo, Usuario nuevo) async {
     await Future.delayed(ApiDelay.accion);
+    // Saca la lista actual o una vacía si es nula
     final List<Usuario> listaActual = [...(state.value ?? [])];
+    // Busca y reemplaza el usuario con el ID coincidente
     for (int i = 0; i < listaActual.length; i++) {
       if (listaActual[i].id == viejo.id) {
         listaActual[i] = nuevo;
         break;
       }
     }
+    // Actualiza el estado con la lista modificada
     state = AsyncData(listaActual);
   }
 
+  // TEMPORAL: reemplazar cuerpo por await dio.delete('/usuarios/${eliminado.id}').
   // Simula DELETE /api/usuarios/:id
   Future<void> eliminar(Usuario eliminado) async {
     await Future.delayed(ApiDelay.accion);
+    // Saca la lista actual o una vacía si es nula
     final List<Usuario> listaActual = [...(state.value ?? [])];
+    // Elimina el usuario con el ID coincidente
     listaActual.removeWhere((Usuario u) => u.id == eliminado.id);
+    // Actualiza el estado con la lista sin el usuario eliminado
     state = AsyncData(listaActual);
   }
 }

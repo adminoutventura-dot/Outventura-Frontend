@@ -6,7 +6,7 @@ import 'package:outventura/features/outventura/domain/entities/reservation.dart'
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/services/pricing_service.dart';
 
-class SolicitudFormController {
+class RequestFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController participantesCtrl = TextEditingController();
 
@@ -63,6 +63,7 @@ class SolicitudFormController {
       return null;
     }
 
+    // TEMPORAL: idEntero() se elimina cuando el backend asigne IDs reales. precio vendrá del backend.
     final int id = seleccionado?.id ?? GeneradorId.idEntero();
     final double precio = calcularPrecioTotal(excursiones, equipamientos);
 
@@ -112,6 +113,7 @@ class SolicitudFormController {
     return null;
   }
 
+  // TEMPORAL: reemplazar por GET /api/precio-solicitud con parámetros. El backend calculará el precio total.
   // Recalcula los materiales solicitados basándose en la excursión seleccionada y el número de participantes.
   void recalcularMateriales(List<Excursion> excursiones) {
     // Si ya existe una reserva asociada, no sobreescribir las cantidades.
@@ -143,6 +145,7 @@ class SolicitudFormController {
     materialesSolicitados = recalculado;
   }
 
+  // TEMPORAL: el backend creará la reserva y devolverá el ID real. Eliminar GeneradorId.idEntero() de aquí.
   // Construye una reserva a partir de la solicitud actual.
   Reserva? construirReserva(List<Excursion> excursiones) {
     if (idUsuario == null) {

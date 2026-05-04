@@ -9,8 +9,10 @@ final NotifierProvider<CurrentUserNotifier, Usuario?> currentUserProvider =
 
 class CurrentUserNotifier extends Notifier<Usuario?> {
   @override
+  // Estado inicial: no hay usuario logueado.
   Usuario? build() => null;
 
+  // TEMPORAL: reemplazar por llamada HTTP real con email+password y recibir JWT. Eliminar import de users_fake.dart.
   // Simula POST /api/auth/login — busca por email en los datos fake.
   Future<Usuario?> login(String email) async {
     await Future.delayed(ApiDelay.accion);
@@ -24,6 +26,7 @@ class CurrentUserNotifier extends Notifier<Usuario?> {
 
   void setUsuario(Usuario usuario) => state = usuario;
 
+  // TEMPORAL: reemplazar por llamada HTTP real y borrar el JWT del almacenamiento seguro.
   // Simula POST /api/auth/logout
   Future<void> cerrarSesion() async {
     await Future.delayed(ApiDelay.accion);

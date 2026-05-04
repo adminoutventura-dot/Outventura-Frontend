@@ -40,7 +40,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final usuarioActual = ref.watch(currentUserProvider);
-    final ReservasNotifier notifier = ref.read(reservasProvider.notifier);
+    final ReservationsNotifier notifier = ref.read(reservasProvider.notifier);
     final AsyncValue<List<Reserva>> filtradas = ref.watch(reservasFiltadasProvider((
       query: _search.query,
       idUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
