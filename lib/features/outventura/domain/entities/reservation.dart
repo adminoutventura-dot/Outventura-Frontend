@@ -2,7 +2,7 @@
 enum EstadoReserva {
   pendiente,
   confirmada,
-  devuelta,
+  finalizada,
   cancelada;
 
   String get label {
@@ -11,8 +11,8 @@ enum EstadoReserva {
         return 'Pendiente';
       case EstadoReserva.confirmada:
         return 'Confirmada';
-      case EstadoReserva.devuelta:
-        return 'Devuelta';
+      case EstadoReserva.finalizada:
+        return 'Finalizada';
       case EstadoReserva.cancelada:
         return 'Cancelada';
     }

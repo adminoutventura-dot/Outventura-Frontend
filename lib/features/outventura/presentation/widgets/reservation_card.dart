@@ -42,7 +42,7 @@ class ReservaCard extends StatelessWidget {
     final (Color badgeBg, Color badgeFg, Color accentColor) = switch (reserva.estado) {
       EstadoReserva.pendiente => (cs.tertiary, cs.onPrimary, cs.onTertiary),
       EstadoReserva.confirmada => (cs.primary, cs.onPrimary, cs.primary),
-      EstadoReserva.devuelta => (cs.secondary.withValues(alpha: 0.35), cs.onPrimaryContainer, cs.secondary.withValues(alpha: 0.35)),
+      EstadoReserva.finalizada => (cs.secondary.withValues(alpha: 0.35), cs.onPrimaryContainer, cs.secondary.withValues(alpha: 0.35)),
       EstadoReserva.cancelada => (cs.error, cs.onError, cs.error),
     };
 

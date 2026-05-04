@@ -5,6 +5,7 @@ enum EstadoExcursion {
   disponible,
   pendiente,
   confirmada,
+  enCurso,
   finalizada,
   cancelada;
 
@@ -16,6 +17,8 @@ enum EstadoExcursion {
         return 'Pendiente';
       case EstadoExcursion.confirmada:
         return 'Confirmada';
+      case EstadoExcursion.enCurso:
+        return 'En curso';
       case EstadoExcursion.finalizada:
         return 'Finalizada';
       case EstadoExcursion.cancelada:

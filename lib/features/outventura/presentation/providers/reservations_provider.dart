@@ -140,7 +140,7 @@ class ReservationsNotifier extends AsyncNotifier<List<Reserva>> {
   Future<void> registrarDevolucion(Reserva reserva) async {
     await Future.delayed(ApiDelay.accion);
     // Crea una copia de la reserva con estado devuelta
-    final Reserva devuelta = reserva.copyWith(estado: EstadoReserva.devuelta);
+    final Reserva devuelta = reserva.copyWith(estado: EstadoReserva.finalizada);
     // Delega la actualización al método actualizar
     await actualizar(reserva, devuelta);
   }

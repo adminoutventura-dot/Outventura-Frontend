@@ -40,7 +40,7 @@ final List<Reserva> reservasFake = [
     idExcursion: 2,
     fechaInicio: DateTime(2026, 4, 1, 10, 0),
     fechaFin: DateTime(2026, 4, 1, 14, 0),
-    estado: EstadoReserva.devuelta,
+    estado: EstadoReserva.finalizada,
     cargoDanios: 50.0,
     itemsDaniados: {4: 1},
   ),
