@@ -56,6 +56,11 @@ class SolicitudCard extends StatelessWidget {
         cs.onError, 
         cs.error
       ),
+      EstadoSolicitud.enCurso => (
+        cs.secondary,
+        cs.onSecondary,
+        cs.secondary,
+      ),
     };
 
     return Container(

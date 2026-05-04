@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/id_generator.dart';
+import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
@@ -286,5 +289,24 @@ class RequestFormController {
 
   void dispose() {
     participantesCtrl.dispose();
+  }
+
+  // Crea una reserva a partir de los datos actuales del formulario.
+  // Si hay un error de validación, muestra un snackbar y devuelve null.
+  Reserva? crearReservaDesdeSolicitud({
+    required BuildContext context,
+    required WidgetRef ref,
+  }) {
+    final String? error = mensajeErrorReserva;
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      return null;
+    }
+    final List<Excursion> excursiones = ref.read(excursionesProvider).value ?? [];
+    final Reserva? reserva = crearReserva(excursiones);
+    if (reserva != null) {
+      ref.read(reservasProvider.notifier).agregar(reserva);
+    }
+    return reserva;
   }
 }

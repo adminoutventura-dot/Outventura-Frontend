@@ -2,6 +2,7 @@
 enum EstadoReserva {
   pendiente,
   confirmada,
+  enCurso,
   finalizada,
   cancelada;
 
@@ -11,6 +12,8 @@ enum EstadoReserva {
         return 'Pendiente';
       case EstadoReserva.confirmada:
         return 'Confirmada';
+      case EstadoReserva.enCurso:
+        return 'En curso';
       case EstadoReserva.finalizada:
         return 'Finalizada';
       case EstadoReserva.cancelada:

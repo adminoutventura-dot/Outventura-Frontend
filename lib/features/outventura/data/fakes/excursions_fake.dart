@@ -82,4 +82,5 @@ final List<Excursion> catalogoExcursiones = [
     fechaInicio: DateTime(2026, 8, 5, 18, 0),
     fechaFin: DateTime(2026, 8, 5, 20, 0),
   ),
+
 ];

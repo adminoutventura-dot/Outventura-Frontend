@@ -2,6 +2,7 @@
 enum EstadoSolicitud {
   pendiente,
   confirmada,
+  enCurso,
   finalizada,
   cancelada;
 
@@ -11,6 +12,8 @@ enum EstadoSolicitud {
         return 'Pendiente';
       case EstadoSolicitud.confirmada:
         return 'Confirmada';
+      case EstadoSolicitud.enCurso:
+        return 'En curso';
       case EstadoSolicitud.finalizada:
         return 'Finalizada';
       case EstadoSolicitud.cancelada:

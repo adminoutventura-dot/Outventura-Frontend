@@ -70,4 +70,18 @@ final List<Reserva> reservasFake = [
     fechaFin: DateTime(2026, 8, 5, 20, 0),
     estado: EstadoReserva.pendiente,
   ),
+
+  // Reserva en curso (vinculada a solicitud #6).
+  Reserva(
+    id: 106,
+    idUsuario: 3,
+    lineas: [
+      const LineaReserva(idEquipamiento: 5, cantidad: 3),
+      const LineaReserva(idEquipamiento: 6, cantidad: 6),
+    ],
+    idExcursion: 1,
+    fechaInicio: DateTime(2026, 5, 1, 9, 0),
+    fechaFin: DateTime(2026, 5, 1, 12, 0),
+    estado: EstadoReserva.enCurso,
+  ),
 ];

@@ -35,21 +35,8 @@ class SolicitudFormPage extends ConsumerStatefulWidget {
 
 class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
   late final RequestFormController _controller;
-
-  // Funcion para crear una reserva a partir de la solicitud actual. Si hay un error, muestra un mensaje y devuelve null.
-  Reserva? _crearReservaDesdeSolicitud() {
-    final String? error = _controller.mensajeErrorReserva;
-    if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
-      return null;
-    }
-    final List<Excursion> excursiones = ref.read(excursionesProvider).value ?? [];
-    final Reserva? reserva = _controller.crearReserva(excursiones);
-    if (reserva != null) {
-      ref.read(reservasProvider.notifier).agregar(reserva);
-    }
-    return reserva;
-  }
+  // Al editar sin reserva, los materiales se ocultan hasta que el usuario pulse "Añadir materiales".
+  bool _mostrarMateriales = false;
 
   @override
   void initState() {
@@ -93,27 +80,48 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
     final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
 
+    // Si la reserva vinculada fue borrada desde otra pantalla, limpiar el controller.
+    if (_controller.idReserva != null) {
+      final List<Reserva> reservas = ref.watch(reservasProvider).value ?? [];
+      final bool reservaAunExiste = reservas.any((Reserva r) => r.id == _controller.idReserva);
+      if (!reservaAunExiste) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _controller.idReserva = null;
+              _controller.materialesSolicitados.clear();
+            });
+          }
+        });
+      }
+    }
+
     // Indica si estamos en modo cliente (se ha pasado un idUsuario fijo).
     final bool modoCliente = widget.initialIdUsuario != null;
 
     List<Usuario> usuariosDisponibles = ref.read(usuariosProvider).value ?? [];
-    if (modoCliente && widget.initialIdUsuario != null) {
+    if (modoCliente) {
       usuariosDisponibles = usuariosDisponibles
           .where((Usuario u) => u.id == widget.initialIdUsuario)
           .toList();
     }
 
-    final Excursion? excursionSeleccionada = _controller.buscarExcursionSeleccionada(
-      excursiones,
-    );
+    final Excursion? excursionSeleccionada = _controller.buscarExcursionSeleccionada( excursiones );
+
+    // Cargo por daños de la reserva asociada (si existe y tiene daños registrados).
+    final List<Reserva> todasReservas = ref.watch(reservasProvider).value ?? [];
+    final Reserva? reservaAsociada = _controller.idReserva != null
+        ? todasReservas.where((Reserva r) => r.id == _controller.idReserva).firstOrNull
+        : null;
+    final double cargoDanios = reservaAsociada?.cargoDanios ?? 0;
 
     // Mapa para mostrar el nombre del equipamiento a partir de su id.
-    final Map<int, String> nombrePorId = {
-      for (final Equipamiento e in equipamientos) e.id: e.nombre,
-    };
-    final Map<int, double> precioPorId = {
-      for (final Equipamiento e in equipamientos) e.id: e.precioAlquilerDiario,
-    };
+    final Map<int, String> nombrePorId = {};
+    final Map<int, double> precioPorId = {};
+    for (final Equipamiento e in equipamientos) {
+      nombrePorId[e.id] = e.nombre;
+      precioPorId[e.id] = e.precioAlquilerDiario;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -131,12 +139,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
       body: Form(
         key: _controller.formKey,
         child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            16,
-            16,
-            MediaQuery.of(context).padding.bottom + 24,
-          ),
+          padding: EdgeInsets.fromLTRB( 16, 16, 16, MediaQuery.of(context).padding.bottom + 24 ),
           children: [
             // Usuario (cliente)
             AppDropdownField<Usuario>(
@@ -181,53 +184,129 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               onChanged: (_) => setState(() => _controller.recalcularMateriales(excursiones)),
             ),
 
+            // Material recomendado y selección de materiales (solo si se ha seleccionado una excursión)
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Material recomendado',
-                  style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
-                // Botón para añadir todo el material recomendado.
-                if (excursionSeleccionada != null && _controller.idReserva == null)
-                  TertiaryButton(
-                    label: 'Añadir todos',
-                    icon: Icons.add,
-                    onPressed: () {
-                      final Map<int, int> plantilla = excursionSeleccionada.materialesPorParticipante;
-                      setState(() {
-                        for (final MapEntry<int, int> entry in plantilla.entries) {
-                          _controller.establecerCantidadMaterial(entry.key, entry.value * _controller.numeroParticipantes);
-                        }
-                      });
-                    },
+            // Al crear: materiales con controles desde el inicio.
+            // Al editar sin reserva: botón para mostrar materiales, ocultos por defecto.
+            // Al editar con reserva: materiales en solo lectura.
+            if (!isEdit || _mostrarMateriales) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Material recomendado',
+                    style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (excursionSeleccionada == null)
+                  if (excursionSeleccionada != null)
+                    TertiaryButton(
+                      label: 'Añadir todos',
+                      icon: Icons.add,
+                      onPressed: () {
+                        final Map<int, int> plantilla = excursionSeleccionada.materialesPorParticipante;
+                        setState(() {
+                          for (final MapEntry<int, int> entry in plantilla.entries) {
+                            _controller.establecerCantidadMaterial(entry.key, entry.value * _controller.numeroParticipantes);
+                          }
+                        });
+                      },
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // Si no hay excursión seleccionada, mostrar mensaje. 
+              // Si la excursión no requiere material, mostrar otro mensaje. 
+              // Si hay materiales, mostrarlos con controles para modificar las cantidades.
+              if (excursionSeleccionada == null)
+                Text(
+                  'Selecciona una excursión para ver material recomendado.',
+                  style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                )
+              else if (excursionSeleccionada.materialesPorParticipante.isEmpty)
+                Text(
+                  'Esta excursión no requiere material recomendado.',
+                  style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                )
+              else
+                ..._controller.materialesSolicitados.entries.map((entry) {
+                  final int idEquipamiento = entry.key;
+                  final int cantidad = entry.value;
+                  final String nombre = nombrePorId[idEquipamiento] ?? 'Material #$idEquipamiento';
+                  final double? precioDiario = precioPorId[idEquipamiento];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        // Nombre del material y precio diario 
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(nombre, style: tt.bodyMedium),
+                              if (precioDiario != null && precioDiario > 0)
+                                Text(
+                                  '  €${precioDiario.toStringAsFixed(2)}/ud·día',
+                                  style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                                ),
+                            ],
+                          ),
+                        ),
+
+                        // Botones: - (cantidad) + 
+                        IconButton(
+                          icon: const Icon(Icons.remove, size: 18),
+                          onPressed: cantidad > 0
+                              ? () => setState(() => _controller.establecerCantidadMaterial(idEquipamiento, cantidad - 1))
+                              : null,
+                        ),
+                        Text('$cantidad', style: tt.bodyMedium),
+                        IconButton(
+                          icon: const Icon(Icons.add, size: 18),
+                          onPressed: () => setState(() => _controller.establecerCantidadMaterial(idEquipamiento, cantidad + 1)),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete_outline, size: 18, color: cs.error),
+                          onPressed: () => setState(() => _controller.materialesSolicitados.remove(idEquipamiento)),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+
+            // Si estamos editando una solicitud sin reserva, mostrar botón para añadir materiales recomendados.
+            ] else if (isEdit && _controller.idReserva == null && excursionSeleccionada != null && excursionSeleccionada.materialesPorParticipante.isNotEmpty) ...[  
+              // Editando sin reserva: botón para añadir materiales
+              TertiaryButton(
+                label: 'Añadir materiales',
+                icon: Icons.add,
+                onPressed: () => setState(() {
+                  _mostrarMateriales = true;
+                  for (final MapEntry<int, int> entry in excursionSeleccionada.materialesPorParticipante.entries) {
+                    _controller.establecerCantidadMaterial(entry.key, entry.value * _controller.numeroParticipantes);
+                  }
+                }),
+              ),
+
+            // Si estamos editando una solicitud con reserva, mostrar materiales en solo lectura (sin controles).
+            ] else if (_controller.idReserva != null && _controller.materialesSolicitados.isNotEmpty) ...[
               Text(
-                'Selecciona una excursión para ver material recomendado.',
-                style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-              )
-            else if (excursionSeleccionada.materialesPorParticipante.isEmpty)
-              Text(
-                'Esta excursión no requiere material recomendado.',
-                style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-              )
-            else
+                'Material reservado',
+                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 8),
+
+              // .entries — convierte el Map<int, int> en un iterable de pares MapEntry<int, int> (clave=idEquipamiento, valor=cantidad)
+              // .map((entry) { ... }) — transforma cada entrada en un widget Padding con la fila de ese material
+              // ... (spread operator) — "despliega" la lista resultante dentro del array de widgets
               ..._controller.materialesSolicitados.entries.map((entry) {
                 final int idEquipamiento = entry.key;
                 final int cantidad = entry.value;
                 final String nombre = nombrePorId[idEquipamiento] ?? 'Material #$idEquipamiento';
                 final double? precioDiario = precioPorId[idEquipamiento];
-
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     children: [
-                      // Nombre del material y precio
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,48 +320,16 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                           ],
                         ),
                       ),
-
-                      // Si hay una reserva asociada, muestra el boton "-".
-                      if (_controller.idReserva == null) ...[
-                        IconButton(
-                          icon: const Icon(Icons.remove, size: 18),
-                          onPressed: cantidad > 0
-                              ? () => setState(
-                                  () => _controller.establecerCantidadMaterial(
-                                    idEquipamiento,
-                                    cantidad - 1,
-                                  ),
-                                )
-                              : null,
-                        ),
-                      ],
-
-                      // Cantidad solicitada
-                      Text('$cantidad', style: tt.bodyMedium),
-
-                      // Si hay una reserva asociada, muestra el boton "+".
-                      if (_controller.idReserva == null) ...[
-                        IconButton(
-                          icon: const Icon(Icons.add, size: 18),
-                          onPressed: () => setState(
-                            () => _controller.establecerCantidadMaterial(
-                              idEquipamiento,
-                              cantidad + 1,
-                            ),
-                          ),
-                        ),
-                        // Botón eliminar material
-                        IconButton(
-                          icon: Icon(Icons.delete_outline, size: 18, color: cs.error),
-                          onPressed: () => setState(
-                            () => _controller.materialesSolicitados.remove(idEquipamiento),
-                          ),
-                        ),
-                      ],
+                      Text('$cantidad', style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
                     ],
                   ),
                 );
               }),
+            ],
+
+            
+            const SizedBox(height: 20),
+            // Si está en modo cliente, mostrar campos adicionales para estado y experto (solo lectura para el cliente, editable para el gestor).
             if (!modoCliente) ...[
               const SizedBox(height: 20),
               // Estado
@@ -355,6 +402,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                       ),
                     ],
                     const Divider(),
+
+                    // Precio total (excursión + materiales).
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -362,6 +411,19 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                         Text('€${_controller.calcularPrecioTotal(excursiones, equipamientos).toStringAsFixed(2)}', style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer, fontWeight: FontWeight.bold)),
                       ],
                     ),
+
+                    // Cargo por daños (separado del total, solo si hay daños registrados)
+                    if (cargoDanios > 0) ...[
+                      const SizedBox(height: 6),
+                      const Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Cargo por daños', style: tt.bodySmall?.copyWith(color: cs.error)),
+                          Text('+ €${cargoDanios.toStringAsFixed(2)}', style: tt.bodySmall?.copyWith(color: cs.error, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -396,7 +458,10 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
                 // Si no hay reserva asociada pero se han seleccionado materiales, crear la reserva antes de guardar la solicitud.
                 if (_controller.idReserva == null && _controller.tieneMateriales) {
-                  final Reserva? reserva = _crearReservaDesdeSolicitud();
+                  final Reserva? reserva = _controller.crearReservaDesdeSolicitud(
+                    context: context,
+                    ref: ref,
+                  );
                   if (reserva == null) {
                     return;
                   }

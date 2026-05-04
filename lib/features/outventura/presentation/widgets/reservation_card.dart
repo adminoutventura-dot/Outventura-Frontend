@@ -44,6 +44,7 @@ class ReservaCard extends StatelessWidget {
       EstadoReserva.confirmada => (cs.primary, cs.onPrimary, cs.primary),
       EstadoReserva.finalizada => (cs.secondary.withValues(alpha: 0.35), cs.onPrimaryContainer, cs.secondary.withValues(alpha: 0.35)),
       EstadoReserva.cancelada => (cs.error, cs.onError, cs.error),
+      EstadoReserva.enCurso => (cs.secondary, cs.onSecondary, cs.secondary),
     };
 
     // Lista de imágenes de los equipamientos, filtrando los nulos

@@ -57,4 +57,16 @@ final List<Solicitud> solicitudesFake = [
     idUsuario: 4,
     materialesSolicitados: {},
   ),
+
+  // En curso con reserva confirmada asociada.
+  const Solicitud(
+    id: 6,
+    idExcursion: 1,
+    numeroParticipantes: 3,
+    estado: EstadoSolicitud.enCurso,
+    idExperto: 2,
+    idUsuario: 3,
+    idReserva: 106,
+    materialesSolicitados: {5: 3, 6: 6},
+  ),
 ];
