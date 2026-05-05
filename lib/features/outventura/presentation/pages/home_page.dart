@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/presentation/pages/equipment_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/excursions_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/users_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
@@ -111,6 +115,46 @@ class HomeAdminPage extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 const SizedBox(height: 24),
+                // Sección de accesos rápidos de gestión.
+                Text(
+                  'GESTIÓN',
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: SecondaryButton(
+                    label: 'Excursiones',
+                    icon: Icons.hiking_outlined,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ExcursionsPage(puedeGestionar: true)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: SecondaryButton(
+                    label: 'Equipamiento',
+                    icon: Icons.inventory_2_outlined,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const EquipmentPage(puedeGestionar: true)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: SecondaryButton(
+                    label: 'Usuarios',
+                    icon: Icons.people_outline,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const UsersPage()),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
                 // Título de sección.
                 Text(
                   'SOLICITUDES RECIENTES',
@@ -158,6 +202,7 @@ class HomeClientePage extends ConsumerWidget {
     final int solicitudesPendientes = misSolicitudes
         .where((Solicitud s) => s.estado == EstadoSolicitud.pendiente)
         .length;
+    final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -238,6 +283,29 @@ class HomeClientePage extends ConsumerWidget {
                   style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 20),
+                // Botones de navegación a reservas y solicitudes
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    label: 'Mis Reservas',
+                    icon: Icons.event_available_outlined,
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/reservas');
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    label: 'Mis Solicitudes',
+                    icon: Icons.assignment_outlined,
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/solicitudes');
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
                 Text(
                   'SOLICITUDES RECIENTES',
                   style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
@@ -263,6 +331,44 @@ class HomeClientePage extends ConsumerWidget {
                         ),
                       );
                     }),
+                const SizedBox(height: 24),
+                // Sección de nuevas excursiones
+                Text(
+                  'NUEVAS EXCURSIONES',
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                ),
+                const SizedBox(height: 12),
+                if (excursiones.isEmpty)
+                  Text(
+                    'No hay excursiones nuevas.',
+                    style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                  )
+                else
+                // TODO: Pasar a widget separado y mostrar solo las 3 últimas
+                  for (final Excursion excursion in excursiones.take(3).toList().reversed)
+                    Card(
+                      elevation: 2,
+                      margin: const EdgeInsets.only(bottom: 10),
+                      child: ListTile(
+                        leading: const Icon(Icons.hiking_outlined),
+                        title: Text(
+                          excursion.puntoInicio,
+                          style: tt.titleMedium,
+                        ),
+                        subtitle: excursion.descripcion != null
+                            ? Text(
+                                excursion.descripcion!,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                            : null,
+                        trailing: Icon(Icons.arrow_forward_ios, color: cs.primary, size: 18),
+                        onTap: () {
+                          // Navegar a la página de detalles de la excursión si existe
+                          Navigator.of(context).pushNamed('/excursion', arguments: excursion);
+                        },
+                      ),
+                    ),
               ],
             ),
           ),

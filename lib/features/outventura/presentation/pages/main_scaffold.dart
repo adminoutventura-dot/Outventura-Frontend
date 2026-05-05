@@ -6,7 +6,6 @@ import 'package:outventura/features/outventura/presentation/pages/excursions_pag
 import 'package:outventura/features/outventura/presentation/pages/home_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/requests_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/users_page.dart';
 
 class MainScaffold extends StatefulWidget {
   final Usuario usuario;
@@ -32,11 +31,14 @@ class _MainScaffoldState extends State<MainScaffold> {
       esCliente
           ? HomeClientePage(usuario: widget.usuario)
           : const HomeAdminPage(),
-      ExcursionsPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
-      EquipmentPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
-      ReservationsPage(puedeGestionar: !esCliente, puedeCrear: !esCliente),
-      RequestsPage(puedeGestionar: !esCliente, puedeCrear: !esCliente),
-      if (!esCliente) const UsersPage(),
+      if (esCliente) ...[
+        const ExcursionsPage(puedeGestionar: false, puedeSolicitar: true),
+        const EquipmentPage(puedeGestionar: false, puedeSolicitar: true),
+      ]
+      else ...[
+        const ReservationsPage(puedeGestionar: true, puedeCrear: true),
+        const RequestsPage(puedeGestionar: true, puedeCrear: true),
+      ],
     ];
 
     _items = [
@@ -45,32 +47,30 @@ class _MainScaffoldState extends State<MainScaffold> {
         activeIcon: Icon(Icons.home),
         label: 'Inicio',
       ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.hiking_outlined),
-        activeIcon: Icon(Icons.hiking),
-        label: 'Excursiones',
-      ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.inventory_2_outlined),
-        activeIcon: Icon(Icons.inventory_2),
-        label: 'Equipamiento',
-      ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.book_online_outlined),
-        activeIcon: Icon(Icons.book_online),
-        label: 'Reservas',
-      ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.assignment_outlined),
-        activeIcon: Icon(Icons.assignment),
-        label: 'Solicitudes',
-      ),
-      if (!esCliente)
+      if (esCliente) ...[
         const BottomNavigationBarItem(
-          icon: Icon(Icons.people_outline),
-          activeIcon: Icon(Icons.people),
-          label: 'Usuarios',
+          icon: Icon(Icons.hiking_outlined),
+          activeIcon: Icon(Icons.hiking),
+          label: 'Excursiones',
         ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.inventory_2_outlined),
+          activeIcon: Icon(Icons.inventory_2),
+          label: 'Equipamiento',
+        ),
+      ]
+      else ...[
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.book_online_outlined),
+          activeIcon: Icon(Icons.book_online),
+          label: 'Reservas',
+        ),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.assignment_outlined),
+          activeIcon: Icon(Icons.assignment),
+          label: 'Solicitudes',
+        ),
+      ],
     ];
   }
 
