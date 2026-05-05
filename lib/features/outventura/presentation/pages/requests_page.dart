@@ -12,6 +12,7 @@ import 'package:outventura/features/outventura/presentation/pages/forms/search_c
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
+import 'package:outventura/features/outventura/presentation/pages/request_detail_page.dart';
 
 class RequestsPage extends ConsumerStatefulWidget {
   final bool puedeGestionar;
@@ -167,15 +168,14 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                                 solicitud: soli,
                                 context: context,
                                 ref: ref,
+                                // Si el usuario no puede gestionar, se le asigna su propio ID para que solo pueda editar su solicitud
                                 fixedIdUsuario: widget.puedeGestionar ? null : ref.read(currentUserProvider)?.id,
                               ),
-                        onVerDetalle: () {},
-                        // => showSolicitudDetailSheet(
-                        //   context: context,
-                        //   solicitud: s,
-                        //   onAceptar: () => _aceptar(s),
-                        //   onRechazar: () => _rechazar(s),
-                        // ),
+                        onVerDetalle: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => RequestDetailPage(solicitud: soli),
+                          ));
+                        },
                       );
                     },
                   ),

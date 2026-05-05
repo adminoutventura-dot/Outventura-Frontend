@@ -8,6 +8,7 @@ import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
+import 'package:outventura/features/outventura/presentation/pages/reservation_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_dialogs.dart';
@@ -129,7 +130,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                       }
 
                       VoidCallback? onRegistrarDevolucion;
-                      if (widget.puedeGestionar && res.estado == EstadoReserva.pendiente) {
+                      if (widget.puedeGestionar && res.estado == EstadoReserva.enCurso) {
                         onRegistrarDevolucion = () => mostrarDialogoDevolucion(context, res, () => notifier.registrarDevolucion(res));
                       }
 
@@ -174,6 +175,11 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         onRechazar: onRechazar,
                         onRegistrarDevolucion: onRegistrarDevolucion,
                         onCancelar: onCancelar,
+                        onVerDetalle: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ReservationDetailPage(reserva: res),
+                          ),
+                        ),
                       );
                     },
                   ),

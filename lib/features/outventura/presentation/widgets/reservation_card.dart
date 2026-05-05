@@ -20,6 +20,7 @@ class ReservaCard extends StatelessWidget {
   final VoidCallback? onRechazar;
   final VoidCallback? onRegistrarDevolucion;
   final VoidCallback? onCancelar;
+  final VoidCallback? onVerDetalle;
 
   const ReservaCard({
     super.key,
@@ -32,6 +33,7 @@ class ReservaCard extends StatelessWidget {
     this.onRechazar,
     this.onRegistrarDevolucion,
     this.onCancelar,
+    this.onVerDetalle,
   });
 
   @override
@@ -242,6 +244,10 @@ class ReservaCard extends StatelessWidget {
                     if (onRegistrarDevolucion != null) ...[
                       const SizedBox(width: 8),
                       ActionIcon(icon: Icons.assignment_return_outlined, color: cs.secondary, onTap: onRegistrarDevolucion!),
+                    ],
+                    if (onVerDetalle != null) ...[
+                      const SizedBox(width: 8),
+                      ActionIcon(icon: Icons.chevron_right, color: cs.onPrimaryContainer, onTap: onVerDetalle!),
                     ],
                   ],
                 ),

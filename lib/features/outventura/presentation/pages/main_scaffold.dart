@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/features/outventura/presentation/pages/calendar_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/equipment_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/excursions_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/home_page.dart';
@@ -39,6 +40,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         const ReservationsPage(puedeGestionar: true, puedeCrear: true),
         const RequestsPage(puedeGestionar: true, puedeCrear: true),
       ],
+      CalendarPage(usuario: widget.usuario, esAdmin: !esCliente),
     ];
 
     _items = [
@@ -71,6 +73,11 @@ class _MainScaffoldState extends State<MainScaffold> {
           label: 'Solicitudes',
         ),
       ],
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.calendar_today_outlined),
+        activeIcon: Icon(Icons.calendar_today),
+        label: 'Calendario',
+      ),
     ];
   }
 
