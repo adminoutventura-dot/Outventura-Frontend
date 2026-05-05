@@ -22,6 +22,19 @@ enum EstadoReserva {
   }
 
   static EstadoReserva fromString(String value) {
+    switch (value.toUpperCase()) {
+      case 'PENDING':
+        return EstadoReserva.pendiente;
+      case 'CONFIRMED':
+        return EstadoReserva.confirmada;
+      case 'IN_PROGRESS':
+        return EstadoReserva.enCurso;
+      case 'FINISHED':
+      case 'RETURNED':
+        return EstadoReserva.finalizada;
+      case 'CANCELLED':
+        return EstadoReserva.cancelada;
+    }
     for (EstadoReserva status in EstadoReserva.values) {
       if (status.label.toLowerCase() == value.toLowerCase()) {
         return status;
@@ -92,6 +105,38 @@ class Reserva {
       estado: estado ?? this.estado,
       cargoDanios: cargoDanios ?? this.cargoDanios,
       itemsDaniados: itemsDaniados ?? this.itemsDaniados,
+    );
+  }
+
+  // Crea una Reserva a partir del JSON que devuelve el backend.
+  factory Reserva.fromMap(Map<String, dynamic> map) {
+    // lines es una lista de objetos {equipmentId, quantity, ...}
+    final List<LineaReserva> lineas = (map['lines'] as List<dynamic>? ?? [])
+        .map((dynamic e) {
+          final m = e as Map<String, dynamic>;
+          return LineaReserva(
+            idEquipamiento: (m['equipmentId'] ?? m['idEquipment'] ?? 0) as int,
+            cantidad: (m['quantity'] ?? 0) as int,
+          );
+        })
+        .toList();
+
+    // damagedItems viene como {equipmentId: count} tras la conversión camelCase
+    final Map<int, int> daniados =
+        (map['damagedItems'] as Map<String, dynamic>? ?? {})
+            .map((String k, dynamic v) =>
+                MapEntry(int.tryParse(k) ?? 0, (v as num).toInt()));
+
+    return Reserva(
+      id: (map['idReservation'] ?? map['id']) as int,
+      idUsuario: (map['userId'] ?? 0) as int,
+      lineas: lineas,
+      idExcursion: map['excursionId'] as int?,
+      fechaInicio: DateTime.parse(map['startDate'] as String),
+      fechaFin: DateTime.parse(map['endDate'] as String),
+      estado: EstadoReserva.fromString(map['status'] as String? ?? 'PENDING'),
+      cargoDanios: (map['damageFee'] as num?)?.toDouble() ?? 0,
+      itemsDaniados: daniados,
     );
   }
 }

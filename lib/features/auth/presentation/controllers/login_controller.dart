@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/form_validators.dart';
 
 class LoginController {
   final TextEditingController emailController = TextEditingController();
@@ -13,8 +14,11 @@ class LoginController {
     if (!editando && (value == null || value.isEmpty)) {
       return 'La contraseña es obligatoria';
     }
-    if (value != null && value.isNotEmpty && value.length < 6) {
-      return 'Mínimo 6 caracteres';
+    if (value != null && value.isNotEmpty) {
+      final error = ValidadoresFormulario.longitudMinima(value, 8);
+      if (error != null) {
+        return error;
+      }
     }
     return null;
   }

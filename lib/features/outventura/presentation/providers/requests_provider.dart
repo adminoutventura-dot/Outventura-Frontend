@@ -1,123 +1,66 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/network/api_delay.dart';
-import 'package:outventura/features/outventura/data/fakes/requests_fake.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/data/services/request_api_service.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
-import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 
-// Expone una lista de solicitudes. Simula llamadas al backend.
+// Expone una lista de solicitudes desde el backend.
 final AsyncNotifierProvider<RequestsNotifier, List<Solicitud>> solicitudesProvider =
     AsyncNotifierProvider<RequestsNotifier, List<Solicitud>>(RequestsNotifier.new);
 
-// TEMPORAL: el filtro se moverá al backend → GET /api/solicitudes?q=...&idUsuario=... Eliminar este provider.
-// Filtra solicitudes por ruta de excursión. Simula búsqueda en backend.
-// params es un record con dos campos: query (String) e idUsuario (int?)
+// Filtro local — el backend también acepta ?search= y ?userId= en GET /requests.
 final solicitudesFiltadasProvider = Provider.family<AsyncValue<List<Solicitud>>, ({String query, int? idUsuario})>((ref, params) {
-
-  // Observa el estado asíncrono de todas las solicitudes (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Solicitud>> asyncTodas = ref.watch(solicitudesProvider);
-
-  // Obtiene la lista de excursiones para resolver la ruta
-  final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
-
-  // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodas.whenData((List<Solicitud> todas) {
-    // Si hay idUsuario, filtra previamente por ese usuario
-    List<Solicitud> base;
-    if (params.idUsuario != null) {
-      base = todas.where((Solicitud s) => s.idUsuario == params.idUsuario).toList();
-    } else {
-      base = todas;
-    }
-
-    // Si no hay query, devuelve la lista base sin filtrar
-    if (params.query.isEmpty) {
-      return base;
-    }
-
+    List<Solicitud> base = params.idUsuario != null
+        ? todas.where((s) => s.idUsuario == params.idUsuario).toList()
+        : todas;
+    if (params.query.isEmpty) return base;
     final String q = params.query.toLowerCase();
-    
-    // Filtra por la ruta de la excursión asociada a la solicitud
-    return base.where((Solicitud s) {
-      // Busca la excursión asociada a la solicitud (null si no existe)
-      // firstOrNull devuelve el primer elemento de una lista que cumpla la condición, o null si no hay ninguno.
-      final Excursion? exc = excursiones.where((Excursion e) => e.id == s.idExcursion).firstOrNull;
-
-      // Si no se encuentra la excursión, no se incluye la solicitud
-      final String ruta = exc != null ? '${exc.puntoInicio} ${exc.puntoFin}'.toLowerCase() : '';
-      return ruta.contains(q);
-    }).toList();
+    return base.where((Solicitud s) => s.idExcursion == int.tryParse(q) || s.id.toString().contains(q)).toList();
   });
 });
 
 class RequestsNotifier extends AsyncNotifier<List<Solicitud>> {
   @override
-  // TEMPORAL: reemplazar cuerpo por await dio.get('/solicitudes') y eliminar import de requests_fake.dart.
   Future<List<Solicitud>> build() async {
-    // Simula GET /api/solicitudes
-    await Future.delayed(ApiDelay.carga);
-    return [...solicitudesFake];
+    return ref.read(requestApiProvider).getAll();
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.post('/solicitudes', data: solicitud.toJson()).
-  // Simula POST /api/solicitudes
   Future<void> agregar(Solicitud solicitud) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Solicitud> listaActual = [...(state.value ?? [])];
-    
-    // Agrega la nueva solicitud a la lista
-    listaActual.add(solicitud);
-
-    // Actualiza el estado con la nueva lista
-    state = AsyncData(listaActual);
+    await ref.read(requestApiProvider).create({
+      'start_point': solicitud.idExcursion.toString(), // placeholder; form should pass real values
+      'end_point': '',
+      'start_date': DateTime.now().toIso8601String(),
+      'end_date': DateTime.now().add(const Duration(hours: 8)).toIso8601String(),
+      'categories': [],
+      'participant_count': solicitud.numeroParticipantes,
+      'description': null,
+      'userId': solicitud.idUsuario,
+      'excursionId': solicitud.idExcursion != 0 ? solicitud.idExcursion : null,
+    });
+    ref.invalidateSelf();
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.put('/solicitudes/${viejo.id}', data: nuevo.toJson()).
-  // Simula PUT /api/solicitudes/:id
   Future<void> actualizar(Solicitud viejo, Solicitud nuevo) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Solicitud> listaActual = [...(state.value ?? [])];
-    // Busca el índice de la solicitud a actualizar
-    final int index = listaActual.indexWhere((Solicitud s) => s.id == viejo.id);
-    if (index != -1) {
-      // Reemplaza la solicitud en la posición encontrada
-      listaActual[index] = nuevo;
-    }
-    // Actualiza el estado con la lista modificada
-    state = AsyncData(listaActual);
+    await ref.read(requestApiProvider).update(viejo.id, {
+      'participant_count': nuevo.numeroParticipantes,
+      'expertId': nuevo.idExperto,
+      'excursionId': nuevo.idExcursion != 0 ? nuevo.idExcursion : null,
+    });
+    ref.invalidateSelf();
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.delete('/solicitudes/${solicitud.id}').
-  // Simula DELETE /api/solicitudes/:id
   Future<void> eliminar(Solicitud solicitud) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Solicitud> listaActual = [...(state.value ?? [])];
-    // Elimina la solicitud con el ID coincidente
-    listaActual.removeWhere((Solicitud s) => s.id == solicitud.id);
-    // Actualiza el estado con la lista sin la solicitud eliminada
-    state = AsyncData(listaActual);
+    await ref.read(requestApiProvider).delete(solicitud.id);
+    ref.invalidateSelf();
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.patch('/solicitudes/${solicitud.id}/aceptar').
-  // Simula PATCH /api/solicitudes/:id/aceptar
   Future<void> aceptar(Solicitud solicitud) async {
-    await Future.delayed(ApiDelay.accion);
-    // Crea una copia de la solicitud con estado confirmada
-    final Solicitud aceptada = solicitud.copyWith(estado: EstadoSolicitud.confirmada);
-    // Delega la actualización al método actualizar
-    await actualizar(solicitud, aceptada);
+    await ref.read(requestApiProvider).accept(solicitud.id, expertId: solicitud.idExperto);
+    ref.invalidateSelf();
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.patch('/solicitudes/${solicitud.id}/rechazar').
-  // Simula PATCH /api/solicitudes/:id/rechazar
   Future<void> rechazar(Solicitud solicitud) async {
-    await Future.delayed(ApiDelay.accion);
-    // Crea una copia de la solicitud con estado cancelada
-    final Solicitud rechazada = solicitud.copyWith(estado: EstadoSolicitud.cancelada);
-    // Delega la actualización al método actualizar
-    await actualizar(solicitud, rechazada);
+    await ref.read(requestApiProvider).reject(solicitud.id);
+    ref.invalidateSelf();
   }
 }

@@ -23,13 +23,23 @@ enum EstadoEquipamiento {
 
   // Crea un estado a partir del valor en texto que devuelve el backend.
   static EstadoEquipamiento fromString(String value) {
+    switch (value.toUpperCase()) {
+      case 'AVAILABLE':
+        return EstadoEquipamiento.disponible;
+      case 'DEPLETED':
+        return EstadoEquipamiento.agotado;
+      case 'REPAIR':
+        return EstadoEquipamiento.mantenimiento;
+      case 'RETIRED':
+        return EstadoEquipamiento.fueraDeServicio;
+      case 'RESERVADO':
+        return EstadoEquipamiento.agotado;
+    }
+    // Fallback: compara con el label en español
     for (EstadoEquipamiento status in EstadoEquipamiento.values) {
       if (status.label.toLowerCase() == value.toLowerCase()) {
         return status;
       }
-    }
-    if (value.toLowerCase() == 'reservado') {
-      return EstadoEquipamiento.agotado;
     }
     return EstadoEquipamiento.disponible;
   }
@@ -63,20 +73,27 @@ class Equipamiento {
 
   // Crea un Material a partir del JSON que devuelve el backend.
   factory Equipamiento.fromMap(Map<String, dynamic> map) {
+    // El estado puede venir como objeto {code, description} o como string directo
+    final dynamic statusRaw = map['status'];
+    final String statusCode = statusRaw is Map<String, dynamic>
+        ? (statusRaw['code'] as String? ?? '')
+        : (statusRaw as String? ?? '');
+
     return Equipamiento(
-      id: map['id'] as int,
-      nombre: map['name'] as String,
+      id: (map['idEquipment'] ?? map['id']) as int,
+      nombre: (map['title'] ?? map['name']) as String,
       descripcion: map['description'] as String?,
       // Convierte la lista JSON de categorías en una lista de objetos CategoriaActividad.
-      categorias: (map['categories'] as List<dynamic>)
-          .map((dynamic e) => CategoriaActividad.fromString(e as String))
-          .toList(),
-      stock: map['stock'] as int,
-      stockTotal: map['stockTotal'] as int? ?? map['stock'] as int,
-      estado: EstadoEquipamiento.fromString(map['status'] as String),
-      precioAlquilerDiario: (map['dailyRentalPrice'] as num).toDouble(),
-      cargoPorDanio: (map['damageFee'] as num).toDouble(),
-      imagenAsset: map['imageAsset'] as String?,
+      categorias: (map['categories'] as List<dynamic>?)
+              ?.map((dynamic e) => CategoriaActividad.fromString(e as String))
+              .toList() ??
+          [],
+      stock: map['stock'] as int? ?? 0,
+      stockTotal: (map['units'] ?? map['stockTotal'] ?? map['stock']) as int? ?? 0,
+      estado: EstadoEquipamiento.fromString(statusCode),
+      precioAlquilerDiario: (map['pricePerDay'] ?? map['dailyRentalPrice'] as dynamic)?.toDouble() ?? 0.0,
+      cargoPorDanio: (map['damageFee'] as num?)?.toDouble() ?? 0.0,
+      imagenAsset: (map['imageUrl'] ?? map['imageAsset']) as String?,
     );
   }
 

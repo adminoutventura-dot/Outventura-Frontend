@@ -164,14 +164,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             onPressed: () async {
                               if (_controller.formKey.currentState?.validate() ?? false) {
                                 final String email = _controller.emailController.text.trim();
-                                final usuario = await ref.read(currentUserProvider.notifier).login(email);
-                                if (!context.mounted || usuario == null) return;
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (BuildContext _) => MainScaffold(usuario: usuario),
-                                  ),
-                                );
+                                final String password = _controller.passwordController.text;
+                                try {
+                                  final usuario = await ref.read(currentUserProvider.notifier).login(email, password);
+                                  if (!context.mounted || usuario == null) return;
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (BuildContext _) => MainScaffold(usuario: usuario),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  final msg = e.toString().contains('401') || e.toString().contains('Credenciales')
+                                      ? 'Usuario o contraseña incorrectos'
+                                      : 'Error de conexión o inesperado';
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(msg)),
+                                  );
+                                }
                               }
                             },
                           ),

@@ -23,6 +23,18 @@ enum TipoRol {
 
   // Crea un rol a partir del valor en texto que devuelve el backend.
   static TipoRol fromString(String value) {
+    switch (value.toUpperCase()) {
+      case 'SUPERADMIN':
+        return TipoRol.superadmin;
+      case 'ADMIN':
+        return TipoRol.admin;
+      case 'EXPERT':
+      case 'EXPERTO':
+        return TipoRol.experto;
+      case 'USER':
+      case 'USUARIO':
+        return TipoRol.usuario;
+    }
     for (TipoRol rol in TipoRol.values) {
       if (rol.name == value.toLowerCase()) {
         return rol;

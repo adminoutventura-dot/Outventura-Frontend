@@ -23,15 +23,21 @@ class Usuario {
 
   // Crea un Usuario a partir del JSON del backend.
   factory Usuario.fromMap(Map<String, dynamic> map) {
+    // El rol puede venir como objeto {code, ...} o directamente como string
+    final dynamic rolRaw = map['role'];
+    final String rolCode = rolRaw is Map<String, dynamic>
+        ? (rolRaw['code'] as String? ?? 'usuario')
+        : (map['rol'] as String? ?? 'usuario');
+
     return Usuario(
-      id: map['id'] as int,
-      nombre: map['nombre'] as String,
-      apellidos: map['apellidos'] as String,
+      id: (map['idUser'] ?? map['id']) as int,
+      nombre: (map['name'] ?? map['nombre']) as String,
+      apellidos: (map['surname'] ?? map['apellidos']) as String,
       email: map['email'] as String,
-      telefono: map['telefono']?.toString(),
-      rol: TipoRol.fromString(map['rol'] as String),
+      telefono: (map['phone'] ?? map['telefono'])?.toString(),
+      rol: TipoRol.fromString(rolCode),
       foto: map['foto'] as String?,
-      activo: map['estado'] as bool,
+      activo: (map['status'] ?? map['activo']) as bool? ?? true,
     );
   }
 

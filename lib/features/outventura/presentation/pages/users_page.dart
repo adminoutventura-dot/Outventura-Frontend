@@ -49,23 +49,31 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           ),
         ),
       ),
-      drawer: const AppDrawer(),
+      // Drawer eliminado
       floatingActionButton: AddFab(
         onPressed: () async {
-          final Usuario? nuevo = await Navigator.push<Usuario>(
+          final Map<String, dynamic>? result =
+              await Navigator.push<Map<String, dynamic>>(
             context,
             MaterialPageRoute(builder: (_) => const UserFormPage()),
           );
-          if (nuevo == null) {
-            return;
+          if (result == null) return;
+          final Usuario nuevo = result['usuario'] as Usuario;
+          final String? password = result['password'] as String?;
+          try {
+            await ref
+                .read(usuariosProvider.notifier)
+                .agregar(nuevo, password: password);
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Usuario creado correctamente.')),
+            );
+          } catch (e) {
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error al crear usuario: $e')),
+            );
           }
-          ref.read(usuariosProvider.notifier).agregar(nuevo);
-          if (!context.mounted) {
-            return;
-          }
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Usuario creado correctamente.')),
-          );
         },
         icon: Icons.person_add_outlined,
       ),

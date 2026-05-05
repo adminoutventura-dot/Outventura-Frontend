@@ -1,82 +1,83 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/network/api_delay.dart';
-import 'package:outventura/features/auth/data/fakes/users_fake.dart';
+import 'package:outventura/features/auth/data/services/user_api_service.dart';
+import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 
-// Provider que gestiona la lista de usuarios. Simula llamadas al backend.
+// Provider que gestiona la lista de usuarios.
 final AsyncNotifierProvider<UsersNotifier, List<Usuario>> usuariosProvider =
     AsyncNotifierProvider<UsersNotifier, List<Usuario>>(UsersNotifier.new);
 
-// TEMPORAL: el filtro se moverá al backend → GET /api/usuarios?q=... Eliminar este provider y llamar directamente al endpoint filtrado.
-// Filtra usuarios por nombre, apellidos, email o teléfono. Simula búsqueda en backend.
+// Filtra usuarios en el cliente mientras el search se propaga al backend.
+// Con el backend conectado, el filtro real se hace en GET /users?search=
 final usuariosFiltradosProvider = Provider.family<AsyncValue<List<Usuario>>, String>((ref, query) {
-
-  // Observa el estado asíncrono de todos los usuarios (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Usuario>> asyncTodos = ref.watch(usuariosProvider);
-  
-  // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodos.whenData((List<Usuario> todos) {
-    // Si no hay query, devuelve todos los usuarios sin filtrar
-    if (query.isEmpty) {
-      return todos;
-    }
+    if (query.isEmpty) return todos;
     final String q = query.toLowerCase();
-    
-    // Filtra por nombre, apellidos, email o teléfono
     return todos.where((Usuario u) =>
       '${u.nombre} ${u.apellidos} ${u.email} ${u.telefono ?? ''}'.toLowerCase().contains(q)
     ).toList();
   });
 });
 
-// Notifier que implementa la lógica de gestión de usuarios.
+// Notifier con llamadas reales al backend.
 class UsersNotifier extends AsyncNotifier<List<Usuario>> {
   @override
-  // TEMPORAL: reemplazar cuerpo por await dio.get('/usuarios') y eliminar import de users_fake.dart.
   Future<List<Usuario>> build() async {
-    // Simula GET /api/usuarios
-    await Future.delayed(ApiDelay.carga);
-    return [...usuariosFake];
+    return ref.read(userApiProvider).getAll();
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.post('/usuarios', data: usuario.toJson()).
-  // Simula POST /api/usuarios
-  Future<void> agregar(Usuario usuario) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Usuario> listaActual = [...(state.value ?? [])];
-    // Agrega el nuevo usuario a la lista
-    listaActual.add(usuario);
-    // Actualiza el estado con la nueva lista
-    state = AsyncData(listaActual);
+  Future<void> agregar(Usuario usuario, {String? password}) async {
+    // El backend asigna el ID real; recargamos la lista completa tras crear.
+    await ref.read(userApiProvider).create({
+      'name': usuario.nombre,
+      'surname': usuario.apellidos,
+      'email': usuario.email,
+      'phone': usuario.telefono,
+      'status': usuario.activo,
+      'roleId': _rolToId(usuario.rol),
+      if (password != null && password.isNotEmpty) 'password': password,
+    });
+    ref.invalidateSelf();
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.put('/usuarios/${viejo.id}', data: nuevo.toJson()).
-  // Simula PUT /api/usuarios/:id
   Future<void> actualizar(Usuario viejo, Usuario nuevo) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Usuario> listaActual = [...(state.value ?? [])];
-    // Busca y reemplaza el usuario con el ID coincidente
-    for (int i = 0; i < listaActual.length; i++) {
-      if (listaActual[i].id == viejo.id) {
-        listaActual[i] = nuevo;
-        break;
-      }
-    }
-    // Actualiza el estado con la lista modificada
-    state = AsyncData(listaActual);
+    await ref.read(userApiProvider).update(viejo.id, {
+      'name': nuevo.nombre,
+      'surname': nuevo.apellidos,
+      'email': nuevo.email,
+      'phone': nuevo.telefono,
+      'status': nuevo.activo,
+    });
+    ref.invalidateSelf();
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.delete('/usuarios/${eliminado.id}').
-  // Simula DELETE /api/usuarios/:id
   Future<void> eliminar(Usuario eliminado) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Usuario> listaActual = [...(state.value ?? [])];
-    // Elimina el usuario con el ID coincidente
-    listaActual.removeWhere((Usuario u) => u.id == eliminado.id);
-    // Actualiza el estado con la lista sin el usuario eliminado
-    state = AsyncData(listaActual);
+    await ref.read(userApiProvider).delete(eliminado.id);
+    ref.invalidateSelf();
+  }
+
+  Future<void> cambiarEstado(Usuario usuario, {required bool activo}) async {
+    await ref.read(userApiProvider).patchStatus(usuario.id, status: activo);
+    ref.invalidateSelf();
+  }
+
+  // Helper: convierte TipoRol a roleId (provisional — depende de los roles creados en BD).
+  // En producción esto vendría del backend o de un provider de roles.
+  int _rolToId(TipoRol rol) {
+    switch (rol) {
+      case TipoRol.superadmin:
+        return 1;
+      case TipoRol.admin:
+        return 2;
+      case TipoRol.experto:
+        return 3;
+      case TipoRol.usuario:
+        return 4;
+      case TipoRol.invitado:
+        return 5;
+    }
   }
 }
+
+

@@ -27,6 +27,21 @@ enum EstadoExcursion {
   }
 
   static EstadoExcursion fromString(String value) {
+    switch (value.toUpperCase()) {
+      case 'AVAILABLE':
+        return EstadoExcursion.disponible;
+      case 'PENDING':
+        return EstadoExcursion.pendiente;
+      case 'CONFIRMED':
+        return EstadoExcursion.confirmada;
+      case 'IN_PROGRESS':
+        return EstadoExcursion.enCurso;
+      case 'FINISHED':
+        return EstadoExcursion.finalizada;
+      case 'CANCELLED':
+        return EstadoExcursion.cancelada;
+    }
+    // Fallback: compara con el label en español
     for (EstadoExcursion status in EstadoExcursion.values) {
       if (status.label.toLowerCase() == value.toLowerCase()) {
         return status;
@@ -71,10 +86,10 @@ class Excursion {
   // Crea una Excursion a partir del JSON que devuelve el backend.
   factory Excursion.fromMap(Map<String, dynamic> map) {
     return Excursion(
-      id: map['id'] as int,
+      id: (map['idExcursion'] ?? map['id']) as int,
       puntoInicio: map['startPoint'] as String,
       puntoFin: map['endPoint'] as String,
-      imagenAsset: (map['imageAsset']) as String?,
+      imagenAsset: map['imageUrl'] as String?,
       fechaInicio: DateTime.parse(map['startDate'] as String),
       fechaFin: DateTime.parse(map['endDate'] as String),
       categorias: (map['categories'] as List<dynamic>)

@@ -130,13 +130,13 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (BuildContext context, int index) {
                       final Solicitud soli = lista[index];
-                      final Excursion? excursion = ref.watch(excursionPorIdProvider(soli.idExcursion));
+                      final Excursion? excursion = soli.idExcursion != 0
+                          ? ref.watch(excursionPorIdProvider(soli.idExcursion))
+                          : null;
 
                       final String? nombreUsuario = soli.idUsuario != null
                           ? ref.watch(nombreUsuarioProvider(soli.idUsuario!))
                           : null;
-
-                      if (excursion == null) return const SizedBox.shrink();
 
                       return SolicitudCard(
                         solicitud: soli,

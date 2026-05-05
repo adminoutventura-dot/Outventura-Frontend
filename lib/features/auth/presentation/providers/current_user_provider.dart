@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/network/api_delay.dart';
-import 'package:outventura/features/auth/data/fakes/users_fake.dart';
+import 'package:outventura/features/auth/data/services/auth_api_service.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 
 // Provider que almacena el usuario actualmente logueado.
@@ -9,27 +8,20 @@ final NotifierProvider<CurrentUserNotifier, Usuario?> currentUserProvider =
 
 class CurrentUserNotifier extends Notifier<Usuario?> {
   @override
-  // Estado inicial: no hay usuario logueado.
   Usuario? build() => null;
 
-  // TEMPORAL: reemplazar por llamada HTTP real con email+password y recibir JWT. Eliminar import de users_fake.dart.
-  // Simula POST /api/auth/login — busca por email en los datos fake.
-  Future<Usuario?> login(String email) async {
-    await Future.delayed(ApiDelay.accion);
-    final Usuario usuario = usuariosFake.firstWhere(
-      (Usuario u) => u.email == email,
-      orElse: () => usuariosFake[0],
-    );
+  // POST /auth/login — llama al backend con email y password.
+  Future<Usuario?> login(String email, String password) async {
+    final usuario = await ref.read(authApiProvider).login(email, password);
     state = usuario;
     return usuario;
   }
 
   void setUsuario(Usuario usuario) => state = usuario;
 
-  // TEMPORAL: reemplazar por llamada HTTP real y borrar el JWT del almacenamiento seguro.
-  // Simula POST /api/auth/logout
+  // POST /auth/logout — invalida el refresh token y borra el almacenamiento local.
   Future<void> cerrarSesion() async {
-    await Future.delayed(ApiDelay.accion);
+    await ref.read(authApiProvider).logout();
     state = null;
   }
 }

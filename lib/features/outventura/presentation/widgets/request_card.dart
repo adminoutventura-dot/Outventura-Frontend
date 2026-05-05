@@ -8,7 +8,7 @@ import 'package:outventura/features/outventura/domain/entities/request.dart';
 
 class SolicitudCard extends StatelessWidget {
   final Solicitud solicitud;
-  final Excursion excursion;
+  final Excursion? excursion;
   final String? nombreUsuario;
   final VoidCallback? onGestionar;
   final VoidCallback? onCancelar;
@@ -18,7 +18,7 @@ class SolicitudCard extends StatelessWidget {
   const SolicitudCard({
     super.key,
     required this.solicitud,
-    required this.excursion,
+    this.excursion,
     this.nombreUsuario,
     this.onGestionar,
     this.onCancelar,
@@ -95,7 +95,7 @@ class SolicitudCard extends StatelessWidget {
                             runSpacing: 2,
                             children: [
                               Text(
-                                excursion.puntoInicio,
+                                excursion?.puntoInicio ?? 'Solicitud #${solicitud.id}',
                                 style: tt.labelLarge?.copyWith(
                                   color: cs.onSurface,
                                 ),
@@ -106,7 +106,7 @@ class SolicitudCard extends StatelessWidget {
                                 color: cs.onSurfaceVariant,
                               ),
                               Text(
-                                excursion.puntoFin,
+                                excursion?.puntoFin ?? '',
                                 style: tt.labelLarge?.copyWith(
                                   color: cs.onSurface,
                                 ),
@@ -154,7 +154,7 @@ class SolicitudCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      FormateadorFecha.short(excursion.fechaInicio),
+                      excursion != null ? FormateadorFecha.short(excursion!.fechaInicio) : '—',
                       style: tt.labelSmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),
@@ -190,7 +190,7 @@ class SolicitudCard extends StatelessWidget {
                     // Categorías
                     Row(
                       spacing: 5,
-                      children: excursion.categorias
+                      children: (excursion?.categorias ?? [])
                           .map(
                             (CategoriaActividad c) => TagWidget(
                               text: c.label,

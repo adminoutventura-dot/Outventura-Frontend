@@ -43,7 +43,13 @@ class _UserFormPageState extends State<UserFormPage> {
   void _submit() {
     if (!_controller.validar()) return;
     final Usuario usuario = _controller.construirUsuario();
-    Navigator.of(context).pop(usuario);
+    final String? password = _controller.editando
+        ? null
+        : _loginController.passwordController.text.trim();
+    Navigator.of(context).pop(<String, dynamic>{
+      'usuario': usuario,
+      'password': password,
+    });
   }
 
   @override
@@ -134,7 +140,7 @@ class _UserFormPageState extends State<UserFormPage> {
                   labelText: 'Contraseña',
                   prefixIcon: Icons.lock_outline,
                   obscureText: true,
-                  validator: (String? v) => ValidadoresFormulario.longitudMinima(v, 6),
+                  validator: (String? v) => ValidadoresFormulario.longitudMinima(v, 8),
                 ),
                 const SizedBox(height: 20),
               ] else

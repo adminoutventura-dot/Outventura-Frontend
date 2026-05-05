@@ -14,7 +14,9 @@ class RequestDetailPage extends ConsumerWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final excursion = ref.watch(excursionPorIdProvider(solicitud.idExcursion));
+    final excursion = solicitud.idExcursion != 0
+        ? ref.watch(excursionPorIdProvider(solicitud.idExcursion))
+        : null;
     final String? nombreUsuario = solicitud.idUsuario != null
         ? ref.watch(nombreUsuarioProvider(solicitud.idUsuario!))
         : null;
@@ -116,25 +118,27 @@ class RequestDetailPage extends ConsumerWidget {
                 _Row(
                   Icons.hiking_outlined,
                   'Ruta',
-                  '${excursion.puntoInicio} → ${excursion.puntoFin}',
+                  excursion != null
+                      ? '${excursion.puntoInicio} → ${excursion.puntoFin}'
+                      : 'Solicitud #${solicitud.id}',
                   cs,
                   tt,
                 ),
                 _Row(
                   Icons.calendar_today_outlined,
                   'Inicio',
-                  FormateadorFecha.withTime(excursion.fechaInicio),
+                  excursion != null ? FormateadorFecha.withTime(excursion.fechaInicio) : '-',
                   cs,
                   tt,
                 ),
                 _Row(
                   Icons.event_outlined,
                   'Fin',
-                  FormateadorFecha.withTime(excursion.fechaFin),
+                  excursion != null ? FormateadorFecha.withTime(excursion.fechaFin) : '-',
                   cs,
                   tt,
                 ),
-                if (excursion.precio > 0)
+                if (excursion != null && excursion.precio > 0)
                   _Row(
                     Icons.euro_outlined,
                     'Precio base',

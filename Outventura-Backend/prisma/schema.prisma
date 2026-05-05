@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+// Categorías de actividad usadas en excursiones, solicitudes y equipamiento
+enum ActivityCategory {
+  AQUATIC  // Actividades acuáticas (kayak, SUP...)
+  SNOW     // Actividades en nieve (esquí, raquetas...)
+  MOUNTAIN // Montaña y senderismo
+  CAMPING  // Acampada
+}
+
+// Estados del ciclo de vida de una excursión
+enum ExcursionStatus {
+  AVAILABLE   // Disponible para solicitudes
+  CONFIRMED   // Confirmada con grupo
+  IN_PROGRESS // En curso
+  FINISHED    // Finalizada
+  CANCELLED   // Cancelada
+}
+
+// Estados del ciclo de vida de una solicitud de excursión
+enum RequestStatus {
+  PENDING     // Pendiente de revisión
+  CONFIRMED   // Aceptada por admin/experto
+  IN_PROGRESS // En curso
+  FINISHED    // Finalizada
+  CANCELLED   // Rechazada o cancelada
+}
+
+// Estados del ciclo de vida de una reserva de equipamiento
+enum ReservationStatus {
+  PENDING     // Pendiente de aprobación
+  CONFIRMED   // Aprobada
+  IN_PROGRESS // El equipamiento está en uso
+  RETURNED    // Devuelto
+  CANCELLED   // Cancelada
+}
+
+// ─── Modelos ──────────────────────────────────────────────────────────────────
+
+model Role {
+  id_role     Int     @id @default(autoincrement())
+  code        String  @unique // "SUPERADMIN", "ADMIN", "EXPERT", "USER", "GUEST"
+  description String?
+
+  users User[]
+}
+
+model User {
+  id_user  Int     @id @default(autoincrement())
+  name     String
+  surname  String
+  email    String  @unique
+  phone    String?
+  photo    String?
+  password String
+  status   Boolean @default(true) // true = activo, false = desactivado
+
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id_role])
+
+  // Relaciones con otros recursos
+  requestsAsExpert Request[]      @relation("ExpertRequests") // solicitudes asignadas como experto
+  requestsAsUser   Request[]      @relation("UserRequests")   // solicitudes propias
+  reservations     Reservation[]  // reservas propias
+  preferences      Preferences?   // preferencias del usuario (1-1)
+  refreshTokens    RefreshToken[]  // tokens de refresco activos
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Token de refresco para renovar el access token sin re-login
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id_user], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model EquipmentStatus {
+  id_status   Int     @id @default(autoincrement())
+  code        String  @unique // "AVAILABLE", "DEPLETED", "REPAIR", "RETIRED"
+  description String?
+
+  equipments Equipment[]
+}
+
+model Equipment {
+  id_equipment  Int                @id @default(autoincrement())
+  title         String
+  description   String?
+  price_per_day Decimal            @db.Decimal(10, 2)
+  damage_fee    Decimal            @db.Decimal(10, 2) @default(0) // cargo si se daña
+  units         Int                @default(1) // stock total
+  stock         Int                @default(1) // unidades disponibles actualmente
+  categories    ActivityCategory[] // categorías (array nativo PostgreSQL)
+  image_url     String?
+
+  statusId Int
+  status   EquipmentStatus @relation(fields: [statusId], references: [id_status])
+
+  reservationLines ReservationLine[] // líneas de reserva que usan este equipamiento
+}
+
+model Excursion {
+  id_excursion     Int              @id @default(autoincrement())
+  start_point      String           // punto de inicio
+  end_point        String           // punto de llegada
+  start_date       DateTime         // fecha/hora de inicio
+  end_date         DateTime         // fecha/hora de fin
+  categories       ActivityCategory[] // categorías de la excursión
+  participant_count Int             // plazas máximas
+  description      String?
+  status           ExcursionStatus  @default(AVAILABLE)
+  price            Decimal          @db.Decimal(10, 2) @default(0)
+  image_url        String?
+
+  reservations Reservation[] // reservas vinculadas a esta excursión
+  requests     Request[]     // solicitudes vinculadas a esta excursión
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Request {
+  id_request       Int           @id @default(autoincrement())
+  start_point      String        // ruta solicitada: origen
+  end_point        String        // ruta solicitada: destino
+  start_date       DateTime
+  end_date         DateTime
+  categories       ActivityCategory[]
+  participant_count Int
+  description      String?
+  status           RequestStatus @default(PENDING)
+
+  // Excursión de catálogo vinculada (opcional)
+  excursionId Int?
+  excursion   Excursion? @relation(fields: [excursionId], references: [id_excursion])
+
+  // Experto asignado (opcional, asignado por admin)
+  expertId Int?
+  expert   User? @relation("ExpertRequests", fields: [expertId], references: [id_user])
+
+  // Usuario que hace la solicitud
+  userId Int?
+  user   User? @relation("UserRequests", fields: [userId], references: [id_user])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Reservation {
+  id_reservation Int               @id @default(autoincrement())
+  start_date     DateTime
+  end_date       DateTime
+  status         ReservationStatus @default(PENDING)
+  damage_fee     Decimal           @db.Decimal(10, 2) @default(0) // cargo total por daños
+  damaged_items  Json              @default("{}") // mapa equipmentId → unidades dañadas
+
+  // Usuario que hace la reserva
+  userId Int
+  user   User @relation(fields: [userId], references: [id_user])
+
+  // Excursión vinculada (opcional, para reservas de equipamiento de una excursión concreta)
+  excursionId Int?
+  excursion   Excursion? @relation(fields: [excursionId], references: [id_excursion])
+
+  lines ReservationLine[] // líneas de equipamiento reservado
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Cada línea representa un equipamiento y su cantidad dentro de una reserva
+model ReservationLine {
+  id_line      Int @id @default(autoincrement())
+  quantity     Int // unidades reservadas
+  damaged_units Int @default(0) // unidades devueltas con daños
+
+  reservationId Int
+  reservation   Reservation @relation(fields: [reservationId], references: [id_reservation], onDelete: Cascade)
+
+  equipmentId Int
+  equipment   Equipment @relation(fields: [equipmentId], references: [id_equipment])
+}
+
+// Preferencias de la aplicación por usuario (idioma, tema...)
+model Preferences {
+  id_preferences Int     @id @default(autoincrement())
+  language       String  @default("es") // código de idioma
+  dark_mode      Boolean @default(false)
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id_user], onDelete: Cascade)
+}

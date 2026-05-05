@@ -1,42 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/controllers/user_form_controller.dart';
+import 'package:outventura/features/auth/presentation/controllers/profile_form_controller.dart';
+import 'package:outventura/features/auth/data/services/user_api_service.dart';
 
-class ProfileFormPage extends StatefulWidget {
+class ProfileFormPage extends ConsumerStatefulWidget {
   final Usuario usuario;
   const ProfileFormPage({super.key, required this.usuario});
 
   @override
-  State<ProfileFormPage> createState() => _ProfileFormPageState();
+  ConsumerState<ProfileFormPage> createState() => _ProfileFormPageState();
 }
 
-class _ProfileFormPageState extends State<ProfileFormPage> {
-  late final UserFormController _controller;
-  late final LoginController _loginController;
+class _ProfileFormPageState extends ConsumerState<ProfileFormPage> {
+  late final ProfileFormController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = UserFormController()..cargarUsuario(widget.usuario);
-    _loginController = LoginController();
+    _controller = ProfileFormController(
+      form: UserFormController()..cargarUsuario(widget.usuario),
+      login: LoginController(),
+    );
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _loginController.dispose();
     super.dispose();
   }
 
-  void _submit() {
-    if (!_controller.validar()) {
-      return;
+  Future<void> _submit() async {
+    if (!_controller.validar()) return;
+    try {
+      await ref.read(userApiProvider).update(widget.usuario.id, _controller.buildPayload());
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Perfil actualizado correctamente')),
+      );
+      Navigator.of(context).pop();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al actualizar: $e')),
+      );
     }
-    Navigator.of(context).pop();
   }
 
   @override
@@ -54,7 +66,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
         ),
       ),
       body: Form(
-        key: _controller.formKey,
+        key: _controller.form.formKey,
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(20, 24, 20, MediaQuery.of(context).padding.bottom + 24),
           child: Column(
@@ -81,7 +93,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
               const SizedBox(height: 12),
 
               CustomInputField(
-                controller: _controller.nombre,
+                controller: _controller.form.nombre,
                 labelText: 'Nombre',
                 prefixIcon: Icons.person_outline,
                 validator: (v) => (v == null || v.trim().isEmpty) ? 'Campo obligatorio' : null,
@@ -89,7 +101,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
               const SizedBox(height: 14),
 
               CustomInputField(
-                controller: _controller.apellidos,
+                controller: _controller.form.apellidos,
                 labelText: 'Apellidos',
                 prefixIcon: Icons.badge_outlined,
                 validator: (v) => (v == null || v.trim().isEmpty) ? 'Campo obligatorio' : null,
@@ -97,7 +109,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
               const SizedBox(height: 14),
 
               CustomInputField(
-                controller: _controller.email,
+                controller: _controller.form.email,
                 labelText: 'Email',
                 prefixIcon: Icons.mail_outline,
                 keyboardType: TextInputType.emailAddress,
@@ -106,7 +118,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
               const SizedBox(height: 14),
 
               CustomInputField(
-                controller: _controller.telefono,
+                controller: _controller.form.telefono,
                 labelText: 'Teléfono (opcional)',
                 prefixIcon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
@@ -118,15 +130,15 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
               const SizedBox(height: 12),
 
               CustomInputField(
-                controller: _loginController.passwordController,
+                controller: _controller.login.passwordController,
                 labelText: 'Nueva contraseña (opcional)',
                 prefixIcon: Icons.lock_outline,
-                obscureText: _loginController.ocultarContrasena,
-                validator: (v) => _loginController.validadorContrasena(true, v),
+                obscureText: _controller.login.ocultarContrasena,
+                validator: (v) => _controller.login.validadorContrasena(true, v),
                 suffixIcon: IconButton(
-                  onPressed: () => setState(() => _loginController.ocultarContrasena = !_loginController.ocultarContrasena),
+                  onPressed: () => setState(() => _controller.login.ocultarContrasena = !_controller.login.ocultarContrasena),
                   icon: Icon(
-                    _loginController.ocultarContrasena ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    _controller.login.ocultarContrasena ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                     color: cs.onSurfaceVariant,
                   ),
                 ),
@@ -134,15 +146,15 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
               const SizedBox(height: 14),
 
               CustomInputField(
-                controller: _loginController.confirmPasswordController,
+                controller: _controller.login.confirmPasswordController,
                 labelText: 'Confirmar nueva contraseña',
                 prefixIcon: Icons.lock_reset_outlined,
-                obscureText: _loginController.ocultarConfirmacionContrasena,
-                validator: (v) => _loginController.validadorConfirmacionContrasena(true, v),
+                obscureText: _controller.login.ocultarConfirmacionContrasena,
+                validator: (v) => _controller.login.validadorConfirmacionContrasena(true, v),
                 suffixIcon: IconButton(
-                  onPressed: () => setState(() => _loginController.ocultarConfirmacionContrasena = !_loginController.ocultarConfirmacionContrasena),
+                  onPressed: () => setState(() => _controller.login.ocultarConfirmacionContrasena = !_controller.login.ocultarConfirmacionContrasena),
                   icon: Icon(
-                    _loginController.ocultarConfirmacionContrasena ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    _controller.login.ocultarConfirmacionContrasena ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                     color: cs.onSurfaceVariant,
                   ),
                 ),
