@@ -149,24 +149,14 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
               ),
               const SizedBox(height: 36),
 
-              // Botones
-              Row(
-                children: [
-                  Expanded(
-                    child: SecondaryButton(
-                      label: 'Cancelar',
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: PrimaryButton(
-                      label: 'Guardar',
-                      icon: Icons.save_outlined,
-                      onPressed: _submit,
-                    ),
-                  ),
-                ],
+              // Botón Guardar
+              SizedBox(
+                width: double.infinity,
+                child: PrimaryButton(
+                  label: 'Guardar',
+                  icon: Icons.save_outlined,
+                  onPressed: _submit,
+                ),
               ),
             ],
           ),

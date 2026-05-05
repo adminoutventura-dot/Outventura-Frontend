@@ -314,40 +314,30 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               ],
               const SizedBox(height: 32),
 
-              // Botón borrar reserva (solo al editar)
-              if (widget.reserva != null) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: SecondaryButton(
-                    label: 'Borrar reserva',
-                    onPressed: () async {
-                      final bool confirmar = await showConfirmDialog(
-                        context: context,
-                        title: 'Borrar reserva',
-                        content: '¿Estás seguro de que quieres borrar esta reserva? Esta acción no se puede deshacer.',
-                        confirmLabel: 'Borrar',
-                      );
-                      if (confirmar && context.mounted) {
-                        ref.read(reservasProvider.notifier).eliminar(widget.reserva!);
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    borderColor: cs.error,
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-
-              // Botones Cancelar / Guardar
+              // Botones: Borrar reserva (si edición) + Guardar en la misma fila
               Row(
                 children: [
-                  Expanded(
-                    child: SecondaryButton(
-                      label: 'Cancelar',
-                      onPressed: () => Navigator.of(context).pop(),
+                  if (widget.reserva != null) ...[
+                    Expanded(
+                      child: SecondaryButton(
+                        label: 'Borrar reserva',
+                        onPressed: () async {
+                          final bool confirmar = await showConfirmDialog(
+                            context: context,
+                            title: 'Borrar reserva',
+                            content: '¿Estás seguro de que quieres borrar esta reserva? Esta acción no se puede deshacer.',
+                            confirmLabel: 'Borrar',
+                          );
+                          if (confirmar && context.mounted) {
+                            ref.read(reservasProvider.notifier).eliminar(widget.reserva!);
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        borderColor: cs.error,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
+                    const SizedBox(width: 12),
+                  ],
                   Expanded(
                     child: PrimaryButton(
                       label: 'Guardar',

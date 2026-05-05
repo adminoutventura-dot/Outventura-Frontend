@@ -194,33 +194,21 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               ),
               const SizedBox(height: 32),
 
-              // Botones
-              Row(
-                children: [
-                  Expanded(
-                    child: SecondaryButton(
-                      label: 'Cancelar',
-                      onPressed: () => Navigator.of(context).pop(),
-                      backgroundColor: cs.onError,
-                      borderColor: cs.error,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: PrimaryButton(
-                      label: _controller.editando ? 'Guardar' : 'Crear',
-                      onPressed: () {
-                        final Equipamiento? equipamiento = _controller.crearEquipamiento();
-                        if (equipamiento == null) {
-                          return;
-                        }
-                        // Cierra la página y devuelve el nuevo equipamiento a la página anterior
-                        Navigator.of(context).pop(equipamiento);
-                      },
-                      icon: _controller.editando ? Icons.save_outlined : Icons.add,
-                    ),
-                  ),
-                ],
+              // Botón Guardar / Crear
+              SizedBox(
+                width: double.infinity,
+                child: PrimaryButton(
+                  label: _controller.editando ? 'Guardar' : 'Crear',
+                  onPressed: () {
+                    final Equipamiento? equipamiento = _controller.crearEquipamiento();
+                    if (equipamiento == null) {
+                      return;
+                    }
+                    // Cierra la página y devuelve el nuevo equipamiento a la página anterior
+                    Navigator.of(context).pop(equipamiento);
+                  },
+                  icon: _controller.editando ? Icons.save_outlined : Icons.add,
+                ),
               ),
             ],
           ),

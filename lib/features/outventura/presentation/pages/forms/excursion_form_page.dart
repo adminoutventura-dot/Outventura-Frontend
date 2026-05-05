@@ -218,32 +218,20 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
               ),
               const SizedBox(height: 32),
 
-              // Botones
-              Row(
-                children: [
-                  Expanded(
-                    child: SecondaryButton(
-                      label: 'Cancelar',
-                      onPressed: () => Navigator.of(context).pop(),
-                      backgroundColor: cs.onError,
-                      borderColor: cs.error,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: PrimaryButton(
-                      label: _controller.editando ? 'Guardar' : 'Crear',
-                      onPressed: () {
-                        if (!_controller.validar()) {
-                          return;
-                        }
-                        final Excursion excursion = _controller.construirExcursion();
-                        Navigator.of(context).pop(excursion);
-                      },
-                      icon: _controller.editando ? Icons.save_outlined : Icons.add,
-                    ),
-                  ),
-                ],
+              // Botón Guardar / Crear
+              SizedBox(
+                width: double.infinity,
+                child: PrimaryButton(
+                  label: _controller.editando ? 'Guardar' : 'Crear',
+                  onPressed: () {
+                    if (!_controller.validar()) {
+                      return;
+                    }
+                    final Excursion excursion = _controller.construirExcursion();
+                    Navigator.of(context).pop(excursion);
+                  },
+                  icon: _controller.editando ? Icons.save_outlined : Icons.add,
+                ),
               ),
             ],
           ),

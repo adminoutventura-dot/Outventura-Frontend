@@ -429,63 +429,70 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               ),
               const SizedBox(height: 16),
             ],
-            // Botón para editar la reserva asociada (solo si existe)
-            if (isEdit && _controller.idReserva != null) ...[             
-              const SizedBox(height: 12),
-              SecondaryButton(
-                label: 'Editar reserva',
-                icon: Icons.book_online_outlined,
-                onPressed: () async {
-                  final List<Reserva> reservas = ref.read(reservasProvider).value ?? [];
-                  final Reserva? reservaAsociada = _controller.buscarReserva(reservas, _controller.idReserva!);
-                  if (reservaAsociada == null) return;
-                  final Reserva? actualizada = await Navigator.of(context).push<Reserva>(
-                    MaterialPageRoute(
-                      builder: (_) => ReservationFormPage(reserva: reservaAsociada),
-                    ),
-                  );
-                  if (actualizada != null) {
-                    ref.read(reservasProvider.notifier).actualizar(reservaAsociada, actualizada);
-                  }
-                },
-              ),
-            ],
             const SizedBox(height: 12),
-            // Guardar
-            PrimaryButton(
-              label: isEdit ? 'Guardar' : 'Crear',
-              onPressed: () {
+            // Botones: Editar reserva (si existe) + Guardar/Crear en la misma fila
+            Row(
+              children: [
+                if (isEdit && _controller.idReserva != null) ...[
+                  Expanded(
+                    child: SecondaryButton(
+                      label: 'Editar reserva',
+                      icon: Icons.book_online_outlined,
+                      onPressed: () async {
+                        final List<Reserva> reservas = ref.read(reservasProvider).value ?? [];
+                        final Reserva? reservaAsociada = _controller.buscarReserva(reservas, _controller.idReserva!);
+                        if (reservaAsociada == null) return;
+                        final Reserva? actualizada = await Navigator.of(context).push<Reserva>(
+                          MaterialPageRoute(
+                            builder: (_) => ReservationFormPage(reserva: reservaAsociada),
+                          ),
+                        );
+                        if (actualizada != null) {
+                          ref.read(reservasProvider.notifier).actualizar(reservaAsociada, actualizada);
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: PrimaryButton(
+                    label: isEdit ? 'Guardar' : 'Crear',
+                    onPressed: () {
 
-                // Si no hay reserva asociada pero se han seleccionado materiales, crear la reserva antes de guardar la solicitud.
-                if (_controller.idReserva == null && _controller.tieneMateriales) {
-                  final Reserva? reserva = _controller.crearReservaDesdeSolicitud(
-                    context: context,
-                    ref: ref,
-                  );
-                  if (reserva == null) {
-                    return;
-                  }
-                }
+                      // Si no hay reserva asociada pero se han seleccionado materiales, crear la reserva antes de guardar la solicitud.
+                      if (_controller.idReserva == null && _controller.tieneMateriales) {
+                        final Reserva? reserva = _controller.crearReservaDesdeSolicitud(
+                          context: context,
+                          ref: ref,
+                        );
+                        if (reserva == null) {
+                          return;
+                        }
+                      }
 
-                //  Crear la solicitud a partir de los datos actuales del formulario y la guarda en variable.
-                final Solicitud? solicitud = _controller.crearSolicitud(excursiones, equipamientos);
-                if (solicitud == null) {
-                  return;
-                }
+                      //  Crear la solicitud a partir de los datos actuales del formulario y la guarda en variable.
+                      final Solicitud? solicitud = _controller.crearSolicitud(excursiones, equipamientos);
+                      if (solicitud == null) {
+                        return;
+                      }
 
-                // Sincroniza la reserva asociada a la solicitud con los datos actuales.
-                final List<Reserva> reservasActuales = ref.read(reservasProvider).value ?? [];
-                final Reserva? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
-                if (reservaActualizada != null && solicitud.idReserva != null) {
-                  final Reserva? original = _controller.buscarReserva(reservasActuales, solicitud.idReserva!);
-                  if (original != null) {
-                    ref.read(reservasProvider.notifier).actualizar(original, reservaActualizada);
-                  }
-                }
+                      // Sincroniza la reserva asociada a la solicitud con los datos actuales.
+                      final List<Reserva> reservasActuales = ref.read(reservasProvider).value ?? [];
+                      final Reserva? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
+                      if (reservaActualizada != null && solicitud.idReserva != null) {
+                        final Reserva? original = _controller.buscarReserva(reservasActuales, solicitud.idReserva!);
+                        if (original != null) {
+                          ref.read(reservasProvider.notifier).actualizar(original, reservaActualizada);
+                        }
+                      }
 
-                // Cierra la página y devuelve el nuevo equipamiento a la página anterior
-                Navigator.of(context).pop(solicitud);
-              },
+                      // Cierra la página y devuelve la solicitud a la página anterior
+                      Navigator.of(context).pop(solicitud);
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),
