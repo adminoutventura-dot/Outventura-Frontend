@@ -322,8 +322,18 @@ class _EventoTile extends StatelessWidget {
       ),
       child: ListTile(
         leading: CircleAvatar(backgroundColor: color, radius: 6),
-        title: Text(titulo),
-        subtitle: Text(subtitulo),
+        title: Text(
+          titulo,
+          style: AppTextStyles.titleMedium.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        subtitle: Text(
+          subtitulo,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
       ),
