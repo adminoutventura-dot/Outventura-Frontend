@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
+import 'package:outventura/features/outventura/presentation/controllers/users_page_controller.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/user_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
@@ -17,6 +18,7 @@ class UsersPage extends ConsumerStatefulWidget {
 
 class _UsersPageState extends ConsumerState<UsersPage> {
   final SearchFieldController _search = SearchFieldController();
+  final UsersPageController _controller = UsersPageController();
 
   @override
   void dispose() {
@@ -28,13 +30,29 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final AsyncValue<List<Usuario>> filtrados = ref.watch(usuariosFiltradosProvider(_search.query));
+    final AsyncValue<List<Usuario>> filtrados = ref.watch(usuariosFiltradosProvider((
+      query: _search.query,
+      rol: _controller.rolFiltro,
+      activo: _controller.activoFiltro,
+    )));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Usuarios'),
         automaticallyImplyLeading: true,
-        actions: const [],
+        actions: [
+          Badge(
+            isLabelVisible: _controller.hayFiltros,
+            alignment: const AlignmentDirectional(0.5, -0.5),
+            smallSize: 7,
+            child: IconButton(
+              icon: const Icon(Icons.filter_list),
+              tooltip: 'Filtros',
+              padding: EdgeInsets.zero,
+              onPressed: () => _controller.mostrarFiltros(context, setState),
+            ),
+          ),
+        ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -87,7 +105,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
               onChanged: (String v) => setState(() => _search.query = v),
             ),
           ),
-
           // Lista
           Expanded(
             child: filtrados.when(

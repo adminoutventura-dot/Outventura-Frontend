@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
+import 'package:outventura/features/outventura/presentation/controllers/excursions_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/excursion_form_page.dart';
@@ -30,6 +31,7 @@ class ExcursionsPage extends ConsumerStatefulWidget {
 
 class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
   final SearchFieldController _search = SearchFieldController();
+  final ExcursionsPageController _controller = ExcursionsPageController();
 
   @override
   void dispose() {
@@ -41,13 +43,31 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final AsyncValue<List<Excursion>> excursionesFiltradas = ref.watch(excursionesFiltadasProvider(_search.query));
+    final AsyncValue<List<Excursion>> excursionesFiltradas = ref.watch(excursionesFiltadasProvider((
+      query: _search.query,
+      estado: _controller.estadoFiltro,
+      categoria: _controller.categoriaFiltro,
+      fechaDesde: _controller.fechaDesde,
+      fechaHasta: _controller.fechaHasta,
+    )));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Excursiones'),
         automaticallyImplyLeading: true,
-        actions: const [],
+        actions: [
+          Badge(
+            isLabelVisible: _controller.hayFiltros,
+            alignment: const AlignmentDirectional(0.5, -0.5),
+            smallSize: 7,
+            child: IconButton(
+              icon: const Icon(Icons.filter_list),
+              tooltip: 'Filtros',
+              padding: EdgeInsets.zero,
+              onPressed: () => _controller.mostrarFiltros(context, setState),
+            ),
+          ),
+        ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -98,7 +118,6 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
               onChanged: (String v) => setState(() => _search.query = v),
             ),
           ),
-
           // Lista de excursiones filtradas
           Expanded(
             child: excursionesFiltradas.when(

@@ -4,7 +4,8 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/presentation/pages/calendar_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/equipment_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/excursions_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/home_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/home_admin_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/home_client_page.dart';
 
 class MainScaffold extends StatefulWidget {
   final Usuario usuario;

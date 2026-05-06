@@ -7,7 +7,6 @@ import 'package:outventura/features/outventura/presentation/controllers/requests
 import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
-import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
@@ -46,6 +45,9 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
     final AsyncValue<List<Solicitud>> filtradas = ref.watch(solicitudesFiltadasProvider((
       query: _search.query,
       idUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+      estado: _controller.estadoFiltro,
+      fechaDesde: _controller.fechaDesde,
+      fechaHasta: _controller.fechaHasta,
     )));
 
     return Scaffold(
@@ -54,7 +56,19 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
           widget.puedeGestionar ? 'Gestión de solicitudes' : 'Solicitudes',
         ),
         automaticallyImplyLeading: true,
-        actions: const [],
+        actions: [
+          Badge(
+            isLabelVisible: _controller.hayFiltros,
+            alignment: const AlignmentDirectional(0.5, -0.5),
+            smallSize: 7,
+            child: IconButton(
+              icon: const Icon(Icons.filter_list),
+              tooltip: 'Filtros',
+              padding: EdgeInsets.zero,
+              onPressed: () => _controller.mostrarFiltros(context, setState),
+            ),
+          ),
+        ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -110,7 +124,6 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
               onChanged: (String v) => setState(() => _search.query = v),
             ),
           ),
-
           // Lista
           Expanded(
             child: filtradas.when(

@@ -10,9 +10,9 @@ final AsyncNotifierProvider<RequestsNotifier, List<Solicitud>> solicitudesProvid
     AsyncNotifierProvider<RequestsNotifier, List<Solicitud>>(RequestsNotifier.new);
 
 // TEMPORAL: el filtro se moverá al backend → GET /api/solicitudes?q=...&idUsuario=... Eliminar este provider.
-// Filtra solicitudes por ruta de excursión. Simula búsqueda en backend.
-// params es un record con dos campos: query (String) e idUsuario (int?)
-final solicitudesFiltadasProvider = Provider.family<AsyncValue<List<Solicitud>>, ({String query, int? idUsuario})>((ref, params) {
+// Filtra solicitudes por ruta de excursión, estado y rango de fechas. Simula búsqueda en backend.
+// params es un record con cinco campos: query, idUsuario, estado, fechaDesde y fechaHasta
+final solicitudesFiltadasProvider = Provider.family<AsyncValue<List<Solicitud>>, ({String query, int? idUsuario, EstadoSolicitud? estado, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
 
   // Observa el estado asíncrono de todas las solicitudes (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Solicitud>> asyncTodas = ref.watch(solicitudesProvider);
@@ -28,6 +28,18 @@ final solicitudesFiltadasProvider = Provider.family<AsyncValue<List<Solicitud>>,
       base = todas.where((Solicitud s) => s.idUsuario == params.idUsuario).toList();
     } else {
       base = todas;
+    }
+    if (params.estado != null) {
+      base = base.where((Solicitud s) => s.estado == params.estado).toList();
+    }
+    if (params.fechaDesde != null || params.fechaHasta != null) {
+      base = base.where((Solicitud s) {
+        final Excursion? exc = excursiones.where((Excursion e) => e.id == s.idExcursion).firstOrNull;
+        if (exc == null) return false;
+        if (params.fechaDesde != null && exc.fechaFin.isBefore(params.fechaDesde!)) return false;
+        if (params.fechaHasta != null && exc.fechaInicio.isAfter(params.fechaHasta!)) return false;
+        return true;
+      }).toList();
     }
 
     // Si no hay query, devuelve la lista base sin filtrar

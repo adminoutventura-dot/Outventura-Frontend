@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/api_delay.dart';
 import 'package:outventura/features/outventura/data/fakes/excursions_fake.dart';
+import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 
 // Expone una lista de excursiones. Simula llamadas al backend.
@@ -8,22 +9,35 @@ final AsyncNotifierProvider<ExcursionsNotifier, List<Excursion>> excursionesProv
     AsyncNotifierProvider<ExcursionsNotifier, List<Excursion>>(ExcursionsNotifier.new);
 
 // TEMPORAL: el filtro se moverá al backend - GET /api/excursiones?q=... Eliminar este provider.
-// Filtra excursiones por ruta (puntoInicio + puntoFin). Simula búsqueda en backend.
-final excursionesFiltadasProvider = Provider.family<AsyncValue<List<Excursion>>, String>((ref, query) {
+// Filtra excursiones por ruta, estado, categoría y rango de fechas. Simula búsqueda en backend.
+final excursionesFiltadasProvider = Provider.family<AsyncValue<List<Excursion>>, ({String query, EstadoExcursion? estado, CategoriaActividad? categoria, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
 
   // Observa el estado asíncrono de todas las excursiones (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Excursion>> asyncTodas = ref.watch(excursionesProvider);
 
   // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodas.whenData((List<Excursion> todas) {
-    // Si no hay query, devuelve todas las excursiones sin filtrar
-    if (query.isEmpty) {
-      return todas;
+    List<Excursion> base = todas;
+
+    if (params.estado != null) {
+      base = base.where((Excursion e) => e.estado == params.estado).toList();
+    }
+    if (params.categoria != null) {
+      base = base.where((Excursion e) => e.categorias.contains(params.categoria)).toList();
+    }
+    if (params.fechaDesde != null) {
+      base = base.where((Excursion e) => !e.fechaFin.isBefore(params.fechaDesde!)).toList();
+    }
+    if (params.fechaHasta != null) {
+      base = base.where((Excursion e) => !e.fechaInicio.isAfter(params.fechaHasta!)).toList();
+    }
+    if (params.query.isEmpty) {
+      return base;
     }
     
-    final String q = query.toLowerCase();
+    final String q = params.query.toLowerCase();
     // Filtra por la ruta: punto de inicio y punto de fin
-    return todas.where((Excursion e) =>
+    return base.where((Excursion e) =>
       '${e.puntoInicio} ${e.puntoFin}'.toLowerCase().contains(q)
     ).toList();
   });

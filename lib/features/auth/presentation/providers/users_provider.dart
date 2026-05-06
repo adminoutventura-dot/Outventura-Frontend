@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/api_delay.dart';
 import 'package:outventura/features/auth/data/fakes/users_fake.dart';
+import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 
 // Provider que gestiona la lista de usuarios. Simula llamadas al backend.
@@ -8,22 +9,29 @@ final AsyncNotifierProvider<UsersNotifier, List<Usuario>> usuariosProvider =
     AsyncNotifierProvider<UsersNotifier, List<Usuario>>(UsersNotifier.new);
 
 // TEMPORAL: el filtro se moverá al backend → GET /api/usuarios?q=... Eliminar este provider y llamar directamente al endpoint filtrado.
-// Filtra usuarios por nombre, apellidos, email o teléfono. Simula búsqueda en backend.
-final usuariosFiltradosProvider = Provider.family<AsyncValue<List<Usuario>>, String>((ref, query) {
+// Filtra usuarios por nombre, apellidos, email, teléfono, rol y activo. Simula búsqueda en backend.
+final usuariosFiltradosProvider = Provider.family<AsyncValue<List<Usuario>>, ({String query, TipoRol? rol, bool? activo})>((ref, params) {
 
   // Observa el estado asíncrono de todos los usuarios (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Usuario>> asyncTodos = ref.watch(usuariosProvider);
   
   // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodos.whenData((List<Usuario> todos) {
-    // Si no hay query, devuelve todos los usuarios sin filtrar
-    if (query.isEmpty) {
-      return todos;
+    List<Usuario> base = todos;
+
+    if (params.rol != null) {
+      base = base.where((Usuario u) => u.rol == params.rol).toList();
     }
-    final String q = query.toLowerCase();
+    if (params.activo != null) {
+      base = base.where((Usuario u) => u.activo == params.activo).toList();
+    }
+    if (params.query.isEmpty) {
+      return base;
+    }
+    final String q = params.query.toLowerCase();
     
     // Filtra por nombre, apellidos, email o teléfono
-    return todos.where((Usuario u) =>
+    return base.where((Usuario u) =>
       '${u.nombre} ${u.apellidos} ${u.email} ${u.telefono ?? ''}'.toLowerCase().contains(q)
     ).toList();
   });

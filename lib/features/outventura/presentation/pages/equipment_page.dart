@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
+import 'package:outventura/features/outventura/presentation/controllers/equipment_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/equipment_form_page.dart';
@@ -30,6 +31,7 @@ class EquipmentPage extends ConsumerStatefulWidget {
 
 class _EquipmentPageState extends ConsumerState<EquipmentPage> {
   final SearchFieldController _search = SearchFieldController();
+  final EquipmentPageController _controller = EquipmentPageController();
 
   @override
   void dispose() {
@@ -42,13 +44,35 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final AsyncValue<List<Equipamiento>> equipamientosFiltrados = ref.watch(equipamientosFiltradosProvider(_search.query));
+    // Escucha los equipamientos filtrados según el estado del controlador.
+    // equipamientosFiltradosProvider(...) — provider que internamente coge todos los equipamientos y aplica los filtros.
+    // Query: texto de búsqueda.
+    // Estado: estado seleccionado (disponible, agotado, en mantenimiento...).
+    // Categoria: caategoria seleccionada.
+    final AsyncValue<List<Equipamiento>> equipamientosFiltrados = ref.watch(equipamientosFiltradosProvider((
+      query: _search.query,
+      estado: _controller.estadoFiltro,
+      categoria: _controller.categoriaFiltro,
+    )));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Equipamiento'),
         automaticallyImplyLeading: true,
-        actions: const [],
+        actions: [
+          // Botón de filtros, muestra un punto rojo (Badge) si hay filtros activos.
+          Badge(
+            isLabelVisible: _controller.hayFiltros,
+            alignment: const AlignmentDirectional(0.5, -0.5),
+            smallSize: 7,
+            child: IconButton(
+              icon: const Icon(Icons.filter_list),
+              tooltip: 'Filtros',
+              padding: EdgeInsets.zero,
+              onPressed: () => _controller.mostrarFiltros(context, setState),
+            ),
+          ),
+        ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -100,7 +124,6 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
               onChanged: (String v) => setState(() => _search.query = v),
             ),
           ),
-
           // Lista de materiales filtrados
           Expanded(
             child: equipamientosFiltrados.when(

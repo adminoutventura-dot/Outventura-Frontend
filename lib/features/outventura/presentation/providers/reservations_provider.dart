@@ -13,8 +13,8 @@ final AsyncNotifierProvider<ReservationsNotifier, List<Reserva>> reservasProvide
     AsyncNotifierProvider<ReservationsNotifier, List<Reserva>>(ReservationsNotifier.new);
 
 // TEMPORAL: el filtro se moverá al backend → GET /api/reservas?q=...&idUsuario=... Eliminar este provider.
-// Filtra reservas por nombre de usuario o excursión. Simula búsqueda en backend.
-final reservasFiltadasProvider = Provider.family<AsyncValue<List<Reserva>>, ({String query, int? idUsuario})>((ref, params) {
+// Filtra reservas por nombre de usuario, excursión, estado y rango de fechas. Simula búsqueda en backend.
+final reservasFiltadasProvider = Provider.family<AsyncValue<List<Reserva>>, ({String query, int? idUsuario, EstadoReserva? estado, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
 
   // Observa el estado asíncrono de todas las reservas (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Reserva>> asyncTodas = ref.watch(reservasProvider);
@@ -31,6 +31,15 @@ final reservasFiltadasProvider = Provider.family<AsyncValue<List<Reserva>>, ({St
       base = todas.where((Reserva r) => r.idUsuario == params.idUsuario).toList();
     } else {
       base = todas;
+    }
+    if (params.estado != null) {
+      base = base.where((Reserva r) => r.estado == params.estado).toList();
+    }
+    if (params.fechaDesde != null) {
+      base = base.where((Reserva r) => !r.fechaFin.isBefore(params.fechaDesde!)).toList();
+    }
+    if (params.fechaHasta != null) {
+      base = base.where((Reserva r) => !r.fechaInicio.isAfter(params.fechaHasta!)).toList();
     }
 
     // Si no hay query, devuelve la lista base sin filtrar

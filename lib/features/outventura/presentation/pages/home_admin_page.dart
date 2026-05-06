@@ -14,7 +14,6 @@ import 'package:outventura/features/outventura/presentation/widgets/app_drawer.d
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
-export 'home_client_page.dart';
 
 class HomeAdminPage extends ConsumerWidget {
   const HomeAdminPage({super.key});

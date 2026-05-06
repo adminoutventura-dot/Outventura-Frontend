@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/api_delay.dart';
 import 'package:outventura/features/outventura/data/fakes/equipment_fake.dart';
+import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 
 // Expone una lista de equipamientos. Simula llamadas al backend.
@@ -8,23 +9,29 @@ final AsyncNotifierProvider<EquipmentNotifier, List<Equipamiento>> equipamientos
     AsyncNotifierProvider<EquipmentNotifier, List<Equipamiento>>(EquipmentNotifier.new);
 
 // TEMPORAL: el filtro se moverá al backend - GET /api/equipamientos?q=... Eliminar este provider.
-// Filtra equipamientos por nombre. Simula búsqueda en backend.
-final equipamientosFiltradosProvider = Provider.family<AsyncValue<List<Equipamiento>>, String>((ref, query) {
+// Filtra equipamientos por nombre, estado y categoría. Simula búsqueda en backend.
+final equipamientosFiltradosProvider = Provider.family<AsyncValue<List<Equipamiento>>, ({String query, EstadoEquipamiento? estado, CategoriaActividad? categoria})>((ref, params) {
 
   // Observa el estado asíncrono de todos los equipamientos (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Equipamiento>> asyncTodos = ref.watch(equipamientosProvider);
 
   // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodos.whenData((List<Equipamiento> todos) {
-    
-    // Si no hay query, devuelve todos los equipamientos sin filtrar
-    if (query.isEmpty) {
-      return todos;
+    List<Equipamiento> base = todos;
+
+    if (params.estado != null) {
+      base = base.where((Equipamiento e) => e.estado == params.estado).toList();
     }
-    final String q = query.toLowerCase();
+    if (params.categoria != null) {
+      base = base.where((Equipamiento e) => e.categorias.contains(params.categoria)).toList();
+    }
+    if (params.query.isEmpty) {
+      return base;
+    }
+    final String q = params.query.toLowerCase();
     
     // Filtra por el nombre del equipamiento
-    return todos.where((Equipamiento e) => e.nombre.toLowerCase().contains(q)).toList();
+    return base.where((Equipamiento e) => e.nombre.toLowerCase().contains(q)).toList();
   });
 });
 

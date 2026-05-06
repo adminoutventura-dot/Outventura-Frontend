@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
+import 'package:outventura/features/outventura/presentation/controllers/reservations_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
@@ -9,7 +10,6 @@ import 'package:outventura/features/outventura/presentation/pages/forms/reservat
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservation_detail_page.dart';
-import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_dialogs.dart';
 
@@ -29,6 +29,7 @@ class ReservationsPage extends ConsumerStatefulWidget {
 
 class _ReservationsPageState extends ConsumerState<ReservationsPage> {
   final SearchFieldController _search = SearchFieldController();
+  final ReservationsPageController _controller = ReservationsPageController();
 
   @override
   void dispose() {
@@ -45,13 +46,28 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
     final AsyncValue<List<Reserva>> filtradas = ref.watch(reservasFiltadasProvider((
       query: _search.query,
       idUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+      estado: _controller.estadoFiltro,
+      fechaDesde: _controller.fechaDesde,
+      fechaHasta: _controller.fechaHasta,
     )));
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.puedeGestionar ? 'Gestión de reservas' : 'Reservas'),
         automaticallyImplyLeading: true,
-        actions: const [],
+        actions: [
+          Badge(
+            isLabelVisible: _controller.hayFiltros,
+            alignment: const AlignmentDirectional(0.5, -0.5),
+            smallSize: 7,
+            child: IconButton(
+              icon: const Icon(Icons.filter_list),
+              tooltip: 'Filtros',
+              padding: EdgeInsets.zero,
+              onPressed: () => _controller.mostrarFiltros(context, setState),
+            ),
+          ),
+        ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -103,7 +119,6 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
               onChanged: (String v) => setState(() => _search.query = v),
             ),
           ),
-
           // Lista
           Expanded(
             child: filtradas.when(
