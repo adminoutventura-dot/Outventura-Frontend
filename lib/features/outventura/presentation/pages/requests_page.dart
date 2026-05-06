@@ -65,7 +65,6 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
           ),
         ),
       ),
-      drawer: const AppDrawer(),
       floatingActionButton: widget.puedeCrear
           ? AddFab(
               onPressed: () async {

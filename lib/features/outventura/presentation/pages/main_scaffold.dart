@@ -5,8 +5,6 @@ import 'package:outventura/features/outventura/presentation/pages/calendar_page.
 import 'package:outventura/features/outventura/presentation/pages/equipment_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/excursions_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/home_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/requests_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
 
 class MainScaffold extends StatefulWidget {
   final Usuario usuario;
@@ -32,14 +30,8 @@ class _MainScaffoldState extends State<MainScaffold> {
       esCliente
           ? HomeClientePage(usuario: widget.usuario)
           : const HomeAdminPage(),
-      if (esCliente) ...[
-        const ExcursionsPage(puedeGestionar: false, puedeSolicitar: true),
-        const EquipmentPage(puedeGestionar: false, puedeSolicitar: true),
-      ]
-      else ...[
-        const ReservationsPage(puedeGestionar: true, puedeCrear: true),
-        const RequestsPage(puedeGestionar: true, puedeCrear: true),
-      ],
+      ExcursionsPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
+      EquipmentPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
       CalendarPage(usuario: widget.usuario, esAdmin: !esCliente),
     ];
 
@@ -49,30 +41,16 @@ class _MainScaffoldState extends State<MainScaffold> {
         activeIcon: Icon(Icons.home),
         label: 'Inicio',
       ),
-      if (esCliente) ...[
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.hiking_outlined),
-          activeIcon: Icon(Icons.hiking),
-          label: 'Excursiones',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.inventory_2_outlined),
-          activeIcon: Icon(Icons.inventory_2),
-          label: 'Equipamiento',
-        ),
-      ]
-      else ...[
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.book_online_outlined),
-          activeIcon: Icon(Icons.book_online),
-          label: 'Reservas',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.assignment_outlined),
-          activeIcon: Icon(Icons.assignment),
-          label: 'Solicitudes',
-        ),
-      ],
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.hiking_outlined),
+        activeIcon: Icon(Icons.hiking),
+        label: 'Excursiones',
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.inventory_2_outlined),
+        activeIcon: Icon(Icons.inventory_2),
+        label: 'Equipamiento',
+      ),
       const BottomNavigationBarItem(
         icon: Icon(Icons.calendar_today_outlined),
         activeIcon: Icon(Icons.calendar_today),

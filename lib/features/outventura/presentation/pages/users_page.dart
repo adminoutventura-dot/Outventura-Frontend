@@ -49,7 +49,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           ),
         ),
       ),
-      drawer: const AppDrawer(),
       floatingActionButton: AddFab(
         onPressed: () async {
           final Usuario? nuevo = await Navigator.push<Usuario>(

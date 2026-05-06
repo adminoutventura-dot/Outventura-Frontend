@@ -62,7 +62,6 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
           ),
         ),
       ),
-      drawer: const AppDrawer(),
       floatingActionButton: widget.puedeCrear
           ? AddFab(
               onPressed: () async {

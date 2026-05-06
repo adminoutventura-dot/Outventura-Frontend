@@ -9,6 +9,7 @@ import 'package:outventura/features/outventura/presentation/pages/request_detail
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:calendar_view/calendar_view.dart';
 
 class CalendarPage extends ConsumerWidget {
@@ -22,7 +23,7 @@ class CalendarPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    final TextTheme tt = Theme.of(context).textTheme;
+    // final TextTheme tt = Theme.of(context).textTheme;
     final List<Reserva> reservas = ref.watch(reservasProvider).value ?? [];
     final List<Solicitud> solicitudes = ref.watch(solicitudesProvider).value ?? [];
     final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
@@ -77,6 +78,7 @@ class CalendarPage extends ConsumerWidget {
           ),
         ),
       ),
+      drawer: const AppDrawer(),
       body: MediaQuery.removePadding(
         context: context,
         removeBottom: true,
