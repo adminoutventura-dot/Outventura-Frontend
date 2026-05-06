@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/presentation/pages/calendar_page_v2.dart';
+import 'package:outventura/features/outventura/presentation/pages/calendar_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/equipment_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/excursions_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/home_admin_page.dart';
@@ -33,7 +33,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           : const HomeAdminPage(),
       ExcursionsPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
       EquipmentPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
-      CalendarPageV2(usuario: widget.usuario, esAdmin: !esCliente),
+      CalendarPage(usuario: widget.usuario, esAdmin: !esCliente),
     ];
 
     _items = [

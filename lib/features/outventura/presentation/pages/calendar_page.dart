@@ -14,17 +14,17 @@ import 'package:outventura/features/outventura/presentation/widgets/app_drawer.d
 import 'package:outventura/app/theme/app_text_styles.dart';
 
 // Wrapper que permite estado local dentro de ConsumerWidget
-class CalendarPageV2 extends ConsumerStatefulWidget {
+class CalendarPage extends ConsumerStatefulWidget {
   final Usuario usuario;
   final bool esAdmin;
 
-  const CalendarPageV2({super.key, required this.usuario, required this.esAdmin});
+  const CalendarPage({super.key, required this.usuario, required this.esAdmin});
 
   @override
-  ConsumerState<CalendarPageV2> createState() => _CalendarPageV2State();
+  ConsumerState<CalendarPage> createState() => _CalendarPageState();
 }
 
-class _CalendarPageV2State extends ConsumerState<CalendarPageV2> {
+class _CalendarPageState extends ConsumerState<CalendarPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
