@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
@@ -10,59 +11,78 @@ import 'package:outventura/features/outventura/presentation/providers/reservatio
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
-import 'package:calendar_view/calendar_view.dart';
+import 'package:outventura/app/theme/app_text_styles.dart';
 
-class CalendarPage extends ConsumerWidget {
-
-  // TODO: Cambiar estilo calendario
+// Wrapper que permite estado local dentro de ConsumerWidget
+class CalendarPageV2 extends ConsumerStatefulWidget {
   final Usuario usuario;
   final bool esAdmin;
 
-  const CalendarPage({super.key, required this.usuario, required this.esAdmin});
+  const CalendarPageV2({super.key, required this.usuario, required this.esAdmin});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CalendarPageV2> createState() => _CalendarPageV2State();
+}
+
+class _CalendarPageV2State extends ConsumerState<CalendarPageV2> {
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+
+  // Devuelve todos los eventos (reservas y solicitudes) que ocurren en el día.
+  List<Object> _eventosDelDia(
+    DateTime day,
+    List<Reserva> misReservas,
+    List<Solicitud> misSolicitudes,
+    List<Excursion> excursiones,
+  ) {
+    final normalized = DateTime(day.year, day.month, day.day);
+    final List<Object> result = [];
+
+    for (final r in misReservas) {
+      final start = DateTime(r.fechaInicio.year, r.fechaInicio.month, r.fechaInicio.day);
+      final end = DateTime(r.fechaFin.year, r.fechaFin.month, r.fechaFin.day);
+      if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
+        result.add(r);
+      }
+    }
+
+    for (final s in misSolicitudes) {
+      final exc = excursiones.where((e) => e.id == s.idExcursion).firstOrNull;
+      if (exc != null) {
+        final start = DateTime(exc.fechaInicio.year, exc.fechaInicio.month, exc.fechaInicio.day);
+        final end = DateTime(exc.fechaFin.year, exc.fechaFin.month, exc.fechaFin.day);
+        if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
+          result.add(s);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    // final TextTheme tt = Theme.of(context).textTheme;
+
     final List<Reserva> reservas = ref.watch(reservasProvider).value ?? [];
     final List<Solicitud> solicitudes = ref.watch(solicitudesProvider).value ?? [];
     final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
 
-    // Filtrar reservas y solicitudes confirmadas o en curso
-    final List<Reserva> reservasFiltradas = reservas.where((r) =>
-      r.estado == EstadoReserva.confirmada || r.estado == EstadoReserva.enCurso
-    ).toList();
-    final List<Solicitud> solicitudesFiltradas = solicitudes.where((s) =>
-      s.estado == EstadoSolicitud.confirmada || s.estado == EstadoSolicitud.enCurso
-    ).toList();
+    final misReservas = (widget.esAdmin
+            ? reservas
+            : reservas.where((r) => r.idUsuario == widget.usuario.id))
+        .where((r) => r.estado == EstadoReserva.confirmada || r.estado == EstadoReserva.enCurso)
+        .toList();
 
-    // Si no es admin, filtrar solo las del usuario
-    final List<Reserva> misReservas = esAdmin ? reservasFiltradas : reservasFiltradas.where((r) => r.idUsuario == usuario.id).toList();
-    final List<Solicitud> misSolicitudes = esAdmin ? solicitudesFiltradas : solicitudesFiltradas.where((s) => s.idUsuario == usuario.id).toList();
+    final misSolicitudes = (widget.esAdmin
+            ? solicitudes
+            : solicitudes.where((s) => s.idUsuario == widget.usuario.id))
+        .where((s) => s.estado == EstadoSolicitud.confirmada || s.estado == EstadoSolicitud.enCurso)
+        .toList();
 
-    final List<CalendarEventData> eventos = [
-      ...misReservas.map((r) => CalendarEventData(
-            title: 'Reserva #${r.id}',
-            description: 'Estado: ${r.estado.label}',
-            date: r.fechaInicio,
-            endDate: r.fechaFin,
-            event: r,
-            color: cs.tertiary,
-          )),
-      ...misSolicitudes.map((s) {
-        final Excursion exc = excursiones.firstWhere(
-          (e) => e.id == s.idExcursion
-        );
-        return CalendarEventData(
-          title: 'Solicitud #${s.id}',
-          description: 'Estado: ${s.estado.label}',
-          date: exc.fechaInicio,
-          endDate: exc.fechaFin,
-          event: s,
-          color: cs.primary,
-        );
-      }).whereType<CalendarEventData>(),
-    ];
+    final eventosSeleccionados = _selectedDay != null
+        ? _eventosDelDia(_selectedDay!, misReservas, misSolicitudes, excursiones)
+        : <Object>[];
 
     return Scaffold(
       appBar: AppBar(
@@ -79,57 +99,233 @@ class CalendarPage extends ConsumerWidget {
         ),
       ),
       drawer: const AppDrawer(),
-      body: MediaQuery.removePadding(
-        context: context,
-        removeBottom: true,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final double availableWidth  = constraints.maxWidth;
-            final double availableHeight = constraints.maxHeight;
+      body: Column(
+        children: [
+          ColoredBox(
+            color: Color.alphaBlend(cs.surface.withValues(alpha: 0.8), cs.onTertiary),
+            child: TableCalendar(
+            firstDay: DateTime.now().subtract(const Duration(days: 365)),
+            lastDay: DateTime.now().add(const Duration(days: 365)),
+            focusedDay: _focusedDay,
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
+            },
+            onPageChanged: (focusedDay) {
+              _focusedDay = focusedDay;
+            },
+            eventLoader: (day) => _eventosDelDia(day, misReservas, misSolicitudes, excursiones),
+            locale: 'es_ES',
+            startingDayOfWeek: StartingDayOfWeek.monday,
 
-            // Alturas fijas del MonthView: barra de navegación + fila de días
-            const double navHeaderHeight   = 55.0;
-            const double weekdayRowHeight  = 41.0;
-            final double cellAreaHeight = availableHeight - navHeaderHeight - weekdayRowHeight;
+            // Estilo del header (mes y flechas)
+            headerStyle: HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+              decoration: BoxDecoration(color: cs.tertiary),
+              titleTextStyle: AppTextStyles.titleMedium.copyWith(color: cs.surface),
+              leftChevronIcon: Icon(Icons.chevron_left, color: cs.surface),
+              rightChevronIcon: Icon(Icons.chevron_right, color: cs.surface),
+            ),
 
-            // Celda: 7 columnas, máximo 6 filas por mes
-            final double cellWidth  = availableWidth / 7;
-            final double cellHeight = cellAreaHeight / 6;
-            final double cellAspectRatio = (cellWidth / cellHeight).clamp(0.1, 10.0);
-
-            return ClipRect(
-              child: SizedBox(
-                width:  availableWidth,
-                height: availableHeight,
-                child: CalendarControllerProvider(
-                  controller: EventController(),
-                  child: MonthView(
-                    controller: EventController()..addAll(eventos),
-                    monthViewStyle: MonthViewStyle(
-                      minMonth: DateTime.now().subtract(const Duration(days: 365)),
-                      maxMonth: DateTime.now().add(const Duration(days: 365)),
-                      initialMonth: DateTime.now(),
-                      cellAspectRatio: cellAspectRatio,
-                    ),
-                    monthViewBuilders: MonthViewBuilders(
-                      onEventTap: (event, date) {
-                        if (event.event is Reserva) {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => ReservationDetailPage(reserva: event.event as Reserva),
-                          ));
-                        } else if (event.event is Solicitud) {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => RequestDetailPage(solicitud: event.event as Solicitud),
-                          ));
-                        }
-                      },
+            // Estilo de la fila de días de la semana 
+            daysOfWeekHeight: 36,
+            daysOfWeekStyle: DaysOfWeekStyle(
+              decoration: BoxDecoration(color: cs.tertiary),
+              weekdayStyle: AppTextStyles.labelMedium.copyWith(color: cs.surface),
+              weekendStyle: AppTextStyles.labelMedium.copyWith(color: cs.surface.withValues(alpha: 0.7)),
+            ),
+            calendarBuilders: CalendarBuilders(
+              dowBuilder: (context, day) {
+                const days = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+                final label = days[day.weekday - 1];
+                final isWeekend = day.weekday == 6 || day.weekday == 7;
+                return Container(
+                  color: cs.tertiary,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    label,
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: isWeekend ? cs.surface.withValues(alpha: 0.7) : cs.surface,
                     ),
                   ),
+                );
+              },
+
+              // Celda seleccionada: fondo blanco + círculo azul
+              selectedBuilder: (context, day, focusedDay) {
+                return Container(
+                  color: cs.surface,
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: cs.onTertiary,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${day.day}',
+                      style: AppTextStyles.bodySmall.copyWith(color: cs.tertiary),
+                    ),
+                  ),
+                );
+              },
+
+              // Marcadores de eventos debajo del número del día
+              markerBuilder: (context, day, events) {
+                if (events.isEmpty) return const SizedBox.shrink();
+                final reservas = events.whereType<Reserva>().length;
+                final solicitudes = events.whereType<Solicitud>().length;
+                return Positioned(
+                  bottom: 4,
+                  left: 2,
+                  right: 2,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (reservas > 0)
+                        Container(
+                          margin: const EdgeInsets.only(right: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: cs.tertiary,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '$reservas R',
+                            style: AppTextStyles.titleSmall.copyWith(color: cs.onPrimary),
+                          ),
+                        ),
+                      if (solicitudes > 0)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: cs.primary,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '$solicitudes S',
+                            style: AppTextStyles.titleSmall.copyWith(color: cs.onPrimary),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
+
+            // Altura de las filas (días)
+            rowHeight: 64,
+
+            // Estilo de las celdas
+            calendarStyle: CalendarStyle(
+              // Día de hoy (sin seleccionar)
+              todayDecoration: BoxDecoration(
+                color: cs.onTertiary.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+              ),
+              todayTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.tertiary),
+
+              // Días fuera del mes actual
+              outsideTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.onSurface.withValues(alpha: 0.35)),
+              outsideDaysVisible: true,
+
+              // Días normales del mes
+              defaultTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.onSurface),
+              weekendTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.onSurface),
+
+              // Fondo de celdas 
+              defaultDecoration: BoxDecoration(color: cs.surface),
+              weekendDecoration: BoxDecoration(color: cs.surface.withValues(alpha: 0.5)),
+              outsideDecoration: BoxDecoration(color: cs.surface.withValues(alpha: 0.5)),
+            ),
+          ),
+          ), // ColoredBox
+
+          Divider(height: 1, color: cs.onTertiary),
+
+          // Lista de eventos del día seleccionado
+          if (eventosSeleccionados.isNotEmpty) ...[
+            
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                itemCount: eventosSeleccionados.length,
+                itemBuilder: (context, index) {
+                  final evento = eventosSeleccionados[index];
+                  if (evento is Reserva) {
+                    return _EventoTile(
+                      titulo: 'Reserva #${evento.id}',
+                      subtitulo: evento.estado.label,
+                      color: cs.tertiary,
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => ReservationDetailPage(reserva: evento),
+                      )),
+                    );
+                  } else if (evento is Solicitud) {
+                    return _EventoTile(
+                      titulo: 'Solicitud #${evento.id}',
+                      subtitulo: evento.estado.label,
+                      color: cs.primary,
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => RequestDetailPage(solicitud: evento),
+                      )),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+          ] else if (_selectedDay != null) ...[
+            Expanded(
+              child: Center(
+                child: Text(
+                  'No hay eventos este día',
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _EventoTile extends StatelessWidget {
+  final String titulo;
+  final String subtitulo;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _EventoTile({
+    required this.titulo,
+    required this.subtitulo,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Theme.of(context).colorScheme.onPrimary),
+      ),
+      child: ListTile(
+        leading: CircleAvatar(backgroundColor: color, radius: 6),
+        title: Text(titulo),
+        subtitle: Text(subtitulo),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
       ),
     );
   }

@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 
 class RequestDetailPage extends ConsumerWidget {
@@ -25,13 +26,13 @@ class RequestDetailPage extends ConsumerWidget {
         ? ref.watch(reservaPorIdProvider(solicitud.idReserva!))
         : null;
 
-    // TODO: Arreglar colores
+    // Colores igual que en request_card.dart
     final Color accentColor = switch (solicitud.estado) {
-      EstadoSolicitud.pendiente  => cs.tertiary,
-      EstadoSolicitud.confirmada => cs.secondary,
-      EstadoSolicitud.enCurso    => cs.primary,
-      EstadoSolicitud.finalizada => cs.primaryContainer,
-      EstadoSolicitud.cancelada  => cs.error,
+      EstadoSolicitud.confirmada => cs.primary,
+      EstadoSolicitud.pendiente => cs.tertiary,
+      EstadoSolicitud.finalizada => cs.secondary.withValues(alpha: 0.35),
+      EstadoSolicitud.cancelada => cs.error,
+      EstadoSolicitud.enCurso => cs.secondary,
     };
 
     return Scaffold(
@@ -70,78 +71,53 @@ class RequestDetailPage extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Información general
-          _Section(
+          DetailSection(
             title: 'Información general',
-            cs: cs,
-            tt: tt,
             children: [
               if (nombreUsuario != null)
-                _Row(Icons.person_outline, 'Usuario', nombreUsuario, cs, tt),
+                DetailRow(Icons.person_outline, 'Usuario', nombreUsuario),
               if (nombreExperto != null)
-                _Row(Icons.star_outline, 'Experto asignado', nombreExperto, cs, tt),
-              _Row(
+                DetailRow(Icons.star_outline, 'Experto asignado', nombreExperto),
+              DetailRow(
                 Icons.group_outlined,
                 'Participantes',
-                '${solicitud.numeroParticipantes} personas',
-                cs,
-                tt,
-              ),
+                '${solicitud.numeroParticipantes} personas',              ),
               if (solicitud.precioTotal > 0)
-                _Row(
+                DetailRow(
                   Icons.euro_outlined,
                   'Precio total',
-                  '${solicitud.precioTotal.toStringAsFixed(2)} €',
-                  cs,
-                  tt,
-                ),
+                  '${solicitud.precioTotal.toStringAsFixed(2)} €',                ),
               if (reserva != null)
-                _Row(
+                DetailRow(
                   Icons.book_online_outlined,
                   'Reserva asociada',
-                  '#${reserva.id}',
-                  cs,
-                  tt,
-                ),
+                  '#${reserva.id}',                ),
             ],
           ),
 
           // Excursión
           if (excursion != null) ...[
             const SizedBox(height: 20),
-            _Section(
+            DetailSection(
               title: 'Excursión',
-              cs: cs,
-              tt: tt,
               children: [
-                _Row(
+                DetailRow(
                   Icons.hiking_outlined,
                   'Ruta',
-                  '${excursion.puntoInicio} → ${excursion.puntoFin}',
-                  cs,
-                  tt,
-                ),
-                _Row(
+                  '${excursion.puntoInicio} → ${excursion.puntoFin}',                ),
+                DetailRow(
                   Icons.calendar_today_outlined,
                   'Inicio',
-                  FormateadorFecha.withTime(excursion.fechaInicio),
-                  cs,
-                  tt,
-                ),
-                _Row(
+                  FormateadorFecha.withTime(excursion.fechaInicio),                ),
+                DetailRow(
                   Icons.event_outlined,
                   'Fin',
-                  FormateadorFecha.withTime(excursion.fechaFin),
-                  cs,
-                  tt,
-                ),
+                  FormateadorFecha.withTime(excursion.fechaFin),                ),
                 if (excursion.precio > 0)
-                  _Row(
+                  DetailRow(
                     Icons.euro_outlined,
                     'Precio base',
-                    '${excursion.precio.toStringAsFixed(2)} €/persona',
-                    cs,
-                    tt,
-                  ),
+                    '${excursion.precio.toStringAsFixed(2)} €/persona',                  ),
               ],
             ),
           ],
@@ -149,22 +125,17 @@ class RequestDetailPage extends ConsumerWidget {
           // Materiales solicitados
           if (solicitud.materialesSolicitados.isNotEmpty) ...[
             const SizedBox(height: 20),
-            _Section(
+            DetailSection(
               title: 'Material solicitado',
-              cs: cs,
-              tt: tt,
               children: [
                 for (final entry in solicitud.materialesSolicitados.entries)
                   Builder(builder: (context) {
                     final String nombre =
                         ref.watch(nombreEquipamientoProvider(entry.key));
-                    return _Row(
+                    return DetailRow(
                       Icons.inventory_2_outlined,
                       nombre,
-                      '${entry.value} ud.',
-                      cs,
-                      tt,
-                    );
+                      '${entry.value} ud.',                    );
                   }),
               ],
             ),
@@ -175,86 +146,3 @@ class RequestDetailPage extends ConsumerWidget {
   }
 }
 
-// TODO: Pasar a Widgets auxiliares
-
-class _Section extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-  final ColorScheme cs;
-  final TextTheme tt;
-
-  const _Section({
-    required this.title,
-    required this.children,
-    required this.cs,
-    required this.tt,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title.toUpperCase(),
-          style: tt.labelSmall?.copyWith(
-            color: cs.onSurfaceVariant,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: cs.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: cs.onSurfaceVariant.withValues(alpha: 0.15)),
-          ),
-          child: Column(
-            children: [
-              for (int i = 0; i < children.length; i++) ...[
-                children[i],
-                if (i < children.length - 1)
-                  Divider(
-                    height: 1,
-                    indent: 16,
-                    endIndent: 16,
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.12),
-                  ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final ColorScheme cs;
-  final TextTheme tt;
-
-  const _Row(this.icon, this.label, this.value, this.cs, this.tt);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: cs.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(label, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-          ),
-          Text(
-            value,
-            style: tt.bodyMedium?.copyWith(color: cs.onSurface, fontWeight: FontWeight.w600),
-          ),
-        ],
-      ),
-    );
-  }
-}

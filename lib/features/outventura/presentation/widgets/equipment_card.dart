@@ -28,20 +28,23 @@ class _EquipmentCardState extends State<EquipmentCard> {
     final TextTheme tt = Theme.of(context).textTheme;
 
     Color badgeBg;
-    final Color badgeFg = cs.onSurface;
-    // Widget es la clase que recibe los datos, luego el state (_EquipmentCardState) usa esos datos con widget.equipamiento.
+    Color badgeFg;
     switch (widget.equipamiento.estado) {
       case EstadoEquipamiento.disponible:
         badgeBg = cs.primary;
+        badgeFg = cs.onPrimary;
         break;
       case EstadoEquipamiento.agotado:
         badgeBg = cs.tertiary;
+        badgeFg = cs.onPrimary;
         break;
       case EstadoEquipamiento.mantenimiento:
-        badgeBg = cs.onSurfaceVariant;
+        badgeBg = cs.secondary.withValues(alpha: 0.35);
+        badgeFg = cs.onPrimaryContainer;
         break;
       case EstadoEquipamiento.fueraDeServicio:
         badgeBg = cs.error;
+        badgeFg = cs.onError;
         break;
     }
 
@@ -101,7 +104,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                         const SizedBox(width: 3),
                         TagWidget(
                           text: widget.equipamiento.estado.label,
-                          backgroundColor: badgeBg.withValues(alpha: 0.35),
+                          backgroundColor: badgeBg,
                           textColor: badgeFg,
                         ),
                       ],

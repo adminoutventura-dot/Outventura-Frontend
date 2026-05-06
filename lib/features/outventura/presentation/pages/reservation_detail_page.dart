@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 
 class ReservationDetailPage extends ConsumerWidget {
@@ -21,9 +22,9 @@ class ReservationDetailPage extends ConsumerWidget {
 
     final Color accentColor = switch (reserva.estado) {
       EstadoReserva.pendiente   => cs.tertiary,
-      EstadoReserva.confirmada  => cs.secondary,
-      EstadoReserva.enCurso     => cs.primary,
-      EstadoReserva.finalizada  => cs.primaryContainer,
+      EstadoReserva.confirmada  => cs.primary,
+      EstadoReserva.enCurso     => cs.secondary,
+      EstadoReserva.finalizada  => cs.secondary.withValues(alpha: 0.35),
       EstadoReserva.cancelada   => cs.error,
     };
 
@@ -63,33 +64,25 @@ class ReservationDetailPage extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Información general
-          _Section(
+          DetailSection(
             title: 'Información general',
-            cs: cs,
-            tt: tt,
             children: [
-              _Row(Icons.person_outline, 'Usuario', nombreUsuario, cs, tt),
+              DetailRow(Icons.person_outline, 'Usuario', nombreUsuario),
               if (excursion != null)
-                _Row(
+                DetailRow(
                   Icons.hiking_outlined,
                   'Excursión',
-                  '${excursion.puntoInicio} → ${excursion.puntoFin}',
-                  cs,
-                  tt,
+                  '${excursion.puntoInicio} → ${excursion.puntoFin}',                
                 ),
-              _Row(
+              DetailRow(
                 Icons.calendar_today_outlined,
                 'Inicio',
-                FormateadorFecha.withTime(reserva.fechaInicio),
-                cs,
-                tt,
+                FormateadorFecha.withTime(reserva.fechaInicio),              
               ),
-              _Row(
+              DetailRow(
                 Icons.event_outlined,
                 'Fin',
-                FormateadorFecha.withTime(reserva.fechaFin),
-                cs,
-                tt,
+                FormateadorFecha.withTime(reserva.fechaFin),              
               ),
             ],
           ),
@@ -97,21 +90,17 @@ class ReservationDetailPage extends ConsumerWidget {
           // Material reservado
           if (reserva.lineas.isNotEmpty) ...[
             const SizedBox(height: 20),
-            _Section(
+            DetailSection(
               title: 'Material reservado',
-              cs: cs,
-              tt: tt,
               children: [
                 for (final linea in reserva.lineas)
                   Builder(builder: (context) {
                     final String nombre =
                         ref.watch(nombreEquipamientoProvider(linea.idEquipamiento));
-                    return _Row(
+                    return DetailRow(
                       Icons.inventory_2_outlined,
                       nombre,
-                      '${linea.cantidad} ud.',
-                      cs,
-                      tt,
+                      '${linea.cantidad} ud.',                    
                     );
                   }),
               ],
@@ -121,29 +110,22 @@ class ReservationDetailPage extends ConsumerWidget {
           // Daños
           if (reserva.cargoDanios > 0 || reserva.itemsDaniados.isNotEmpty) ...[
             const SizedBox(height: 20),
-            _Section(
+            DetailSection(
               title: 'Daños',
-              cs: cs,
-              tt: tt,
               children: [
                 if (reserva.cargoDanios > 0)
-                  _Row(
+                  DetailRow(
                     Icons.euro_outlined,
                     'Cargo por daños',
-                    '${reserva.cargoDanios.toStringAsFixed(2)} €',
-                    cs,
-                    tt,
+                    '${reserva.cargoDanios.toStringAsFixed(2)} €',                  
                   ),
                 for (final entry in reserva.itemsDaniados.entries)
                   Builder(builder: (context) {
-                    final String nombre =
-                        ref.watch(nombreEquipamientoProvider(entry.key));
-                    return _Row(
+                    final String nombre = ref.watch(nombreEquipamientoProvider(entry.key));
+                    return DetailRow(
                       Icons.warning_amber_outlined,
                       nombre,
-                      '${entry.value} dañado(s)',
-                      cs,
-                      tt,
+                      '${entry.value} dañado(s)',                    
                     );
                   }),
               ],
@@ -155,86 +137,3 @@ class ReservationDetailPage extends ConsumerWidget {
   }
 }
 
-// TODO: Pasar a Widgets auxiliares
-
-class _Section extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-  final ColorScheme cs;
-  final TextTheme tt;
-
-  const _Section({
-    required this.title,
-    required this.children,
-    required this.cs,
-    required this.tt,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title.toUpperCase(),
-          style: tt.labelSmall?.copyWith(
-            color: cs.onSurfaceVariant,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: cs.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: cs.onSurfaceVariant.withValues(alpha: 0.15)),
-          ),
-          child: Column(
-            children: [
-              for (int i = 0; i < children.length; i++) ...[
-                children[i],
-                if (i < children.length - 1)
-                  Divider(
-                    height: 1,
-                    indent: 16,
-                    endIndent: 16,
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.12),
-                  ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final ColorScheme cs;
-  final TextTheme tt;
-
-  const _Row(this.icon, this.label, this.value, this.cs, this.tt);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: cs.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(label, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-          ),
-          Text(
-            value,
-            style: tt.bodyMedium?.copyWith(color: cs.onSurface, fontWeight: FontWeight.w600),
-          ),
-        ],
-      ),
-    );
-  }
-}
