@@ -6,7 +6,6 @@ import 'package:outventura/features/outventura/presentation/pages/forms/user_for
 import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
-import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
 
 class UsersPage extends ConsumerStatefulWidget {
