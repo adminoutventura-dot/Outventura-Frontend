@@ -50,14 +50,11 @@ class ReservationDetailPage extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
               color: accentColor,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(3),
             ),
             child: Text(
               reserva.estado.label,
-              style: tt.labelLarge?.copyWith(
-                color: cs.onPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+              style: tt.labelLarge?.copyWith(color: cs.onPrimary),
               textAlign: TextAlign.center,
             ),
           ),
@@ -95,8 +92,7 @@ class ReservationDetailPage extends ConsumerWidget {
               children: [
                 for (final linea in reserva.lineas)
                   Builder(builder: (context) {
-                    final String nombre =
-                        ref.watch(nombreEquipamientoProvider(linea.idEquipamiento));
+                    final String nombre = ref.watch(nombreEquipamientoProvider(linea.idEquipamiento));
                     return DetailRow(
                       Icons.inventory_2_outlined,
                       nombre,

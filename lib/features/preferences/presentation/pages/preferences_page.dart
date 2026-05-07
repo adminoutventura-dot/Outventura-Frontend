@@ -18,6 +18,16 @@ class PreferencesPage extends ConsumerWidget {
       // Barra superior.
       appBar: AppBar(
         title: const Text('Preferencias'),
+        automaticallyImplyLeading: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Theme.of(context).colorScheme.surfaceContainer, Theme.of(context).colorScheme.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: prefsAsync.when(
         // Preferencias cargadas.

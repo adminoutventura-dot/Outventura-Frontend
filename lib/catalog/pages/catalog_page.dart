@@ -14,7 +14,19 @@ class CatalogPage extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Catálogo de Componentes')),
+      appBar: AppBar(
+        title: const Text('Catálogo de Componentes'),
+        automaticallyImplyLeading: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [cs.surfaceContainer, cs.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
 
       // El cuerpo de la pantalla se envuelve en una lista
       body: ListView(
