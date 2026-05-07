@@ -142,10 +142,22 @@ class ReservaCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  '${FormateadorFecha.short(reserva.fechaInicio)} → ${FormateadorFecha.short(reserva.fechaFin)}',
+                                  '${FormateadorFecha.short(reserva.fechaInicio)} - ${FormateadorFecha.short(reserva.fechaFin)}',
                                   style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                                   softWrap: true,
                                 ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 3),
+                          // Horas
+                          Row(
+                            children: [
+                              Icon(Icons.schedule_outlined, size: 12, color: cs.onSurfaceVariant),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${FormateadorFecha.timeOnly(reserva.fechaInicio)} - ${FormateadorFecha.timeOnly(reserva.fechaFin)}',
+                                style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                               ),
                             ],
                           ),

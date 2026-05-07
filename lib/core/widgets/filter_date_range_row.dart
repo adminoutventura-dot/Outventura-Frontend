@@ -19,7 +19,7 @@ class FilterDateRangeRow extends StatelessWidget {
   final ValueChanged<DateTime> onEndChanged;
   final VoidCallback onClear;
 
-  // Funcion que abre el date picker y llama a [onSelected] si el usuario elige una fecha.
+  // Funcion que abre el date picker y llama a onSelected si el usuario elige una fecha.
   Future<void> _pickDate(
     BuildContext context, {
     required DateTime? firstDate,

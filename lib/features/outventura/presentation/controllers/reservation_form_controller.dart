@@ -5,6 +5,10 @@ import 'package:outventura/features/outventura/domain/entities/reservation.dart'
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
 import 'package:outventura/features/outventura/services/pricing_service.dart';
 
+// Combina una fecha y una hora en un DateTime.
+DateTime _combinar(DateTime fecha, TimeOfDay hora) =>
+    DateTime(fecha.year, fecha.month, fecha.day, hora.hour, hora.minute);
+
 class ReservationFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -12,6 +16,8 @@ class ReservationFormController {
   int? idExcursion;
   DateTime fechaDesde = DateTime.now();
   DateTime fechaHasta = DateTime.now();
+  TimeOfDay horaInicio = const TimeOfDay(hour: 9, minute: 0);
+  TimeOfDay horaFin = const TimeOfDay(hour: 17, minute: 0);
   EstadoReserva estado = EstadoReserva.pendiente;
 
   // Líneas de la reserva (material + cantidad).
@@ -50,6 +56,8 @@ class ReservationFormController {
     idExcursion = reserva.idExcursion;
     fechaDesde = reserva.fechaInicio;
     fechaHasta = reserva.fechaFin;
+    horaInicio = TimeOfDay(hour: reserva.fechaInicio.hour, minute: reserva.fechaInicio.minute);
+    horaFin = TimeOfDay(hour: reserva.fechaFin.hour, minute: reserva.fechaFin.minute);
     cantidadesDaniadas = Map.from(reserva.itemsDaniados);
     estado = reserva.estado;
   }
@@ -142,8 +150,8 @@ class ReservationFormController {
       idUsuario: idUsuario!,
       lineas: List.unmodifiable(lineas),
       idExcursion: idExcursion,
-      fechaInicio: fechaDesde,
-      fechaFin: fechaHasta,
+      fechaInicio: _combinar(fechaDesde, horaInicio),
+      fechaFin: _combinar(fechaHasta, horaFin),
       estado: estado,
       cargoDanios: totalCargoDanios(equipamientos),
       itemsDaniados: Map.from(cantidadesDaniadas),

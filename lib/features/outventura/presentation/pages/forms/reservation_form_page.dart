@@ -4,6 +4,7 @@ import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/core/widgets/app_date_selector.dart';
+import 'package:outventura/core/widgets/app_time_selector.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
@@ -198,6 +199,30 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                       lastDate: DateTime(2030),
                       onDateSelected: (DateTime d) =>
                           setState(() => _controller.fechaHasta = d),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Horas
+              Row(
+                children: [
+                  Expanded(
+                    child: AppTimeSelector(
+                      label: 'Hora inicio',
+                      time: _controller.horaInicio,
+                      onTimeSelected: (TimeOfDay t) =>
+                          setState(() => _controller.horaInicio = t),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: AppTimeSelector(
+                      label: 'Hora fin',
+                      time: _controller.horaFin,
+                      onTimeSelected: (TimeOfDay t) =>
+                          setState(() => _controller.horaFin = t),
                     ),
                   ),
                 ],

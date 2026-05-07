@@ -75,15 +75,11 @@ class ReservationLineCard extends StatelessWidget {
                     children: [
                       Text(
                         'Unidades dañadas',
-                        style: tt.labelSmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
+                        style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                       Text(
                         '${equipamiento.cargoPorDanio.toStringAsFixed(2)} €/ud.',
-                        style: tt.labelSmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
+                        style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),

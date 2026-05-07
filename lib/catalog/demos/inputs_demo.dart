@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_date_selector.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
+import 'package:outventura/core/widgets/app_time_selector.dart';
+import 'package:outventura/core/widgets/detail_section.dart';
+import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
@@ -28,6 +32,9 @@ class _InputsDemoState extends State<InputsDemo> {
 
   // Date
   DateTime _fecha = DateTime(2026, 6, 15);
+
+  // Time
+  TimeOfDay _time = const TimeOfDay(hour: 9, minute: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +103,7 @@ class _InputsDemoState extends State<InputsDemo> {
             onChanged: (int? v) => setState(() => _idExcursion = v),
           ),
 
-          // AppDateSelector
+          // AppDateSelector + AppTimeSelector
           const SizedBox(height: 24),
           Text('AppDateSelector', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
@@ -106,22 +113,16 @@ class _InputsDemoState extends State<InputsDemo> {
             onDateSelected: (DateTime d) => setState(() => _fecha = d),
           ),
 
-          // TagWidget
-          const SizedBox(height: 24),
-          Text('TagWidget', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 16),
+          Text('AppTimeSelector', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: [
-              TagWidget(text: 'Pendiente',    backgroundColor: cs.tertiary,  textColor: cs.onPrimary),
-              TagWidget(text: 'Confirmada',   backgroundColor: cs.secondary, textColor: cs.onPrimary),
-              TagWidget(text: 'Finalizada',   backgroundColor: cs.primaryContainer,   textColor: cs.onPrimaryContainer),
-              TagWidget(text: 'Cancelada',    backgroundColor: cs.error,              textColor: cs.onError),
-              TagWidget(text: 'Acuático',     backgroundColor: cs.onPrimary,          textColor: cs.onPrimaryContainer),
-            ],
+          AppTimeSelector(
+            label: 'Hora de inicio',
+            time: _time,
+            onTimeSelected: (TimeOfDay t) => setState(() => _time = t),
           ),
 
-          // AppChipWrap + AppChoiceChip           
+          // AppChoiceChip
           const SizedBox(height: 24),
           Text('AppChoiceChip – Selección múltiple', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
@@ -139,7 +140,22 @@ class _InputsDemoState extends State<InputsDemo> {
             )).toList(),
           ),
 
-          // AppImagePickerField           
+          // TagWidget
+          const SizedBox(height: 24),
+          Text('TagWidget', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              TagWidget(text: 'Pendiente',    backgroundColor: cs.tertiary,  textColor: cs.onPrimary),
+              TagWidget(text: 'Confirmada',   backgroundColor: cs.secondary, textColor: cs.onPrimary),
+              TagWidget(text: 'Finalizada',   backgroundColor: cs.primaryContainer,   textColor: cs.onPrimaryContainer),
+              TagWidget(text: 'Cancelada',    backgroundColor: cs.error,              textColor: cs.onError),
+              TagWidget(text: 'Acuático',     backgroundColor: cs.onPrimary,          textColor: cs.onPrimaryContainer),
+            ],
+          ),
+
+          // AppImagePickerField
           const SizedBox(height: 24),
           Text('AppImagePickerField – Sin imagen', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
@@ -159,7 +175,76 @@ class _InputsDemoState extends State<InputsDemo> {
             placeholder: Icons.person_outline,
           ),
 
-          
+          // DetailSection / DetailRow
+          const SizedBox(height: 24),
+          Text('DetailSection / DetailRow', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 8),
+          const DetailSection(
+            title: 'Datos de contacto',
+            children: [
+              DetailRow(Icons.person_outline, 'Nombre', 'Juan García'),
+              DetailRow(Icons.email_outlined, 'Email', 'juan@example.com'),
+              DetailRow(Icons.phone_outlined, 'Teléfono', '+34 600 123 456'),
+            ],
+          ),
+
+          // FilterBottomSheetContent
+          const SizedBox(height: 24),
+          Text('FilterBottomSheetContent', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 8),
+          SecondaryButton(
+            label: 'Abrir panel de filtros',
+            icon: Icons.filter_list_outlined,
+            borderColor: cs.primary,
+            backgroundColor: cs.surface,
+            onPressed: () {
+              final Set<String> sel = {'Pendiente'};
+              DateTime? desde;
+              DateTime? hasta;
+              showModalBottomSheet<void>(
+                context: context,
+                isScrollControlled: true,
+                builder: (BuildContext ctx) => StatefulBuilder(
+                  builder: (BuildContext ctx2, StateSetter setS) => FilterBottomSheetContent(
+                    grupos: [
+                      FilterGrupo(
+                        titulo: 'Estado',
+                        chips: [
+                          FilterChipSpec(
+                            label: 'Pendiente',
+                            seleccionado: sel.contains('Pendiente'),
+                            onToggle: () => setS(() { sel.contains('Pendiente') ? sel.remove('Pendiente') : sel.add('Pendiente'); }),
+                          ),
+                          FilterChipSpec(
+                            label: 'Confirmada',
+                            seleccionado: sel.contains('Confirmada'),
+                            onToggle: () => setS(() { sel.contains('Confirmada') ? sel.remove('Confirmada') : sel.add('Confirmada'); }),
+                          ),
+                          FilterChipSpec(
+                            label: 'Cancelada',
+                            seleccionado: sel.contains('Cancelada'),
+                            onToggle: () => setS(() { sel.contains('Cancelada') ? sel.remove('Cancelada') : sel.add('Cancelada'); }),
+                          ),
+                        ],
+                      ),
+                    ],
+                    mostrarFechas: true,
+                    fechaDesde: desde,
+                    fechaHasta: hasta,
+                    onFechaDesdeChanged: (DateTime d) => setS(() => desde = d),
+                    onFechaHastaChanged: (DateTime d) => setS(() => hasta = d),
+                    onFechasClear: () => setS(() { desde = null; hasta = null; }),
+                    onLimpiar: () {
+                      setS(() { sel.clear(); desde = null; hasta = null; });
+                      Navigator.pop(ctx2);
+                    },
+                    onApply: () => Navigator.pop(ctx2),
+                  ),
+                ),
+              );
+            },
+          ),
+
         ],
       ),
     );

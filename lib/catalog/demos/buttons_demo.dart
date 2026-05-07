@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 
 class ButtonsDemo extends StatelessWidget {
@@ -109,6 +110,24 @@ class ButtonsDemo extends StatelessWidget {
           MiniButton(
             label: 'Mini',
             onPressed: () {},
+          ),
+
+          // ---- ADD FAB ----
+          const SizedBox(height: 20),
+          const Text('AddFab – Por defecto'),
+          const SizedBox(height: 8),
+          Center(
+            child: AddFab(onPressed: () async {}),
+          ),
+
+          const SizedBox(height: 16),
+          const Text('AddFab – Icono personalizado'),
+          const SizedBox(height: 8),
+          Center(
+            child: AddFab(
+              icon: Icons.upload_outlined,
+              onPressed: () async {},
+            ),
           ),
         ],
       ),

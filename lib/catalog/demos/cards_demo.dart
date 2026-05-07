@@ -11,6 +11,8 @@ import 'package:outventura/features/outventura/presentation/widgets/equipment_ca
 import 'package:outventura/features/outventura/presentation/widgets/excursion_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
+import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
+import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
 
 class CardsDemo extends StatelessWidget {
@@ -27,7 +29,21 @@ class CardsDemo extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
 
+          // STAT CARD
+          Text('StatCard – Fila de estadísticas', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              StatCard(colorScheme: cs, textTheme: tt, value: '12', label: 'Reservas'),
+              const SizedBox(width: 8),
+              StatCard(colorScheme: cs, textTheme: tt, value: '3', label: 'Pendientes'),
+              const SizedBox(width: 8),
+              StatCard(colorScheme: cs, textTheme: tt, value: '47', label: 'Usuarios'),
+            ],
+          ),
+
           // EXCURSION CARD
+          const SizedBox(height: 24),
           Text('ExcursionCard – Con imagen (admin)', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
           ExcursionCard(
@@ -95,6 +111,37 @@ class CardsDemo extends StatelessWidget {
             }).toList(),
             onRegistrarDevolucion: () {},
             onCancelar: () {},
+          ),
+
+          // RESERVATION LINE CARD
+          const SizedBox(height: 24),
+          Text('ReservationLineCard – Sin daños', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 8),
+          ReservationLineCard(
+            linea: reservasFake[0].lineas.first,
+            equipamiento: equipamientosFake.firstWhere(
+              (Equipamiento e) => e.id == reservasFake[0].lineas.first.idEquipamiento,
+              orElse: () => equipamientosFake.first,
+            ),
+            cantidadDaniada: 0,
+            onEdit: () {},
+            onDelete: () {},
+          ),
+
+          const SizedBox(height: 16),
+          Text('ReservationLineCard – Con daños', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 8),
+          ReservationLineCard(
+            linea: reservasFake[0].lineas.first,
+            equipamiento: equipamientosFake.firstWhere(
+              (Equipamiento e) => e.id == reservasFake[0].lineas.first.idEquipamiento,
+              orElse: () => equipamientosFake.first,
+            ),
+            cantidadDaniada: 2,
+            onEdit: () {},
+            onDelete: () {},
+            menosCoste: () {},
+            masCoste: () {},
           ),
 
           // EQUIPAMIENTO CARD
