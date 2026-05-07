@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/app/theme/app_text_styles.dart';
 import 'package:outventura/catalog/pages/catalog_page.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/pages/login_page.dart';
@@ -14,93 +15,119 @@ class AppDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final Usuario? usuario = ref.watch(currentUserProvider);
     final ColorScheme cs = Theme.of(context).colorScheme;
-    final TextTheme tt = Theme.of(context).textTheme;
 
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      backgroundColor: cs.surface,
+      child: Column(
         children: [
-          // Header del Drawer.
-          DrawerHeader(
-            decoration: BoxDecoration(color: cs.primary),
-            child: Text(
-              'Outventura',
-              style: tt.headlineSmall?.copyWith(
-                color: cs.onPrimary,
+          // Header 
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [cs.tertiary, cs.primary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-          ),
-          // Crear/Editar usuario
-          ListTile(
-            leading: Icon(Icons.person, color: cs.onSurface),
-            title: Text(
-              'Perfil',
-              style: tt.titleMedium?.copyWith(color: cs.onSurface),
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 24,
+              bottom: 24,
+              left: 20,
+              right: 20,
             ),
-            onTap: () {
-              if (usuario == null) return;
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ProfileFormPage(usuario: usuario),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 32,
+                  backgroundColor: cs.onTertiary.withValues(alpha: 0.2),
+                  child: Icon(Icons.person, size: 36, color: cs.onPrimary),
                 ),
-              );
-            },
-          ),
-          // Catálogo de Componentes.
-          ListTile(
-            leading: Icon(Icons.map, color: cs.onSurface),
-            title: Text(
-              'Catálogo de Componentes',
-              style: tt.titleMedium?.copyWith(color: cs.onSurface),
+                const SizedBox(height: 12),
+                Text(
+                  usuario?.nombre ?? 'Usuario',
+                  style: AppTextStyles.titleMedium.copyWith(color: cs.onPrimary),
+                ),
+                if (usuario?.email != null)
+                  Text(
+                    usuario!.email,
+                    style: AppTextStyles.bodySmall.copyWith(color: cs.onPrimary.withValues(alpha: 0.75)),
+                  ),
+              ],
             ),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CatalogPage(),
-                ),
-              );
-            },
           ),
-          // Page de preferencias.
-          ListTile(
-            leading: Icon(Icons.settings_outlined, color: cs.onSurface),
-            title: Text(
-              'Preferencias',
-              style: tt.titleMedium?.copyWith(color: cs.onSurface),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const PreferencesPage(),
+
+          // Items 
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
+                ListTile(
+                  horizontalTitleGap: 8,
+                  leading: Icon(Icons.person_outline, color: cs.onSurface, size: 22),
+                  title: Text('Perfil', style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  onTap: () {
+                    if (usuario == null) return;
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (_) => ProfileFormPage(usuario: usuario),
+                    ));
+                  },
                 ),
-              );
-            },
-          ),
-          // Botón de cerrar sesión.
-          ListTile(
-            leading: Icon(Icons.logout, color: cs.onSurface),
-            title: Text(
-              'Cerrar sesión',
-              style: tt.titleMedium?.copyWith(color: cs.onSurface),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const LoginPage(),
+                ListTile(
+                  horizontalTitleGap: 8,
+                  leading: Icon(Icons.map_outlined, color: cs.onSurface, size: 22),
+                  title: Text('Catálogo de Componentes', style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (_) => const CatalogPage(),
+                    ));
+                  },
                 ),
-              );
-            },
+                ListTile(
+                  horizontalTitleGap: 8,
+                  leading: Icon(Icons.settings_outlined, color: cs.onSurface, size: 22),
+                  title: Text('Preferencias', style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (_) => const PreferencesPage(),
+                    ));
+                  },
+                ),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Divider(),
+                ),
+
+                ListTile(
+                  horizontalTitleGap: 8,
+                  leading: Icon(Icons.logout, color: cs.error, size: 22),
+                  title: Text('Cerrar sesión', style: AppTextStyles.labelLarge.copyWith(color: cs.error)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(context, MaterialPageRoute(
+                      builder: (_) => const LoginPage(),
+                    ));
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 }
+

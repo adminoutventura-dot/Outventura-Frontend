@@ -135,6 +135,14 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               ),
               const SizedBox(height: 20),
 
+
+              // Stock
+              Text(
+                'Stock',
+                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 4),
+
               // Stock disponible y total
               Row(
                 children: [
@@ -166,7 +174,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                 'Tarifas',
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
 
               // Precios
               Row(
