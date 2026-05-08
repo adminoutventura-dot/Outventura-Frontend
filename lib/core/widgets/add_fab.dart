@@ -21,7 +21,7 @@ class AddFab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
-    final Color fg = foregroundColor ?? cs.secondary.withValues(alpha: 0.7);
+    final Color fg = foregroundColor ?? cs.primary;
 
     return FloatingActionButton(
       onPressed: onPressed,

@@ -139,7 +139,6 @@ class HomeClientePage extends ConsumerWidget {
                   width: double.infinity,
                   child: PrimaryButton(
                     label: 'Mis Reservas',
-                    icon: Icons.event_available_outlined,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const ReservationsPage(puedeGestionar: false, puedeCrear: true),
@@ -152,7 +151,6 @@ class HomeClientePage extends ConsumerWidget {
                   width: double.infinity,
                   child: PrimaryButton(
                     label: 'Mis Solicitudes',
-                    icon: Icons.assignment_outlined,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const RequestsPage(puedeGestionar: false, puedeCrear: true),

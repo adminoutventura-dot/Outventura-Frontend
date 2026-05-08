@@ -47,9 +47,9 @@ class SolicitudCard extends StatelessWidget {
         cs.onTertiary,
       ),
       EstadoSolicitud.finalizada => (
-        cs.secondary.withValues(alpha: 0.35),
-        cs.onPrimaryContainer,
-        cs.secondary.withValues(alpha: 0.35),
+        cs.onSurfaceVariant,
+        cs.onPrimary,
+        cs.onSurfaceVariant,
       ),
       EstadoSolicitud.cancelada => (
         cs.error, 
@@ -58,7 +58,7 @@ class SolicitudCard extends StatelessWidget {
       ),
       EstadoSolicitud.enCurso => (
         cs.secondary,
-        cs.onSecondary,
+        cs.onPrimary,
         cs.secondary,
       ),
     };

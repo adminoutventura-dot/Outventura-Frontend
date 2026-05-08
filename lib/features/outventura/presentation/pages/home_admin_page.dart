@@ -121,8 +121,8 @@ class HomeAdminPage extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: SecondaryButton(
+                    backgroundColor: cs.surface,
                     label: 'Usuarios',
-                    icon: Icons.people_outline,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const UsersPage()),
                     ),
@@ -132,8 +132,8 @@ class HomeAdminPage extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: SecondaryButton(
+                    backgroundColor: cs.surface,
                     label: 'Reservas',
-                    icon: Icons.book_online_outlined,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const ReservationsPage(puedeGestionar: true, puedeCrear: true)),
                     ),
@@ -143,8 +143,8 @@ class HomeAdminPage extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: SecondaryButton(
+                    backgroundColor: cs.surface,
                     label: 'Solicitudes',
-                    icon: Icons.assignment_outlined,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const RequestsPage(puedeGestionar: true, puedeCrear: true)),
                     ),
