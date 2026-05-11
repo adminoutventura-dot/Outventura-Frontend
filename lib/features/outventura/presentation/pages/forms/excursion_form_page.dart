@@ -230,7 +230,6 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                     final Excursion excursion = _controller.construirExcursion();
                     Navigator.of(context).pop(excursion);
                   },
-                  icon: _controller.editando ? Icons.save_outlined : Icons.add,
                 ),
               ),
             ],

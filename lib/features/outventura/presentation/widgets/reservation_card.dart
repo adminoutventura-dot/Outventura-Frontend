@@ -44,9 +44,9 @@ class ReservaCard extends StatelessWidget {
     final (Color badgeBg, Color badgeFg, Color accentColor) = switch (reserva.estado) {
       EstadoReserva.pendiente => (cs.tertiary, cs.onPrimary, cs.onTertiary),
       EstadoReserva.confirmada => (cs.primary, cs.onPrimary, cs.primary),
-      EstadoReserva.finalizada => (cs.secondary.withValues(alpha: 0.35), cs.onPrimaryContainer, cs.secondary.withValues(alpha: 0.35)),
+      EstadoReserva.finalizada => (cs.onSurfaceVariant, cs.onPrimary, cs.onSurfaceVariant),
       EstadoReserva.cancelada => (cs.error, cs.onError, cs.error),
-      EstadoReserva.enCurso => (cs.secondary, cs.onSecondary, cs.secondary),
+      EstadoReserva.enCurso => (cs.secondary, cs.onPrimary, cs.secondary),
     };
 
     // Lista de imágenes de los equipamientos, filtrando los nulos
@@ -223,13 +223,6 @@ class ReservaCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (onEditar != null)
-                      ActionIcon(
-                        icon: Icons.edit_outlined,
-                        color: cs.tertiary,
-                        onTap: onEditar!
-                      ),
-                    const Spacer(),
                     if (reserva.cargoDanios > 0) ...[
                       Row(
                         children: [
@@ -243,6 +236,9 @@ class ReservaCard extends StatelessWidget {
                         ],
                       ),
                     ],
+
+                    const Spacer(),
+
                     if (onCancelar != null)
                       ActionIcon(icon: Icons.cancel_outlined, color: cs.error, onTap: onCancelar!),
                     if (onRechazar != null) ...[
@@ -254,9 +250,13 @@ class ReservaCard extends StatelessWidget {
                       ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onAprobar!),
                     ],
                     if (onRegistrarDevolucion != null) ...[
-                      const SizedBox(width: 8),
+                      
                       ActionIcon(icon: Icons.assignment_return_outlined, color: cs.secondary, onTap: onRegistrarDevolucion!),
                     ],
+                    if (onEditar != null)
+                      const SizedBox(width: 8),
+                      ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!
+                    ),
                     if (onVerDetalle != null) ...[
                       const SizedBox(width: 8),
                       ActionIcon(icon: Icons.chevron_right, color: cs.onPrimaryContainer, onTap: onVerDetalle!),

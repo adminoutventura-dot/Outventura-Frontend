@@ -26,6 +26,7 @@ class SolicitudCard extends StatelessWidget {
     this.onVerDetalle,
   });
 
+
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
@@ -143,7 +144,7 @@ class SolicitudCard extends StatelessWidget {
 
                 const SizedBox(height: 8),
 
-                // Fecha / Participantes
+                // Fecha / Horario / Participantes
                 Row(
                   children: [
                     // Icono + fecha
@@ -155,6 +156,21 @@ class SolicitudCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       FormateadorFecha.short(excursion.fechaInicio),
+                      style: tt.labelSmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // Icono + horario
+                    Icon(
+                      Icons.schedule,
+                      size: 12,
+                      color: cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${FormateadorFecha.timeOnly(excursion.fechaInicio)} - ${FormateadorFecha.timeOnly(excursion.fechaFin)}',
                       style: tt.labelSmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),

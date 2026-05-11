@@ -100,7 +100,7 @@ class _UserFormPageState extends State<UserFormPage> {
                     child: CustomInputField(
                       controller: _controller.apellidos,
                       labelText: 'Apellidos',
-                      prefixIcon: Icons.person_outline,
+                      prefixIcon: Icons.badge_outlined,
                       validator: ValidadoresFormulario.campoObligatorio,
                     ),
                   ),

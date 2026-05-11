@@ -39,8 +39,8 @@ class _EquipmentCardState extends State<EquipmentCard> {
         badgeFg = cs.onPrimary;
         break;
       case EstadoEquipamiento.mantenimiento:
-        badgeBg = cs.secondary.withValues(alpha: 0.35);
-        badgeFg = cs.onPrimaryContainer;
+        badgeBg = cs.onSurfaceVariant;
+        badgeFg = cs.onPrimary;
         break;
       case EstadoEquipamiento.fueraDeServicio:
         badgeBg = cs.error;

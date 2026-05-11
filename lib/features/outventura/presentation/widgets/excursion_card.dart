@@ -21,6 +21,7 @@ class ExcursionCard extends StatelessWidget {
     this.onSolicitar,
   });
 
+
   @override
   Widget build(BuildContext context) {
     // Obtiene el esquema de colores del tema actual.
@@ -130,6 +131,14 @@ class ExcursionCard extends StatelessWidget {
                     Text(
                       // Fecha de inicio.
                       FormateadorFecha.short(excursion.fechaInicio),
+                      style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                    ),
+                    const SizedBox(width: 10),
+                    // Icono de reloj.
+                    Icon(Icons.schedule, size: 12, color: cs.onSurfaceVariant),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${FormateadorFecha.timeOnly(excursion.fechaInicio)} - ${FormateadorFecha.timeOnly(excursion.fechaFin)}',
                       style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(width: 10),

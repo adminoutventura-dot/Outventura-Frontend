@@ -356,7 +356,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 items: ref.watch(usuariosProvider).value ?? [],
                 itemValue: (Usuario user) => user.id,
                 itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
-                prefixIcon: Icons.person_outline,
+                prefixIcon: Icons.star_outline,
                 label: 'Experto',
                 hint: 'Selecciona un experto',
                 onChanged: (int? val) =>
@@ -369,7 +369,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             if (excursionSeleccionada != null) ...[
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration( color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration( color: cs.onTertiary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12), border: Border.all(color: cs.onTertiary) ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

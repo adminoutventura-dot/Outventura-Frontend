@@ -55,7 +55,6 @@ class AppImagePickerField extends StatelessWidget {
         const SizedBox(height: 10),
         PrimaryButton(
           onPressed: (){},
-            icon: Icons.upload_outlined,
             label: imageUrl == null ? 'Añadir imagen' : 'Cambiar imagen',
         )
       ],

@@ -215,7 +215,6 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                     // Cierra la página y devuelve el nuevo equipamiento a la página anterior
                     Navigator.of(context).pop(equipamiento);
                   },
-                  icon: _controller.editando ? Icons.save_outlined : Icons.add,
                 ),
               ),
             ],

@@ -159,7 +159,6 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                 width: double.infinity,
                 child: PrimaryButton(
                   label: 'Guardar',
-                  icon: Icons.save_outlined,
                   onPressed: _submit,
                 ),
               ),
