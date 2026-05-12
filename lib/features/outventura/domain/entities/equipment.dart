@@ -8,28 +8,25 @@ enum EstadoEquipamiento {
   fueraDeServicio;
 
   // Devuelve el nombre legible del estado.
-  String get label {
+  String get code {
     switch (this) {
       case EstadoEquipamiento.disponible:
-        return 'Disponible';
+        return 'disponible';
       case EstadoEquipamiento.agotado:
-        return 'Agotado';
+        return 'agotado';
       case EstadoEquipamiento.mantenimiento:
-        return 'En mantenimiento';
+        return 'mantenimiento';
       case EstadoEquipamiento.fueraDeServicio:
-        return 'Fuera de servicio';
+        return 'fueraDeServicio';
     }
   }
 
   // Crea un estado a partir del valor en texto que devuelve el backend.
   static EstadoEquipamiento fromString(String value) {
     for (EstadoEquipamiento status in EstadoEquipamiento.values) {
-      if (status.label.toLowerCase() == value.toLowerCase()) {
+      if (status.code == value) {
         return status;
       }
-    }
-    if (value.toLowerCase() == 'reservado') {
-      return EstadoEquipamiento.agotado;
     }
     return EstadoEquipamiento.disponible;
   }
@@ -38,71 +35,90 @@ enum EstadoEquipamiento {
 // Entidad de material.
 class Equipamiento {
   final int id;
-  final String nombre;
-  final String? descripcion;
-  final List<CategoriaActividad> categorias;
-  final int stock;
-  final int stockTotal;
-  final EstadoEquipamiento estado;
-  final double precioAlquilerDiario;
-  final double cargoPorDanio;
-  final String? imagenAsset;
+  final String title;
+  final String? description;
+  final List<CategoriaActividad> categories;
+  final int units;
+  // TODO: `totalUnits`, `damageFee` e `imageAsset` son solo del front.
+  final int totalUnits;
+  final EstadoEquipamiento status;
+  final double pricePerDay;
+  final double damageFee;
+  final String? imageAsset;
 
   const Equipamiento({
     required this.id,
-    required this.nombre,
-    this.descripcion,
-    required this.categorias,
-    required this.stock,
-    required this.stockTotal,
-    required this.estado,
-    required this.precioAlquilerDiario,
-    required this.cargoPorDanio,
-    this.imagenAsset,
+    required this.title,
+    this.description,
+    required this.categories,
+    required this.units,
+    required this.totalUnits,
+    required this.status,
+    required this.pricePerDay,
+    required this.damageFee,
+    this.imageAsset,
   });
 
   // Crea un Material a partir del JSON que devuelve el backend.
   factory Equipamiento.fromMap(Map<String, dynamic> map) {
+    // Guarda el valor de 'categories' sin importar su formato.
+    final dynamic categoriesRaw = map['categories'];
+
+    // Comprueba si el campo 'categories' es una lista, y si lo es, mapea cada elemento a CategoriaActividad.
+    final List<CategoriaActividad> parsedCategories = (categoriesRaw is List)
+        ? categoriesRaw
+            .map((dynamic e) => CategoriaActividad.fromDynamic(e))
+            .whereType<CategoriaActividad>()
+            .toList()
+        : <CategoriaActividad>[];
+
+    // Guarda el valor de 'status' sin importar su formato.
+    final dynamic statusRaw = map['status'];
+    // Comprueba si el campo 'status' es un String o un Map, y si es un Map, extrae el 'code'.
+    final String? statusValue = statusRaw is String
+        ? statusRaw
+        : (statusRaw is Map<String, dynamic> ? statusRaw['code'] as String? : null);
+
+    // Guarda el valor de 'units' del backend.
+    final int units = (map['units'] ?? 0) as int;
+
     return Equipamiento(
-      id: map['id'] as int,
-      nombre: map['name'] as String,
-      descripcion: map['description'] as String?,
-      // Convierte la lista JSON de categorías en una lista de objetos CategoriaActividad.
-      categorias: (map['categories'] as List<dynamic>)
-          .map((dynamic e) => CategoriaActividad.fromString(e as String))
-          .toList(),
-      stock: map['stock'] as int,
-      stockTotal: map['stockTotal'] as int? ?? map['stock'] as int,
-      estado: EstadoEquipamiento.fromString(map['status'] as String),
-      precioAlquilerDiario: (map['dailyRentalPrice'] as num).toDouble(),
-      cargoPorDanio: (map['damageFee'] as num).toDouble(),
-      imagenAsset: map['imageAsset'] as String?,
+      id: (map['id_equipment'] ?? map['id']) as int,
+      title: map['title'] as String,
+      description: map['description'] as String?,
+      categories: parsedCategories,
+      units: units,
+      totalUnits: (map['stockTotal'] as int?) ?? units,
+      status: EstadoEquipamiento.fromString(statusValue ?? 'disponible'),
+      pricePerDay: (map['price_per_day'] as num?)?.toDouble() ?? 0,
+      damageFee: (map['damageFee'] as num?)?.toDouble() ?? 0,
+      imageAsset: map['imageAsset'] as String?,
     );
   }
 
   // Crea un nuevo material a partir del actual, permitiendo modificar algunos campos.
   Equipamiento copyWith({
-    String? nombre,
-    String? descripcion,
-    List<CategoriaActividad>? categorias,
-    int? stock,
-    int? stockTotal,
-    EstadoEquipamiento? estado,
-    double? precioAlquilerDiario,
-    double? cargoPorDanio,
-    String? imagenAsset,
+    String? title,
+    String? description,
+    List<CategoriaActividad>? categories,
+    int? units,
+    int? totalUnits,
+    EstadoEquipamiento? status,
+    double? pricePerDay,
+    double? damageFee,
+    String? imageAsset,
   }) {
     return Equipamiento(
       id: id,
-      nombre: nombre ?? this.nombre,
-      descripcion: descripcion ?? this.descripcion,
-      categorias: categorias ?? this.categorias,
-      stock: stock ?? this.stock,
-      stockTotal: stockTotal ?? this.stockTotal,
-      estado: estado ?? this.estado,
-      precioAlquilerDiario: precioAlquilerDiario ?? this.precioAlquilerDiario,
-      cargoPorDanio: cargoPorDanio ?? this.cargoPorDanio,
-      imagenAsset: imagenAsset ?? this.imagenAsset,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      categories: categories ?? this.categories,
+      units: units ?? this.units,
+      totalUnits: totalUnits ?? this.totalUnits,
+      status: status ?? this.status,
+      pricePerDay: pricePerDay ?? this.pricePerDay,
+      damageFee: damageFee ?? this.damageFee,
+      imageAsset: imageAsset ?? this.imageAsset,
     );
   }
 }

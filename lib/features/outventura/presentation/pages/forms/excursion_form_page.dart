@@ -13,7 +13,7 @@ import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/presentation/controllers/excursion_form_controller.dart';
 
 class ExcursionFormPage extends StatefulWidget {
-  final Excursion? excursion;
+  final Activity? excursion;
 
   const ExcursionFormPage({super.key, this.excursion});
 
@@ -230,7 +230,7 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                     if (!_controller.validar()) {
                       return;
                     }
-                    final Excursion excursion = _controller.construirExcursion();
+                    final Activity excursion = _controller.construirExcursion();
                     Navigator.of(context).pop(excursion);
                   },
                 ),

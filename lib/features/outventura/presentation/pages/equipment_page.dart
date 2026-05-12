@@ -176,7 +176,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           final bool confirm = await showConfirmDialog(
                             context: context,
                             title: s.deleteEquipment,
-                            content: s.deleteEquipmentConfirm(equipamiento.nombre),
+                            content: s.deleteEquipmentConfirm(equipamiento.title),
                           );
                           if (confirm) {
                             ref.read(equipamientosProvider.notifier).eliminar(equipamiento);

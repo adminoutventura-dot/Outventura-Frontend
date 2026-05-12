@@ -25,13 +25,13 @@ class UserFormController {
   void cargarUsuario(Usuario usuario) {
     editando = true;
     seleccionado = usuario;
-    nombre.text = usuario.nombre;
-    apellidos.text = usuario.apellidos;
+    nombre.text = usuario.name;
+    apellidos.text = usuario.surname;
     email.text = usuario.email;
-    telefono.text = usuario.telefono ?? '';
-    rol = usuario.rol;
-    activo = usuario.activo;
-    foto = usuario.foto;
+    telefono.text = usuario.phone ?? '';
+    rol = usuario.role;
+    activo = usuario.active;
+    foto = usuario.photo;
   }
 
   // Limpiar todos los campos
@@ -50,13 +50,13 @@ class UserFormController {
   Usuario construirUsuario() {
     return Usuario(
       id: seleccionado?.id ?? DateTime.now().millisecondsSinceEpoch,
-      nombre: nombre.text.trim(),
-      apellidos: apellidos.text.trim(),
+      name: nombre.text.trim(),
+      surname: apellidos.text.trim(),
       email: email.text.trim(),
-      telefono: telefono.text.trim().isEmpty ? null : telefono.text.trim(),
-      rol: rol,
-      activo: activo,
-      foto: foto,
+      phone: telefono.text.trim().isEmpty ? null : telefono.text.trim(),
+      role: rol,
+      active: activo,
+      photo: foto,
     );
   }
 

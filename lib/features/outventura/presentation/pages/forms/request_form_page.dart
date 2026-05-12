@@ -80,7 +80,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final bool isEdit = _controller.editando;
-    final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
+    final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
     final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
 
     // Si la reserva vinculada fue borrada desde otra pantalla, limpiar el controller.
@@ -109,7 +109,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
           .toList();
     }
 
-    final Excursion? excursionSeleccionada = _controller.buscarExcursionSeleccionada( excursiones );
+    final Activity? excursionSeleccionada = _controller.buscarExcursionSeleccionada( excursiones );
 
     // Cargo por daños de la reserva asociada (si existe y tiene daños registrados).
     final List<Reserva> todasReservas = ref.watch(reservasProvider).value ?? [];
@@ -122,8 +122,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     final Map<int, String> nombrePorId = {};
     final Map<int, double> precioPorId = {};
     for (final Equipamiento e in equipamientos) {
-      nombrePorId[e.id] = e.nombre;
-      precioPorId[e.id] = e.precioAlquilerDiario;
+      nombrePorId[e.id] = e.title;
+      precioPorId[e.id] = e.pricePerDay;
     }
 
     return Scaffold(
@@ -149,7 +149,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               value: _controller.idUsuario,
               items: usuariosDisponibles,
               itemValue: (Usuario user) => user.id,
-              itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
+              itemLabel: (Usuario user) => '${user.name} ${user.surname}',
               prefixIcon: Icons.person_outlined,
               label: s.client,
               hint: modoCliente ? s.client : s.selectClient,
@@ -161,11 +161,11 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
             const SizedBox(height: 20),
             // Excursión
-            AppDropdownField<Excursion>(
+            AppDropdownField<Activity>(
               value: _controller.idExcursion,
               items: excursiones,
               itemValue: (e) => e.id,
-              itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
+              itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
               prefixIcon: Icons.hiking_outlined,
               label: s.excursion,
               hint: s.selectExcursion,
@@ -205,7 +205,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                       label: s.addAll,
                       icon: Icons.add,
                       onPressed: () {
-                        final Map<int, int> plantilla = excursionSeleccionada.materialesPorParticipante;
+                        final Map<int, int> plantilla = excursionSeleccionada.materialsPerParticipant;
                         setState(() {
                           for (final MapEntry<int, int> entry in plantilla.entries) {
                             _controller.establecerCantidadMaterial(entry.key, entry.value * _controller.numeroParticipantes);
@@ -225,7 +225,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                   s.selectExcursionToSeeMaterial,
                   style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 )
-              else if (excursionSeleccionada.materialesPorParticipante.isEmpty)
+              else if (excursionSeleccionada.materialsPerParticipant.isEmpty)
                 Text(
                   s.noRecommendedMaterial,
                   style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
@@ -277,14 +277,14 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 }),
 
             // Si estamos editando una solicitud sin reserva, mostrar botón para añadir materiales recomendados.
-            ] else if (isEdit && _controller.idReserva == null && excursionSeleccionada != null && excursionSeleccionada.materialesPorParticipante.isNotEmpty) ...[  
+            ] else if (isEdit && _controller.idReserva == null && excursionSeleccionada != null && excursionSeleccionada.materialsPerParticipant.isNotEmpty) ...[  
               // Editando sin reserva: botón para añadir materiales
               TertiaryButton(
                 label: s.addMaterials,
                 icon: Icons.add,
                 onPressed: () => setState(() {
                   _mostrarMateriales = true;
-                  for (final MapEntry<int, int> entry in excursionSeleccionada.materialesPorParticipante.entries) {
+                  for (final MapEntry<int, int> entry in excursionSeleccionada.materialsPerParticipant.entries) {
                     _controller.establecerCantidadMaterial(entry.key, entry.value * _controller.numeroParticipantes);
                   }
                 }),
@@ -358,7 +358,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 value: _controller.idExperto,
                 items: ref.watch(usuariosProvider).value ?? [],
                 itemValue: (Usuario user) => user.id,
-                itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
+                itemLabel: (Usuario user) => '${user.name} ${user.surname}',
                 prefixIcon: Icons.star_outline,
                 label: s.expert,
                 hint: s.selectExpert,
@@ -383,7 +383,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(s.excursionPrice(_controller.numeroParticipantes), style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
-                        Text(s.priceEur((excursionSeleccionada.precio * _controller.numeroParticipantes).toStringAsFixed(2)), style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
+                        Text(s.priceEur((excursionSeleccionada.price * _controller.numeroParticipantes).toStringAsFixed(2)), style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
                       ],
                     ),
 
@@ -396,7 +396,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                           Text(s.materialsRental, style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
                           Text(
                             () {
-                              final double precioMateriales = _controller.calcularPrecioTotal(excursiones, equipamientos) - excursionSeleccionada.precio * _controller.numeroParticipantes;
+                              final double precioMateriales = _controller.calcularPrecioTotal(excursiones, equipamientos) - excursionSeleccionada.price * _controller.numeroParticipantes;
                               return s.priceEur(precioMateriales.toStringAsFixed(2));
                             }(),
                             style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer),

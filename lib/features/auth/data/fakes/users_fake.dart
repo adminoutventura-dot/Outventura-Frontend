@@ -6,46 +6,46 @@ final List<Usuario> usuariosFake = [
   // Administrador jefe con acceso total al sistema.
   const Usuario(
     id: 1,
-    nombre: 'Ana',
-    apellidos: 'García López',
+    name: 'Ana',
+    surname: 'García López',
     email: 'superadmin@outventura.com',
-    telefono: '600 111 222',
-    rol: TipoRol.superadmin,
-    foto: 'assets/images/Camino.jpg',
-    activo: true,
+    phone: '600 111 222',
+    role: TipoRol.superadmin,
+    photo: 'assets/images/Camino.jpg',
+    active: true,
   ),
 
   // Administrador (trabajador) que gestiona excursiones y material.
   const Usuario(
     id: 2,
-    nombre: 'Carlos',
-    apellidos: 'Martínez Ruiz',
+    name: 'Carlos',
+    surname: 'Martínez Ruiz',
     email: 'admin@outventura.com',
-    telefono: '600 333 444',
-    rol: TipoRol.admin,
-    foto: 'assets/images/Camino.jpg',
-    activo: true,
+    phone: '600 333 444',
+    role: TipoRol.admin,
+    photo: 'assets/images/Camino.jpg',
+    active: true,
   ),
 
   // Cliente registrado que puede solicitar excursiones y alquilar material.
   const Usuario(
     id: 3,
-    nombre: 'Laura',
-    apellidos: 'Sánchez Torres',
+    name: 'Laura',
+    surname: 'Sánchez Torres',
     email: 'cliente@outventura.com',
-    telefono: '600 555 666',
-    rol: TipoRol.usuario,
-    activo: true,
+    phone: '600 555 666',
+    role: TipoRol.usuario,
+    active: true,
   ),
 
   // Segundo cliente para probar filtros admin/cliente.
   const Usuario(
     id: 4,
-    nombre: 'Diego',
-    apellidos: 'Navarro Pérez',
+    name: 'Diego',
+    surname: 'Navarro Pérez',
     email: 'cliente2@outventura.com',
-    telefono: '600 777 888',
-    rol: TipoRol.usuario,
-    activo: false,
+    phone: '600 777 888',
+    role: TipoRol.usuario,
+    active: false,
   ),
 ];

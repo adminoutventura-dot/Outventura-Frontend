@@ -32,6 +32,7 @@ enum EstadoSolicitud {
   }
 }
 
+// TODO: El backend no tiene modelo de Solicitud; alinear campos cuando exista.
 // Entidad de solicitud.
 class Solicitud {
   final int id;

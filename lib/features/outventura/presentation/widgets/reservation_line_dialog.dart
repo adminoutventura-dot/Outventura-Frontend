@@ -67,7 +67,7 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
               value: _idEquipamiento,
               items: widget.equipamientos,
               itemValue: (e) => e.id,
-              itemLabel: (e) => e.nombre,
+              itemLabel: (e) => e.title,
               prefixIcon: Icons.inventory_2_outlined,
               label: s.equipment,
               hint: s.noneSelected,

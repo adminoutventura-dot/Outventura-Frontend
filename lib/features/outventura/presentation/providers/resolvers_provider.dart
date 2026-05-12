@@ -22,7 +22,7 @@ final nombreExcursionProvider = Provider.family<String?, int?>((ref, id) {
   if (id == null) {
     return null;
   }
-  final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
+  final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
   return resolverNombreExcursion(id, excursiones);
 });
 
@@ -39,9 +39,9 @@ final imagenEquipamientoProvider = Provider.family<String?, int>((ref, id) {
 });
 
 // Resuelve una excursión completa por su ID.
-final excursionPorIdProvider = Provider.family<Excursion?, int>((ref, id) {
-  final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
-  final int index = excursiones.indexWhere((Excursion e) => e.id == id);
+final excursionPorIdProvider = Provider.family<Activity?, int>((ref, id) {
+  final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
+  final int index = excursiones.indexWhere((Activity e) => e.id == id);
   return index != -1 ? excursiones[index] : null;
 });
 

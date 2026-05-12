@@ -20,10 +20,10 @@ final usuariosFiltradosProvider = Provider.family<AsyncValue<List<Usuario>>, ({S
     List<Usuario> base = todos;
 
     if (params.rol != null) {
-      base = base.where((Usuario u) => u.rol == params.rol).toList();
+      base = base.where((Usuario u) => u.role == params.rol).toList();
     }
     if (params.activo != null) {
-      base = base.where((Usuario u) => u.activo == params.activo).toList();
+      base = base.where((Usuario u) => u.active == params.activo).toList();
     }
     if (params.query.isEmpty) {
       return base;
@@ -32,7 +32,7 @@ final usuariosFiltradosProvider = Provider.family<AsyncValue<List<Usuario>>, ({S
     
     // Filtra por nombre, apellidos, email o teléfono
     return base.where((Usuario u) =>
-      '${u.nombre} ${u.apellidos} ${u.email} ${u.telefono ?? ''}'.toLowerCase().contains(q)
+      '${u.name} ${u.surname} ${u.email} ${u.phone ?? ''}'.toLowerCase().contains(q)
     ).toList();
   });
 });

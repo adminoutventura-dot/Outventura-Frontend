@@ -107,23 +107,23 @@ class RequestDetailPage extends ConsumerWidget {
                 DetailRow(
                   Icons.hiking_outlined,
                   s.route,
-                  '${excursion.puntoInicio} - ${excursion.puntoFin}',                
+                  '${excursion.startPoint} - ${excursion.endPoint}',                
                 ),
                 DetailRow(
                   Icons.calendar_today_outlined,
                   s.start,
-                  FormateadorFecha.withTime(excursion.fechaInicio),                
+                  FormateadorFecha.withTime(excursion.initDate),                
                 ),
                 DetailRow(
                   Icons.event_outlined,
                   s.end,
-                  FormateadorFecha.withTime(excursion.fechaFin),                
+                  FormateadorFecha.withTime(excursion.endDate),                
                 ),
-                if (excursion.precio > 0)
+                if (excursion.price > 0)
                   DetailRow(
                     Icons.euro_outlined,
                     s.basePrice,
-                    s.pricePerPerson(excursion.precio.toStringAsFixed(2)),                  
+                    s.pricePerPerson(excursion.price.toStringAsFixed(2)),                  
                   ),
               ],
             ),

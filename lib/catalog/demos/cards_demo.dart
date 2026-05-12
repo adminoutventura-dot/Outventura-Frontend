@@ -66,7 +66,7 @@ class CardsDemo extends StatelessWidget {
           const SizedBox(height: 8),
           SolicitudCard(
             solicitud: solicitudesFake[0],
-            excursion: catalogoExcursiones.firstWhere((Excursion e) => e.id == solicitudesFake[0].idExcursion),
+            excursion: catalogoExcursiones.firstWhere((Activity e) => e.id == solicitudesFake[0].idExcursion),
           ),
 
           const SizedBox(height: 16),
@@ -74,7 +74,7 @@ class CardsDemo extends StatelessWidget {
           const SizedBox(height: 8),
           SolicitudCard(
             solicitud: solicitudesFake[1],
-            excursion: catalogoExcursiones.firstWhere((Excursion e) => e.id == solicitudesFake[1].idExcursion),
+            excursion: catalogoExcursiones.firstWhere((Activity e) => e.id == solicitudesFake[1].idExcursion),
             onGestionar: () {},
             onCancelar: () {},
             onEditar: () {},
@@ -86,14 +86,14 @@ class CardsDemo extends StatelessWidget {
           const SizedBox(height: 8),
           ReservaCard(
             reserva: reservasFake[0],
-            nombreUsuario: '${usuariosFake[2].nombre} ${usuariosFake[2].apellidos}',
+            nombreUsuario: '${usuariosFake[2].name} ${usuariosFake[2].surname}',
             nombreExcursion: () {
-              final Excursion? ex = catalogoExcursiones.where((Excursion e) => e.id == reservasFake[0].idExcursion).firstOrNull;
-              return ex != null ? '${ex.puntoInicio} → ${ex.puntoFin}' : null;
+              final Activity? ex = catalogoExcursiones.where((Activity e) => e.id == reservasFake[0].idExcursion).firstOrNull;
+              return ex != null ? '${ex.startPoint} → ${ex.endPoint}' : null;
             }(),
             lineas: reservasFake[0].lineas.map((LineaReserva l) {
               final Equipamiento eq = equipamientosFake.firstWhere((Equipamiento e) => e.id == l.idEquipamiento, orElse: () => equipamientosFake.first);
-              return (nombre: eq.nombre, imagen: eq.imagenAsset, cantidad: l.cantidad);
+              return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.cantidad);
             }).toList(),
             onAprobar: () {},
             onRechazar: () {},
@@ -104,10 +104,10 @@ class CardsDemo extends StatelessWidget {
           const SizedBox(height: 8),
           ReservaCard(
             reserva: reservasFake[1],
-            nombreUsuario: '${usuariosFake[2].nombre} ${usuariosFake[2].apellidos}',
+            nombreUsuario: '${usuariosFake[2].name} ${usuariosFake[2].surname}',
             lineas: reservasFake[1].lineas.map((LineaReserva l) {
               final Equipamiento eq = equipamientosFake.firstWhere((Equipamiento e) => e.id == l.idEquipamiento, orElse: () => equipamientosFake.first);
-              return (nombre: eq.nombre, imagen: eq.imagenAsset, cantidad: l.cantidad);
+              return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.cantidad);
             }).toList(),
             onRegistrarDevolucion: () {},
             onCancelar: () {},

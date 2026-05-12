@@ -62,7 +62,7 @@ class RequestFormController {
   }
 
   // Crea una nueva solicitud a partir de los datos del formulario.
-  Solicitud? crearSolicitud(List<Excursion> excursiones, List<Equipamiento> equipamientos) {
+  Solicitud? crearSolicitud(List<Activity> excursiones, List<Equipamiento> equipamientos) {
     if (!validar()) {
       return null;
     }
@@ -105,11 +105,11 @@ class RequestFormController {
   }
 
   // Busca la excursión seleccionada en la lista de excursiones disponibles.
-  Excursion? buscarExcursionSeleccionada(List<Excursion> excursiones) {
+  Activity? buscarExcursionSeleccionada(List<Activity> excursiones) {
     if (idExcursion == null) {
       return null;
     }
-    for (final Excursion e in excursiones) {
+    for (final Activity e in excursiones) {
       if (e.id == idExcursion) {
         return e;
       }
@@ -119,13 +119,13 @@ class RequestFormController {
 
   // TEMPORAL: reemplazar por GET /api/precio-solicitud con parámetros. El backend calculará el precio total.
   // Recalcula los materiales solicitados basándose en la excursión seleccionada y el número de participantes.
-  void recalcularMateriales(List<Excursion> excursiones) {
+  void recalcularMateriales(List<Activity> excursiones) {
     // Si ya existe una reserva asociada, no sobreescribir las cantidades.
     if (idReserva != null) {
       return;
     }
     // Si no hay excursión seleccionada, limpia los materiales solicitados.
-    final Excursion? excursion = buscarExcursionSeleccionada(excursiones);
+    final Activity? excursion = buscarExcursionSeleccionada(excursiones);
     if (excursion == null) {
       materialesSolicitados = {};
       return;
@@ -133,7 +133,7 @@ class RequestFormController {
 
     final int participantes = numeroParticipantes;
     // Variable que guarda las entradas del mapa materialesPorParticipante para poder recorrerlas.
-    final Iterable<MapEntry<int, int>> plantilla = excursion.materialesPorParticipante.entries;
+    final Iterable<MapEntry<int, int>> plantilla = excursion.materialsPerParticipant.entries;
     final Map<int, int> recalculado = {};
 
     for (final MapEntry<int, int> entry in plantilla) {
@@ -151,7 +151,7 @@ class RequestFormController {
 
   // TEMPORAL: el backend creará la reserva y devolverá el ID real. Eliminar GeneradorId.idEntero() de aquí.
   // Construye una reserva a partir de la solicitud actual.
-  Reserva? construirReserva(List<Excursion> excursiones) {
+  Reserva? construirReserva(List<Activity> excursiones) {
     if (idUsuario == null) {
       return null;
     }
@@ -162,9 +162,9 @@ class RequestFormController {
       return null;
     }
 
-    final Excursion? excursion = buscarExcursionSeleccionada(excursiones);
-    final DateTime inicio = excursion?.fechaInicio ?? DateTime.now();
-    final DateTime fin = excursion?.fechaFin ?? inicio.add(const Duration(days: 1));
+    final Activity? excursion = buscarExcursionSeleccionada(excursiones);
+    final DateTime inicio = excursion?.initDate ?? DateTime.now();
+    final DateTime fin = excursion?.endDate ?? inicio.add(const Duration(days: 1));
 
     final Reserva reserva = Reserva(
       id: GeneradorId.idEntero(),
@@ -219,7 +219,7 @@ class RequestFormController {
   }
 
   // Crea una reserva a partir de los datos actuales. Devuelve null si hay error de validación.
-  Reserva? crearReserva(List<Excursion> excursiones) {
+  Reserva? crearReserva(List<Activity> excursiones) {
     final Reserva? reserva = construirReserva(excursiones);
     return reserva;
   }
@@ -252,7 +252,7 @@ class RequestFormController {
   }
 
   // Calcula el precio total de la solicitud delegando al servicio de pricing.
-  double calcularPrecioTotal(List<Excursion> excursiones, List<Equipamiento> equipamientos) {
+  double calcularPrecioTotal(List<Activity> excursiones, List<Equipamiento> equipamientos) {
     return calcularPrecioSolicitud(
       idExcursion: idExcursion,
       numeroParticipantes: numeroParticipantes,
@@ -303,7 +303,7 @@ class RequestFormController {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
       return null;
     }
-    final List<Excursion> excursiones = ref.read(excursionesProvider).value ?? [];
+    final List<Activity> excursiones = ref.read(excursionesProvider).value ?? [];
     final Reserva? reserva = crearReserva(excursiones);
     if (reserva != null) {
       ref.read(reservasProvider.notifier).agregar(reserva);

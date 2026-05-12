@@ -1,86 +1,89 @@
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
-// Fake excursion catalog data.
-final List<Excursion> catalogoExcursiones = [
-  // Excursión de senderismo y montaña en Mallorca.
-  Excursion(
+// Fake activity catalog data.
+final List<Activity> catalogoExcursiones = [
+  // Actividad de senderismo y montaña en Mallorca.
+  Activity(
     id: 1,
-    puntoInicio: 'Puerto de Sóller',
-    puntoFin: 'Torre Picada',
-    categorias: [CategoriaActividad.acuatico, CategoriaActividad.montana],
-    numeroParticipantes: 20,
-    descripcion:
-        'Ruta sencilla con vistas al mar y a la montaña en la costa de Mallorca.',
-    estado: EstadoExcursion.disponible,
-    precio: 35.0,
-    materialesPorParticipante: {5: 1, 6: 2},
-    fechaInicio: DateTime(2026, 5, 1, 9, 0),
-    fechaFin: DateTime(2026, 5, 1, 12, 0),
+    title: 'Senderismo costa de Mallorca',
+    description: 'Ruta sencilla con vistas al mar y a la montaña en la costa de Mallorca.',
+    initDate: DateTime(2026, 5, 1, 9, 0),
+    endDate: DateTime(2026, 5, 1, 12, 0),
+    difficulty: 2,
+    maxParticipants: 20,
+    startEndPoint: 'Puerto de Soller - Torre Picada',
+    categories: [CategoriaActividad.acuatico, CategoriaActividad.montana],
+    status: EstadoExcursion.disponible,
+    price: 35.0,
+    materialsPerParticipant: {5: 1, 6: 2},
   ),
 
-  // Excursión en kayak por el Delta del Ebro.
-  Excursion(
+  // Actividad en kayak por el Delta del Ebro.
+  Activity(
     id: 2,
-    puntoInicio: 'Deltebre',
-    puntoFin: 'Isla de Buda',
-    imagenAsset: 'assets/images/Camino.jpg',
-    categorias: [CategoriaActividad.acuatico],
-    numeroParticipantes: 15,
-    descripcion:
-        'Recorrido en kayak por el Delta del Ebro, ideal para principiantes.',
-    estado: EstadoExcursion.disponible,
-    precio: 55.0,
-    materialesPorParticipante: {3: 1, 8: 1},
-    fechaInicio: DateTime(2026, 6, 10, 10, 0),
-    fechaFin: DateTime(2026, 6, 10, 14, 0),
+    title: 'Kayak en el Delta del Ebro',
+    description: 'Recorrido en kayak por el Delta del Ebro, ideal para principiantes.',
+    initDate: DateTime(2026, 6, 10, 10, 0),
+    endDate: DateTime(2026, 6, 10, 14, 0),
+    difficulty: 1,
+    maxParticipants: 15,
+    startEndPoint: 'Deltebre - Isla de Buda',
+    categories: [CategoriaActividad.acuatico],
+    imageAsset: 'assets/images/Camino.jpg',
+    status: EstadoExcursion.disponible,
+    price: 55.0,
+    materialsPerParticipant: {3: 1, 8: 1},
   ),
 
   // Ruta de escalada en los Picos de Europa.
-  Excursion(
+  Activity(
     id: 3,
-    puntoInicio: 'Fuente Dé',
-    puntoFin: 'Torre de los Horcados Rojos',
-    imagenAsset: 'assets/images/Camino.jpg',
-    categorias: [CategoriaActividad.acuatico, CategoriaActividad.montana],
-    numeroParticipantes: 10,
-    descripcion: 'Ascensión técnica.',
-    estado: EstadoExcursion.disponible,
-    precio: 90.0,
-    materialesPorParticipante: {7: 1, 8: 1, 6: 1},
-    fechaInicio: DateTime(2026, 7, 15, 8, 0),
-    fechaFin: DateTime(2026, 7, 16, 18, 0),
+    title: 'Escalada Picos de Europa',
+    description: 'Ascension tecnica con tramos exigentes.',
+    initDate: DateTime(2026, 7, 15, 8, 0),
+    endDate: DateTime(2026, 7, 16, 18, 0),
+    difficulty: 4,
+    maxParticipants: 10,
+    startEndPoint: 'Fuente De - Torre de los Horcados Rojos',
+    categories: [CategoriaActividad.acuatico, CategoriaActividad.montana],
+    imageAsset: 'assets/images/Camino.jpg',
+    status: EstadoExcursion.disponible,
+    price: 90.0,
+    materialsPerParticipant: {7: 1, 8: 1, 6: 1},
   ),
 
-  // Excursión con raquetas de nieve en los Pirineos.
-  Excursion(
+  // Actividad con raquetas de nieve en los Pirineos.
+  Activity(
     id: 4,
-    puntoInicio: 'Benasque',
-    puntoFin: 'Pico Cerler',
-    imagenAsset: 'assets/images/Camino.jpg',
-    categorias: [CategoriaActividad.nieve],
-    numeroParticipantes: 12,
-    descripcion: 'Ruta guiada con raquetas de nieve por el valle de Benasque.',
-    estado: EstadoExcursion.disponible,
-    precio: 70.0,
-    materialesPorParticipante: {9: 1, 2: 1, 6: 2},
-    fechaInicio: DateTime(2026, 12, 20, 9, 0),
-    fechaFin: DateTime(2026, 12, 20, 15, 0),
+    title: 'Raquetas en Benasque',
+    description: 'Ruta guiada con raquetas de nieve por el valle de Benasque.',
+    initDate: DateTime(2026, 12, 20, 9, 0),
+    endDate: DateTime(2026, 12, 20, 15, 0),
+    difficulty: 2,
+    maxParticipants: 12,
+    startEndPoint: 'Benasque - Pico Cerler',
+    categories: [CategoriaActividad.nieve],
+    imageAsset: 'assets/images/Camino.jpg',
+    status: EstadoExcursion.disponible,
+    price: 70.0,
+    materialsPerParticipant: {9: 1, 2: 1, 6: 2},
   ),
 
-  // Excursión urbana sin material recomendado.
-  Excursion(
+  // Actividad urbana.
+  Activity(
     id: 5,
-    puntoInicio: 'Plaza Mayor',
-    puntoFin: 'Mirador del Castillo',
-    categorias: [CategoriaActividad.montana],
-    numeroParticipantes: 25,
-    descripcion: 'Paseo guiado de baja dificultad por el casco antiguo.',
-    estado: EstadoExcursion.noDisponible,
-    precio: 20.0,
-    materialesPorParticipante: {},
-    fechaInicio: DateTime(2026, 8, 5, 18, 0),
-    fechaFin: DateTime(2026, 8, 5, 20, 0),
+    title: 'Paseo casco antiguo',
+    description: 'Paseo guiado de baja dificultad por el casco antiguo.',
+    initDate: DateTime(2026, 8, 5, 18, 0),
+    endDate: DateTime(2026, 8, 5, 20, 0),
+    difficulty: 1,
+    maxParticipants: 25,
+    startEndPoint: 'Plaza Mayor - Mirador del Castillo',
+    categories: [CategoriaActividad.montana],
+    status: EstadoExcursion.noDisponible,
+    price: 20.0,
+    materialsPerParticipant: {},
   ),
 
 ];

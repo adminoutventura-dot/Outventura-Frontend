@@ -20,10 +20,10 @@ final equipamientosFiltradosProvider = Provider.family<AsyncValue<List<Equipamie
     List<Equipamiento> base = todos;
 
     if (params.estado != null) {
-      base = base.where((Equipamiento e) => e.estado == params.estado).toList();
+      base = base.where((Equipamiento e) => e.status == params.estado).toList();
     }
     if (params.categoria != null) {
-      base = base.where((Equipamiento e) => e.categorias.contains(params.categoria)).toList();
+      base = base.where((Equipamiento e) => e.categories.contains(params.categoria)).toList();
     }
     if (params.query.isEmpty) {
       return base;
@@ -31,7 +31,7 @@ final equipamientosFiltradosProvider = Provider.family<AsyncValue<List<Equipamie
     final String q = params.query.toLowerCase();
     
     // Filtra por el nombre del equipamiento
-    return base.where((Equipamiento e) => e.nombre.toLowerCase().contains(q)).toList();
+    return base.where((Equipamiento e) => e.title.toLowerCase().contains(q)).toList();
   });
 });
 

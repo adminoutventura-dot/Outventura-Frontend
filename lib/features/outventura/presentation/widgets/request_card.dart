@@ -10,7 +10,7 @@ import 'package:outventura/core/utils/enum_translations.dart';
 
 class SolicitudCard extends StatelessWidget {
   final Solicitud solicitud;
-  final Excursion excursion;
+  final Activity excursion;
   final String? nombreUsuario;
   final VoidCallback? onGestionar;
   final VoidCallback? onCancelar;
@@ -99,7 +99,7 @@ class SolicitudCard extends StatelessWidget {
                             runSpacing: 2,
                             children: [
                               Text(
-                                excursion.puntoInicio,
+                                excursion.startPoint,
                                 style: tt.labelLarge?.copyWith(
                                   color: cs.onSurface,
                                 ),
@@ -110,7 +110,7 @@ class SolicitudCard extends StatelessWidget {
                                 color: cs.onSurfaceVariant,
                               ),
                               Text(
-                                excursion.puntoFin,
+                                excursion.endPoint,
                                 style: tt.labelLarge?.copyWith(
                                   color: cs.onSurface,
                                 ),
@@ -158,7 +158,7 @@ class SolicitudCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      FormateadorFecha.short(excursion.fechaInicio),
+                      FormateadorFecha.short(excursion.initDate),
                       style: tt.labelSmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),
@@ -173,7 +173,7 @@ class SolicitudCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${FormateadorFecha.timeOnly(excursion.fechaInicio)} - ${FormateadorFecha.timeOnly(excursion.fechaFin)}',
+                      '${FormateadorFecha.timeOnly(excursion.initDate)} - ${FormateadorFecha.timeOnly(excursion.endDate)}',
                       style: tt.labelSmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),
@@ -209,7 +209,7 @@ class SolicitudCard extends StatelessWidget {
                     // Categorías
                     Row(
                       spacing: 5,
-                      children: excursion.categorias
+                      children: excursion.categories
                           .map(
                             (CategoriaActividad c) => TagWidget(
                               text: c.localizedLabel(s),

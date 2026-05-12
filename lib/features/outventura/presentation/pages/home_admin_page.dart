@@ -24,7 +24,7 @@ class HomeAdminPage extends ConsumerWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
-    final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
+    final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
     final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
     final List<Solicitud> solicitudes = ref.watch(solicitudesProvider).value ?? [];
 

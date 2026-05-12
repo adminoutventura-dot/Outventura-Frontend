@@ -1,7 +1,6 @@
 enum TipoRol {
   superadmin,
   admin,
-  experto,
   usuario,
   invitado;
 
@@ -12,8 +11,6 @@ enum TipoRol {
         return 'Superadmin';
       case TipoRol.admin:
         return 'Admin';
-      case TipoRol.experto:
-        return 'Experto';
       case TipoRol.usuario:
         return 'Usuario';
       case TipoRol.invitado:
@@ -21,14 +18,26 @@ enum TipoRol {
     }
   }
 
+  String get code {
+    switch (this) {
+      case TipoRol.superadmin:
+        return 'SUPER';
+      case TipoRol.admin:
+        return 'ADMIN';
+      case TipoRol.usuario:
+        return 'USER';
+      case TipoRol.invitado:
+        return 'GUEST';
+    }
+  }
+
   // Crea un rol a partir del valor en texto que devuelve el backend.
   static TipoRol fromString(String value) {
     for (TipoRol rol in TipoRol.values) {
-      if (rol.name == value.toLowerCase()) {
+      if (rol.code == value) {
         return rol;
       }
     }
     return TipoRol.invitado;
   }
-  
 }

@@ -7,7 +7,7 @@ double calcularPrecioSolicitud({
   required int? idExcursion,
   required int numeroParticipantes,
   required Map<int, int> materialesSolicitados,
-  required List<Excursion> excursiones,
+  required List<Activity> excursiones,
   required List<Equipamiento> equipamientos,
 }) {
   // Si no hay excursión asociada, el precio es 0 (no se puede calcular).
@@ -16,21 +16,21 @@ double calcularPrecioSolicitud({
   }
 
   // Busca la excursión por su ID. Si no se encuentra, el precio es 0 (no se puede calcular).
-  final int index = excursiones.indexWhere((Excursion e) => e.id == idExcursion);
+  final int index = excursiones.indexWhere((Activity e) => e.id == idExcursion);
   if (index == -1) {
     return 0;
   }
 
   // Si se encuentra la excursión, calcula el precio total.
-  final Excursion excursion = excursiones[index];
+  final Activity excursion = excursiones[index];
   // Precio base de la excursión.
-  double total = excursion.precio * numeroParticipantes;
+  double total = excursion.price * numeroParticipantes;
 
 
   // Calcula la diferencia entre la fecha de fin y la de inicio, obteniendo una Duration.
   // .inDays - Convierte esa duración a días enteros.
   // .clamp(1, 999) - Asegura que el número de días sea al menos 1 y no más de 999.
-  final int dias = excursion.fechaFin.difference(excursion.fechaInicio).inDays.clamp(1, 999);
+  final int dias = excursion.endDate.difference(excursion.initDate).inDays.clamp(1, 999);
   
   // Guarda los equipamientos en un mapa para acceso rápido por ID (idEquipamiento → Equipamiento).
   final Map<int, Equipamiento> equipPorId = {};
@@ -42,7 +42,7 @@ double calcularPrecioSolicitud({
   for (final MapEntry<int, int> entry in materialesSolicitados.entries) {
     final Equipamiento? equip = equipPorId[entry.key];
     if (equip != null) {
-      total = equip.precioAlquilerDiario * entry.value * dias + total;
+      total = equip.pricePerDay * entry.value * dias + total;
     }
   }
 
@@ -61,7 +61,7 @@ double calcularCargoDanios({
       (Equipamiento e) => e.id == entry.key,
     );
     if (coincidencias.isNotEmpty) {
-      total = coincidencias.first.cargoPorDanio * entry.value + total;
+      total = coincidencias.first.damageFee * entry.value + total;
     }
   }
   return total;

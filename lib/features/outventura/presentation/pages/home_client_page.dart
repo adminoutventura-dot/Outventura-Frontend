@@ -36,7 +36,7 @@ class HomeClientePage extends ConsumerWidget {
     final int solicitudesPendientes = misSolicitudes
         .where((Solicitud s) => s.estado == EstadoSolicitud.pendiente)
         .length;
-    final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
+    final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -128,7 +128,7 @@ class HomeClientePage extends ConsumerWidget {
               children: [
                 const SizedBox(height: 24),
                 Text(
-                  s.greeting(usuario.nombre),
+                  s.greeting(usuario.name),
                   style: tt.titleLarge?.copyWith(color: cs.onSurface),
                 ),
                 const SizedBox(height: 6),
@@ -174,14 +174,14 @@ class HomeClientePage extends ConsumerWidget {
                 else
                   for (final Solicitud solicitud in misSolicitudes.take(3))
                     Builder(builder: (context) {
-                      final Excursion? exc = ref.watch(excursionPorIdProvider(solicitud.idExcursion));
+                      final Activity? exc = ref.watch(excursionPorIdProvider(solicitud.idExcursion));
                       if (exc == null) return const SizedBox.shrink();
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: SolicitudCard(
                           solicitud: solicitud,
                           excursion: exc,
-                          nombreUsuario: '${usuario.nombre} ${usuario.apellidos}',
+                          nombreUsuario: '${usuario.name} ${usuario.surname}',
                         ),
                       );
                     }),
@@ -197,15 +197,16 @@ class HomeClientePage extends ConsumerWidget {
                     style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                   )
                 else
-                  for (final Excursion excursion in excursiones.take(3).toList().reversed)
+                // Muestra las 3 excursiones más recientes (asumiendo que están ordenadas por fecha de creación)
+                  for (final Activity excursion in excursiones.take(3).toList().reversed)
                     Card(
                       elevation: 2,
                       margin: const EdgeInsets.only(bottom: 10),
                       child: ListTile(
                         leading: const Icon(Icons.hiking_outlined),
-                        title: Text(excursion.puntoInicio, style: tt.titleMedium),
-                        subtitle: excursion.descripcion != null
-                            ? Text(excursion.descripcion!, maxLines: 2, overflow: TextOverflow.ellipsis)
+                        title: Text(excursion.startPoint, style: tt.titleMedium),
+                        subtitle: excursion.description != null
+                          ? Text(excursion.description!, maxLines: 2, overflow: TextOverflow.ellipsis)
                             : null,
                         trailing: Icon(Icons.arrow_forward_ios, color: cs.primary, size: 18),
                       ),

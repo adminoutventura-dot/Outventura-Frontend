@@ -32,7 +32,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
 
     Color badgeBg;
     Color badgeFg;
-    switch (widget.equipamiento.estado) {
+    switch (widget.equipamiento.status) {
       case EstadoEquipamiento.disponible:
         badgeBg = cs.primary;
         badgeFg = cs.onPrimary;
@@ -51,10 +51,10 @@ class _EquipmentCardState extends State<EquipmentCard> {
         break;
     }
 
-    final double stockPorcentaje = widget.equipamiento.stockTotal > 0
-        ? (widget.equipamiento.stock / widget.equipamiento.stockTotal).clamp(0.0, 1.0)
+    final double stockPorcentaje = widget.equipamiento.totalUnits > 0
+        ? (widget.equipamiento.units / widget.equipamiento.totalUnits).clamp(0.0, 1.0)
         : 0.0;
-    final String? imagen = widget.equipamiento.imagenAsset;
+    final String? imagen = widget.equipamiento.imageAsset;
 
     return Container(
       decoration: BoxDecoration(
@@ -100,13 +100,13 @@ class _EquipmentCardState extends State<EquipmentCard> {
                       children: [
                         Expanded(
                           child: Text(
-                            widget.equipamiento.nombre,
+                            widget.equipamiento.title,
                             style: tt.labelLarge?.copyWith(color: cs.onSurface),
                           ),
                         ),
                         const SizedBox(width: 3),
                         TagWidget(
-                          text: widget.equipamiento.estado.localizedLabel(s),
+                          text: widget.equipamiento.status.localizedLabel(s),
                           backgroundColor: badgeBg,
                           textColor: badgeFg,
                         ),
@@ -115,9 +115,9 @@ class _EquipmentCardState extends State<EquipmentCard> {
                     const SizedBox(height: 4),
                     
                     // Descripción del equipamiento 
-                    if (widget.equipamiento.descripcion != null)
+                    if (widget.equipamiento.description != null)
                       Text(
-                        widget.equipamiento.descripcion!,
+                        widget.equipamiento.description!,
                         style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -131,7 +131,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                         Icon(Icons.sell_outlined, size: 11, color: cs.onSurfaceVariant),
                         const SizedBox(width: 3),
                         Text(
-                          s.pricePerDayShort(widget.equipamiento.precioAlquilerDiario.toStringAsFixed(2)),
+                          s.pricePerDayShort(widget.equipamiento.pricePerDay.toStringAsFixed(2)),
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                         const SizedBox(width: 10),
@@ -148,7 +148,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          s.stockInfo(widget.equipamiento.stock, widget.equipamiento.stockTotal),
+                          s.stockInfo(widget.equipamiento.units, widget.equipamiento.totalUnits),
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                       ],

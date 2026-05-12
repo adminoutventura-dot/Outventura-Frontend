@@ -72,7 +72,7 @@ class ReservationDetailPage extends ConsumerWidget {
                 DetailRow(
                   Icons.hiking_outlined,
                   s.excursion,
-                  '${excursion.puntoInicio} ? ${excursion.puntoFin}',                
+                  '${excursion.startPoint} ? ${excursion.endPoint}',                
                 ),
               DetailRow(
                 Icons.calendar_today_outlined,

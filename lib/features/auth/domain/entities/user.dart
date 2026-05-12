@@ -2,64 +2,72 @@ import 'role.dart';
 
 class Usuario {
   final int id;
-  final String nombre;
-  final String apellidos;
+  final String name;
+  final String surname;
   final String email;
-  final String? telefono;
-  final TipoRol rol;
-  final String? foto;
-  final bool activo;
+  final String? phone;
+  final TipoRol role;
+  final String? photo;
+  final bool active;
 
   const Usuario({
     required this.id,
-    required this.nombre,
-    required this.apellidos,
+    required this.name,
+    required this.surname,
     required this.email,
-    this.telefono,
-    required this.rol,
-    this.foto,
-    required this.activo,
+    this.phone,
+    required this.role,
+    this.photo,
+    required this.active,
   });
 
   // Crea un Usuario a partir del JSON del backend.
   factory Usuario.fromMap(Map<String, dynamic> map) {
+    // Guardar el valor de 'role' sin importar su formato.
+    final dynamic roleValue = map['role'];
+
+    // Comprueba si el campo 'role' es un String o un Map, y si es un Map, extrae el 'code'.
+    final String? roleCode = roleValue is String
+        ? roleValue
+        : (roleValue is Map<String, dynamic> ? roleValue['code'] as String? : null);
+    final String roleText = roleCode ?? 'GUEST';
     return Usuario(
-      id: map['id'] as int,
-      nombre: map['nombre'] as String,
-      apellidos: map['apellidos'] as String,
+      id: (map['id_user'] ?? map['id']) as int,
+      name: map['name'] as String,
+      surname: map['surname'] as String,
       email: map['email'] as String,
-      telefono: map['telefono']?.toString(),
-      rol: TipoRol.fromString(map['rol'] as String),
-      foto: map['foto'] as String?,
-      activo: map['estado'] as bool,
+      phone: map['phone']?.toString(),
+      role: TipoRol.fromString(roleText),
+      photo: map['photo'] as String?,
+      active: map['status'] as bool? ?? true,
     );
   }
 
   // Crea un nuevo usuario a partir del actual, permitiendo modificar algunos campos.
   Usuario copyWith({
-    String? nombre,
-    String? apellidos,
+    String? name,
+    String? surname,
     String? email,
-    String? telefono,
-    TipoRol? rol,
-    String? foto,
-    bool? activo,
+    String? phone,
+    TipoRol? role,
+    String? photo,
+    bool? active,
   }) {
     return Usuario(
       id: id,
-      nombre: nombre ?? this.nombre,
-      apellidos: apellidos ?? this.apellidos,
+      name: name ?? this.name,
+      surname: surname ?? this.surname,
       email: email ?? this.email,
-      telefono: telefono ?? this.telefono,
-      rol: rol ?? this.rol,
-      foto: foto ?? this.foto,
-      activo: activo ?? this.activo,
+      phone: phone ?? this.phone,
+      role: role ?? this.role,
+      photo: photo ?? this.photo,
+      active: active ?? this.active,
     );
   }
 
   // Comprueba si el usuario tiene un rol específico.
   bool tieneRol(TipoRol tipoRol) {
-    if (rol == tipoRol) {
+    if (role == tipoRol) {
       return true;
     } else {
       return false;

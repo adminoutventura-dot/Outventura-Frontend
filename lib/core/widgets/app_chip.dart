@@ -139,7 +139,7 @@ class AppFilterChipFormField extends StatelessWidget {
           AppChipWrap(
             children: CategoriaActividad.values.map((CategoriaActividad cat) {
               return AppFilterChip(
-                label: cat.label,
+                label: cat.code,
                 seleccionado: seleccionados.contains(cat),
                 onSelected: (_) {
                   onToggle(cat);

@@ -48,7 +48,7 @@ class AppDrawer extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  usuario?.nombre ?? s.user,
+                  usuario?.name ?? s.user,
                   style: AppTextStyles.titleMedium.copyWith(color: cs.onPrimary),
                 ),
                 if (usuario?.email != null)

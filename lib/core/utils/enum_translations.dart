@@ -79,8 +79,6 @@ extension TipoRolL10n on TipoRol {
         return s.roleSuperadmin;
       case TipoRol.admin:
         return s.roleAdmin;
-      case TipoRol.experto:
-        return s.roleExpert;
       case TipoRol.usuario:
         return s.roleUser;
       case TipoRol.invitado:

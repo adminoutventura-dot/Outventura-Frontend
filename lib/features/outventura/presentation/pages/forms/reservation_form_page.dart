@@ -126,7 +126,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 value: _controller.idUsuario,
                 items: usuariosDisponibles,
                 itemValue: (Usuario user) => user.id,
-                itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
+                itemLabel: (Usuario user) => '${user.name} ${user.surname}',
                 label: s.user,
                 hint: modoCliente ? s.yourUser : s.selectUser,
                 enabled: !modoCliente && widget.reserva == null,
@@ -150,11 +150,11 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
 
               // Excursión (solo editable para administradores; visible en modo edición)
               if (!modoCliente || widget.reserva != null) ...[
-                AppDropdownField<Excursion>(
+                AppDropdownField<Activity>(
                   value: _controller.idExcursion,
                   items: ref.read(excursionesProvider).value ?? [],
                   itemValue: (e) => e.id,
-                  itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
+                  itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
                   prefixIcon: Icons.hiking_outlined,
                   label: s.excursion,
                   hint: s.none,

@@ -18,7 +18,7 @@ final solicitudesFiltadasProvider = Provider.family<AsyncValue<List<Solicitud>>,
   final AsyncValue<List<Solicitud>> asyncTodas = ref.watch(solicitudesProvider);
 
   // Obtiene la lista de excursiones para resolver la ruta
-  final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
+  final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
 
   // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodas.whenData((List<Solicitud> todas) {
@@ -34,10 +34,10 @@ final solicitudesFiltadasProvider = Provider.family<AsyncValue<List<Solicitud>>,
     }
     if (params.fechaDesde != null || params.fechaHasta != null) {
       base = base.where((Solicitud s) {
-        final Excursion? exc = excursiones.where((Excursion e) => e.id == s.idExcursion).firstOrNull;
+        final Activity? exc = excursiones.where((Activity e) => e.id == s.idExcursion).firstOrNull;
         if (exc == null) return false;
-        if (params.fechaDesde != null && exc.fechaFin.isBefore(params.fechaDesde!)) return false;
-        if (params.fechaHasta != null && exc.fechaInicio.isAfter(params.fechaHasta!)) return false;
+        if (params.fechaDesde != null && exc.endDate.isBefore(params.fechaDesde!)) return false;
+        if (params.fechaHasta != null && exc.initDate.isAfter(params.fechaHasta!)) return false;
         return true;
       }).toList();
     }
@@ -53,10 +53,10 @@ final solicitudesFiltadasProvider = Provider.family<AsyncValue<List<Solicitud>>,
     return base.where((Solicitud s) {
       // Busca la excursión asociada a la solicitud (null si no existe)
       // firstOrNull devuelve el primer elemento de una lista que cumpla la condición, o null si no hay ninguno.
-      final Excursion? exc = excursiones.where((Excursion e) => e.id == s.idExcursion).firstOrNull;
+      final Activity? exc = excursiones.where((Activity e) => e.id == s.idExcursion).firstOrNull;
 
       // Si no se encuentra la excursión, no se incluye la solicitud
-      final String ruta = exc != null ? '${exc.puntoInicio} ${exc.puntoFin}'.toLowerCase() : '';
+      final String ruta = exc != null ? '${exc.startPoint} ${exc.endPoint}'.toLowerCase() : '';
       return ruta.contains(q);
     }).toList();
   });

@@ -30,7 +30,7 @@ class ReservationLineCard extends StatelessWidget {
     final s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final double totalDanio = cantidadDaniada * equipamiento.cargoPorDanio;
+    final double totalDanio = cantidadDaniada * equipamiento.damageFee;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -45,7 +45,7 @@ class ReservationLineCard extends StatelessWidget {
                 Icon(Icons.inventory_2_outlined, color: cs.primary, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(equipamiento.nombre, style: tt.bodyMedium),
+                  child: Text(equipamiento.title, style: tt.bodyMedium),
                 ),
                 TagWidget(
                   text: 'x${linea.cantidad}',
@@ -80,7 +80,7 @@ class ReservationLineCard extends StatelessWidget {
                         style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                       Text(
-                        s.damageFeePerUnit(equipamiento.cargoPorDanio.toStringAsFixed(2)),
+                        s.damageFeePerUnit(equipamiento.damageFee.toStringAsFixed(2)),
                         style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],

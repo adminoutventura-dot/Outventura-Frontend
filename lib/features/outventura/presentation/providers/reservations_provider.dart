@@ -21,7 +21,7 @@ final reservasFiltadasProvider = Provider.family<AsyncValue<List<Reserva>>, ({St
 
   // Obtiene las listas de usuarios y excursiones para resolver nombres
   final List<Usuario> usuarios = ref.watch(usuariosProvider).value ?? [];
-  final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
+  final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
 
   // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodas.whenData((List<Reserva> todas) {

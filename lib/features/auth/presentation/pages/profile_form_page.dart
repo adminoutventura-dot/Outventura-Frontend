@@ -73,10 +73,10 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                 child: CircleAvatar(
                   radius: 44,
                   backgroundColor: cs.primaryContainer,
-                  backgroundImage: widget.usuario.foto != null
-                      ? NetworkImage(widget.usuario.foto!)
+                  backgroundImage: widget.usuario.photo != null
+                      ? NetworkImage(widget.usuario.photo!)
                       : null,
-                  child: widget.usuario.foto == null
+                  child: widget.usuario.photo == null
                       ? Icon(Icons.person_outline, size: 44, color: cs.onPrimaryContainer)
                       : null,
                 ),

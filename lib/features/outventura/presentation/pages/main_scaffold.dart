@@ -25,7 +25,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   void initState() {
     super.initState();
-    final bool esCliente = widget.usuario.rol == TipoRol.usuario;
+    final bool esCliente = widget.usuario.role == TipoRol.usuario;
 
     _pages = [
       esCliente

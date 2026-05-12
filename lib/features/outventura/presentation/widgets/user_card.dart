@@ -29,19 +29,15 @@ class UserCard extends StatelessWidget {
     Color badgeFg;
     Color bordeColor;
 
-    if (usuario.rol == TipoRol.superadmin) {
+    if (usuario.role == TipoRol.superadmin) {
       badgeBg = cs.error;
       badgeFg = cs.onError;
       bordeColor = cs.error;
-    } else if (usuario.rol == TipoRol.admin) {
+    } else if (usuario.role == TipoRol.admin) {
       badgeBg = cs.tertiary;
       badgeFg = cs.onPrimary;
       bordeColor = cs.tertiary;
-    } else if (usuario.rol == TipoRol.experto) {
-      badgeBg = cs.surfaceContainer;
-      badgeFg = cs.onSurfaceVariant;
-      bordeColor = cs.surfaceContainer;
-    } else if (usuario.rol == TipoRol.usuario) {
+    } else if (usuario.role == TipoRol.usuario) {
       badgeBg = cs.secondary;
       badgeFg = cs.onPrimary;
       bordeColor = cs.secondary;
@@ -97,10 +93,10 @@ class UserCard extends StatelessWidget {
                       child: CircleAvatar(
                         radius: 28,
                         backgroundColor: cs.onPrimary,
-                        backgroundImage: usuario.foto != null ? NetworkImage(usuario.foto!) : null,
-                        child: usuario.foto == null
+                        backgroundImage: usuario.photo != null ? NetworkImage(usuario.photo!) : null,
+                        child: usuario.photo == null
                             ? Text(
-                                usuario.nombre[0].toUpperCase(),
+                                usuario.name[0].toUpperCase(),
                                 style: tt.titleLarge?.copyWith(
                                   color: bordeColor,
                                 ),
@@ -124,7 +120,7 @@ class UserCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              '${usuario.nombre} ${usuario.apellidos}',
+                              '${usuario.name} ${usuario.surname}',
                               style: tt.titleMedium?.copyWith(
                                 color: cs.onSurface,
                                 letterSpacing: 0.2,
@@ -134,7 +130,7 @@ class UserCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           TagWidget(
-                            text: usuario.rol.localizedLabel(s),
+                            text: usuario.role.localizedLabel(s),
                             backgroundColor: badgeBg,
                             textColor: badgeFg,
                           ),
@@ -167,7 +163,7 @@ class UserCard extends StatelessWidget {
                       ),
 
                       // Teléfono con icono
-                      if (usuario.telefono != null) ...[
+                      if (usuario.phone != null) ...[
                         const SizedBox(height: 4),
                         Row(
                           children: [
@@ -178,7 +174,7 @@ class UserCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              usuario.telefono!,
+                              usuario.phone!,
                               style: tt.bodySmall?.copyWith(
                                 color: cs.onSurfaceVariant,
                               ),
@@ -196,7 +192,7 @@ class UserCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             // Badge de inactivo
-                            if (!usuario.activo) ...[
+                            if (!usuario.active) ...[
                               const SizedBox(height: 8),
                               TagWidget(
                                 text: s.inactiveAccount,

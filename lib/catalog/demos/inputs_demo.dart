@@ -81,7 +81,7 @@ class _InputsDemoState extends State<InputsDemo> {
             value: _idUsuario,
             items: usuariosFake,
             itemValue: (Usuario u) => u.id,
-            itemLabel: (Usuario u) => '${u.nombre} ${u.apellidos}',
+            itemLabel: (Usuario u) => '${u.name} ${u.surname}',
             prefixIcon: Icons.person_outline,
             label: 'Experto asignado',
             hint: 'Sin asignar',
@@ -92,11 +92,11 @@ class _InputsDemoState extends State<InputsDemo> {
           const SizedBox(height: 24),
           Text('AppExcursionDropdown', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          AppDropdownField<Excursion>(
+          AppDropdownField<Activity>(
             value: _idExcursion,
             items: catalogoExcursiones,
             itemValue: (e) => e.id,
-            itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
+            itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
             prefixIcon: Icons.hiking_outlined,
             label: 'Excursión',
             hint: 'Selecciona una excursión',
@@ -128,7 +128,7 @@ class _InputsDemoState extends State<InputsDemo> {
           const SizedBox(height: 8),
           AppChipWrap(
             children: CategoriaActividad.values.map((CategoriaActividad cat) => AppChoiceChip(
-              label: cat.label,
+              label: cat.code,
               seleccionado: _chips.contains(cat),
               onSelected: (_) => setState(() {
                 if (_chips.contains(cat)) {

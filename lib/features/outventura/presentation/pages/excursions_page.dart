@@ -45,7 +45,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
     final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final AsyncValue<List<Excursion>> excursionesFiltradas = ref.watch(excursionesFiltadasProvider((
+    final AsyncValue<List<Activity>> excursionesFiltradas = ref.watch(excursionesFiltadasProvider((
       query: _search.query,
       estado: _controller.estadoFiltro,
       categoria: _controller.categoriaFiltro,
@@ -84,8 +84,8 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
       floatingActionButton: widget.puedeGestionar
           ? AddFab(
               onPressed: () async {
-                final Excursion? nueva = await Navigator.of(context)
-                    .push<Excursion>(
+                final Activity? nueva = await Navigator.of(context)
+                    .push<Activity>(
                       MaterialPageRoute(builder: (_) => const ExcursionFormPage()),
                     );
                 if (nueva == null) {
@@ -125,7 +125,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
             child: excursionesFiltradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text('Error: $error')),
-              data: (List<Excursion> lista) => ListView.separated(
+              data: (List<Activity> lista) => ListView.separated(
               padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
               itemCount: lista.isEmpty ? 1 : lista.length,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
@@ -138,13 +138,13 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                     ),
                   );
                 }
-                final Excursion excursion = lista[index];
+                final Activity excursion = lista[index];
                 return ExcursionCard(
                   excursion: excursion,
                   onEditar: widget.puedeGestionar
                       ? () async {
-                          final Excursion? actualizada =
-                              await Navigator.of(context).push<Excursion>(
+                          final Activity? actualizada =
+                              await Navigator.of(context).push<Activity>(
                                 MaterialPageRoute(
                                   builder: (BuildContext _) =>
                                       ExcursionFormPage(excursion: excursion),
@@ -168,7 +168,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                             context: context,
                             title: s.deleteExcursion,
                             content:
-                                s.deleteExcursionConfirm('${excursion.puntoInicio} → ${excursion.puntoFin}'),
+                                s.deleteExcursionConfirm('${excursion.startPoint} → ${excursion.endPoint}'),
                           );
                           if (confirm) {
                             ref.read(excursionesProvider.notifier).eliminar(excursion);

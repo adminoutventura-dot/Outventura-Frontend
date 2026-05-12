@@ -41,16 +41,16 @@ class EquipmentFormController {
   void cargarEquipo(Equipamiento equipamiento) {
     editando = true;
     seleccionado = equipamiento;
-    nombreController.text = equipamiento.nombre;
-    descripcionController.text = equipamiento.descripcion ?? '';
-    stockController.text = '${equipamiento.stock}';
-    stockTotalController.text = '${equipamiento.stockTotal}';
+    nombreController.text = equipamiento.title;
+    descripcionController.text = equipamiento.description ?? '';
+    stockController.text = '${equipamiento.units}';
+    stockTotalController.text = '${equipamiento.totalUnits}';
     // toStringAsFixed(2) convierte un double a String con exactamente 2 decimales.
-    precioController.text = equipamiento.precioAlquilerDiario.toStringAsFixed(2);
-    tarifaController.text = equipamiento.cargoPorDanio.toStringAsFixed(2);
-    categorias = List<CategoriaActividad>.from(equipamiento.categorias);
-    estado = equipamiento.estado;
-    imagenAsset = equipamiento.imagenAsset;
+    precioController.text = equipamiento.pricePerDay.toStringAsFixed(2);
+    tarifaController.text = equipamiento.damageFee.toStringAsFixed(2);
+    categorias = List<CategoriaActividad>.from(equipamiento.categories);
+    estado = equipamiento.status;
+    imagenAsset = equipamiento.imageAsset;
   }
 
   // Construye el objeto Equipamiento con los datos del formulario.
@@ -62,15 +62,15 @@ class EquipmentFormController {
     final int id = seleccionado?.id ?? GeneradorId.idEntero();
     return Equipamiento(
       id: id,
-      nombre: nombreController.text.trim(),
-      descripcion: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
-      categorias: List<CategoriaActividad>.from(categorias),
-      stock: int.tryParse(stockController.text) ?? 0,
-      stockTotal: int.tryParse(stockTotalController.text) ?? 0,
-      estado: estado,
-      precioAlquilerDiario: double.tryParse(precioController.text) ?? 0,
-      cargoPorDanio: double.tryParse(tarifaController.text) ?? 0,
-      imagenAsset: imagenAsset,
+      title: nombreController.text.trim(),
+      description: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
+      categories: List<CategoriaActividad>.from(categorias),
+      units: int.tryParse(stockController.text) ?? 0,
+      totalUnits: int.tryParse(stockTotalController.text) ?? 0,
+      status: estado,
+      pricePerDay: double.tryParse(precioController.text) ?? 0,
+      damageFee: double.tryParse(tarifaController.text) ?? 0,
+      imageAsset: imagenAsset,
     );
   }
 

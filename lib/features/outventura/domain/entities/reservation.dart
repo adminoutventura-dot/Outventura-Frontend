@@ -46,6 +46,7 @@ class LineaReserva {
   }
 }
 
+// TODO: El backend no tiene modelo de Reserva; alinear campos cuando exista.
 // Entidad de reserva.
 class Reserva {
   final int id;

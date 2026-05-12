@@ -35,7 +35,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     DateTime day,
     List<Reserva> misReservas,
     List<Solicitud> misSolicitudes,
-    List<Excursion> excursiones,
+    List<Activity> excursiones,
   ) {
     final normalized = DateTime(day.year, day.month, day.day);
     final List<Object> result = [];
@@ -51,8 +51,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     for (final s in misSolicitudes) {
       final exc = excursiones.where((e) => e.id == s.idExcursion).firstOrNull;
       if (exc != null) {
-        final start = DateTime(exc.fechaInicio.year, exc.fechaInicio.month, exc.fechaInicio.day);
-        final end = DateTime(exc.fechaFin.year, exc.fechaFin.month, exc.fechaFin.day);
+        final start = DateTime(exc.initDate.year, exc.initDate.month, exc.initDate.day);
+        final end = DateTime(exc.endDate.year, exc.endDate.month, exc.endDate.day);
         if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
           result.add(s);
         }
@@ -69,7 +69,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
     final List<Reserva> reservas = ref.watch(reservasProvider).value ?? [];
     final List<Solicitud> solicitudes = ref.watch(solicitudesProvider).value ?? [];
-    final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
+    final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
 
     final misReservas = (widget.esAdmin
             ? reservas

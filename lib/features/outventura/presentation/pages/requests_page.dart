@@ -144,7 +144,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (BuildContext context, int index) {
                       final Solicitud soli = lista[index];
-                      final Excursion? excursion = ref.watch(excursionPorIdProvider(soli.idExcursion));
+                      final Activity? excursion = ref.watch(excursionPorIdProvider(soli.idExcursion));
 
                       final String? nombreUsuario = soli.idUsuario != null
                           ? ref.watch(nombreUsuarioProvider(soli.idUsuario!))

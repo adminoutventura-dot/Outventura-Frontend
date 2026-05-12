@@ -22,7 +22,7 @@ class ExcursionFormController {
   String? imagenAsset;
   bool editando = false;
 
-  Excursion? seleccionado;
+  Activity? seleccionado;
 
   bool validar() {
     if (formKey.currentState == null) {
@@ -40,21 +40,21 @@ class ExcursionFormController {
   }
 
   // Cargar los datos de una excursión en los input
-  void cargarExcursion(Excursion excursion) {
+  void cargarExcursion(Activity excursion) {
     editando = true;
     seleccionado = excursion;
-    puntoInicioController.text = excursion.puntoInicio;
-    puntoFinController.text = excursion.puntoFin;
-    descripcionController.text = excursion.descripcion ?? '';
-    participantesController.text = '${excursion.numeroParticipantes}';
-    fechaInicio = excursion.fechaInicio;
-    fechaFin = excursion.fechaFin;
-    horaInicio = TimeOfDay.fromDateTime(excursion.fechaInicio);
-    horaFin = TimeOfDay.fromDateTime(excursion.fechaFin);
-    estado = excursion.estado;
-    categorias = List<CategoriaActividad>.from(excursion.categorias);
-    imagenAsset = excursion.imagenAsset;
-    precioController.text = excursion.precio.toStringAsFixed(2);
+    puntoInicioController.text = excursion.startPoint;
+    puntoFinController.text = excursion.endPoint;
+    descripcionController.text = excursion.description ?? '';
+    participantesController.text = '${excursion.maxParticipants}';
+    fechaInicio = excursion.initDate;
+    fechaFin = excursion.endDate;
+    horaInicio = TimeOfDay.fromDateTime(excursion.initDate);
+    horaFin = TimeOfDay.fromDateTime(excursion.endDate);
+    estado = excursion.status;
+    categorias = List<CategoriaActividad>.from(excursion.categories);
+    imagenAsset = excursion.imageAsset;
+    precioController.text = excursion.price.toStringAsFixed(2);
   }
 
   // Limpiar todos los campos
@@ -89,20 +89,23 @@ class ExcursionFormController {
   }
 
   // Construye una excursión a partir de los datos del formulario.
-  Excursion construirExcursion() {
-    return Excursion(
+  Activity construirExcursion() {
+    final String puntoInicio = puntoInicioController.text.trim();
+    final String puntoFin = puntoFinController.text.trim();
+    return Activity(
       id: seleccionado?.id ?? GeneradorId.idEntero(),
-      puntoInicio: puntoInicioController.text.trim(),
-      puntoFin: puntoFinController.text.trim(),
-      descripcion: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
-      numeroParticipantes: int.tryParse(participantesController.text) ?? 1,
-      fechaInicio: fechaInicio.copyWith(hour: horaInicio.hour, minute: horaInicio.minute, second: 0),
-      fechaFin: fechaFin.copyWith(hour: horaFin.hour, minute: horaFin.minute, second: 0),
-      estado: estado,
-      categorias: List<CategoriaActividad>.from(categorias),
-      imagenAsset: imagenAsset,
-      precio: double.tryParse(precioController.text.replaceAll(',', '.')) ?? 0,
-      materialesPorParticipante: seleccionado?.materialesPorParticipante ?? {},
+      title: [puntoInicio, puntoFin].where((e) => e.isNotEmpty).join(' - '),
+      description: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
+      initDate: fechaInicio.copyWith(hour: horaInicio.hour, minute: horaInicio.minute, second: 0),
+      endDate: fechaFin.copyWith(hour: horaFin.hour, minute: horaFin.minute, second: 0),
+      difficulty: seleccionado?.difficulty ?? 1,
+      maxParticipants: int.tryParse(participantesController.text) ?? 1,
+      startEndPoint: [puntoInicio, puntoFin].where((e) => e.isNotEmpty).join(' - '),
+      categories: List<CategoriaActividad>.from(categorias),
+      imageAsset: imagenAsset,
+      status: estado,
+      price: double.tryParse(precioController.text.replaceAll(',', '.')) ?? 0,
+      materialsPerParticipant: seleccionado?.materialsPerParticipant ?? {},
     );
   }
 
