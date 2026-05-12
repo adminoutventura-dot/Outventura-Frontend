@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class LoginController {
   final TextEditingController emailController = TextEditingController();
@@ -9,22 +10,22 @@ class LoginController {
   bool ocultarContrasena = true;
   bool ocultarConfirmacionContrasena = true;
 
-  String? validadorContrasena(bool editando, String? value) {
+  String? validadorContrasena(bool editando, String? value, AppLocalizations s) {
     if (!editando && (value == null || value.isEmpty)) {
-      return 'La contraseña es obligatoria';
+      return s.passwordRequired;
     }
     if (value != null && value.isNotEmpty && value.length < 6) {
-      return 'Mínimo 6 caracteres';
+      return s.minSixChars;
     }
     return null;
   }
 
-  String? validadorConfirmacionContrasena(bool editando, String? value) {
+  String? validadorConfirmacionContrasena(bool editando, String? value, AppLocalizations s) {
     if (!editando && (value == null || value.isEmpty)) {
-      return 'Confirma la contraseña';
+      return s.confirmPasswordRequired;
     }
     if (value != null && value != passwordController.text) {
-      return 'Las contraseñas no coinciden';
+      return s.passwordsDoNotMatch;
     }
     return null;
   }

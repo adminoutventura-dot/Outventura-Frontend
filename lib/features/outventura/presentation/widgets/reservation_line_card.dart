@@ -3,6 +3,7 @@ import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class ReservationLineCard extends StatelessWidget {
   final LineaReserva linea;
@@ -26,6 +27,7 @@ class ReservationLineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final double totalDanio = cantidadDaniada * equipamiento.cargoPorDanio;
@@ -74,11 +76,11 @@ class ReservationLineCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Unidades dañadas',
+                        s.damagedUnits,
                         style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                       Text(
-                        '${equipamiento.cargoPorDanio.toStringAsFixed(2)} €/ud.',
+                        s.damageFeePerUnit(equipamiento.cargoPorDanio.toStringAsFixed(2)),
                         style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],

@@ -3,6 +3,8 @@ import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 
 class UserCard extends StatelessWidget {
   final Usuario usuario;
@@ -20,6 +22,7 @@ class UserCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
 
     // Colores según el rol
     Color badgeBg;
@@ -131,7 +134,7 @@ class UserCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           TagWidget(
-                            text: usuario.rol.nombre,
+                            text: usuario.rol.localizedLabel(s),
                             backgroundColor: badgeBg,
                             textColor: badgeFg,
                           ),
@@ -196,7 +199,7 @@ class UserCard extends StatelessWidget {
                             if (!usuario.activo) ...[
                               const SizedBox(height: 8),
                               TagWidget(
-                                text: 'Cuenta inactiva',
+                                text: s.inactiveAccount,
                                 backgroundColor: cs.error.withValues(alpha: 0.3),
                                 textColor: cs.error,
                                 icon: Icons.block_outlined,

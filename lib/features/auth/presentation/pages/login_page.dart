@@ -6,6 +6,7 @@ import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/main_scaffold.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -27,6 +28,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -69,7 +71,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   const SizedBox(height: 16),
 
                   Text(
-                    'OUTVENTURA',
+                    s.loginTitle,
                     textAlign: TextAlign.center,
                     style: textTheme.displaySmall?.copyWith(
                       color: colorScheme.surface,
@@ -78,7 +80,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   const SizedBox(height: 8),
 
                   Text(
-                    'Tu próxima aventura te espera',
+                    s.loginSubtitle,
                     textAlign: TextAlign.center,
                     style: textTheme.bodyMedium?.copyWith(
                       color: colorScheme.surface.withAlpha(230),
@@ -110,17 +112,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           // Email
                           CustomInputField(
                             controller: _controller.emailController,
-                            labelText: 'Email',
+                            labelText: s.email,
                             prefixIcon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
-                            validator: ValidadoresFormulario.email,
+                            validator: ValidadoresFormulario.email(s),
                           ),
                           const SizedBox(height: 16),
 
                           // Contraseña
                           CustomInputField(
                             controller: _controller.passwordController,
-                            labelText: 'Contraseña',
+                            labelText: s.password,
                             prefixIcon: Icons.lock_outline,
                             obscureText: _controller.ocultarContrasena,
                             suffixIcon: IconButton(
@@ -148,7 +150,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 ),
                               ),
                               child: Text(
-                                '¿Olvidaste tu contraseña?',
+                                s.forgotPassword,
                                 style: textTheme.bodySmall?.copyWith(
                                   color: colorScheme.primary,
                                 ),
@@ -160,7 +162,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                           // Botón principal
                           PrimaryButton(
-                            label: 'Iniciar sesión',
+                            label: s.login,
                             onPressed: () async {
                               if (_controller.formKey.currentState?.validate() ?? false) {
                                 final String email = _controller.emailController.text.trim();
@@ -193,7 +195,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   horizontal: 16,
                                 ),
                                 child: Text(
-                                  'O',
+                                  s.or,
                                   style: textTheme.bodySmall?.copyWith(
                                     color: colorScheme.onSurfaceVariant,
                                   ),
@@ -216,7 +218,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                '¿Aún no tienes cuenta? ',
+                                s.noAccount,
                                 style: textTheme.bodyMedium?.copyWith(
                                   color: colorScheme.onSurface.withAlpha(179),
                                 ),
@@ -231,7 +233,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   ),
                                 ),
                                 child: Text(
-                                  'Regístrate',
+                                  s.register,
                                   style: textTheme.labelLarge?.copyWith(
                                     color: colorScheme.primary,
                                   ),

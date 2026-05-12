@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 
 class UsersPageController {
   TipoRol? rolFiltro;
@@ -11,29 +13,30 @@ class UsersPageController {
   void mostrarFiltros(BuildContext context, StateSetter setState) {
     TipoRol? rolTemp = rolFiltro;
     bool? activoTemp = activoFiltro;
+    final s = AppLocalizations.of(context)!;
 
     mostrarFiltrosSheet(context, (setModal) => FilterBottomSheetContent(
       grupos: [
         FilterGrupo(
-          titulo: 'Estado',
+          titulo: s.statusFilter,
           chips: [
             FilterChipSpec(
-              label: 'Activos',
+              label: s.activeFilter,
               seleccionado: activoTemp == true,
               onToggle: () => setModal(() => activoTemp = activoTemp == true ? null : true),
             ),
             FilterChipSpec(
-              label: 'Inactivos',
+              label: s.inactiveFilter,
               seleccionado: activoTemp == false,
               onToggle: () => setModal(() => activoTemp = activoTemp == false ? null : false),
             ),
           ],
         ),
         FilterGrupo(
-          titulo: 'Rol',
+          titulo: s.roleFilter,
           chips: TipoRol.values
               .map((TipoRol r) => FilterChipSpec(
-                    label: r.nombre,
+                    label: r.localizedLabel(s),
                     seleccionado: rolTemp == r,
                     onToggle: () => setModal(() => rolTemp = rolTemp == r ? null : r),
                   ))

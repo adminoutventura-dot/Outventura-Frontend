@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
@@ -41,6 +42,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
     final usuarioActual = ref.watch(currentUserProvider);
     final AsyncValue<List<Solicitud>> filtradas = ref.watch(solicitudesFiltadasProvider((
       query: _search.query,
@@ -53,7 +55,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.puedeGestionar ? 'Gestión de solicitudes' : 'Solicitudes',
+          widget.puedeGestionar ? s.requestManagement : s.requestsTitle,
         ),
         automaticallyImplyLeading: true,
         actions: [
@@ -63,7 +65,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
             smallSize: 7,
             child: IconButton(
               icon: const Icon(Icons.filter_list),
-              tooltip: 'Filtros',
+              tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
               onPressed: () => _controller.mostrarFiltros(context, setState),
             ),
@@ -96,8 +98,8 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                   return;
                 }
                 final String mensaje = nueva.idReserva != null
-                    ? 'Solicitud creada con reserva de materiales.'
-                    : 'Solicitud creada correctamente.';
+                    ? s.requestCreatedWithReservation
+                    : s.requestCreated;
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(mensaje)),
                 );
@@ -113,7 +115,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
               controller: _search.controller,
-              labelText: 'Buscar por excursión (ruta)...',
+              labelText: s.searchByExcursionRoute,
               prefixIcon: Icons.search,
               suffixIcon: _search.query.isNotEmpty
                   ? IconButton(
@@ -132,7 +134,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
               data: (List<Solicitud> lista) => lista.isEmpty
                 ? Center(
                     child: Text(
-                      'No hay solicitudes',
+                      s.noRequests,
                       style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   )

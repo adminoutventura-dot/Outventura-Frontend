@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class AppDropdownField<T> extends StatelessWidget {
   final int? value;
@@ -102,7 +103,7 @@ class AppDropdownField<T> extends StatelessWidget {
       ],
       // Si el campo está deshabilitado, no permitir cambios
       onChanged: enabled ? onChanged : null,
-      validator: validator ?? (isRequired ? (int? v) => v == null ? 'Selecciona una opción' : null : null),
+      validator: validator ?? (isRequired ? (int? v) => v == null ? AppLocalizations.of(context)!.selectAnOption : null : null),
     );
   }
 }

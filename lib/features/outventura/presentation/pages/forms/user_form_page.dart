@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
@@ -50,11 +52,12 @@ class _UserFormPageState extends State<UserFormPage> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final AppLocalizations s = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        title: Text(_controller.editando ? 'Editar usuario' : 'Nuevo usuario'),
+        title: Text(_controller.editando ? s.editUser : s.newUser),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -90,18 +93,18 @@ class _UserFormPageState extends State<UserFormPage> {
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.nombre,
-                      labelText: 'Nombre',
+                      labelText: s.name,
                       prefixIcon: Icons.person_outline,
-                      validator: ValidadoresFormulario.campoObligatorio,
+                      validator: ValidadoresFormulario.campoObligatorio(s),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.apellidos,
-                      labelText: 'Apellidos',
+                      labelText: s.surname,
                       prefixIcon: Icons.badge_outlined,
-                      validator: ValidadoresFormulario.campoObligatorio,
+                      validator: ValidadoresFormulario.campoObligatorio(s),
                     ),
                   ),
                 ],
@@ -111,17 +114,17 @@ class _UserFormPageState extends State<UserFormPage> {
               // Email 
               CustomInputField(
                 controller: _controller.email,
-                labelText: 'Email',
+                labelText: s.email,
                 prefixIcon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
-                validator: ValidadoresFormulario.email,
+                validator: ValidadoresFormulario.email(s),
               ),
               const SizedBox(height: 14),
 
               // Teléfono 
               CustomInputField(
                 controller: _controller.telefono,
-                labelText: 'Teléfono (opcional)',
+                labelText: s.phone,
                 prefixIcon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
               ),
@@ -131,10 +134,10 @@ class _UserFormPageState extends State<UserFormPage> {
               if (!_controller.editando) ...[
                 CustomInputField(
                   controller: _loginController.passwordController,
-                  labelText: 'Contraseña',
+                  labelText: s.password,
                   prefixIcon: Icons.lock_outline,
                   obscureText: true,
-                  validator: (String? v) => ValidadoresFormulario.longitudMinima(v, 6),
+                  validator: (String? v) => _loginController.validadorContrasena(_controller.editando, v, s),
                 ),
                 const SizedBox(height: 20),
               ] else
@@ -142,7 +145,7 @@ class _UserFormPageState extends State<UserFormPage> {
 
               // Rol
               Text(
-                'Rol',
+                s.role,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -150,7 +153,7 @@ class _UserFormPageState extends State<UserFormPage> {
                 children: TipoRol.values.map((TipoRol rol) {
                   final bool seleccionado = _controller.rol == rol;
                   return AppChoiceChip(
-                    label: rol.nombre,
+                    label: rol.localizedLabel(s),
                     seleccionado: seleccionado,
                     onSelected: (_) => setState(() => _controller.rol = rol),
                   );
@@ -162,7 +165,7 @@ class _UserFormPageState extends State<UserFormPage> {
               Row(
                 children: [
                   Text(
-                    'Usuario activo',
+                    s.activeUser,
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   const Spacer(),
@@ -184,7 +187,7 @@ class _UserFormPageState extends State<UserFormPage> {
               SizedBox(
                 width: double.infinity,
                 child: PrimaryButton(
-                  label: _controller.editando ? 'Guardar' : 'Crear',
+                  label: s.save,
                   onPressed: _submit,
                   icon: _controller.editando ? Icons.save_outlined : Icons.person_add_outlined,
                 ),

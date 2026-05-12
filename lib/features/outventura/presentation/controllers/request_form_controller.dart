@@ -8,6 +8,7 @@ import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/services/pricing_service.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class RequestFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -265,12 +266,12 @@ class RequestFormController {
     return materialesSolicitados.values.any((int v) => v > 0);
   }
 
-  String? get mensajeErrorReserva {
+  String? mensajeErrorReserva(BuildContext context) {
     if (idUsuario == null) {
-      return 'Selecciona un cliente para reservar materiales.';
+      return AppLocalizations.of(context)!.selectClientForReservation;
     }
     if (!tieneMateriales) {
-      return 'Añade al menos un material para crear la reserva.';
+      return AppLocalizations.of(context)!.addAtLeastOneMaterial;
     }
     return null;
   }
@@ -297,7 +298,7 @@ class RequestFormController {
     required BuildContext context,
     required WidgetRef ref,
   }) {
-    final String? error = mensajeErrorReserva;
+    final String? error = mensajeErrorReserva(context);
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
       return null;

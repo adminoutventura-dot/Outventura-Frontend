@@ -5,6 +5,8 @@ import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 
 class SolicitudCard extends StatelessWidget {
   final Solicitud solicitud;
@@ -31,6 +33,7 @@ class SolicitudCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
 
     final (
       Color badgeBg,
@@ -121,8 +124,8 @@ class SolicitudCard extends StatelessWidget {
                               '#${solicitud.id}',
                               if (nombreUsuario != null) nombreUsuario,
                               solicitud.idExperto != null
-                                  ? 'Experto asignado'
-                                  : 'Sin experto',
+                                  ? s.assignedExpert
+                                  : s.noExpert,
                               // Separa por guion
                             ].join('  -  '),
                             style: tt.labelSmall?.copyWith(
@@ -135,7 +138,7 @@ class SolicitudCard extends StatelessWidget {
                     const SizedBox(width: 10),
                     // Badge estado
                     TagWidget(
-                      text: solicitud.estado.label,
+                      text: solicitud.estado.localizedLabel(s),
                       backgroundColor: badgeBg,
                       textColor: badgeFg,
                     ),
@@ -185,7 +188,7 @@ class SolicitudCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${solicitud.numeroParticipantes} personas',
+                      s.participantsCount(solicitud.numeroParticipantes),
                       style: tt.labelSmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),
@@ -209,7 +212,7 @@ class SolicitudCard extends StatelessWidget {
                       children: excursion.categorias
                           .map(
                             (CategoriaActividad c) => TagWidget(
-                              text: c.label,
+                              text: c.localizedLabel(s),
                               backgroundColor: cs.secondary.withValues(alpha: 0.15),
                               textColor: cs.onPrimaryContainer,
                             ),

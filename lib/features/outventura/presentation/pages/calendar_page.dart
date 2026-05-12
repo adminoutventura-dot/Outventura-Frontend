@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
@@ -63,6 +65,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
+    final s = AppLocalizations.of(context)!;
 
     final List<Reserva> reservas = ref.watch(reservasProvider).value ?? [];
     final List<Solicitud> solicitudes = ref.watch(solicitudesProvider).value ?? [];
@@ -86,7 +89,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calendario'),
+        title: Text(s.calendarTitle),
         automaticallyImplyLeading: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -118,7 +121,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               _focusedDay = focusedDay;
             },
             eventLoader: (day) => _eventosDelDia(day, misReservas, misSolicitudes, excursiones),
-            locale: 'es_ES',
+            locale: Localizations.localeOf(context).toString(),
             startingDayOfWeek: StartingDayOfWeek.monday,
 
             // Estilo del header (mes y flechas)
@@ -140,7 +143,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             ),
             calendarBuilders: CalendarBuilders(
               dowBuilder: (context, day) {
-                const days = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+                final days = [s.monShort, s.tueShort, s.wedShort, s.thuShort, s.friShort, s.satShort, s.sunShort];
                 final label = days[day.weekday - 1];
                 final isWeekend = day.weekday == 6 || day.weekday == 7;
                 return Container(
@@ -198,7 +201,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '$reservas R',
+                            s.reservationsBadge(reservas),
                             style: AppTextStyles.titleSmall.copyWith(color: cs.onPrimary),
                           ),
                         ),
@@ -210,7 +213,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '$solicitudes S',
+                            s.requestsBadge(solicitudes),
                             style: AppTextStyles.titleSmall.copyWith(color: cs.onPrimary),
                           ),
                         ),
@@ -261,8 +264,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   final evento = eventosSeleccionados[index];
                   if (evento is Reserva) {
                     return _EventoTile(
-                      titulo: 'Reserva #${evento.id}',
-                      subtitulo: evento.estado.label,
+                      titulo: s.reservationEvent(evento.id),
+                      subtitulo: evento.estado.localizedLabel(s),
                       color: cs.tertiary,
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => ReservationDetailPage(reserva: evento),
@@ -270,8 +273,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     );
                   } else if (evento is Solicitud) {
                     return _EventoTile(
-                      titulo: 'Solicitud #${evento.id}',
-                      subtitulo: evento.estado.label,
+                      titulo: s.requestEvent(evento.id),
+                      subtitulo: evento.estado.localizedLabel(s),
                       color: cs.primary,
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => RequestDetailPage(solicitud: evento),
@@ -286,7 +289,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             Expanded(
               child: Center(
                 child: Text(
-                  'No hay eventos este día',
+                  s.noEventsToday,
                   style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
                 ),
               ),

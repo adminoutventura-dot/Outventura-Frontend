@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 // Retorna true si el usuario confirma, false si cancela o cierra el diálogo.
 Future<bool> showConfirmDialog({
   required BuildContext context,
   required String title,
   required String content,
-  String cancelLabel = 'Cancelar',
-  String confirmLabel = 'Aceptar',
+  String? cancelLabel,
+  String? confirmLabel,
   bool isDanger = true,
 }) async {
+  final AppLocalizations s = AppLocalizations.of(context)!;
+  cancelLabel ??= s.cancel;
+  confirmLabel ??= s.accept;
   final ColorScheme cs = Theme.of(context).colorScheme;
   final bool? result = await showDialog<bool>(
     context: context,
@@ -18,7 +22,7 @@ Future<bool> showConfirmDialog({
       content: Text(content),
       actions: [
         SecondaryButton(
-          label: cancelLabel,
+          label: cancelLabel!,
           onPressed: () => Navigator.pop(context, false),
           backgroundColor: cs.surface,
           borderColor: cs.primary,
@@ -26,7 +30,7 @@ Future<bool> showConfirmDialog({
         
         const SizedBox(width: 12),
         PrimaryButton(
-          label: confirmLabel,
+          label: confirmLabel!,
           onPressed: () => Navigator.pop(context, true),
           backgroundColor: isDanger ? cs.error : null,
           icon: isDanger ? Icons.delete_outline : Icons.check,

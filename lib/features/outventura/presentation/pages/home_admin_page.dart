@@ -14,6 +14,7 @@ import 'package:outventura/features/outventura/presentation/widgets/app_drawer.d
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class HomeAdminPage extends ConsumerWidget {
   const HomeAdminPage({super.key});
@@ -22,6 +23,7 @@ class HomeAdminPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
     final List<Excursion> excursiones = ref.watch(excursionesProvider).value ?? [];
     final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
     final List<Solicitud> solicitudes = ref.watch(solicitudesProvider).value ?? [];
@@ -29,7 +31,7 @@ class HomeAdminPage extends ConsumerWidget {
     return Scaffold(
       // Barra superior con título y fondo degradado.
       appBar: AppBar(
-        title: const Text('Panel de Administración'),
+        title: Text(s.adminPanel),
         // Icono del Drawer
         automaticallyImplyLeading: true,
         flexibleSpace: Container(
@@ -79,7 +81,7 @@ class HomeAdminPage extends ConsumerWidget {
                             colorScheme: cs,
                             textTheme: tt,
                             value: '${excursiones.length}',
-                            label: 'EXCURSIONES',
+                            label: s.excursionsLabel,
                           ),
                           const SizedBox(width: 10),
                           // Tarjeta de equipamiento.
@@ -87,7 +89,7 @@ class HomeAdminPage extends ConsumerWidget {
                             colorScheme: cs,
                             textTheme: tt,
                             value: '${equipamientos.length}',
-                            label: 'EQUIPAMIENTO',
+                            label: s.equipmentLabel,
                           ),
                           const SizedBox(width: 10),
                           // Tarjeta de pendientes.
@@ -96,7 +98,7 @@ class HomeAdminPage extends ConsumerWidget {
                             textTheme: tt,
                             value:
                                 '${solicitudes.where((Solicitud s) => s.estado == EstadoSolicitud.pendiente).length}',
-                            label: 'PENDIENTES',
+                            label: s.pendingLabel,
                           ),
                         ],
                       ),
@@ -114,7 +116,7 @@ class HomeAdminPage extends ConsumerWidget {
                 const SizedBox(height: 24),
                 // Sección de accesos rápidos de gestión.
                 Text(
-                  'GESTIÓN',
+                  s.management,
                   style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
@@ -122,7 +124,7 @@ class HomeAdminPage extends ConsumerWidget {
                   width: double.infinity,
                   child: SecondaryButton(
                     backgroundColor: cs.surface,
-                    label: 'Usuarios',
+                    label: s.users,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const UsersPage()),
                     ),
@@ -133,7 +135,7 @@ class HomeAdminPage extends ConsumerWidget {
                   width: double.infinity,
                   child: SecondaryButton(
                     backgroundColor: cs.surface,
-                    label: 'Reservas',
+                    label: s.reservations,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const ReservationsPage(puedeGestionar: true, puedeCrear: true)),
                     ),
@@ -144,7 +146,7 @@ class HomeAdminPage extends ConsumerWidget {
                   width: double.infinity,
                   child: SecondaryButton(
                     backgroundColor: cs.surface,
-                    label: 'Solicitudes',
+                    label: s.requests,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const RequestsPage(puedeGestionar: true, puedeCrear: true)),
                     ),
@@ -154,7 +156,7 @@ class HomeAdminPage extends ConsumerWidget {
                 const SizedBox(height: 24),
                 // Título de sección.
                 Text(
-                  'SOLICITUDES RECIENTES',
+                  s.recentRequests,
                   style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),

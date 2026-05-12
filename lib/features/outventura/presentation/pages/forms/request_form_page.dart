@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
@@ -74,6 +76,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final bool isEdit = _controller.editando;
@@ -125,7 +128,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? 'Editar solicitud' : 'Nueva solicitud'),
+        title: Text(isEdit ? s.editRequest : s.newRequest),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -148,8 +151,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               itemValue: (Usuario user) => user.id,
               itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
               prefixIcon: Icons.person_outlined,
-              label: 'Cliente',
-              hint: modoCliente ? 'Tu usuario' : 'Selecciona un cliente',
+              label: s.client,
+              hint: modoCliente ? s.client : s.selectClient,
               enabled: !modoCliente,
               onChanged: (int? val) {
                 setState(() => _controller.idUsuario = val);
@@ -164,8 +167,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               itemValue: (e) => e.id,
               itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
               prefixIcon: Icons.hiking_outlined,
-              label: 'Excursión',
-              hint: 'Selecciona una excursión',
+              label: s.excursion,
+              hint: s.selectExcursion,
               isRequired: true,
               enabled: !modoCliente,
               onChanged: (int? v) {
@@ -178,9 +181,9 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             // Participantes
             CustomInputField(
               controller: _controller.participantesCtrl,
-              labelText: 'Número de participantes',
+              labelText: s.numberOfParticipants,
               keyboardType: TextInputType.number,
-              validator: ValidadoresFormulario.enteroMayorQueCero,
+              validator: ValidadoresFormulario.enteroMayorQueCero(s),
               onChanged: (_) => setState(() => _controller.recalcularMateriales(excursiones)),
             ),
 
@@ -194,12 +197,12 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Material recomendado',
+                    s.recommendedMaterial,
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   if (excursionSeleccionada != null)
                     TertiaryButton(
-                      label: 'Añadir todos',
+                      label: s.addAll,
                       icon: Icons.add,
                       onPressed: () {
                         final Map<int, int> plantilla = excursionSeleccionada.materialesPorParticipante;
@@ -219,19 +222,19 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               // Si hay materiales, mostrarlos con controles para modificar las cantidades.
               if (excursionSeleccionada == null)
                 Text(
-                  'Selecciona una excursión para ver material recomendado.',
+                  s.selectExcursionToSeeMaterial,
                   style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 )
               else if (excursionSeleccionada.materialesPorParticipante.isEmpty)
                 Text(
-                  'Esta excursión no requiere material recomendado.',
+                  s.noRecommendedMaterial,
                   style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 )
               else
                 ..._controller.materialesSolicitados.entries.map((entry) {
                   final int idEquipamiento = entry.key;
                   final int cantidad = entry.value;
-                  final String nombre = nombrePorId[idEquipamiento] ?? 'Material #$idEquipamiento';
+                  final String nombre = nombrePorId[idEquipamiento] ?? s.materialId(idEquipamiento);
                   final double? precioDiario = precioPorId[idEquipamiento];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
@@ -277,7 +280,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             ] else if (isEdit && _controller.idReserva == null && excursionSeleccionada != null && excursionSeleccionada.materialesPorParticipante.isNotEmpty) ...[  
               // Editando sin reserva: botón para añadir materiales
               TertiaryButton(
-                label: 'Añadir materiales',
+                label: s.addMaterials,
                 icon: Icons.add,
                 onPressed: () => setState(() {
                   _mostrarMateriales = true;
@@ -290,7 +293,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             // Si estamos editando una solicitud con reserva, mostrar materiales en solo lectura (sin controles).
             ] else if (_controller.idReserva != null && _controller.materialesSolicitados.isNotEmpty) ...[
               Text(
-                'Material reservado',
+                s.reservedMaterialSection,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -301,7 +304,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               ..._controller.materialesSolicitados.entries.map((entry) {
                 final int idEquipamiento = entry.key;
                 final int cantidad = entry.value;
-                final String nombre = nombrePorId[idEquipamiento] ?? 'Material #$idEquipamiento';
+                final String nombre = nombrePorId[idEquipamiento] ?? s.materialId(idEquipamiento);
                 final double? precioDiario = precioPorId[idEquipamiento];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
@@ -334,7 +337,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               const SizedBox(height: 20),
               // Estado
               Text(
-                'Estado',
+                s.status,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -342,7 +345,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 children: EstadoSolicitud.values.map((EstadoSolicitud est) {
                   final bool seleccionado = _controller.estado == est;
                   return AppChoiceChip(
-                    label: est.label,
+                    label: est.localizedLabel(s),
                     seleccionado: seleccionado,
                     onSelected: (_) => setState(() => _controller.estado = est),
                   );
@@ -357,8 +360,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 itemValue: (Usuario user) => user.id,
                 itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
                 prefixIcon: Icons.star_outline,
-                label: 'Experto',
-                hint: 'Selecciona un experto',
+                label: s.expert,
+                hint: s.selectExpert,
                 onChanged: (int? val) =>
                     setState(() => _controller.idExperto = val),
               ),
@@ -373,14 +376,14 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Resumen de precio', style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
+                    Text(s.priceSummary, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
                     const SizedBox(height: 6),
                     // Precio total de la excursión (precio por participante * número de participantes).
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Excursión (×${ _controller.numeroParticipantes})', style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
-                        Text('€${(excursionSeleccionada.precio * _controller.numeroParticipantes).toStringAsFixed(2)}', style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
+                        Text(s.excursionPrice(_controller.numeroParticipantes), style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
+                        Text(s.priceEur((excursionSeleccionada.precio * _controller.numeroParticipantes).toStringAsFixed(2)), style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
                       ],
                     ),
 
@@ -390,11 +393,11 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Materiales (alquiler)', style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
+                          Text(s.materialsRental, style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
                           Text(
                             () {
                               final double precioMateriales = _controller.calcularPrecioTotal(excursiones, equipamientos) - excursionSeleccionada.precio * _controller.numeroParticipantes;
-                              return '€${precioMateriales.toStringAsFixed(2)}';
+                              return s.priceEur(precioMateriales.toStringAsFixed(2));
                             }(),
                             style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer),
                           ),
@@ -407,8 +410,11 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Total', style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
-                        Text('€${_controller.calcularPrecioTotal(excursiones, equipamientos).toStringAsFixed(2)}', style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer, fontWeight: FontWeight.bold)),
+                        Text(s.total, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
+                        Text(
+                          s.priceEur(_controller.calcularPrecioTotal(excursiones, equipamientos).toStringAsFixed(2)), 
+                          style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)
+                        ),
                       ],
                     ),
 
@@ -420,7 +426,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('Cargo por daños', style: tt.bodySmall?.copyWith(color: cs.error)),
-                          Text('+ €${cargoDanios.toStringAsFixed(2)}', style: tt.bodySmall?.copyWith(color: cs.error, fontWeight: FontWeight.bold)),
+                          Text('+ €${cargoDanios.toStringAsFixed(2)}', style: tt.bodySmall?.copyWith(color: cs.error)),
                         ],
                       ),
                     ],
@@ -436,7 +442,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 if (isEdit && _controller.idReserva != null) ...[
                   Expanded(
                     child: SecondaryButton(
-                      label: 'Editar reserva',
+                      label: s.editReservationBtn,
                       icon: Icons.book_online_outlined,
                       onPressed: () async {
                         final List<Reserva> reservas = ref.read(reservasProvider).value ?? [];
@@ -457,7 +463,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 ],
                 Expanded(
                   child: PrimaryButton(
-                    label: isEdit ? 'Guardar' : 'Crear',
+                    label: isEdit ? s.save : s.create,
                     onPressed: () {
 
                       // Si no hay reserva asociada pero se han seleccionado materiales, crear la reserva antes de guardar la solicitud.

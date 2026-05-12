@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 
 class EquipmentCard extends StatefulWidget {
   final Equipamiento equipamiento;
@@ -26,6 +28,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
 
     Color badgeBg;
     Color badgeFg;
@@ -103,7 +106,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                         ),
                         const SizedBox(width: 3),
                         TagWidget(
-                          text: widget.equipamiento.estado.label,
+                          text: widget.equipamiento.estado.localizedLabel(s),
                           backgroundColor: badgeBg,
                           textColor: badgeFg,
                         ),
@@ -128,7 +131,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                         Icon(Icons.sell_outlined, size: 11, color: cs.onSurfaceVariant),
                         const SizedBox(width: 3),
                         Text(
-                          '${widget.equipamiento.precioAlquilerDiario.toStringAsFixed(2)}€/día',
+                          s.pricePerDayShort(widget.equipamiento.precioAlquilerDiario.toStringAsFixed(2)),
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                         const SizedBox(width: 10),
@@ -145,7 +148,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${widget.equipamiento.stock}/${widget.equipamiento.stockTotal} uds',
+                          s.stockInfo(widget.equipamiento.stock, widget.equipamiento.stockTotal),
                           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                         ),
                       ],

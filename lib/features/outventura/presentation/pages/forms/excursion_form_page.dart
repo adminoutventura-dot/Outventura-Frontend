@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_date_selector.dart';
@@ -41,11 +43,12 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final AppLocalizations s = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        title: Text(_controller.editando ? 'Editar excursión' : 'Nueva excursión'),
+        title: Text(_controller.editando ? s.editExcursion : s.newExcursion),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -71,30 +74,30 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Excursión',
+                s.excursionSection,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
               // Puntos inicio / fin
               CustomInputField(
                 controller: _controller.puntoInicioController,
-                labelText: 'Punto de inicio',
+                labelText: s.startPoint,
                 prefixIcon: Icons.place_outlined,
-                validator: ValidadoresFormulario.campoObligatorio,
+                validator: ValidadoresFormulario.campoObligatorio(s),
               ),
               const SizedBox(height: 14),
               CustomInputField(
                 controller: _controller.puntoFinController,
-                labelText: 'Punto de llegada',
+                labelText: s.endPoint,
                 prefixIcon: Icons.flag_outlined,
-                validator: ValidadoresFormulario.campoObligatorio,
+                validator: ValidadoresFormulario.campoObligatorio(s),
               ),
               const SizedBox(height: 14),
 
               // Descripción
               CustomInputField(
                 controller: _controller.descripcionController,
-                labelText: 'Descripción (opcional)',
+                labelText: s.descriptionOptional,
                 prefixIcon: Icons.notes_outlined,
                 keyboardType: TextInputType.multiline,
               ),
@@ -103,16 +106,16 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
               // Precio por participante
               CustomInputField(
                 controller: _controller.precioController,
-                labelText: 'Precio por participante (€)',
+                labelText: s.pricePerParticipant,
                 prefixIcon: Icons.euro_outlined,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: ValidadoresFormulario.decimalPositivo,
+                validator: ValidadoresFormulario.decimalPositivo(s),
               ),
               const SizedBox(height: 20),
 
               // Fechas
               Text(
-                'Fechas',
+                s.datesSection,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -149,7 +152,7 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                 children: [
                   Expanded(
                     child: AppTimeSelector(
-                      label: 'Hora inicio',
+                      label: s.startTime,
                       time: _controller.horaInicio,
                       onTimeSelected: (TimeOfDay picked) {
                         setState(() => _controller.horaInicio = picked);
@@ -159,7 +162,7 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: AppTimeSelector(
-                      label: 'Hora fin',
+                      label: s.endTime,
                       time: _controller.horaFin,
                       onTimeSelected: (TimeOfDay picked) {
                         setState(() => _controller.horaFin = picked);
@@ -173,16 +176,16 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
               // Participantes
               CustomInputField(
                 controller: _controller.participantesController,
-                labelText: 'Nº máximo de participantes',
+                labelText: s.maxParticipants,
                 prefixIcon: Icons.group_outlined,
                 keyboardType: TextInputType.number,
-                validator: ValidadoresFormulario.enteroMayorQueCero,
+                validator: ValidadoresFormulario.enteroMayorQueCero(s),
               ),
               const SizedBox(height: 20),
 
               // Categorías
               Text(
-                'Categorías',
+                s.categories,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -193,14 +196,14 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                 },
                 // El validator recibe la lista de categorías seleccionadas y devuelve un mensaje de error si la lista está vacía.
                 validator: (List<CategoriaActividad>? v) {
-                  return ValidadoresFormulario.listaRequerida(v, 'Selecciona una ctegoría');
+                  return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
                 },
               ),
               const SizedBox(height: 20),
 
               // Estado
               Text(
-                'Estado',
+                s.status,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -208,7 +211,7 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                 children: EstadoExcursion.values.map((EstadoExcursion est) {
                   final bool seleccionado = _controller.estado == est;
                   return AppChoiceChip(
-                    label: est.label,
+                    label: est.localizedLabel(s),
                     seleccionado: seleccionado,
                     onSelected: (_) {
                       setState(() => _controller.estado = est);
@@ -222,7 +225,7 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
               SizedBox(
                 width: double.infinity,
                 child: PrimaryButton(
-                  label: _controller.editando ? 'Guardar' : 'Crear',
+                  label: _controller.editando ? s.save : s.create,
                   onPressed: () {
                     if (!_controller.validar()) {
                       return;

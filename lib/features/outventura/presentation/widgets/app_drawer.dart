@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/app/theme/app_text_styles.dart';
 import 'package:outventura/catalog/pages/catalog_page.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
@@ -15,6 +16,7 @@ class AppDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final Usuario? usuario = ref.watch(currentUserProvider);
     final ColorScheme cs = Theme.of(context).colorScheme;
+    final s = AppLocalizations.of(context)!;
 
     return Drawer(
       backgroundColor: cs.surface,
@@ -46,7 +48,7 @@ class AppDrawer extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  usuario?.nombre ?? 'Usuario',
+                  usuario?.nombre ?? s.user,
                   style: AppTextStyles.titleMedium.copyWith(color: cs.onPrimary),
                 ),
                 if (usuario?.email != null)
@@ -66,7 +68,7 @@ class AppDrawer extends ConsumerWidget {
                 ListTile(
                   horizontalTitleGap: 8,
                   leading: Icon(Icons.person_outline, color: cs.onSurface, size: 22),
-                  title: Text('Perfil', style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
+                  title: Text(s.profile, style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   onTap: () {
@@ -80,7 +82,7 @@ class AppDrawer extends ConsumerWidget {
                 ListTile(
                   horizontalTitleGap: 8,
                   leading: Icon(Icons.map_outlined, color: cs.onSurface, size: 22),
-                  title: Text('Catálogo de Componentes', style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
+                  title: Text(s.componentCatalog, style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   onTap: () {
@@ -93,7 +95,7 @@ class AppDrawer extends ConsumerWidget {
                 ListTile(
                   horizontalTitleGap: 8,
                   leading: Icon(Icons.settings_outlined, color: cs.onSurface, size: 22),
-                  title: Text('Preferencias', style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
+                  title: Text(s.preferences, style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   onTap: () {
@@ -112,7 +114,7 @@ class AppDrawer extends ConsumerWidget {
                 ListTile(
                   horizontalTitleGap: 8,
                   leading: Icon(Icons.logout, color: cs.error, size: 22),
-                  title: Text('Cerrar sesión', style: AppTextStyles.labelLarge.copyWith(color: cs.error)),
+                  title: Text(s.logout, style: AppTextStyles.labelLarge.copyWith(color: cs.error)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   onTap: () {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 
 class ReservationsPageController {
   EstadoReserva? estadoFiltro;
@@ -17,10 +19,10 @@ class ReservationsPageController {
     mostrarFiltrosSheet(context, (setModal) => FilterBottomSheetContent(
       grupos: [
         FilterGrupo(
-          titulo: 'Estado',
+          titulo: AppLocalizations.of(context)!.statusFilter,
           chips: EstadoReserva.values
               .map((EstadoReserva e) => FilterChipSpec(
-                    label: e.label,
+                    label: e.localizedLabel(AppLocalizations.of(context)!),
                     seleccionado: estadoTemp == e,
                     onToggle: () => setModal(() => estadoTemp = estadoTemp == e ? null : e),
                   ))

@@ -14,6 +14,7 @@ import 'package:outventura/features/outventura/presentation/widgets/app_drawer.d
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class HomeClientePage extends ConsumerWidget {
   final Usuario usuario;
@@ -24,6 +25,7 @@ class HomeClientePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
 
     final List<Reserva> misReservas = (ref.watch(reservasProvider).value ?? [])
         .where((Reserva r) => r.idUsuario == usuario.id)
@@ -38,7 +40,7 @@ class HomeClientePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Panel de Cliente'),
+        title: Text(s.clientPanel),
         automaticallyImplyLeading: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -85,7 +87,7 @@ class HomeClientePage extends ConsumerWidget {
                             colorScheme: cs,
                             textTheme: tt,
                             value: '${misReservas.length}',
-                            label: 'MIS RESERVAS',
+                            label: s.myReservations,
                           ),
                         ),
                       ),
@@ -101,7 +103,7 @@ class HomeClientePage extends ConsumerWidget {
                             colorScheme: cs,
                             textTheme: tt,
                             value: '${misSolicitudes.length}',
-                            label: 'MIS SOLICITUDES',
+                            label: s.myRequests,
                           ),
                         ),
                       ),
@@ -111,7 +113,7 @@ class HomeClientePage extends ConsumerWidget {
                           colorScheme: cs,
                           textTheme: tt,
                           value: '$solicitudesPendientes',
-                          label: 'PENDIENTES',
+                          label: s.pendingLabel,
                         ),
                       ),
                     ],
@@ -126,19 +128,19 @@ class HomeClientePage extends ConsumerWidget {
               children: [
                 const SizedBox(height: 24),
                 Text(
-                  'Hola, ${usuario.nombre}',
+                  s.greeting(usuario.nombre),
                   style: tt.titleLarge?.copyWith(color: cs.onSurface),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Desde aquí puedes crear y revisar tus reservas y solicitudes.',
+                  s.clientDescription,
                   style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: PrimaryButton(
-                    label: 'Mis Reservas',
+                    label: s.myReservationsBtn,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const ReservationsPage(puedeGestionar: false, puedeCrear: true),
@@ -150,7 +152,7 @@ class HomeClientePage extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: PrimaryButton(
-                    label: 'Mis Solicitudes',
+                    label: s.myRequestsBtn,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => const RequestsPage(puedeGestionar: false, puedeCrear: true),
@@ -160,13 +162,13 @@ class HomeClientePage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'SOLICITUDES RECIENTES',
+                  s.recentRequests,
                   style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
                 if (misSolicitudes.isEmpty)
                   Text(
-                    'No tienes solicitudes todavía.',
+                    s.noRequestsYet,
                     style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                   )
                 else
@@ -185,13 +187,13 @@ class HomeClientePage extends ConsumerWidget {
                     }),
                 const SizedBox(height: 24),
                 Text(
-                  'NUEVAS EXCURSIONES',
+                  s.newExcursions,
                   style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
                 if (excursiones.isEmpty)
                   Text(
-                    'No hay excursiones nuevas.',
+                    s.noNewExcursions,
                     style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                   )
                 else

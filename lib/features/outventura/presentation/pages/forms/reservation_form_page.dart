@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
@@ -82,6 +84,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
@@ -99,7 +102,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        title: Text(widget.reserva != null ? 'Editar reserva #${widget.reserva!.id}' : 'Nueva reserva'),
+        title: Text(widget.reserva != null ? s.editReservation(widget.reserva!.id) : s.newReservation),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -124,8 +127,8 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 items: usuariosDisponibles,
                 itemValue: (Usuario user) => user.id,
                 itemLabel: (Usuario user) => '${user.nombre} ${user.apellidos}',
-                label: 'Usuario',
-                hint: modoCliente ? 'Tu usuario' : 'Selecciona un usuario',
+                label: s.user,
+                hint: modoCliente ? s.yourUser : s.selectUser,
                 enabled: !modoCliente && widget.reserva == null,
 
                 // id usuario es = v, significa que se ha seleccionado un usuario, si es null, no se ha seleccionado ninguno.
@@ -138,7 +141,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 },
                 validator: (int? v) {
                   if (v == null) {
-                    return 'Selecciona un usuario';
+                    return s.selectUser;
                   }
                   return null;
                 },
@@ -153,14 +156,14 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   itemValue: (e) => e.id,
                   itemLabel: (e) => '${e.puntoInicio} → ${e.puntoFin}',
                   prefixIcon: Icons.hiking_outlined,
-                  label: 'Excursión',
-                  hint: 'Ninguna',
+                  label: s.excursion,
+                  hint: s.none,
                   enabled: !modoCliente && widget.reserva == null,
                   onChanged: (int? v) =>
                       setState(() => _controller.idExcursion = v),
                   validator: (int? v) {
                     if (v == null) {
-                      return 'Selecciona una Excursión';
+                      return s.selectExcursion;
                     }
                     return null;
                   },
@@ -170,7 +173,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
 
               // Fechas
               Text(
-                'Fechas',
+                s.dates,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -178,7 +181,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 children: [
                   Expanded(
                     child: AppDateSelector(
-                      label: 'Desde',
+                      label: s.from,
                       date: _controller.fechaDesde,
                       firstDate: DateTime(2020),
                       lastDate: DateTime(2030),
@@ -193,7 +196,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: AppDateSelector(
-                      label: 'Hasta',
+                      label: s.to,
                       date: _controller.fechaHasta,
                       firstDate: _controller.fechaDesde,
                       lastDate: DateTime(2030),
@@ -210,7 +213,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 children: [
                   Expanded(
                     child: AppTimeSelector(
-                      label: 'Hora inicio',
+                      label: s.startTime,
                       time: _controller.horaInicio,
                       onTimeSelected: (TimeOfDay t) =>
                           setState(() => _controller.horaInicio = t),
@@ -219,7 +222,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: AppTimeSelector(
-                      label: 'Hora fin',
+                      label: s.endTime,
                       time: _controller.horaFin,
                       onTimeSelected: (TimeOfDay t) =>
                           setState(() => _controller.horaFin = t),
@@ -232,15 +235,15 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               // Estado (solo visible para trabajadores)
               if (!modoCliente) ...[
                 Text(
-                  'Estado',
-                  style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
+                s.status,
+                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+              ),
                 const SizedBox(height: 8),
                 AppChipWrap(
                   children: EstadoReserva.values.map((EstadoReserva e) {
                     final bool seleccionado = _controller.estado == e;
                     return AppChoiceChip(
-                      label: e.label,
+                      label: e.localizedLabel(s),
                       seleccionado: seleccionado,
                       onSelected: (_) => setState(() => _controller.estado = e),
                     );
@@ -254,11 +257,11 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Líneas de reserva',
+                    s.reservationLines,
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   TertiaryButton(
-                    label: 'Añadir',
+                    label: s.add,
                     icon: Icons.add,
                     onPressed: () => _mostrarDialogoLinea(),
                   ),
@@ -268,7 +271,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    'Sin materiales.',
+                    s.noMaterials,
                     style: tt.bodySmall?.copyWith(color: cs.error),
                   ),
                 )
@@ -328,9 +331,9 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total daños', style: tt.labelMedium),
+                    Text(s.totalDamages, style: tt.labelMedium),
                     Text(
-                      '${_controller.totalCargoDanios(equipamientos).toStringAsFixed(2)} €',
+                      s.priceEur(_controller.totalCargoDanios(equipamientos).toStringAsFixed(2)),
                       style: tt.labelMedium?.copyWith(color: cs.error),
                     ),
                   ],
@@ -345,13 +348,13 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   if (widget.reserva != null) ...[
                     Expanded(
                       child: SecondaryButton(
-                        label: 'Borrar reserva',
+                        label: s.deleteReservation,
                         onPressed: () async {
                           final bool confirmar = await showConfirmDialog(
                             context: context,
-                            title: 'Borrar reserva',
-                            content: '¿Estás seguro de que quieres borrar esta reserva? Esta acción no se puede deshacer.',
-                            confirmLabel: 'Borrar',
+                            title: s.deleteReservation,
+                            content: s.deleteReservationConfirm,
+                            confirmLabel: s.deleteReservation,
                           );
                           if (confirmar && context.mounted) {
                             ref.read(reservasProvider.notifier).eliminar(widget.reserva!);
@@ -365,14 +368,14 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   ],
                   Expanded(
                     child: PrimaryButton(
-                      label: 'Guardar',
+                      label: s.save,
                       icon: Icons.save_outlined,
                       onPressed: () {
                         if (_controller.lineas.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content: Text(
-                                'Añade al menos una línea de reserva.',
+                                s.addAtLeastOneLine,
                               ),
                             ),
                           );

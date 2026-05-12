@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:outventura/app/theme/app_theme.dart';
@@ -10,8 +12,19 @@ import 'package:outventura/features/preferences/data/models/preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('es');
+  await initializeDateFormatting();
   runApp(const ProviderScope(child: MainApp()));
+}
+
+Locale _localeFromString(String code) {
+  switch (code) {
+    case 'en':
+      return const Locale('en');
+    case 'ca':
+      return const Locale('ca');
+    default:
+      return const Locale('es');
+  }
 }
 
 class MainApp extends ConsumerWidget {
@@ -25,6 +38,14 @@ class MainApp extends ConsumerWidget {
       data: (Preferencias preferences) => MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Outventura',
+        locale: _localeFromString(preferences.idioma),
+        localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: preferences.temaOscuro ? ThemeMode.dark : ThemeMode.light,

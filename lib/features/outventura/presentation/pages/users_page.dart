@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/users_page_controller.dart';
@@ -30,6 +31,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final AppLocalizations s = AppLocalizations.of(context)!;
     final AsyncValue<List<Usuario>> filtrados = ref.watch(usuariosFiltradosProvider((
       query: _search.query,
       rol: _controller.rolFiltro,
@@ -38,7 +40,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Usuarios'),
+        title: Text(s.usersTitle),
         automaticallyImplyLeading: true,
         actions: [
           Badge(
@@ -47,7 +49,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             smallSize: 7,
             child: IconButton(
               icon: const Icon(Icons.filter_list),
-              tooltip: 'Filtros',
+              tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
               onPressed: () => _controller.mostrarFiltros(context, setState),
             ),
@@ -80,7 +82,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             return;
           }
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Usuario creado correctamente.')),
+            SnackBar(content: Text(s.userCreated)),
           );
         },
         icon: Icons.person_add_outlined,
@@ -94,7 +96,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
               controller: _search.controller,
-              labelText: 'Buscar por nombre, email o teléfono...',
+              labelText: s.searchByNameEmailPhone,
               prefixIcon: Icons.search,
               suffixIcon: _search.query.isNotEmpty
                   ? IconButton(
@@ -111,15 +113,14 @@ class _UsersPageState extends ConsumerState<UsersPage> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text('Error: $error')),
               data: (List<Usuario> usuarios) => ListView.separated(
-                padding: EdgeInsets.fromLTRB(
-                    12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
+                padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
                 itemCount: usuarios.isEmpty ? 1 : usuarios.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (BuildContext context, int index) {
                   if (usuarios.isEmpty) {
                     return Center(
                       child: Text(
-                        'No hay usuarios',
+                        s.noUsers,
                         style:
                             tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                       ),
@@ -144,7 +145,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                         return;
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Usuario actualizado correctamente.')),
+                        SnackBar(content: Text(s.userUpdated)),
                       );
                     },
                     onEliminar: () {},

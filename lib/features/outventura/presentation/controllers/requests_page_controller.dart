@@ -5,6 +5,8 @@ import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 
 class RequestsPageController {
   // --- Filtros ---
@@ -18,14 +20,15 @@ class RequestsPageController {
     EstadoSolicitud? estadoTemp = estadoFiltro;
     DateTime? desdeTemp = fechaDesde;
     DateTime? hastaTemp = fechaHasta;
+    final s = AppLocalizations.of(context)!;
 
     mostrarFiltrosSheet(context, (setModal) => FilterBottomSheetContent(
       grupos: [
         FilterGrupo(
-          titulo: 'Estado',
+          titulo: s.statusFilter,
           chips: EstadoSolicitud.values
               .map((EstadoSolicitud e) => FilterChipSpec(
-                    label: e.label,
+                    label: e.localizedLabel(s),
                     seleccionado: estadoTemp == e,
                     onToggle: () => setModal(() => estadoTemp = estadoTemp == e ? null : e),
                   ))
@@ -63,12 +66,12 @@ class RequestsPageController {
     required bool Function() isMounted,
   }) async {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final s = AppLocalizations.of(context)!;
     final bool confirm = await showConfirmDialog(
       context: context,
-      title: 'Aceptar solicitud',
-      content:
-          '¿Aceptar la solicitud #${solicitud.id}?\nSe generará una excursión automáticamente.',
-      confirmLabel: 'Aceptar',
+      title: s.acceptRequest,
+      content: s.acceptRequestConfirm(solicitud.id),
+      confirmLabel: s.accept,
       isDanger: false,
     );
 
@@ -79,8 +82,8 @@ class RequestsPageController {
 
     if (isMounted()) {
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Solicitud aceptada. Excursión generada.'),
+        SnackBar(
+          content: Text(s.requestAccepted),
         ),
       );
     }
@@ -111,8 +114,9 @@ class RequestsPageController {
       return;
     }
     if (result.idReserva != null && solicitud.idReserva == null) {
+      final s = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Reserva de materiales creada correctamente.')),
+        SnackBar(content: Text(s.materialReservationCreated)),
       );
     }
   }
@@ -125,11 +129,12 @@ class RequestsPageController {
     required bool Function() isMounted,
   }) async {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final s = AppLocalizations.of(context)!;
     final bool confirm = await showConfirmDialog(
       context: context,
-      title: 'Rechazar solicitud',
-      content: '¿Rechazar la solicitud #${solicitud.id}?',
-      confirmLabel: 'Rechazar',
+      title: s.rejectRequest,
+      content: s.rejectRequestConfirm(solicitud.id),
+      confirmLabel: s.reject,
     );
     if (!confirm) {
       return;
@@ -139,7 +144,7 @@ class RequestsPageController {
 
     if (isMounted()) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Solicitud rechazada.')),
+        SnackBar(content: Text(s.requestRejected)),
       );
     }
   }

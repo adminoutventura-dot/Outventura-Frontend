@@ -76,7 +76,7 @@ final List<Excursion> catalogoExcursiones = [
     categorias: [CategoriaActividad.montana],
     numeroParticipantes: 25,
     descripcion: 'Paseo guiado de baja dificultad por el casco antiguo.',
-    estado: EstadoExcursion.disponible,
+    estado: EstadoExcursion.noDisponible,
     precio: 20.0,
     materialesPorParticipante: {},
     fechaInicio: DateTime(2026, 8, 5, 18, 0),

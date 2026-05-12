@@ -6,6 +6,7 @@ import 'package:outventura/features/outventura/presentation/pages/equipment_page
 import 'package:outventura/features/outventura/presentation/pages/excursions_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/home_admin_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/home_client_page.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class MainScaffold extends StatefulWidget {
   final Usuario usuario;
@@ -20,7 +21,6 @@ class _MainScaffoldState extends State<MainScaffold> {
   int _indiceActual = 0;
 
   late final List<Widget> _pages;
-  late final List<BottomNavigationBarItem> _items;
 
   @override
   void initState() {
@@ -35,34 +35,12 @@ class _MainScaffoldState extends State<MainScaffold> {
       EquipmentPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
       CalendarPage(usuario: widget.usuario, esAdmin: !esCliente),
     ];
-
-    _items = [
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.home_outlined),
-        activeIcon: Icon(Icons.home),
-        label: 'Inicio',
-      ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.hiking_outlined),
-        activeIcon: Icon(Icons.hiking),
-        label: 'Excursiones',
-      ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.inventory_2_outlined),
-        activeIcon: Icon(Icons.inventory_2),
-        label: 'Equipamiento',
-      ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.calendar_today_outlined),
-        activeIcon: Icon(Icons.calendar_today),
-        label: 'Calendario',
-      ),
-    ];
   }
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
+    final AppLocalizations s = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: _pages[_indiceActual],
@@ -73,7 +51,28 @@ class _MainScaffoldState extends State<MainScaffold> {
         selectedItemColor: cs.primary,
         unselectedItemColor: cs.onSurfaceVariant,
         backgroundColor: Theme.of(context).colorScheme.surface,
-        items: _items,
+        items: [
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: s.tabHome,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.hiking_outlined),
+            activeIcon: const Icon(Icons.hiking),
+            label: s.tabExcursions,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.inventory_2_outlined),
+            activeIcon: const Icon(Icons.inventory_2),
+            label: s.tabEquipment,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.calendar_today_outlined),
+            activeIcon: const Icon(Icons.calendar_today),
+            label: s.tabCalendar,
+          ),
+        ],
       ),
     );
   }

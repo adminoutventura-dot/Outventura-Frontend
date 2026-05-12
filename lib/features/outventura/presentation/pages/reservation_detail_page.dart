@@ -1,9 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class ReservationDetailPage extends ConsumerWidget {
   final Reserva reserva;
@@ -12,6 +14,7 @@ class ReservationDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
@@ -30,7 +33,7 @@ class ReservationDetailPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Reserva #${reserva.id}'),
+        title: Text(s.reservationDetail(reserva.id)),
         automaticallyImplyLeading: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -53,7 +56,7 @@ class ReservationDetailPage extends ConsumerWidget {
               borderRadius: BorderRadius.circular(3),
             ),
             child: Text(
-              reserva.estado.label,
+              reserva.estado.localizedLabel(s),
               style: tt.labelLarge?.copyWith(color: cs.onPrimary),
               textAlign: TextAlign.center,
             ),
@@ -62,23 +65,23 @@ class ReservationDetailPage extends ConsumerWidget {
 
           // Información general
           DetailSection(
-            title: 'Información general',
+            title: s.generalInfo,
             children: [
-              DetailRow(Icons.person_outline, 'Usuario', nombreUsuario),
+              DetailRow(Icons.person_outline, s.user, nombreUsuario),
               if (excursion != null)
                 DetailRow(
                   Icons.hiking_outlined,
-                  'Excursión',
-                  '${excursion.puntoInicio} → ${excursion.puntoFin}',                
+                  s.excursion,
+                  '${excursion.puntoInicio} ? ${excursion.puntoFin}',                
                 ),
               DetailRow(
                 Icons.calendar_today_outlined,
-                'Inicio',
+                s.start,
                 FormateadorFecha.withTime(reserva.fechaInicio),              
               ),
               DetailRow(
                 Icons.event_outlined,
-                'Fin',
+                s.end,
                 FormateadorFecha.withTime(reserva.fechaFin),              
               ),
             ],
@@ -88,7 +91,7 @@ class ReservationDetailPage extends ConsumerWidget {
           if (reserva.lineas.isNotEmpty) ...[
             const SizedBox(height: 20),
             DetailSection(
-              title: 'Material reservado',
+              title: s.reservedMaterial,
               children: [
                 for (final linea in reserva.lineas)
                   Builder(builder: (context) {
@@ -96,7 +99,7 @@ class ReservationDetailPage extends ConsumerWidget {
                     return DetailRow(
                       Icons.inventory_2_outlined,
                       nombre,
-                      '${linea.cantidad} ud.',                    
+                      s.unitsShort(linea.cantidad),                    
                     );
                   }),
               ],
@@ -107,13 +110,13 @@ class ReservationDetailPage extends ConsumerWidget {
           if (reserva.cargoDanios > 0 || reserva.itemsDaniados.isNotEmpty) ...[
             const SizedBox(height: 20),
             DetailSection(
-              title: 'Daños',
+              title: s.damages,
               children: [
                 if (reserva.cargoDanios > 0)
                   DetailRow(
                     Icons.euro_outlined,
-                    'Cargo por daños',
-                    '${reserva.cargoDanios.toStringAsFixed(2)} €',                  
+                    s.damageCharge,
+                    s.priceEur(reserva.cargoDanios.toStringAsFixed(2)),                  
                   ),
                 for (final entry in reserva.itemsDaniados.entries)
                   Builder(builder: (context) {
@@ -121,7 +124,7 @@ class ReservationDetailPage extends ConsumerWidget {
                     return DetailRow(
                       Icons.warning_amber_outlined,
                       nombre,
-                      '${entry.value} dañado(s)',                    
+                      s.damagedItems(entry.value),                    
                     );
                   }),
               ],

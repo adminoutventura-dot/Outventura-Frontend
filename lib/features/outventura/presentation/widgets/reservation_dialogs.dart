@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 // Muestra el diálogo de confirmación para aprobar una reserva.
 Future<void> mostrarDialogoAprobacion(
@@ -8,17 +9,18 @@ Future<void> mostrarDialogoAprobacion(
   Reserva r,
   VoidCallback onConfirm,
 ) async {
+  final s = AppLocalizations.of(context)!;
   final bool ok = await showConfirmDialog(
     context: context,
-    title: 'Aprobar reserva',
-    content: '¿Confirmar la reserva #${r.id}?',
-    confirmLabel: 'Aprobar',
+    title: s.approveReservation,
+    content: s.approveReservationConfirm(r.id),
+    confirmLabel: s.approve,
     isDanger: false,
   );
   if (!context.mounted || !ok) return;
   onConfirm();
   ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Reserva aprobada.')),
+    SnackBar(content: Text(s.reservationApproved)),
   );
 }
 
@@ -28,16 +30,17 @@ Future<void> mostrarDialogoRechazo(
   Reserva r,
   VoidCallback onConfirm,
 ) async {
+  final s = AppLocalizations.of(context)!;
   final bool ok = await showConfirmDialog(
     context: context,
-    title: 'Rechazar reserva',
-    content: '¿Rechazar la reserva #${r.id}?',
-    confirmLabel: 'Rechazar',
+    title: s.rejectReservation,
+    content: s.rejectReservationConfirm(r.id),
+    confirmLabel: s.reject,
   );
   if (!context.mounted || !ok) return;
   onConfirm();
   ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Reserva rechazada.')),
+    SnackBar(content: Text(s.reservationRejected)),
   );
 }
 
@@ -47,11 +50,12 @@ Future<void> mostrarDialogoCancelacion(
   Reserva r,
   VoidCallback onConfirm,
 ) async {
+  final s = AppLocalizations.of(context)!;
   final bool ok = await showConfirmDialog(
     context: context,
-    title: 'Cancelar reserva',
-    content: '¿Cancelar la reserva #${r.id}?',
-    confirmLabel: 'Cancelar reserva',
+    title: s.cancelReservation,
+    content: s.cancelReservationConfirm(r.id),
+    confirmLabel: s.cancelReservation,
   );
   if (!context.mounted || !ok) return;
   onConfirm();
@@ -63,16 +67,17 @@ Future<void> mostrarDialogoDevolucion(
   Reserva r,
   VoidCallback onConfirm,
 ) async {
+  final s = AppLocalizations.of(context)!;
   final bool ok = await showConfirmDialog(
     context: context,
-    title: 'Registrar devolución',
-    content: '¿Confirmar la devolución de la reserva #${r.id}? Podrás registrar los daños desde el formulario.',
-    confirmLabel: 'Confirmar',
+    title: s.registerReturn,
+    content: s.registerReturnConfirm(r.id),
+    confirmLabel: s.confirm,
     isDanger: false,
   );
   if (!context.mounted || !ok) return;
   onConfirm();
   ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Devolución registrada.')),
+    SnackBar(content: Text(s.returnRegistered)),
   );
 }

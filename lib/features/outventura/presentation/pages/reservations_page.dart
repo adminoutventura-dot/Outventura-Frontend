@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/reservations_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
@@ -41,6 +42,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
     final usuarioActual = ref.watch(currentUserProvider);
     final ReservationsNotifier notifier = ref.read(reservasProvider.notifier);
     final AsyncValue<List<Reserva>> filtradas = ref.watch(reservasFiltadasProvider((
@@ -53,7 +55,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.puedeGestionar ? 'Gestión de reservas' : 'Reservas'),
+        title: Text(widget.puedeGestionar ? s.reservationManagement : s.reservationsTitle),
         automaticallyImplyLeading: true,
         actions: [
           Badge(
@@ -62,7 +64,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
             smallSize: 7,
             child: IconButton(
               icon: const Icon(Icons.filter_list),
-              tooltip: 'Filtros',
+              tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
               onPressed: () => _controller.mostrarFiltros(context, setState),
             ),
@@ -95,7 +97,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                   return;
                 }
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Reserva creada correctamente.')),
+                  SnackBar(content: Text(s.reservationCreated)),
                 );
               },
             )
@@ -108,7 +110,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
               controller: _search.controller,
-              labelText: 'Buscar por usuario o excursión...',
+              labelText: s.searchByUserOrExcursion,
               prefixIcon: Icons.search,
               suffixIcon: _search.query.isNotEmpty
                   ? IconButton(
@@ -125,7 +127,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text('Error: $error')),
               data: (List<Reserva> lista) => lista.isEmpty
-                ? Center(child: Text('No hay reservas', style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)))
+                ? Center(child: Text(s.noReservations, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)))
                 : ListView.separated(
                     padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
                     itemCount: lista.length,
@@ -182,7 +184,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                             return;
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Reserva actualizada correctamente.')),
+                            SnackBar(content: Text(s.reservationUpdated)),
                           );
                         },
                         onAprobar: onAprobar,

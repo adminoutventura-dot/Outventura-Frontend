@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/equipment_page_controller.dart';
@@ -43,6 +44,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final AppLocalizations s = AppLocalizations.of(context)!;
 
     // Escucha los equipamientos filtrados según el estado del controlador.
     // equipamientosFiltradosProvider(...) — provider que internamente coge todos los equipamientos y aplica los filtros.
@@ -57,7 +59,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Equipamiento'),
+        title: Text(s.equipmentTitle),
         automaticallyImplyLeading: true,
         actions: [
           // Botón de filtros, muestra un punto rojo (Badge) si hay filtros activos.
@@ -67,7 +69,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
             smallSize: 7,
             child: IconButton(
               icon: const Icon(Icons.filter_list),
-              tooltip: 'Filtros',
+              tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
               onPressed: () => _controller.mostrarFiltros(context, setState),
             ),
@@ -101,7 +103,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                   return;
                 }
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Material creado correctamente.')),
+                  SnackBar(content: Text(s.materialCreated)),
                 );
               },
             )
@@ -113,7 +115,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
               controller: _search.controller,
-              labelText: 'Buscar por nombre...',
+              labelText: s.searchByName,
               prefixIcon: Icons.search,
               suffixIcon: _search.query.isNotEmpty
                   ? IconButton(
@@ -130,19 +132,14 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text('Error: $error')),
               data: (List<Equipamiento> lista) => ListView.separated(
-              padding: EdgeInsets.fromLTRB(
-                12,
-                12,
-                12,
-                MediaQuery.of(context).padding.bottom + 80,
-              ),
+              padding: EdgeInsets.fromLTRB( 12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
               itemCount: lista.isEmpty ? 1 : lista.length,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (BuildContext context, int index) {
                 if (lista.isEmpty) {
                   return Center(
                     child: Text(
-                      'No hay equipamientos para esta categoría.',
+                      s.noEquipmentForCategory,
                       style: tt.bodyMedium!.copyWith(color: cs.onSurfaceVariant),
                     ),
                   );
@@ -170,7 +167,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             return;
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Material actualizado correctamente.')),
+                            SnackBar(content: Text(s.materialUpdated)),
                           );
                         }
                       : null,
@@ -178,8 +175,8 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                       ? () async {
                           final bool confirm = await showConfirmDialog(
                             context: context,
-                            title: 'Eliminar equipamiento',
-                            content: '¿Eliminar "${equipamiento.nombre}"?',
+                            title: s.deleteEquipment,
+                            content: s.deleteEquipmentConfirm(equipamiento.nombre),
                           );
                           if (confirm) {
                             ref.read(equipamientosProvider.notifier).eliminar(equipamiento);
@@ -212,7 +209,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             return;
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Reserva creada correctamente.')),
+                            SnackBar(content: Text(s.reservationCreated)),
                           );
                         }
                       : null,

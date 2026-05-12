@@ -3,32 +3,21 @@ import 'package:outventura/features/outventura/domain/entities/activity_category
 // Estados posibles de una excursión.
 enum EstadoExcursion {
   disponible,
-  pendiente,
-  confirmada,
-  enCurso,
-  finalizada,
-  cancelada;
+  noDisponible;
 
   String get label {
     switch (this) {
       case EstadoExcursion.disponible:
-        return 'Disponible';
-      case EstadoExcursion.pendiente:
-        return 'Pendiente';
-      case EstadoExcursion.confirmada:
-        return 'Confirmada';
-      case EstadoExcursion.enCurso:
-        return 'En curso';
-      case EstadoExcursion.finalizada:
-        return 'Finalizada';
-      case EstadoExcursion.cancelada:
-        return 'Cancelada';
+        return 'disponible';
+      case EstadoExcursion.noDisponible:
+        return 'noDisponible';
     }
   }
 
   static EstadoExcursion fromString(String value) {
     for (EstadoExcursion status in EstadoExcursion.values) {
-      if (status.label.toLowerCase() == value.toLowerCase()) {
+      if (status.name.toLowerCase() == value.toLowerCase() ||
+          status.label.toLowerCase() == value.toLowerCase()) {
         return status;
       }
     }

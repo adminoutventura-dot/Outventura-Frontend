@@ -4,6 +4,8 @@ import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/excursion.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 
 class ExcursionCard extends StatelessWidget {
   final Excursion excursion;
@@ -28,6 +30,7 @@ class ExcursionCard extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final String? imagenResuelta = imagenAsset ?? excursion.imagenAsset;
+    final s = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -147,13 +150,13 @@ class ExcursionCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       // Número de plazas.
-                      '${excursion.numeroParticipantes} plazas',
+                      s.placesCount(excursion.numeroParticipantes),
                       style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     if (excursion.precio > 0) ...[
                       const SizedBox(width: 10),
                       Text(
-                        '${excursion.precio.toStringAsFixed(0)}€/persona',
+                        s.pricePerPersonShort(excursion.precio.toStringAsFixed(0)),
                         style: tt.labelMedium?.copyWith(color: cs.primary),
                       ),
                     ],
@@ -169,7 +172,7 @@ class ExcursionCard extends StatelessWidget {
                       // Categorías
                       children: excursion.categorias
                           .map((CategoriaActividad c) => TagWidget(
-                                text: c.label,
+                                text: c.localizedLabel(s),
                                 backgroundColor: cs.secondary.withValues(alpha: 0.15),
                                 textColor: cs.onPrimaryContainer,
                               ))
@@ -200,7 +203,7 @@ class ExcursionCard extends StatelessWidget {
                     // Botón Solicitar
                     if (onSolicitar != null)
                       MiniButton(
-                        label: 'Solicitar',
+                        label: s.requestBtn,
                         onPressed: onSolicitar,
                         textColor: cs.onTertiary,
                         backgroundColor: cs.onPrimary,

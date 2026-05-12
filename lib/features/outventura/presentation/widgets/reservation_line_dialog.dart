@@ -4,6 +4,7 @@ import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 Future<LineaReserva?> mostrarDialogoLineaReserva({
   required BuildContext context,
@@ -54,8 +55,9 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: Text(widget.initialLinea == null ? 'Añadir línea' : 'Editar línea'),
+      title: Text(widget.initialLinea == null ? s.addLine : s.editLine),
       content: Form(
         key: _formKey,
         child: Column(
@@ -67,20 +69,20 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
               itemValue: (e) => e.id,
               itemLabel: (e) => e.nombre,
               prefixIcon: Icons.inventory_2_outlined,
-              label: 'Equipamiento',
-              hint: 'Ninguno',
+              label: s.equipment,
+              hint: s.noneSelected,
               isRequired: true,
               onChanged: (int? v) => setState(() => _idEquipamiento = v),
             ),
             const SizedBox(height: 16),
             CustomInputField(
               controller: _cantCtrl,
-              labelText: 'Cantidad',
+              labelText: s.quantity,
               prefixIcon: Icons.layers_outlined,
               keyboardType: TextInputType.number,
               validator: (String? v) {
                 final int? n = int.tryParse(v ?? '');
-                if (n == null || n < 1) return 'Introduce una cantidad válida';
+                if (n == null || n < 1) return s.invalidQuantity;
                 return null;
               },
             ),
@@ -89,13 +91,13 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
       ),
       actions: [
         SecondaryButton(
-          label: 'Cancelar',
+          label: s.cancel,
           onPressed: () => Navigator.pop(context),
           backgroundColor: Theme.of(context).colorScheme.surface,
           borderColor: Theme.of(context).colorScheme.primary,
         ),
         PrimaryButton(
-          label: 'Confirmar',
+          label: s.confirm,
           onPressed: () {
             if (!_formKey.currentState!.validate()) return;
             Navigator.pop(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/excursions_page_controller.dart';
@@ -41,6 +42,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final AsyncValue<List<Excursion>> excursionesFiltradas = ref.watch(excursionesFiltadasProvider((
@@ -53,7 +55,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Excursiones'),
+        title: Text(s.excursionsTitle),
         automaticallyImplyLeading: true,
         actions: [
           Badge(
@@ -62,7 +64,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
             smallSize: 7,
             child: IconButton(
               icon: const Icon(Icons.filter_list),
-              tooltip: 'Filtros',
+              tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
               onPressed: () => _controller.mostrarFiltros(context, setState),
             ),
@@ -94,7 +96,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                   return;
                 }
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Excursión creada correctamente.')),
+                  SnackBar(content: Text(s.excursionCreated)),
                 );
               },
             )
@@ -107,7 +109,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
               controller: _search.controller,
-              labelText: 'Buscar por ruta...',
+              labelText: s.searchByRoute,
               prefixIcon: Icons.search,
               suffixIcon: _search.query.isNotEmpty
                   ? IconButton(
@@ -131,7 +133,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                 if (lista.isEmpty) {
                   return Center(
                     child: Text(
-                      'No hay excursiones para esta categoría.',
+                      s.noExcursionsForCategory,
                       style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   );
@@ -156,7 +158,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                             return;
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Excursión actualizada correctamente.')),
+                            SnackBar(content: Text(s.excursionUpdated)),
                           );
                         }
                       : null,
@@ -164,9 +166,9 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                       ? () async {
                           final bool confirm = await showConfirmDialog(
                             context: context,
-                            title: 'Eliminar excursión',
+                            title: s.deleteExcursion,
                             content:
-                                '¿Eliminar "${excursion.puntoInicio} → ${excursion.puntoFin}"?',
+                                s.deleteExcursionConfirm('${excursion.puntoInicio} → ${excursion.puntoFin}'),
                           );
                           if (confirm) {
                             ref.read(excursionesProvider.notifier).eliminar(excursion);
@@ -198,8 +200,8 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                             return;
                           }
                           final String mensaje = solicitud.idReserva != null
-                              ? 'Solicitud creada con reserva de materiales.'
-                              : 'Solicitud creada correctamente.';
+                              ? s.requestCreatedWithReservation
+                              : s.requestCreated;
                           ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(mensaje)) );
                         }
                       : null,

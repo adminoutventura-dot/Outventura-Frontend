@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_date_selector.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 // Fila de selección de rango de fechas (Desde / Hasta) usada dentro del panel de filtros.
 class FilterDateRangeRow extends StatelessWidget {
@@ -39,6 +40,7 @@ class FilterDateRangeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     // Cuando el padre actualiza start o end y reconstruye el widget, 
     // build se vuelve a ejecutar y hasAny se recalcula con los nuevos valores.
+    final s = AppLocalizations.of(context)!;
     final bool hasAny = start != null || end != null;
 
     return Row(
@@ -47,13 +49,13 @@ class FilterDateRangeRow extends StatelessWidget {
         Expanded(
           child: start != null
               ? AppDateSelector(
-                  label: 'Desde',
+                  label: s.from,
                   date: start!,
                   lastDate: end,
                   onDateSelected: onStartChanged,
                 )
               : SecondaryButton(
-                  label: 'Desde',
+                  label: s.from,
                   icon: Icons.calendar_today_outlined,
                   onPressed: () => _pickDate(
                     context,
@@ -68,13 +70,13 @@ class FilterDateRangeRow extends StatelessWidget {
         Expanded(
           child: end != null
               ? AppDateSelector(
-                  label: 'Hasta',
+                  label: s.to,
                   date: end!,
                   firstDate: start,
                   onDateSelected: onEndChanged,
                 )
               : SecondaryButton(
-                  label: 'Hasta',
+                  label: s.to,
                   icon: Icons.calendar_today_outlined,
                   onPressed: () => _pickDate(
                     context,
@@ -88,7 +90,7 @@ class FilterDateRangeRow extends StatelessWidget {
         if (hasAny)
           IconButton(
             icon: const Icon(Icons.clear),
-            tooltip: 'Limpiar fechas',
+            tooltip: s.clearDates,
             onPressed: onClear,
           ),
       ],

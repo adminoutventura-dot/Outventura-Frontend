@@ -1,9 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class RequestDetailPage extends ConsumerWidget {
   final Solicitud solicitud;
@@ -12,6 +14,7 @@ class RequestDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
@@ -37,7 +40,7 @@ class RequestDetailPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Solicitud #${solicitud.id}'),
+        title: Text(s.requestDetail(solicitud.id)),
         automaticallyImplyLeading: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
@@ -60,7 +63,7 @@ class RequestDetailPage extends ConsumerWidget {
               borderRadius: BorderRadius.circular(3),
             ),
             child: Text(
-              solicitud.estado.label,
+              solicitud.estado.localizedLabel(s),
               style: tt.labelLarge?.copyWith(color: cs.onPrimary),
               textAlign: TextAlign.center,
             ),
@@ -69,27 +72,27 @@ class RequestDetailPage extends ConsumerWidget {
 
           // Información general
           DetailSection(
-            title: 'Información general',
+            title: s.generalInfo,
             children: [
               if (nombreUsuario != null)
-                DetailRow(Icons.person_outline, 'Usuario', nombreUsuario),
+                DetailRow(Icons.person_outline, s.user, nombreUsuario),
               if (nombreExperto != null)
-                DetailRow(Icons.star_outline, 'Experto asignado', nombreExperto),
+                DetailRow(Icons.star_outline, s.assignedExpert, nombreExperto),
               DetailRow(
                 Icons.group_outlined,
-                'Participantes',
-                '${solicitud.numeroParticipantes} personas',              
+                s.participants,
+                s.participantsCount(solicitud.numeroParticipantes),              
               ),
               if (solicitud.precioTotal > 0)
                 DetailRow(
                   Icons.euro_outlined,
-                  'Precio total',
-                  '${solicitud.precioTotal.toStringAsFixed(2)} €',                
+                  s.totalPrice,
+                  s.priceEur(solicitud.precioTotal.toStringAsFixed(2)),                
                 ),
               if (reserva != null)
                 DetailRow(
                   Icons.book_online_outlined,
-                  'Reserva asociada',
+                  s.associatedReservation,
                   '#${reserva.id}',                
                 ),
             ],
@@ -99,28 +102,28 @@ class RequestDetailPage extends ConsumerWidget {
           if (excursion != null) ...[
             const SizedBox(height: 20),
             DetailSection(
-              title: 'Excursión',
+              title: s.excursion,
               children: [
                 DetailRow(
                   Icons.hiking_outlined,
-                  'Ruta',
-                  '${excursion.puntoInicio} → ${excursion.puntoFin}',                
+                  s.route,
+                  '${excursion.puntoInicio} - ${excursion.puntoFin}',                
                 ),
                 DetailRow(
                   Icons.calendar_today_outlined,
-                  'Inicio',
+                  s.start,
                   FormateadorFecha.withTime(excursion.fechaInicio),                
                 ),
                 DetailRow(
                   Icons.event_outlined,
-                  'Fin',
+                  s.end,
                   FormateadorFecha.withTime(excursion.fechaFin),                
                 ),
                 if (excursion.precio > 0)
                   DetailRow(
                     Icons.euro_outlined,
-                    'Precio base',
-                    '${excursion.precio.toStringAsFixed(2)} €/persona',                  
+                    s.basePrice,
+                    s.pricePerPerson(excursion.precio.toStringAsFixed(2)),                  
                   ),
               ],
             ),
@@ -130,7 +133,7 @@ class RequestDetailPage extends ConsumerWidget {
           if (solicitud.materialesSolicitados.isNotEmpty) ...[
             const SizedBox(height: 20),
             DetailSection(
-              title: 'Material solicitado',
+              title: s.requestedMaterial,
               children: [
                 for (final entry in solicitud.materialesSolicitados.entries)
                   Builder(builder: (context) {
@@ -138,7 +141,7 @@ class RequestDetailPage extends ConsumerWidget {
                     return DetailRow(
                       Icons.inventory_2_outlined,
                       nombre,
-                      '${entry.value} ud.',                    
+                      s.unitsShort(entry.value),                    
                     );
                   }),
               ],

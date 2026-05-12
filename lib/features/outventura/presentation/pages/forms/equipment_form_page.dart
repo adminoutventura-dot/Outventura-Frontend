@@ -4,6 +4,8 @@ import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/utils/form_validators.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/presentation/controllers/equipment_form_controller.dart';
@@ -37,13 +39,14 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        title: Text(_controller.editando ? 'Editar equipamiento' : 'Nuevo equipamiento'),
+        title: Text(_controller.editando ? s.editEquipment : s.newEquipment),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -76,23 +79,23 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               
               // Categoría
               Text(
-                'Equipamiento',
+                s.equipmentSection,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
               // Nombre 
               CustomInputField(
                 controller: _controller.nombreController,
-                labelText: 'Nombre',
+                labelText: s.name,
                 prefixIcon: Icons.inventory_2_outlined,
-                validator: ValidadoresFormulario.campoObligatorio,
+                validator: ValidadoresFormulario.campoObligatorio(s),
               ),
               const SizedBox(height: 14),
 
               // Descripción
               CustomInputField(
                 controller: _controller.descripcionController,
-                labelText: 'Descripción (opcional)',
+                labelText: s.description,
                 prefixIcon: Icons.notes_outlined,
                 keyboardType: TextInputType.multiline,
               ),
@@ -100,7 +103,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
 
               // Categorías
               Text(
-                'Categorías',
+                s.categories,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -110,14 +113,14 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                   setState(() => _controller.alternarCategoria(cat));
                 },
                 validator: (List<CategoriaActividad>? v) {
-                  return ValidadoresFormulario.listaRequerida(v, 'Selecciona una ctegoría');
+                  return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
                 },
               ),
               const SizedBox(height: 20),
 
               // Estado
               Text(
-                'Estado',
+                s.status,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -125,7 +128,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                 children: EstadoEquipamiento.values.map((EstadoEquipamiento est) {
                   final bool seleccionado = _controller.estado == est;
                   return AppChoiceChip(
-                    label: est.label,
+                    label: est.localizedLabel(s),
                     seleccionado: seleccionado,
                     onSelected: (_) {
                       setState(() => _controller.estado = est);
@@ -138,7 +141,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
 
               // Stock
               Text(
-                'Stock',
+                s.stockSection,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 4),
@@ -149,20 +152,20 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.stockController,
-                      labelText: 'Stock disponible',
+                      labelText: s.availableStock,
                       prefixIcon: Icons.format_list_numbered,
                       keyboardType: TextInputType.number,
-                      validator: ValidadoresFormulario.enteroPositivo,
+                      validator: ValidadoresFormulario.enteroPositivo(s),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.stockTotalController,
-                      labelText: 'Stock total',
+                      labelText: s.totalStock,
                       prefixIcon: Icons.inventory_2_outlined,
                       keyboardType: TextInputType.number,
-                      validator: ValidadoresFormulario.enteroPositivo,
+                      validator: ValidadoresFormulario.enteroPositivo(s),
                     ),
                   ),
                 ],
@@ -171,7 +174,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
 
               // Tarifas
               Text(
-                'Tarifas',
+                s.rates,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 4),
@@ -182,20 +185,20 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.precioController,
-                      labelText: 'Precio/día (€)',
+                      labelText: s.pricePerDay,
                       prefixIcon: Icons.euro_outlined,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: ValidadoresFormulario.decimalPositivo,
+                      validator: ValidadoresFormulario.decimalPositivo(s),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.tarifaController,
-                      labelText: 'Tarifa daños (€)',
+                      labelText: s.damageFee,
                       prefixIcon: Icons.warning_amber_outlined,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      validator: ValidadoresFormulario.decimalPositivo,
+                      validator: ValidadoresFormulario.decimalPositivo(s),
                     ),
                   ),
                 ],
@@ -206,7 +209,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               SizedBox(
                 width: double.infinity,
                 child: PrimaryButton(
-                  label: _controller.editando ? 'Guardar' : 'Crear',
+                  label: _controller.editando ? s.save : s.create,
                   onPressed: () {
                     final Equipamiento? equipamiento = _controller.crearEquipamiento();
                     if (equipamiento == null) {

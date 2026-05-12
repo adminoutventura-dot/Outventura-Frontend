@@ -3,6 +3,8 @@ import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 
 // Información de una línea de reserva lista para mostrar en la tarjeta.
 typedef LineaDisplayInfo = ({String nombre, String? imagen, int cantidad});
@@ -40,6 +42,7 @@ class ReservaCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
 
     final (Color badgeBg, Color badgeFg, Color accentColor) = switch (reserva.estado) {
       EstadoReserva.pendiente => (cs.tertiary, cs.onPrimary, cs.onTertiary),
@@ -183,7 +186,7 @@ class ReservaCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     TagWidget(
-                      text: reserva.estado.label,
+                      text: reserva.estado.localizedLabel(s),
                       backgroundColor: badgeBg,
                       textColor: badgeFg,
                     ),
@@ -229,7 +232,7 @@ class ReservaCard extends StatelessWidget {
                           Icon(Icons.warning_amber_outlined, size: 12, color: cs.error),
                           const SizedBox(width: 4),
                           Text(
-                            'Cargo daños: ${reserva.cargoDanios.toStringAsFixed(2)} €',
+                            s.damageChargeAmount(reserva.cargoDanios.toStringAsFixed(2)),
                             style: tt.labelSmall?.copyWith(color: cs.error),
                           ),
                           const SizedBox(width: 12),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 // Selector de imagen deshabilitado.
 class AppImagePickerField extends StatelessWidget {
@@ -55,7 +56,7 @@ class AppImagePickerField extends StatelessWidget {
         const SizedBox(height: 10),
         PrimaryButton(
           onPressed: (){},
-            label: imageUrl == null ? 'Añadir imagen' : 'Cambiar imagen',
+            label: imageUrl == null ? AppLocalizations.of(context)!.addImage : AppLocalizations.of(context)!.changeImage,
         )
       ],
     );

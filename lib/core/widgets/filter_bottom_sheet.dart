@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/filter_date_range_row.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 // Especificación de un chip individual dentro de un grupo de filtros.
 class FilterChipSpec {
@@ -53,16 +54,10 @@ class FilterBottomSheetContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        12,
-        20,
-        MediaQuery.of(context).viewInsets.bottom +
-            MediaQuery.of(context).padding.bottom +
-            20,
-      ),
+      padding: EdgeInsets.fromLTRB( 20, 12, 20, MediaQuery.of(context).viewInsets.bottom + MediaQuery.of(context).padding.bottom + 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,11 +80,11 @@ class FilterBottomSheetContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Filtros',
+                s.filtersTitle,
                 style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               TertiaryButton(
-                label: 'Limpiar todo',
+                label: s.clearAll,
                 onPressed: onLimpiar,
                 icon: Icons.clear_all,
               ),
@@ -124,7 +119,7 @@ class FilterBottomSheetContent extends StatelessWidget {
           // Rango de fechas (opcional)
           if (mostrarFechas) ...[
             Text(
-              'FECHAS',
+              s.dates,
               style: tt.labelSmall?.copyWith(
                 color: cs.onSurfaceVariant,
                 letterSpacing: 1.2,
@@ -144,7 +139,7 @@ class FilterBottomSheetContent extends StatelessWidget {
           // Botón aplicar
           SizedBox(
             width: double.infinity,
-            child: PrimaryButton(label: 'Aplicar filtros', onPressed: onApply),
+            child: PrimaryButton(label: s.applyFilters, onPressed: onApply),
           ),
         ],
       ),
