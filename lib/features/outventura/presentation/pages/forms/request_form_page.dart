@@ -7,7 +7,7 @@ import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
@@ -15,19 +15,19 @@ import 'package:outventura/features/auth/presentation/providers/users_provider.d
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/controllers/request_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 
 class SolicitudFormPage extends ConsumerStatefulWidget {
-  final Solicitud? solicitud;
-  final int? initialIdExcursion;
+  final Request? solicitud;
+  final int? initialIdActividad;
   final int? initialIdUsuario;
 
   const SolicitudFormPage({
     super.key,
     this.solicitud,
-    this.initialIdExcursion,
+    this.initialIdActividad,
     this.initialIdUsuario,
   });
 
@@ -53,7 +53,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
       // Si no, aplicar valores iniciales.
     } else {
       _controller.aplicarValoresIniciales(
-        idExcursion: widget.initialIdExcursion,
+        idActividad: widget.initialIdActividad,
         idUsuario: widget.initialIdUsuario,
       );
     }
@@ -63,7 +63,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
         if (!mounted) {
           return;
         }
-        setState(() => _controller.recalcularMateriales(ref.read(excursionesProvider).value ?? []));
+        setState(() => _controller.recalcularMateriales(ref.read(activitiesProvider).value ?? []));
       });
     }
   }
@@ -80,13 +80,13 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final bool isEdit = _controller.editando;
-    final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
-    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
+    final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
+    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
 
     // Si la reserva vinculada fue borrada desde otra pantalla, limpiar el controller.
     if (_controller.idReserva != null) {
-      final List<Reserva> reservas = ref.watch(reservasProvider).value ?? [];
-      final bool reservaAunExiste = reservas.any((Reserva r) => r.id == _controller.idReserva);
+      final List<Reservation> reservas = ref.watch(reservationsProvider).value ?? [];
+      final bool reservaAunExiste = reservas.any((Reservation r) => r.id == _controller.idReserva);
       if (!reservaAunExiste) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
@@ -102,26 +102,26 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     // Indica si estamos en modo cliente (se ha pasado un idUsuario fijo).
     final bool modoCliente = widget.initialIdUsuario != null;
 
-    List<Usuario> usuariosDisponibles = ref.watch(usuariosProvider).value ?? [];
+    List<User> usuariosDisponibles = ref.watch(usuariosProvider).value ?? [];
     if (modoCliente) {
       usuariosDisponibles = usuariosDisponibles
-          .where((Usuario u) => u.id == widget.initialIdUsuario)
+          .where((User u) => u.id == widget.initialIdUsuario)
           .toList();
     }
 
-    final Activity? excursionSeleccionada = _controller.buscarExcursionSeleccionada( excursiones );
+    final Activity? actividadSeleccionada = _controller.buscarActividadSeleccionada( actividades );
 
     // Cargo por daños de la reserva asociada (si existe y tiene daños registrados).
-    final List<Reserva> todasReservas = ref.watch(reservasProvider).value ?? [];
-    final Reserva? reservaAsociada = _controller.idReserva != null
-        ? todasReservas.where((Reserva r) => r.id == _controller.idReserva).firstOrNull
+    final List<Reservation> todasReservas = ref.watch(reservationsProvider).value ?? [];
+    final Reservation? reservaAsociada = _controller.idReserva != null
+        ? todasReservas.where((Reservation r) => r.id == _controller.idReserva).firstOrNull
         : null;
-    final double cargoDanios = reservaAsociada?.cargoDanios ?? 0;
+    final double cargoDanios = reservaAsociada?.damageFee ?? 0;
 
     // Mapa para mostrar el nombre del equipamiento a partir de su id.
     final Map<int, String> nombrePorId = {};
     final Map<int, double> precioPorId = {};
-    for (final Equipamiento e in equipamientos) {
+    for (final Equipment e in equipamientos) {
       nombrePorId[e.id] = e.title;
       precioPorId[e.id] = e.pricePerDay;
     }
@@ -145,11 +145,11 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
           padding: EdgeInsets.fromLTRB( 16, 16, 16, MediaQuery.of(context).padding.bottom + 24 ),
           children: [
             // Usuario (cliente)
-            AppDropdownField<Usuario>(
+            AppDropdownField<User>(
               value: _controller.idUsuario,
               items: usuariosDisponibles,
-              itemValue: (Usuario user) => user.id,
-              itemLabel: (Usuario user) => '${user.name} ${user.surname}',
+              itemValue: (User user) => user.id,
+              itemLabel: (User user) => '${user.name} ${user.surname}',
               prefixIcon: Icons.person_outlined,
               label: s.client,
               hint: modoCliente ? s.client : s.selectClient,
@@ -162,18 +162,18 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             const SizedBox(height: 20),
             // Excursión
             AppDropdownField<Activity>(
-              value: _controller.idExcursion,
-              items: excursiones,
+              value: _controller.idActividad,
+              items: actividades,
               itemValue: (e) => e.id,
               itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
               prefixIcon: Icons.hiking_outlined,
-              label: s.excursion,
-              hint: s.selectExcursion,
+              label: s.actividad,
+              hint: s.selectActividad,
               isRequired: true,
               enabled: !modoCliente,
               onChanged: (int? v) {
-                setState(() => _controller.idExcursion = v);
-                setState(() => _controller.recalcularMateriales(excursiones));
+                setState(() => _controller.idActividad = v);
+                setState(() => _controller.recalcularMateriales(actividades));
               },
             ),
 
@@ -184,7 +184,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               labelText: s.numberOfParticipants,
               keyboardType: TextInputType.number,
               validator: ValidadoresFormulario.enteroMayorQueCero(s),
-              onChanged: (_) => setState(() => _controller.recalcularMateriales(excursiones)),
+              onChanged: (_) => setState(() => _controller.recalcularMateriales(actividades)),
             ),
 
             // Material recomendado y selección de materiales (solo si se ha seleccionado una excursión)
@@ -200,12 +200,12 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                     s.recommendedMaterial,
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
-                  if (excursionSeleccionada != null)
+                  if (actividadSeleccionada != null)
                     TertiaryButton(
                       label: s.addAll,
                       icon: Icons.add,
                       onPressed: () {
-                        final Map<int, int> plantilla = excursionSeleccionada.materialsPerParticipant;
+                        final Map<int, int> plantilla = actividadSeleccionada.materialsPerParticipant;
                         setState(() {
                           for (final MapEntry<int, int> entry in plantilla.entries) {
                             _controller.establecerCantidadMaterial(entry.key, entry.value * _controller.numeroParticipantes);
@@ -220,12 +220,12 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               // Si no hay excursión seleccionada, mostrar mensaje. 
               // Si la excursión no requiere material, mostrar otro mensaje. 
               // Si hay materiales, mostrarlos con controles para modificar las cantidades.
-              if (excursionSeleccionada == null)
+              if (actividadSeleccionada == null)
                 Text(
-                  s.selectExcursionToSeeMaterial,
+                  s.selectActividadToSeeMaterial,
                   style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 )
-              else if (excursionSeleccionada.materialsPerParticipant.isEmpty)
+              else if (actividadSeleccionada.materialsPerParticipant.isEmpty)
                 Text(
                   s.noRecommendedMaterial,
                   style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
@@ -277,14 +277,14 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 }),
 
             // Si estamos editando una solicitud sin reserva, mostrar botón para añadir materiales recomendados.
-            ] else if (isEdit && _controller.idReserva == null && excursionSeleccionada != null && excursionSeleccionada.materialsPerParticipant.isNotEmpty) ...[  
+            ] else if (isEdit && _controller.idReserva == null && actividadSeleccionada != null && actividadSeleccionada.materialsPerParticipant.isNotEmpty) ...[
               // Editando sin reserva: botón para añadir materiales
               TertiaryButton(
                 label: s.addMaterials,
                 icon: Icons.add,
                 onPressed: () => setState(() {
                   _mostrarMateriales = true;
-                  for (final MapEntry<int, int> entry in excursionSeleccionada.materialsPerParticipant.entries) {
+                  for (final MapEntry<int, int> entry in actividadSeleccionada.materialsPerParticipant.entries) {
                     _controller.establecerCantidadMaterial(entry.key, entry.value * _controller.numeroParticipantes);
                   }
                 }),
@@ -342,7 +342,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               ),
               const SizedBox(height: 8),
               AppChipWrap(
-                children: EstadoSolicitud.values.map((EstadoSolicitud est) {
+                children: RequestStatus.values.map((RequestStatus est) {
                   final bool seleccionado = _controller.estado == est;
                   return AppChoiceChip(
                     label: est.localizedLabel(s),
@@ -354,11 +354,11 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
               const SizedBox(height: 20),
               // Experto
-              AppDropdownField<Usuario>(
+              AppDropdownField<User>(
                 value: _controller.idExperto,
                 items: ref.watch(usuariosProvider).value ?? [],
-                itemValue: (Usuario user) => user.id,
-                itemLabel: (Usuario user) => '${user.name} ${user.surname}',
+                itemValue: (User user) => user.id,
+                itemLabel: (User user) => '${user.name} ${user.surname}',
                 prefixIcon: Icons.star_outline,
                 label: s.expert,
                 hint: s.selectExpert,
@@ -369,7 +369,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
             const SizedBox(height: 28),
             // Resumen de precio total
-            if (excursionSeleccionada != null) ...[
+            if (actividadSeleccionada != null) ...[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration( color: cs.onTertiary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12), border: Border.all(color: cs.onTertiary) ),
@@ -382,8 +382,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(s.excursionPrice(_controller.numeroParticipantes), style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
-                        Text(s.priceEur((excursionSeleccionada.price * _controller.numeroParticipantes).toStringAsFixed(2)), style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
+                        Text(s.actividadPrice(_controller.numeroParticipantes), style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
+                        Text(s.priceEur((actividadSeleccionada.price * _controller.numeroParticipantes).toStringAsFixed(2)), style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
                       ],
                     ),
 
@@ -396,7 +396,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                           Text(s.materialsRental, style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
                           Text(
                             () {
-                              final double precioMateriales = _controller.calcularPrecioTotal(excursiones, equipamientos) - excursionSeleccionada.price * _controller.numeroParticipantes;
+                              final double precioMateriales = _controller.calcularPrecioTotal(actividades, equipamientos) - actividadSeleccionada.price * _controller.numeroParticipantes;
                               return s.priceEur(precioMateriales.toStringAsFixed(2));
                             }(),
                             style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer),
@@ -412,7 +412,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                       children: [
                         Text(s.total, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
                         Text(
-                          s.priceEur(_controller.calcularPrecioTotal(excursiones, equipamientos).toStringAsFixed(2)), 
+                          s.priceEur(_controller.calcularPrecioTotal(actividades, equipamientos).toStringAsFixed(2)), 
                           style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)
                         ),
                       ],
@@ -445,16 +445,16 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                       label: s.editReservationBtn,
                       icon: Icons.book_online_outlined,
                       onPressed: () async {
-                        final List<Reserva> reservas = ref.read(reservasProvider).value ?? [];
-                        final Reserva? reservaAsociada = _controller.buscarReserva(reservas, _controller.idReserva!);
+                        final List<Reservation> reservas = ref.read(reservationsProvider).value ?? [];
+                        final Reservation? reservaAsociada = _controller.buscarReserva(reservas, _controller.idReserva!);
                         if (reservaAsociada == null) return;
-                        final Reserva? actualizada = await Navigator.of(context).push<Reserva>(
+                        final Reservation? actualizada = await Navigator.of(context).push<Reservation>(
                           MaterialPageRoute(
                             builder: (_) => ReservationFormPage(reserva: reservaAsociada),
                           ),
                         );
                         if (actualizada != null) {
-                          ref.read(reservasProvider.notifier).actualizar(reservaAsociada, actualizada);
+                          ref.read(reservationsProvider.notifier).actualizar(reservaAsociada, actualizada);
                         }
                       },
                     ),
@@ -468,7 +468,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
                       // Si no hay reserva asociada pero se han seleccionado materiales, crear la reserva antes de guardar la solicitud.
                       if (_controller.idReserva == null && _controller.tieneMateriales) {
-                        final Reserva? reserva = _controller.crearReservaDesdeSolicitud(
+                        final Reservation? reserva = _controller.crearReservaDesdeSolicitud(
                           context: context,
                           ref: ref,
                         );
@@ -478,18 +478,18 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                       }
 
                       //  Crear la solicitud a partir de los datos actuales del formulario y la guarda en variable.
-                      final Solicitud? solicitud = _controller.crearSolicitud(excursiones, equipamientos);
+                      final Request? solicitud = _controller.crearSolicitud(actividades, equipamientos);
                       if (solicitud == null) {
                         return;
                       }
 
                       // Sincroniza la reserva asociada a la solicitud con los datos actuales.
-                      final List<Reserva> reservasActuales = ref.read(reservasProvider).value ?? [];
-                      final Reserva? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
-                      if (reservaActualizada != null && solicitud.idReserva != null) {
-                        final Reserva? original = _controller.buscarReserva(reservasActuales, solicitud.idReserva!);
+                      final List<Reservation> reservasActuales = ref.read(reservationsProvider).value ?? [];
+                      final Reservation? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
+                      if (reservaActualizada != null && solicitud.reservationId != null) {
+                        final Reservation? original = _controller.buscarReserva(reservasActuales, solicitud.reservationId!);
                         if (original != null) {
-                          ref.read(reservasProvider.notifier).actualizar(original, reservaActualizada);
+                          ref.read(reservationsProvider.notifier).actualizar(original, reservaActualizada);
                         }
                       }
 

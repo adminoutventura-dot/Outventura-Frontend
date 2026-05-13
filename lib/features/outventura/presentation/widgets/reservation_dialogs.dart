@@ -6,7 +6,7 @@ import 'package:outventura/l10n/app_localizations.dart';
 // Muestra el diálogo de confirmación para aprobar una reserva.
 Future<void> mostrarDialogoAprobacion(
   BuildContext context,
-  Reserva r,
+  Reservation r,
   VoidCallback onConfirm,
 ) async {
   final s = AppLocalizations.of(context)!;
@@ -27,7 +27,7 @@ Future<void> mostrarDialogoAprobacion(
 // Muestra el diálogo de confirmación para rechazar una reserva.
 Future<void> mostrarDialogoRechazo(
   BuildContext context,
-  Reserva r,
+  Reservation r,
   VoidCallback onConfirm,
 ) async {
   final s = AppLocalizations.of(context)!;
@@ -47,7 +47,7 @@ Future<void> mostrarDialogoRechazo(
 // Muestra el diálogo de confirmación para cancelar una reserva.
 Future<void> mostrarDialogoCancelacion(
   BuildContext context,
-  Reserva r,
+  Reservation r,
   VoidCallback onConfirm,
 ) async {
   final s = AppLocalizations.of(context)!;
@@ -64,7 +64,7 @@ Future<void> mostrarDialogoCancelacion(
 // Muestra el diálogo para registrar la devolución de una reserva.
 Future<void> mostrarDialogoDevolucion(
   BuildContext context,
-  Reserva r,
+  Reservation r,
   VoidCallback onConfirm,
 ) async {
   final s = AppLocalizations.of(context)!;

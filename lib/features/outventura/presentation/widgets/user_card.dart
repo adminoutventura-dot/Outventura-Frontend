@@ -7,7 +7,7 @@ import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
 class UserCard extends StatelessWidget {
-  final Usuario usuario;
+  final User usuario;
   final VoidCallback? onEditar;
   final VoidCallback? onEliminar;
 
@@ -29,15 +29,15 @@ class UserCard extends StatelessWidget {
     Color badgeFg;
     Color bordeColor;
 
-    if (usuario.role == TipoRol.superadmin) {
+    if (usuario.role == UserRole.superadmin) {
       badgeBg = cs.error;
       badgeFg = cs.onError;
       bordeColor = cs.error;
-    } else if (usuario.role == TipoRol.admin) {
+    } else if (usuario.role == UserRole.admin) {
       badgeBg = cs.tertiary;
       badgeFg = cs.onPrimary;
       bordeColor = cs.tertiary;
-    } else if (usuario.role == TipoRol.usuario) {
+    } else if (usuario.role == UserRole.usuario) {
       badgeBg = cs.secondary;
       badgeFg = cs.onPrimary;
       bordeColor = cs.secondary;

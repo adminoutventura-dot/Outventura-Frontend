@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/controllers/requests_page_controller.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
@@ -44,7 +44,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
     final usuarioActual = ref.watch(currentUserProvider);
-    final AsyncValue<List<Solicitud>> filtradas = ref.watch(solicitudesFiltadasProvider((
+    final AsyncValue<List<Request>> filtradas = ref.watch(filteredRequestsProvider((
       query: _search.query,
       idUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
       estado: _controller.estadoFiltro,
@@ -84,8 +84,8 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
       floatingActionButton: widget.puedeCrear
           ? AddFab(
               onPressed: () async {
-                final Solicitud? nueva = await Navigator.of(context)
-                    .push<Solicitud>(
+                final Request? nueva = await Navigator.of(context)
+                    .push<Request>(
                       MaterialPageRoute(
                         builder: (_) => const SolicitudFormPage(),
                       ),
@@ -93,11 +93,11 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                 if (nueva == null) {
                   return;
                 }
-                ref.read(solicitudesProvider.notifier).agregar(nueva);
+                ref.read(requestsProvider.notifier).agregar(nueva);
                 if (!context.mounted) {
                   return;
                 }
-                final String mensaje = nueva.idReserva != null
+                final String mensaje = nueva.reservationId != null
                     ? s.requestCreatedWithReservation
                     : s.requestCreated;
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -115,7 +115,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
               controller: _search.controller,
-              labelText: s.searchByExcursionRoute,
+              labelText: s.searchByActividadRoute,
               prefixIcon: Icons.search,
               suffixIcon: _search.query.isNotEmpty
                   ? IconButton(
@@ -131,7 +131,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
             child: filtradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text('Error: $error')),
-              data: (List<Solicitud> lista) => lista.isEmpty
+              data: (List<Request> lista) => lista.isEmpty
                 ? Center(
                     child: Text(
                       s.noRequests,
@@ -143,24 +143,24 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                     itemCount: lista.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (BuildContext context, int index) {
-                      final Solicitud soli = lista[index];
-                      final Activity? excursion = ref.watch(excursionPorIdProvider(soli.idExcursion));
+                      final Request soli = lista[index];
+                      final Activity? actividad = ref.watch(activityByIdProvider(soli.activityId));
 
-                      final String? nombreUsuario = soli.idUsuario != null
-                          ? ref.watch(nombreUsuarioProvider(soli.idUsuario!))
+                      final String? nombreUsuario = soli.userId != null
+                          ? ref.watch(userNameProvider(soli.userId!))
                           : null;
 
-                      if (excursion == null) return const SizedBox.shrink();
+                      if (actividad == null) return const SizedBox.shrink();
 
-                      return SolicitudCard(
+                      return RequestCard(
                         solicitud: soli,
-                        excursion: excursion,
+                        actividad: actividad,
                         nombreUsuario: (!widget.puedeGestionar)
                             ? null
                             : nombreUsuario,
                         onGestionar:
                             widget.puedeGestionar &&
-                                soli.estado == EstadoSolicitud.pendiente
+                                soli.status == RequestStatus.pendiente
                             ? () => _controller.aceptar(
                                 solicitud: soli,
                                 context: context,
@@ -168,7 +168,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                                 isMounted: () => mounted,
                               )
                             : null,
-                        onCancelar: soli.estado == EstadoSolicitud.pendiente
+                        onCancelar: soli.status == RequestStatus.pendiente
                             ? () => _controller.rechazar(
                                 solicitud: soli,
                                 context: context,
@@ -176,7 +176,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                                 isMounted: () => mounted,
                               )
                             : null,
-                        onEditar: (!widget.puedeGestionar && soli.estado != EstadoSolicitud.pendiente)
+                        onEditar: (!widget.puedeGestionar && soli.status != RequestStatus.pendiente)
                             ? null
                             : () => _controller.editar(
                                 solicitud: soli,

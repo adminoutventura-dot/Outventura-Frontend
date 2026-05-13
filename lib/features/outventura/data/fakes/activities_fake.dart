@@ -1,8 +1,8 @@
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
 // Fake activity catalog data.
-final List<Activity> catalogoExcursiones = [
+final List<Activity> activitiesFake = [
   // Actividad de senderismo y montaña en Mallorca.
   Activity(
     id: 1,
@@ -13,8 +13,8 @@ final List<Activity> catalogoExcursiones = [
     difficulty: 2,
     maxParticipants: 20,
     startEndPoint: 'Puerto de Soller - Torre Picada',
-    categories: [CategoriaActividad.acuatico, CategoriaActividad.montana],
-    status: EstadoExcursion.disponible,
+    categories: [ActivityCategory.acuatico, ActivityCategory.montana],
+    status: ActivityStatus.disponible,
     price: 35.0,
     materialsPerParticipant: {5: 1, 6: 2},
   ),
@@ -29,9 +29,9 @@ final List<Activity> catalogoExcursiones = [
     difficulty: 1,
     maxParticipants: 15,
     startEndPoint: 'Deltebre - Isla de Buda',
-    categories: [CategoriaActividad.acuatico],
+    categories: [ActivityCategory.acuatico],
     imageAsset: 'assets/images/Camino.jpg',
-    status: EstadoExcursion.disponible,
+    status: ActivityStatus.disponible,
     price: 55.0,
     materialsPerParticipant: {3: 1, 8: 1},
   ),
@@ -46,9 +46,9 @@ final List<Activity> catalogoExcursiones = [
     difficulty: 4,
     maxParticipants: 10,
     startEndPoint: 'Fuente De - Torre de los Horcados Rojos',
-    categories: [CategoriaActividad.acuatico, CategoriaActividad.montana],
+    categories: [ActivityCategory.acuatico, ActivityCategory.montana],
     imageAsset: 'assets/images/Camino.jpg',
-    status: EstadoExcursion.disponible,
+    status: ActivityStatus.disponible,
     price: 90.0,
     materialsPerParticipant: {7: 1, 8: 1, 6: 1},
   ),
@@ -63,9 +63,9 @@ final List<Activity> catalogoExcursiones = [
     difficulty: 2,
     maxParticipants: 12,
     startEndPoint: 'Benasque - Pico Cerler',
-    categories: [CategoriaActividad.nieve],
+    categories: [ActivityCategory.nieve],
     imageAsset: 'assets/images/Camino.jpg',
-    status: EstadoExcursion.disponible,
+    status: ActivityStatus.disponible,
     price: 70.0,
     materialsPerParticipant: {9: 1, 2: 1, 6: 2},
   ),
@@ -80,8 +80,8 @@ final List<Activity> catalogoExcursiones = [
     difficulty: 1,
     maxParticipants: 25,
     startEndPoint: 'Plaza Mayor - Mirador del Castillo',
-    categories: [CategoriaActividad.montana],
-    status: EstadoExcursion.noDisponible,
+    categories: [ActivityCategory.montana],
+    status: ActivityStatus.noDisponible,
     price: 20.0,
     materialsPerParticipant: {},
   ),

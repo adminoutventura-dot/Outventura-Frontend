@@ -114,9 +114,9 @@ class AppFilterChip extends StatelessWidget {
 
 // FormField de selección múltiple con chips que se integra con Form y muestra errores.
 class AppFilterChipFormField extends StatelessWidget {
-  final List<CategoriaActividad> seleccionados;
-  final void Function(CategoriaActividad) onToggle;
-  final String? Function(List<CategoriaActividad>?)? validator;
+  final List<ActivityCategory> seleccionados;
+  final void Function(ActivityCategory) onToggle;
+  final String? Function(List<ActivityCategory>?)? validator;
 
   const AppFilterChipFormField({
     super.key,
@@ -130,14 +130,14 @@ class AppFilterChipFormField extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    return FormField<List<CategoriaActividad>>(
+    return FormField<List<ActivityCategory>>(
       initialValue: seleccionados,
       validator: validator,
-      builder: (FormFieldState<List<CategoriaActividad>> field) => Column(
+      builder: (FormFieldState<List<ActivityCategory>> field) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppChipWrap(
-            children: CategoriaActividad.values.map((CategoriaActividad cat) {
+            children: ActivityCategory.values.map((ActivityCategory cat) {
               return AppFilterChip(
                 label: cat.code,
                 seleccionado: seleccionados.contains(cat),

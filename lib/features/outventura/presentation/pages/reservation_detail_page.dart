@@ -8,7 +8,7 @@ import 'package:outventura/features/outventura/presentation/providers/resolvers_
 import 'package:outventura/l10n/app_localizations.dart';
 
 class ReservationDetailPage extends ConsumerWidget {
-  final Reserva reserva;
+  final Reservation reserva;
 
   const ReservationDetailPage({super.key, required this.reserva});
 
@@ -18,17 +18,17 @@ class ReservationDetailPage extends ConsumerWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final String nombreUsuario = ref.watch(nombreUsuarioProvider(reserva.idUsuario));
-    final excursion = reserva.idExcursion != null
-        ? ref.watch(excursionPorIdProvider(reserva.idExcursion!))
+    final String nombreUsuario = ref.watch(userNameProvider(reserva.userId));
+    final actividad = reserva.activityId != null
+        ? ref.watch(activityByIdProvider(reserva.activityId!))
         : null;
 
-    final Color accentColor = switch (reserva.estado) {
-      EstadoReserva.pendiente   => cs.tertiary,
-      EstadoReserva.confirmada  => cs.primary,
-      EstadoReserva.enCurso     => cs.secondary,
-      EstadoReserva.finalizada  => cs.secondary.withValues(alpha: 0.35),
-      EstadoReserva.cancelada   => cs.error,
+    final Color accentColor = switch (reserva.status) {
+      ReservationStatus.pendiente   => cs.tertiary,
+      ReservationStatus.confirmada  => cs.primary,
+      ReservationStatus.enCurso     => cs.secondary,
+      ReservationStatus.finalizada  => cs.secondary.withValues(alpha: 0.35),
+      ReservationStatus.cancelada   => cs.error,
     };
 
     return Scaffold(
@@ -56,7 +56,7 @@ class ReservationDetailPage extends ConsumerWidget {
               borderRadius: BorderRadius.circular(3),
             ),
             child: Text(
-              reserva.estado.localizedLabel(s),
+              reserva.status.localizedLabel(s),
               style: tt.labelLarge?.copyWith(color: cs.onPrimary),
               textAlign: TextAlign.center,
             ),
@@ -68,38 +68,38 @@ class ReservationDetailPage extends ConsumerWidget {
             title: s.generalInfo,
             children: [
               DetailRow(Icons.person_outline, s.user, nombreUsuario),
-              if (excursion != null)
+              if (actividad != null)
                 DetailRow(
                   Icons.hiking_outlined,
-                  s.excursion,
-                  '${excursion.startPoint} ? ${excursion.endPoint}',                
+                  s.actividad,
+                  '${actividad.startPoint} → ${actividad.endPoint}',                
                 ),
               DetailRow(
                 Icons.calendar_today_outlined,
                 s.start,
-                FormateadorFecha.withTime(reserva.fechaInicio),              
+                FormateadorFecha.withTime(reserva.startDate),              
               ),
               DetailRow(
                 Icons.event_outlined,
                 s.end,
-                FormateadorFecha.withTime(reserva.fechaFin),              
+                FormateadorFecha.withTime(reserva.endDate),              
               ),
             ],
           ),
 
           // Material reservado
-          if (reserva.lineas.isNotEmpty) ...[
+          if (reserva.lines.isNotEmpty) ...[
             const SizedBox(height: 20),
             DetailSection(
               title: s.reservedMaterial,
               children: [
-                for (final linea in reserva.lineas)
+                for (final linea in reserva.lines)
                   Builder(builder: (context) {
-                    final String nombre = ref.watch(nombreEquipamientoProvider(linea.idEquipamiento));
+                    final String nombre = ref.watch(equipmentNameProvider(linea.equipmentId));
                     return DetailRow(
                       Icons.inventory_2_outlined,
                       nombre,
-                      s.unitsShort(linea.cantidad),                    
+                      s.unitsShort(linea.quantity),                    
                     );
                   }),
               ],
@@ -107,20 +107,20 @@ class ReservationDetailPage extends ConsumerWidget {
           ],
 
           // Daños
-          if (reserva.cargoDanios > 0 || reserva.itemsDaniados.isNotEmpty) ...[
+          if (reserva.damageFee > 0 || reserva.damagedItems.isNotEmpty) ...[
             const SizedBox(height: 20),
             DetailSection(
               title: s.damages,
               children: [
-                if (reserva.cargoDanios > 0)
+                if (reserva.damageFee > 0)
                   DetailRow(
                     Icons.euro_outlined,
                     s.damageCharge,
-                    s.priceEur(reserva.cargoDanios.toStringAsFixed(2)),                  
+                    s.priceEur(reserva.damageFee.toStringAsFixed(2)),                  
                   ),
-                for (final entry in reserva.itemsDaniados.entries)
+                for (final entry in reserva.damagedItems.entries)
                   Builder(builder: (context) {
-                    final String nombre = ref.watch(nombreEquipamientoProvider(entry.key));
+                    final String nombre = ref.watch(equipmentNameProvider(entry.key));
                     return DetailRow(
                       Icons.warning_amber_outlined,
                       nombre,

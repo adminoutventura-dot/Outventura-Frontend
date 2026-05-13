@@ -9,27 +9,27 @@ import 'package:outventura/core/widgets/app_time_selector.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
-import 'package:outventura/features/outventura/presentation/controllers/excursion_form_controller.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
+import 'package:outventura/features/outventura/presentation/controllers/activity_form_controller.dart';
 
-class ExcursionFormPage extends StatefulWidget {
-  final Activity? excursion;
+class ActivityFormPage extends StatefulWidget {
+  final Activity? actividad;
 
-  const ExcursionFormPage({super.key, this.excursion});
+  const ActivityFormPage({super.key, this.actividad});
 
   @override
-  State<ExcursionFormPage> createState() => _ExcursionFormPageState();
+  State<ActivityFormPage> createState() => _ActivityFormPageState();
 }
 
-class _ExcursionFormPageState extends State<ExcursionFormPage> {
-  late final ExcursionFormController _controller;
+class _ActivityFormPageState extends State<ActivityFormPage> {
+  late final ActivityFormController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = ExcursionFormController();
-    if (widget.excursion != null) {
-      _controller.cargarExcursion(widget.excursion!);
+    _controller = ActivityFormController();
+    if (widget.actividad != null) {
+      _controller.cargarActividad(widget.actividad!);
     }
   }
 
@@ -48,7 +48,7 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        title: Text(_controller.editando ? s.editExcursion : s.newExcursion),
+        title: Text(_controller.editando ? s.editActividad : s.nuevaActividad),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -74,7 +74,7 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                s.excursionSection,
+                s.actividadSection,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -191,11 +191,11 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
               const SizedBox(height: 8),
               AppFilterChipFormField(
                 seleccionados: _controller.categorias,
-                onToggle: (CategoriaActividad cat) {
+                onToggle: (ActivityCategory cat) {
                   setState(() => _controller.alternarCategoria(cat));
                 },
                 // El validator recibe la lista de categorías seleccionadas y devuelve un mensaje de error si la lista está vacía.
-                validator: (List<CategoriaActividad>? v) {
+                validator: (List<ActivityCategory>? v) {
                   return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
                 },
               ),
@@ -208,7 +208,7 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
               ),
               const SizedBox(height: 8),
               AppChipWrap(
-                children: EstadoExcursion.values.map((EstadoExcursion est) {
+                children: ActivityStatus.values.map((ActivityStatus est) {
                   final bool seleccionado = _controller.estado == est;
                   return AppChoiceChip(
                     label: est.localizedLabel(s),
@@ -230,8 +230,8 @@ class _ExcursionFormPageState extends State<ExcursionFormPage> {
                     if (!_controller.validar()) {
                       return;
                     }
-                    final Activity excursion = _controller.construirExcursion();
-                    Navigator.of(context).pop(excursion);
+                    final Activity actividad = _controller.construirActividad();
+                    Navigator.of(context).pop(actividad);
                   },
                 ),
               ),

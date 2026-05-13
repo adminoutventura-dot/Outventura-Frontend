@@ -11,7 +11,7 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/presentation/controllers/equipment_form_controller.dart';
 
 class EquipmentFormPage extends StatefulWidget {
-  final Equipamiento? equipamiento;
+  final Equipment? equipamiento;
 
   const EquipmentFormPage({super.key, this.equipamiento});
 
@@ -109,10 +109,10 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               const SizedBox(height: 8),
               AppFilterChipFormField(
                 seleccionados: _controller.categorias,
-                onToggle: (CategoriaActividad cat) {
+                onToggle: (ActivityCategory cat) {
                   setState(() => _controller.alternarCategoria(cat));
                 },
-                validator: (List<CategoriaActividad>? v) {
+                validator: (List<ActivityCategory>? v) {
                   return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
                 },
               ),
@@ -125,7 +125,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               ),
               const SizedBox(height: 8),
               AppChipWrap(
-                children: EstadoEquipamiento.values.map((EstadoEquipamiento est) {
+                children: EquipmentStatus.values.map((EquipmentStatus est) {
                   final bool seleccionado = _controller.estado == est;
                   return AppChoiceChip(
                     label: est.localizedLabel(s),
@@ -211,7 +211,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                 child: PrimaryButton(
                   label: _controller.editando ? s.save : s.create,
                   onPressed: () {
-                    final Equipamiento? equipamiento = _controller.crearEquipamiento();
+                    final Equipment? equipamiento = _controller.crearEquipamiento();
                     if (equipamiento == null) {
                       return;
                     }

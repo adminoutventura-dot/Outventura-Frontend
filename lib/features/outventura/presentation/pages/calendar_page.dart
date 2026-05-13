@@ -4,20 +4,20 @@ import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservation_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/request_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/app/theme/app_text_styles.dart';
 
 // Wrapper que permite estado local dentro de ConsumerWidget
 class CalendarPage extends ConsumerStatefulWidget {
-  final Usuario usuario;
+  final User usuario;
   final bool esAdmin;
 
   const CalendarPage({super.key, required this.usuario, required this.esAdmin});
@@ -33,26 +33,26 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   // Devuelve todos los eventos (reservas y solicitudes) que ocurren en el día.
   List<Object> _eventosDelDia(
     DateTime day,
-    List<Reserva> misReservas,
-    List<Solicitud> misSolicitudes,
-    List<Activity> excursiones,
+    List<Reservation> misReservas,
+    List<Request> misSolicitudes,
+    List<Activity> actividades,
   ) {
     final normalized = DateTime(day.year, day.month, day.day);
     final List<Object> result = [];
 
     for (final r in misReservas) {
-      final start = DateTime(r.fechaInicio.year, r.fechaInicio.month, r.fechaInicio.day);
-      final end = DateTime(r.fechaFin.year, r.fechaFin.month, r.fechaFin.day);
+      final start = DateTime(r.startDate.year, r.startDate.month, r.startDate.day);
+      final end = DateTime(r.endDate.year, r.endDate.month, r.endDate.day);
       if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
         result.add(r);
       }
     }
 
     for (final s in misSolicitudes) {
-      final exc = excursiones.where((e) => e.id == s.idExcursion).firstOrNull;
-      if (exc != null) {
-        final start = DateTime(exc.initDate.year, exc.initDate.month, exc.initDate.day);
-        final end = DateTime(exc.endDate.year, exc.endDate.month, exc.endDate.day);
+      final act = actividades.where((e) => e.id == s.activityId).firstOrNull;
+      if (act != null) {
+        final start = DateTime(act.initDate.year, act.initDate.month, act.initDate.day);
+        final end = DateTime(act.endDate.year, act.endDate.month, act.endDate.day);
         if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
           result.add(s);
         }
@@ -67,24 +67,24 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final s = AppLocalizations.of(context)!;
 
-    final List<Reserva> reservas = ref.watch(reservasProvider).value ?? [];
-    final List<Solicitud> solicitudes = ref.watch(solicitudesProvider).value ?? [];
-    final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
+    final List<Reservation> reservas = ref.watch(reservationsProvider).value ?? [];
+    final List<Request> solicitudes = ref.watch(requestsProvider).value ?? [];
+    final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
 
     final misReservas = (widget.esAdmin
             ? reservas
-            : reservas.where((r) => r.idUsuario == widget.usuario.id))
-        .where((r) => r.estado == EstadoReserva.confirmada || r.estado == EstadoReserva.enCurso)
+            : reservas.where((r) => r.userId == widget.usuario.id))
+        .where((r) => r.status == ReservationStatus.confirmada || r.status == ReservationStatus.enCurso)
         .toList();
 
     final misSolicitudes = (widget.esAdmin
             ? solicitudes
-            : solicitudes.where((s) => s.idUsuario == widget.usuario.id))
-        .where((s) => s.estado == EstadoSolicitud.confirmada || s.estado == EstadoSolicitud.enCurso)
+            : solicitudes.where((s) => s.userId == widget.usuario.id))
+        .where((s) => s.status == RequestStatus.confirmada || s.status == RequestStatus.enCurso)
         .toList();
 
     final eventosSeleccionados = _selectedDay != null
-        ? _eventosDelDia(_selectedDay!, misReservas, misSolicitudes, excursiones)
+        ? _eventosDelDia(_selectedDay!, misReservas, misSolicitudes, actividades)
         : <Object>[];
 
     return Scaffold(
@@ -120,7 +120,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             onPageChanged: (focusedDay) {
               _focusedDay = focusedDay;
             },
-            eventLoader: (day) => _eventosDelDia(day, misReservas, misSolicitudes, excursiones),
+            eventLoader: (day) => _eventosDelDia(day, misReservas, misSolicitudes, actividades),
             locale: Localizations.localeOf(context).toString(),
             startingDayOfWeek: StartingDayOfWeek.monday,
 
@@ -183,8 +183,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               // Marcadores de eventos debajo del número del día
               markerBuilder: (context, day, events) {
                 if (events.isEmpty) return const SizedBox.shrink();
-                final reservas = events.whereType<Reserva>().length;
-                final solicitudes = events.whereType<Solicitud>().length;
+                final reservas = events.whereType<Reservation>().length;
+                final solicitudes = events.whereType<Request>().length;
                 return Positioned(
                   bottom: 4,
                   left: 2,
@@ -262,19 +262,19 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 itemCount: eventosSeleccionados.length,
                 itemBuilder: (context, index) {
                   final evento = eventosSeleccionados[index];
-                  if (evento is Reserva) {
+                  if (evento is Reservation) {
                     return _EventoTile(
                       titulo: s.reservationEvent(evento.id),
-                      subtitulo: evento.estado.localizedLabel(s),
+                      subtitulo: evento.status.localizedLabel(s),
                       color: cs.tertiary,
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => ReservationDetailPage(reserva: evento),
                       )),
                     );
-                  } else if (evento is Solicitud) {
+                  } else if (evento is Request) {
                     return _EventoTile(
                       titulo: s.requestEvent(evento.id),
-                      subtitulo: evento.estado.localizedLabel(s),
+                      subtitulo: evento.status.localizedLabel(s),
                       color: cs.primary,
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => RequestDetailPage(solicitud: evento),

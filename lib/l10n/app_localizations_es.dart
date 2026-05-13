@@ -154,7 +154,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tabHome => 'Inicio';
 
   @override
-  String get tabExcursions => 'Excursiones';
+  String get tabActividades => 'Actividades';
 
   @override
   String get tabEquipment => 'Equipamiento';
@@ -181,7 +181,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get adminPanel => 'Panel de Administración';
 
   @override
-  String get excursionsLabel => 'EXCURSIONES';
+  String get actividadesLabel => 'ACTIVIDADES';
 
   @override
   String get equipmentLabel => 'EQUIPAMIENTO';
@@ -232,32 +232,32 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noRequestsYet => 'No tienes solicitudes todavía.';
 
   @override
-  String get newExcursions => 'NUEVAS EXCURSIONES';
+  String get nuevasActividades => 'NUEVAS ACTIVIDADES';
 
   @override
-  String get noNewExcursions => 'No hay excursiones nuevas.';
+  String get noNuevasActividades => 'No hay actividades nuevas.';
 
   @override
-  String get excursionsTitle => 'Excursiones';
+  String get actividadesTitle => 'Actividades';
 
   @override
-  String get excursionCreated => 'Excursión creada correctamente.';
+  String get actividadCreada => 'Actividad creada correctamente.';
 
   @override
   String get searchByRoute => 'Buscar por ruta...';
 
   @override
-  String get noExcursionsForCategory =>
-      'No hay excursiones para esta categoría.';
+  String get noActividadesParaCategoria =>
+      'No hay actividades para esta categoría.';
 
   @override
-  String get excursionUpdated => 'Excursión actualizada correctamente.';
+  String get actividadActualizada => 'Actividad actualizada correctamente.';
 
   @override
-  String get deleteExcursion => 'Eliminar excursión';
+  String get deleteActividad => 'Eliminar actividad';
 
   @override
-  String deleteExcursionConfirm(String route) {
+  String deleteActividadConfirm(String route) {
     return '¿Eliminar \"$route\"?';
   }
 
@@ -302,7 +302,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reservationsTitle => 'Reservas';
 
   @override
-  String get searchByUserOrExcursion => 'Buscar por usuario o excursión...';
+  String get searchByUserOrActividad => 'Buscar por usuario o actividad...';
 
   @override
   String get noReservations => 'No hay reservas';
@@ -317,7 +317,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get requestsTitle => 'Solicitudes';
 
   @override
-  String get searchByExcursionRoute => 'Buscar por excursión (ruta)...';
+  String get searchByActividadRoute => 'Buscar por actividad (ruta)...';
 
   @override
   String get noRequests => 'No hay solicitudes';
@@ -393,7 +393,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get generalInfo => 'Información general';
 
   @override
-  String get excursion => 'Excursión';
+  String get actividad => 'Actividad';
 
   @override
   String get start => 'Inicio';
@@ -462,13 +462,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get requestedMaterial => 'Material solicitado';
 
   @override
-  String get editExcursion => 'Editar excursión';
+  String get editActividad => 'Editar actividad';
 
   @override
-  String get newExcursion => 'Nueva excursión';
+  String get nuevaActividad => 'Nueva actividad';
 
   @override
-  String get excursionSection => 'Excursión';
+  String get actividadSection => 'Actividad';
 
   @override
   String get startPoint => 'Punto de inicio';
@@ -566,7 +566,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get none => 'Ninguna';
 
   @override
-  String get selectExcursion => 'Selecciona una Excursión';
+  String get selectActividad => 'Selecciona una Actividad';
 
   @override
   String get reservationLines => 'Líneas de reserva';
@@ -612,12 +612,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get addAll => 'Añadir todos';
 
   @override
-  String get selectExcursionToSeeMaterial =>
-      'Selecciona una excursión para ver material recomendado.';
+  String get selectActividadToSeeMaterial =>
+      'Selecciona una actividad para ver material recomendado.';
 
   @override
   String get noRecommendedMaterial =>
-      'Esta excursión no requiere material recomendado.';
+      'Esta actividad no requiere material recomendado.';
 
   @override
   String materialId(int id) {
@@ -640,8 +640,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get priceSummary => 'Resumen de precio';
 
   @override
-  String excursionPrice(int count) {
-    return 'Excursión (×$count)';
+  String actividadPrice(int count) {
+    return 'Actividad (×$count)';
   }
 
   @override
@@ -779,11 +779,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String acceptRequestConfirm(int id) {
-    return '¿Aceptar la solicitud #$id?\nSe generará una excursión automáticamente.';
+    return '¿Aceptar la solicitud #$id?\nSe generará una actividad automáticamente.';
   }
 
   @override
-  String get requestAccepted => 'Solicitud aceptada. Excursión generada.';
+  String get requestAccepted => 'Solicitud aceptada. Actividad generada.';
 
   @override
   String get materialReservationCreated =>

@@ -1,87 +1,87 @@
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 
-final List<Reserva> reservasFake = [
+final List<Reservation> reservationsFake = [
   // Reserva creada desde solicitud #1 (cliente Laura), pendiente.
-  Reserva(
+  Reservation(
     id: 101,
-    idUsuario: 3,
-    lineas: [
-      const LineaReserva(idEquipamiento: 5, cantidad: 6),
-      const LineaReserva(idEquipamiento: 6, cantidad: 10),
+    userId: 3,
+    lines: [
+      const ReservationLine(equipmentId: 5, quantity: 6),
+      const ReservationLine(equipmentId: 6, quantity: 10),
     ],
-    idExcursion: 1,
-    fechaInicio: DateTime(2026, 5, 1, 9, 0),
-    fechaFin: DateTime(2026, 5, 1, 12, 0),
-    estado: EstadoReserva.pendiente,
+    activityId: 1,
+    startDate: DateTime(2026, 5, 1, 9, 0),
+    endDate: DateTime(2026, 5, 1, 12, 0),
+    status: ReservationStatus.pendiente,
   ),
 
   // Reserva confirmada (cliente Diego), editable desde solicitud #2.
-  Reserva(
+  Reservation(
     id: 102,
-    idUsuario: 4,
-    lineas: [
-      const LineaReserva(idEquipamiento: 3, cantidad: 4),
-      const LineaReserva(idEquipamiento: 8, cantidad: 2),
+    userId: 4,
+    lines: [
+      const ReservationLine(equipmentId: 3, quantity: 4),
+      const ReservationLine(equipmentId: 8, quantity: 2),
     ],
-    idExcursion: 2,
-    fechaInicio: DateTime(2026, 6, 10, 10, 0),
-    fechaFin: DateTime(2026, 6, 10, 14, 0),
-    estado: EstadoReserva.confirmada,
+    activityId: 2,
+    startDate: DateTime(2026, 6, 10, 10, 0),
+    endDate: DateTime(2026, 6, 10, 14, 0),
+    status: ReservationStatus.confirmada,
   ),
 
   // Reserva devuelta con daños registrados (cliente Laura).
-  Reserva(
+  Reservation(
     id: 103,
-    idUsuario: 3,
-    lineas: [
-      const LineaReserva(idEquipamiento: 4, cantidad: 2),
-      const LineaReserva(idEquipamiento: 2, cantidad: 2),
+    userId: 3,
+    lines: [
+      const ReservationLine(equipmentId: 4, quantity: 2),
+      const ReservationLine(equipmentId: 2, quantity: 2),
     ],
-    idExcursion: 2,
-    fechaInicio: DateTime(2026, 4, 1, 10, 0),
-    fechaFin: DateTime(2026, 4, 1, 14, 0),
-    estado: EstadoReserva.finalizada,
-    cargoDanios: 50.0,
-    itemsDaniados: {4: 1},
+    activityId: 2,
+    startDate: DateTime(2026, 4, 1, 10, 0),
+    endDate: DateTime(2026, 4, 1, 14, 0),
+    status: ReservationStatus.finalizada,
+    damageFee: 50.0,
+    damagedItems: {4: 1},
   ),
 
   // Reserva cancelada (cliente Laura).
-  Reserva(
+  Reservation(
     id: 104,
-    idUsuario: 3,
-    lineas: [const LineaReserva(idEquipamiento: 2, cantidad: 3)],
-    idExcursion: 4,
-    fechaInicio: DateTime(2026, 12, 20, 9, 0),
-    fechaFin: DateTime(2026, 12, 20, 15, 0),
-    estado: EstadoReserva.cancelada,
+    userId: 3,
+    lines: [const ReservationLine(equipmentId: 2, quantity: 3)],
+    activityId: 4,
+    startDate: DateTime(2026, 12, 20, 9, 0),
+    endDate: DateTime(2026, 12, 20, 15, 0),
+    status: ReservationStatus.cancelada,
   ),
 
   // Reserva manual de catálogo (sin solicitud asociada) para probar listados.
-  Reserva(
+  Reservation(
     id: 105,
-    idUsuario: 3,
-    lineas: [
-      const LineaReserva(idEquipamiento: 5, cantidad: 4),
-      const LineaReserva(idEquipamiento: 1, cantidad: 2),
-      const LineaReserva(idEquipamiento: 3, cantidad: 1),
+    userId: 3,
+    lines: [
+      const ReservationLine(equipmentId: 5, quantity: 4),
+      const ReservationLine(equipmentId: 1, quantity: 2),
+      const ReservationLine(equipmentId: 3, quantity: 1),
     ],
-    idExcursion: 5,
-    fechaInicio: DateTime(2026, 8, 5, 18, 0),
-    fechaFin: DateTime(2026, 8, 5, 20, 0),
-    estado: EstadoReserva.pendiente,
+    activityId: 5,
+    startDate: DateTime(2026, 8, 5, 18, 0),
+    endDate: DateTime(2026, 8, 5, 20, 0),
+    status: ReservationStatus.pendiente,
   ),
 
   // Reserva en curso (vinculada a solicitud #6).
-  Reserva(
+  Reservation(
     id: 106,
-    idUsuario: 3,
-    lineas: [
-      const LineaReserva(idEquipamiento: 5, cantidad: 3),
-      const LineaReserva(idEquipamiento: 6, cantidad: 6),
+    userId: 3,
+    lines: [
+      const ReservationLine(equipmentId: 5, quantity: 3),
+      const ReservationLine(equipmentId: 6, quantity: 6),
     ],
-    idExcursion: 1,
-    fechaInicio: DateTime(2026, 5, 1, 9, 0),
-    fechaFin: DateTime(2026, 5, 1, 12, 0),
-    estado: EstadoReserva.enCurso,
+    activityId: 1,
+    startDate: DateTime(2026, 5, 1, 9, 0),
+    endDate: DateTime(2026, 5, 1, 12, 0),
+    status: ReservationStatus.enCurso,
   ),
 ];

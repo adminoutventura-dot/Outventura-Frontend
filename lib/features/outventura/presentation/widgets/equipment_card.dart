@@ -6,7 +6,7 @@ import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
 class EquipmentCard extends StatefulWidget {
-  final Equipamiento equipamiento;
+  final Equipment equipamiento;
   final VoidCallback? onEditar;
   final VoidCallback? onEliminar;
   final VoidCallback? onAlquilar;
@@ -33,19 +33,19 @@ class _EquipmentCardState extends State<EquipmentCard> {
     Color badgeBg;
     Color badgeFg;
     switch (widget.equipamiento.status) {
-      case EstadoEquipamiento.disponible:
+      case EquipmentStatus.disponible:
         badgeBg = cs.primary;
         badgeFg = cs.onPrimary;
         break;
-      case EstadoEquipamiento.agotado:
+      case EquipmentStatus.agotado:
         badgeBg = cs.tertiary;
         badgeFg = cs.onPrimary;
         break;
-      case EstadoEquipamiento.mantenimiento:
+      case EquipmentStatus.mantenimiento:
         badgeBg = cs.onSurfaceVariant;
         badgeFg = cs.onPrimary;
         break;
-      case EstadoEquipamiento.fueraDeServicio:
+      case EquipmentStatus.fueraDeServicio:
         badgeBg = cs.error;
         badgeFg = cs.onError;
         break;

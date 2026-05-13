@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/id_generator.dart';
-import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/services/pricing_service.dart';
@@ -14,16 +14,16 @@ class RequestFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController participantesCtrl = TextEditingController();
 
-  int? idExcursion;
+  int? idActividad;
   int get numeroParticipantes => int.tryParse(participantesCtrl.text) ?? 1;
-  EstadoSolicitud estado = EstadoSolicitud.pendiente;
+  RequestStatus estado = RequestStatus.pendiente;
   int? idExperto;
   int? idUsuario;
   int? idReserva;
   Map<int, int> materialesSolicitados = {};
 
   bool editando = false;
-  Solicitud? seleccionado;
+  Request? seleccionado;
 
   bool validar() {
     if (formKey.currentState == null) return false;
@@ -31,21 +31,21 @@ class RequestFormController {
   }
 
   // Carga los datos de una solicitud en el formulario para su edición.
-  void cargarSolicitud(Solicitud solicitud) {
+  void cargarSolicitud(Request solicitud) {
     editando = true;
     seleccionado = solicitud;
-    idExcursion = solicitud.idExcursion;
-    participantesCtrl.text = '${solicitud.numeroParticipantes}';
-    estado = solicitud.estado;
-    idExperto = solicitud.idExperto;
-    idUsuario = solicitud.idUsuario;
-    idReserva = solicitud.idReserva;
-    materialesSolicitados = Map<int, int>.from(solicitud.materialesSolicitados);
+    idActividad = solicitud.activityId;
+    participantesCtrl.text = '${solicitud.participantCount}';
+    estado = solicitud.status;
+    idExperto = solicitud.expertId;
+    idUsuario = solicitud.userId;
+    idReserva = solicitud.reservationId;
+    materialesSolicitados = Map<int, int>.from(solicitud.requestedMaterials);
   }
 
-  // Aplica los valores de la excursión seleccionada y el usuario.
-  void aplicarValoresIniciales({int? idExcursion, int? idUsuario}) {
-    this.idExcursion = idExcursion;
+  // Aplica los valores de la actividad seleccionada y el usuario.
+  void aplicarValoresIniciales({int? idActividad, int? idUsuario}) {
+    this.idActividad = idActividad;
     this.idUsuario = idUsuario;
     if (participantesCtrl.text.trim().isEmpty) {
       participantesCtrl.text = '1';
@@ -62,55 +62,55 @@ class RequestFormController {
   }
 
   // Crea una nueva solicitud a partir de los datos del formulario.
-  Solicitud? crearSolicitud(List<Activity> excursiones, List<Equipamiento> equipamientos) {
+  Request? crearSolicitud(List<Activity> actividades, List<Equipment> equipamientos) {
     if (!validar()) {
       return null;
     }
 
     // TEMPORAL: idEntero() se elimina cuando el backend asigne IDs reales. precio vendrá del backend.
     final int id = seleccionado?.id ?? GeneradorId.idEntero();
-    final double precio = calcularPrecioTotal(excursiones, equipamientos);
+    final double precio = calcularPrecioTotal(actividades, equipamientos);
 
-    return Solicitud(
+    return Request(
       id: id,
-      idExcursion: idExcursion!,
-      numeroParticipantes: numeroParticipantes,
-      estado: estado,
-      idExperto: idExperto,
-      idUsuario: idUsuario,
-      idReserva: idReserva,
-      materialesSolicitados: Map<int, int>.from(materialesSolicitados),
-      precioTotal: precio,
+      activityId: idActividad!,
+      participantCount: numeroParticipantes,
+      status: estado,
+      expertId: idExperto,
+      userId: idUsuario,
+      reservationId: idReserva,
+      requestedMaterials: Map<int, int>.from(materialesSolicitados),
+      totalPrice: precio,
     );
   }
 
   // Convierte una lista de líneas de reserva en un mapa {idEquipamiento → cantidad}.
-  Map<int, int> materialesDesdeLineas(List<LineaReserva> lineas) {
+  Map<int, int> materialesDesdeLineas(List<ReservationLine> lineas) {
     final Map<int, int> materiales = {};
-    for (final LineaReserva linea in lineas) {
-      materiales[linea.idEquipamiento] = linea.cantidad;
+    for (final ReservationLine linea in lineas) {
+      materiales[linea.equipmentId] = linea.quantity;
     }
     return materiales;
   }
 
   // Convierte el mapa en lista de LineaReserva, filtrando los que tengan cantidad 0.
-  List<LineaReserva> lineasDesdeMateriales() {
+  List<ReservationLine> lineasDesdeMateriales() {
     return materialesSolicitados.entries
         .where((entry) => entry.value > 0)
         .map(
           (entry) =>
-              LineaReserva(idEquipamiento: entry.key, cantidad: entry.value),
+              ReservationLine(equipmentId: entry.key, quantity: entry.value),
         )
         .toList();
   }
 
-  // Busca la excursión seleccionada en la lista de excursiones disponibles.
-  Activity? buscarExcursionSeleccionada(List<Activity> excursiones) {
-    if (idExcursion == null) {
+  // Busca la actividad seleccionada en la lista de actividades disponibles.
+  Activity? buscarActividadSeleccionada(List<Activity> actividades) {
+    if (idActividad == null) {
       return null;
     }
-    for (final Activity e in excursiones) {
-      if (e.id == idExcursion) {
+    for (final Activity e in actividades) {
+      if (e.id == idActividad) {
         return e;
       }
     }
@@ -118,22 +118,22 @@ class RequestFormController {
   }
 
   // TEMPORAL: reemplazar por GET /api/precio-solicitud con parámetros. El backend calculará el precio total.
-  // Recalcula los materiales solicitados basándose en la excursión seleccionada y el número de participantes.
-  void recalcularMateriales(List<Activity> excursiones) {
+  // Recalcula los materiales solicitados basándose en la actividad seleccionada y el número de participantes.
+  void recalcularMateriales(List<Activity> actividades) {
     // Si ya existe una reserva asociada, no sobreescribir las cantidades.
     if (idReserva != null) {
       return;
     }
-    // Si no hay excursión seleccionada, limpia los materiales solicitados.
-    final Activity? excursion = buscarExcursionSeleccionada(excursiones);
-    if (excursion == null) {
+    // Si no hay actividad seleccionada, limpia los materiales solicitados.
+    final Activity? actividad = buscarActividadSeleccionada(actividades);
+    if (actividad == null) {
       materialesSolicitados = {};
       return;
     }
 
     final int participantes = numeroParticipantes;
     // Variable que guarda las entradas del mapa materialesPorParticipante para poder recorrerlas.
-    final Iterable<MapEntry<int, int>> plantilla = excursion.materialsPerParticipant.entries;
+    final Iterable<MapEntry<int, int>> plantilla = actividad.materialsPerParticipant.entries;
     final Map<int, int> recalculado = {};
 
     for (final MapEntry<int, int> entry in plantilla) {
@@ -151,29 +151,29 @@ class RequestFormController {
 
   // TEMPORAL: el backend creará la reserva y devolverá el ID real. Eliminar GeneradorId.idEntero() de aquí.
   // Construye una reserva a partir de la solicitud actual.
-  Reserva? construirReserva(List<Activity> excursiones) {
+  Reservation? construirReserva(List<Activity> actividades) {
     if (idUsuario == null) {
       return null;
     }
 
     // Crea las líneas de reserva a partir de los materiales solicitados.
-    final List<LineaReserva> lineas = lineasDesdeMateriales();
+    final List<ReservationLine> lineas = lineasDesdeMateriales();
     if (lineas.isEmpty) {
       return null;
     }
 
-    final Activity? excursion = buscarExcursionSeleccionada(excursiones);
-    final DateTime inicio = excursion?.initDate ?? DateTime.now();
-    final DateTime fin = excursion?.endDate ?? inicio.add(const Duration(days: 1));
+    final Activity? actividad = buscarActividadSeleccionada(actividades);
+    final DateTime inicio = actividad?.initDate ?? DateTime.now();
+    final DateTime fin = actividad?.endDate ?? inicio.add(const Duration(days: 1));
 
-    final Reserva reserva = Reserva(
+    final Reservation reserva = Reservation(
       id: GeneradorId.idEntero(),
-      idUsuario: idUsuario!,
-      lineas: lineas,
-      idExcursion: idExcursion,
-      fechaInicio: inicio,
-      fechaFin: fin,
-      estado: EstadoReserva.pendiente,
+      userId: idUsuario!,
+      lines: lineas,
+      activityId: idActividad,
+      startDate: inicio,
+      endDate: fin,
+      status: ReservationStatus.pendiente,
     );
 
     idReserva = reserva.id;
@@ -181,8 +181,8 @@ class RequestFormController {
   }
 
   // Busca una reserva por su ID en una lista de reservas.
-  Reserva? buscarReserva(List<Reserva> reservas, int id) {
-    for (final Reserva r in reservas) {
+  Reservation? buscarReserva(List<Reservation> reservas, int id) {
+    for (final Reservation r in reservas) {
       if (r.id == id) {
         return r;
       }
@@ -191,47 +191,47 @@ class RequestFormController {
   }
 
   // Sincroniza la reserva existente con los datos actuales de la solicitud.
-  Reserva? sincronizarReserva(Solicitud solicitud, List<Reserva> reservas) {
+  Reservation? sincronizarReserva(Request solicitud, List<Reservation> reservas) {
     // Obtiene el ID de la reserva asociada a la solicitud.
-    final int? idRes = solicitud.idReserva;
+    final int? idRes = solicitud.reservationId;
     if (idRes == null) {
       return null;
     }
     
     // Busca esa reserva en la lista por su ID. 
-    final Reserva? reserva = buscarReserva(reservas, idRes);
+    final Reservation? reserva = buscarReserva(reservas, idRes);
     if (reserva == null) {
       return null;
     }
 
     // Convierte los materiales actuales del formulario (materialesSolicitados) en líneas de reserva.
-    final List<LineaReserva> lineas = lineasDesdeMateriales();
+    final List<ReservationLine> lineas = lineasDesdeMateriales();
     if (lineas.isEmpty) {
       return null;
     }
 
     // Devuelve una copia de la reserva original con los datos actualizados.
     return reserva.copyWith(
-      idUsuario: solicitud.idUsuario ?? reserva.idUsuario,
-      idExcursion: solicitud.idExcursion,
-      lineas: lineas,
+      userId: solicitud.userId ?? reserva.userId,
+      activityId: solicitud.activityId,
+      lines: lineas,
     );
   }
 
   // Crea una reserva a partir de los datos actuales. Devuelve null si hay error de validación.
-  Reserva? crearReserva(List<Activity> excursiones) {
-    final Reserva? reserva = construirReserva(excursiones);
+  Reservation? crearReserva(List<Activity> actividades) {
+    final Reservation? reserva = construirReserva(actividades);
     return reserva;
   }
 
   // Sincroniza la reserva asociada a la solicitud con los datos actuales. Devuelve la reserva actualizada.
-  Reserva? sincronizarReservaConSolicitud(Solicitud solicitud, List<Reserva> reservas) {
-    final Reserva? actualizada = sincronizarReserva(solicitud, reservas);
+  Reservation? sincronizarReservaConSolicitud(Request solicitud, List<Reservation> reservas) {
+    final Reservation? actualizada = sincronizarReserva(solicitud, reservas);
     return actualizada;
   }
 
   // Devuelve la reserva actual, o null si no hay ninguna asociada.
-  Reserva? buscarReservaActual(List<Reserva> reservas) {
+  Reservation? buscarReservaActual(List<Reservation> reservas) {
     if (idReserva == null) {
       return null;
     }
@@ -239,25 +239,25 @@ class RequestFormController {
   }
 
   // Comprueba si la reserva asociada sigue existiendo en la lista.
-  bool reservaExiste(List<Reserva> reservas) {
+  bool reservaExiste(List<Reservation> reservas) {
     if (idReserva == null) {
       return false;
     }
-    return reservas.any((Reserva r) => r.id == idReserva);
+    return reservas.any((Reservation r) => r.id == idReserva);
   }
 
   // Actualiza los materiales del formulario a partir de la reserva resultado.
-  void actualizarDesdeReserva(Reserva resultado) {
-    materialesSolicitados = materialesDesdeLineas(resultado.lineas);
+  void actualizarDesdeReserva(Reservation resultado) {
+    materialesSolicitados = materialesDesdeLineas(resultado.lines);
   }
 
   // Calcula el precio total de la solicitud delegando al servicio de pricing.
-  double calcularPrecioTotal(List<Activity> excursiones, List<Equipamiento> equipamientos) {
+  double calcularPrecioTotal(List<Activity> actividades, List<Equipment> equipamientos) {
     return calcularPrecioSolicitud(
-      idExcursion: idExcursion,
+      idActividad: idActividad,
       numeroParticipantes: numeroParticipantes,
       materialesSolicitados: materialesSolicitados,
-      excursiones: excursiones,
+      actividades: actividades,
       equipamientos: equipamientos,
     );
   }
@@ -279,9 +279,9 @@ class RequestFormController {
   void limpiar() {
     editando = false;
     seleccionado = null;
-    idExcursion = null;
+    idActividad = null;
     participantesCtrl.clear();
-    estado = EstadoSolicitud.pendiente;
+    estado = RequestStatus.pendiente;
     idExperto = null;
     idUsuario = null;
     idReserva = null;
@@ -294,7 +294,7 @@ class RequestFormController {
 
   // Crea una reserva a partir de los datos actuales del formulario.
   // Si hay un error de validación, muestra un snackbar y devuelve null.
-  Reserva? crearReservaDesdeSolicitud({
+  Reservation? crearReservaDesdeSolicitud({
     required BuildContext context,
     required WidgetRef ref,
   }) {
@@ -303,10 +303,10 @@ class RequestFormController {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
       return null;
     }
-    final List<Activity> excursiones = ref.read(excursionesProvider).value ?? [];
-    final Reserva? reserva = crearReserva(excursiones);
+    final List<Activity> actividades = ref.read(activitiesProvider).value ?? [];
+    final Reservation? reserva = crearReserva(actividades);
     if (reserva != null) {
-      ref.read(reservasProvider.notifier).agregar(reserva);
+      ref.read(reservationsProvider.notifier).agregar(reserva);
     }
     return reserva;
   }

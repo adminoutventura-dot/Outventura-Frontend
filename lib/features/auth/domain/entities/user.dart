@@ -1,16 +1,16 @@
 import 'role.dart';
 
-class Usuario {
+class User {
   final int id;
   final String name;
   final String surname;
   final String email;
   final String? phone;
-  final TipoRol role;
+  final UserRole role;
   final String? photo;
   final bool active;
 
-  const Usuario({
+  const User({
     required this.id,
     required this.name,
     required this.surname,
@@ -22,7 +22,7 @@ class Usuario {
   });
 
   // Crea un Usuario a partir del JSON del backend.
-  factory Usuario.fromMap(Map<String, dynamic> map) {
+  factory User.fromMap(Map<String, dynamic> map) {
     // Guardar el valor de 'role' sin importar su formato.
     final dynamic roleValue = map['role'];
 
@@ -31,29 +31,29 @@ class Usuario {
         ? roleValue
         : (roleValue is Map<String, dynamic> ? roleValue['code'] as String? : null);
     final String roleText = roleCode ?? 'GUEST';
-    return Usuario(
+    return User(
       id: (map['id_user'] ?? map['id']) as int,
       name: map['name'] as String,
       surname: map['surname'] as String,
       email: map['email'] as String,
       phone: map['phone']?.toString(),
-      role: TipoRol.fromString(roleText),
+      role: UserRole.fromString(roleText),
       photo: map['photo'] as String?,
       active: map['status'] as bool? ?? true,
     );
   }
 
   // Crea un nuevo usuario a partir del actual, permitiendo modificar algunos campos.
-  Usuario copyWith({
+  User copyWith({
     String? name,
     String? surname,
     String? email,
     String? phone,
-    TipoRol? role,
+    UserRole? role,
     String? photo,
     bool? active,
   }) {
-    return Usuario(
+    return User(
       id: id,
       name: name ?? this.name,
       surname: surname ?? this.surname,
@@ -66,7 +66,7 @@ class Usuario {
   }
 
   // Comprueba si el usuario tiene un rol específico.
-  bool tieneRol(TipoRol tipoRol) {
+  bool tieneRol(UserRole tipoRol) {
     if (role == tipoRol) {
       return true;
     } else {

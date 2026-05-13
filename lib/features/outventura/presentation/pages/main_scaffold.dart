@@ -3,13 +3,13 @@ import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/presentation/pages/calendar_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/equipment_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/excursions_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/activities_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/home_admin_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/home_client_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
 class MainScaffold extends StatefulWidget {
-  final Usuario usuario;
+  final User usuario;
 
   const MainScaffold({super.key, required this.usuario});
 
@@ -25,13 +25,13 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   void initState() {
     super.initState();
-    final bool esCliente = widget.usuario.role == TipoRol.usuario;
+    final bool esCliente = widget.usuario.role == UserRole.usuario;
 
     _pages = [
       esCliente
           ? HomeClientePage(usuario: widget.usuario)
           : const HomeAdminPage(),
-      ExcursionsPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
+      ActivitiesPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
       EquipmentPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
       CalendarPage(usuario: widget.usuario, esAdmin: !esCliente),
     ];
@@ -60,7 +60,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.hiking_outlined),
             activeIcon: const Icon(Icons.hiking),
-            label: s.tabExcursions,
+            label: s.tabActividades,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.inventory_2_outlined),

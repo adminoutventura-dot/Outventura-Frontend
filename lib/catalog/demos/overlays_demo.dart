@@ -62,25 +62,25 @@ class OverlaysDemo extends StatelessWidget {
                 label: 'Aprobar',
                 borderColor: cs.primary,
                 backgroundColor: cs.surface,
-                onPressed: () => mostrarDialogoAprobacion(context, reservasFake[0], () {}),
+                onPressed: () => mostrarDialogoAprobacion(context, reservationsFake[0], () {}),
               ),
               SecondaryButton(
                 label: 'Rechazar',
                 borderColor: cs.error,
                 backgroundColor: cs.surface,
-                onPressed: () => mostrarDialogoRechazo(context, reservasFake[0], () {}),
+                onPressed: () => mostrarDialogoRechazo(context, reservationsFake[0], () {}),
               ),
               SecondaryButton(
                 label: 'Cancelar',
                 borderColor: cs.tertiary,
                 backgroundColor: cs.surface,
-                onPressed: () => mostrarDialogoCancelacion(context, reservasFake[0], () {}),
+                onPressed: () => mostrarDialogoCancelacion(context, reservationsFake[0], () {}),
               ),
               SecondaryButton(
                 label: 'Registrar devolución',
                 borderColor: cs.secondary,
                 backgroundColor: cs.surface,
-                onPressed: () => mostrarDialogoDevolucion(context, reservasFake[0], () {}),
+                onPressed: () => mostrarDialogoDevolucion(context, reservationsFake[0], () {}),
               ),
             ],
           ),
@@ -96,7 +96,7 @@ class OverlaysDemo extends StatelessWidget {
             backgroundColor: cs.surface,
             onPressed: () => mostrarDialogoLineaReserva(
               context: context,
-              equipamientos: equipamientosFake,
+              equipamientos: equipmentFake,
             ),
           ),
 
@@ -111,8 +111,8 @@ class OverlaysDemo extends StatelessWidget {
             backgroundColor: cs.surface,
             onPressed: () => mostrarDialogoLineaReserva(
               context: context,
-              equipamientos: equipamientosFake,
-              initialLinea: reservasFake[0].lineas.first,
+              equipamientos: equipmentFake,
+              initialLinea: reservationsFake[0].lines.first,
             ),
           ),
 

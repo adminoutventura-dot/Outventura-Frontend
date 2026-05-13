@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/requests_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
@@ -17,7 +17,7 @@ import 'package:outventura/features/outventura/presentation/providers/resolvers_
 import 'package:outventura/l10n/app_localizations.dart';
 
 class HomeClientePage extends ConsumerWidget {
-  final Usuario usuario;
+  final User usuario;
 
   const HomeClientePage({super.key, required this.usuario});
 
@@ -27,16 +27,16 @@ class HomeClientePage extends ConsumerWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    final List<Reserva> misReservas = (ref.watch(reservasProvider).value ?? [])
-        .where((Reserva r) => r.idUsuario == usuario.id)
+    final List<Reservation> misReservas = (ref.watch(reservationsProvider).value ?? [])
+        .where((Reservation r) => r.userId == usuario.id)
         .toList();
-    final List<Solicitud> misSolicitudes = (ref.watch(solicitudesProvider).value ?? [])
-        .where((Solicitud s) => s.idUsuario == usuario.id)
+    final List<Request> misSolicitudes = (ref.watch(requestsProvider).value ?? [])
+        .where((Request s) => s.userId == usuario.id)
         .toList();
     final int solicitudesPendientes = misSolicitudes
-        .where((Solicitud s) => s.estado == EstadoSolicitud.pendiente)
+        .where((Request s) => s.status == RequestStatus.pendiente)
         .length;
-    final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
+    final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -172,41 +172,41 @@ class HomeClientePage extends ConsumerWidget {
                     style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                   )
                 else
-                  for (final Solicitud solicitud in misSolicitudes.take(3))
+                  for (final Request solicitud in misSolicitudes.take(3))
                     Builder(builder: (context) {
-                      final Activity? exc = ref.watch(excursionPorIdProvider(solicitud.idExcursion));
-                      if (exc == null) return const SizedBox.shrink();
+                      final Activity? act = ref.watch(activityByIdProvider(solicitud.activityId));
+                      if (act == null) return const SizedBox.shrink();
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child: SolicitudCard(
+                        child: RequestCard(
                           solicitud: solicitud,
-                          excursion: exc,
+                          actividad: act,
                           nombreUsuario: '${usuario.name} ${usuario.surname}',
                         ),
                       );
                     }),
                 const SizedBox(height: 24),
                 Text(
-                  s.newExcursions,
+                  s.nuevasActividades,
                   style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
-                if (excursiones.isEmpty)
+                if (actividades.isEmpty)
                   Text(
-                    s.noNewExcursions,
+                    s.noNuevasActividades,
                     style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                   )
                 else
-                // Muestra las 3 excursiones más recientes (asumiendo que están ordenadas por fecha de creación)
-                  for (final Activity excursion in excursiones.take(3).toList().reversed)
+                // Muestra las 3 actividades más recientes (asumiendo que están ordenadas por fecha de creación)
+                  for (final Activity actividad in actividades.take(3).toList().reversed)
                     Card(
                       elevation: 2,
                       margin: const EdgeInsets.only(bottom: 10),
                       child: ListTile(
                         leading: const Icon(Icons.hiking_outlined),
-                        title: Text(excursion.startPoint, style: tt.titleMedium),
-                        subtitle: excursion.description != null
-                          ? Text(excursion.description!, maxLines: 2, overflow: TextOverflow.ellipsis)
+                        title: Text(actividad.startPoint, style: tt.titleMedium),
+                        subtitle: actividad.description != null
+                          ? Text(actividad.description!, maxLines: 2, overflow: TextOverflow.ellipsis)
                             : null,
                         trailing: Icon(Icons.arrow_forward_ios, color: cs.primary, size: 18),
                       ),

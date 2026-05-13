@@ -6,8 +6,8 @@ import 'package:outventura/features/outventura/domain/entities/reservation.dart'
 import 'package:outventura/l10n/app_localizations.dart';
 
 class ReservationLineCard extends StatelessWidget {
-  final LineaReserva linea;
-  final Equipamiento equipamiento;
+  final ReservationLine linea;
+  final Equipment equipamiento;
   final int cantidadDaniada;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -48,7 +48,7 @@ class ReservationLineCard extends StatelessWidget {
                   child: Text(equipamiento.title, style: tt.bodyMedium),
                 ),
                 TagWidget(
-                  text: 'x${linea.cantidad}',
+                  text: 'x${linea.quantity}',
                   backgroundColor: cs.secondary.withValues(alpha: 0.15),
                   textColor: cs.onPrimaryContainer,
                 ),
@@ -91,7 +91,7 @@ class ReservationLineCard extends StatelessWidget {
                   onPressed: menosCoste,
                 ),
                 Text(
-                  '$cantidadDaniada / ${linea.cantidad}',
+                  '$cantidadDaniada / ${linea.quantity}',
                   style: tt.bodyMedium,
                 ),
                 IconButton(icon: const Icon(Icons.add), onPressed: masCoste),

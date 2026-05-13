@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/utils/id_generator.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
-class ExcursionFormController {
+class ActivityFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final TextEditingController puntoInicioController = TextEditingController();
@@ -17,8 +17,8 @@ class ExcursionFormController {
   DateTime fechaFin = DateTime.now().add(const Duration(days: 1));
   TimeOfDay horaInicio = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay horaFin = const TimeOfDay(hour: 17, minute: 0);
-  EstadoExcursion estado = EstadoExcursion.disponible;
-  List<CategoriaActividad> categorias = [];
+  ActivityStatus estado = ActivityStatus.disponible;
+  List<ActivityCategory> categorias = [];
   String? imagenAsset;
   bool editando = false;
 
@@ -31,7 +31,7 @@ class ExcursionFormController {
     return formKey.currentState!.validate();
   }
   
-  void alternarCategoria(CategoriaActividad cat) {
+  void alternarCategoria(ActivityCategory cat) {
     if (categorias.contains(cat)) {
       categorias.remove(cat);
     } else {
@@ -39,22 +39,22 @@ class ExcursionFormController {
     }
   }
 
-  // Cargar los datos de una excursión en los input
-  void cargarExcursion(Activity excursion) {
+  // Cargar los datos de una actividad en los inputs
+  void cargarActividad(Activity actividad) {
     editando = true;
-    seleccionado = excursion;
-    puntoInicioController.text = excursion.startPoint;
-    puntoFinController.text = excursion.endPoint;
-    descripcionController.text = excursion.description ?? '';
-    participantesController.text = '${excursion.maxParticipants}';
-    fechaInicio = excursion.initDate;
-    fechaFin = excursion.endDate;
-    horaInicio = TimeOfDay.fromDateTime(excursion.initDate);
-    horaFin = TimeOfDay.fromDateTime(excursion.endDate);
-    estado = excursion.status;
-    categorias = List<CategoriaActividad>.from(excursion.categories);
-    imagenAsset = excursion.imageAsset;
-    precioController.text = excursion.price.toStringAsFixed(2);
+    seleccionado = actividad;
+    puntoInicioController.text = actividad.startPoint;
+    puntoFinController.text = actividad.endPoint;
+    descripcionController.text = actividad.description ?? '';
+    participantesController.text = '${actividad.maxParticipants}';
+    fechaInicio = actividad.initDate;
+    fechaFin = actividad.endDate;
+    horaInicio = TimeOfDay.fromDateTime(actividad.initDate);
+    horaFin = TimeOfDay.fromDateTime(actividad.endDate);
+    estado = actividad.status;
+    categorias = List<ActivityCategory>.from(actividad.categories);
+    imagenAsset = actividad.imageAsset;
+    precioController.text = actividad.price.toStringAsFixed(2);
   }
 
   // Limpiar todos los campos
@@ -69,7 +69,7 @@ class ExcursionFormController {
     fechaFin = DateTime.now().add(const Duration(days: 1));
     horaInicio = const TimeOfDay(hour: 9, minute: 0);
     horaFin = const TimeOfDay(hour: 17, minute: 0);
-    estado = EstadoExcursion.disponible;
+    estado = ActivityStatus.disponible;
     categorias = [];
   }
 
@@ -88,8 +88,8 @@ class ExcursionFormController {
     return FormateadorFecha.short(dt);
   }
 
-  // Construye una excursión a partir de los datos del formulario.
-  Activity construirExcursion() {
+  // Construye una actividad a partir de los datos del formulario.
+  Activity construirActividad() {
     final String puntoInicio = puntoInicioController.text.trim();
     final String puntoFin = puntoFinController.text.trim();
     return Activity(
@@ -101,7 +101,7 @@ class ExcursionFormController {
       difficulty: seleccionado?.difficulty ?? 1,
       maxParticipants: int.tryParse(participantesController.text) ?? 1,
       startEndPoint: [puntoInicio, puntoFin].where((e) => e.isNotEmpty).join(' - '),
-      categories: List<CategoriaActividad>.from(categorias),
+      categories: List<ActivityCategory>.from(categorias),
       imageAsset: imagenAsset,
       status: estado,
       price: double.tryParse(precioController.text.replaceAll(',', '.')) ?? 0,

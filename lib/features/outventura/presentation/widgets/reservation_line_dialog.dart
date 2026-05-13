@@ -6,12 +6,12 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
-Future<LineaReserva?> mostrarDialogoLineaReserva({
+Future<ReservationLine?> mostrarDialogoLineaReserva({
   required BuildContext context,
-  required List<Equipamiento> equipamientos,
-  LineaReserva? initialLinea,
+  required List<Equipment> equipamientos,
+  ReservationLine? initialLinea,
 }) {
-  return showDialog<LineaReserva>(
+  return showDialog<ReservationLine>(
     context: context,
     builder: (BuildContext ctx) => _LineaReservaDialog(
       equipamientos: equipamientos,
@@ -21,8 +21,8 @@ Future<LineaReserva?> mostrarDialogoLineaReserva({
 }
 
 class _LineaReservaDialog extends StatefulWidget {
-  final List<Equipamiento> equipamientos;
-  final LineaReserva? initialLinea;
+  final List<Equipment> equipamientos;
+  final ReservationLine? initialLinea;
 
   const _LineaReservaDialog({
     required this.equipamientos,
@@ -41,9 +41,9 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
   @override
   void initState() {
     super.initState();
-    _idEquipamiento = widget.initialLinea?.idEquipamiento;
+    _idEquipamiento = widget.initialLinea?.equipmentId;
     _cantCtrl = TextEditingController(
-      text: widget.initialLinea != null ? '${widget.initialLinea!.cantidad}' : '1',
+      text: widget.initialLinea != null ? '${widget.initialLinea!.quantity}' : '1',
     );
   }
 
@@ -63,7 +63,7 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppDropdownField<Equipamiento>(
+            AppDropdownField<Equipment>(
               value: _idEquipamiento,
               items: widget.equipamientos,
               itemValue: (e) => e.id,
@@ -102,9 +102,9 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
             if (!_formKey.currentState!.validate()) return;
             Navigator.pop(
               context,
-              LineaReserva(
-                idEquipamiento: _idEquipamiento!,
-                cantidad: int.parse(_cantCtrl.text),
+              ReservationLine(
+                equipmentId: _idEquipamiento!,
+                quantity: int.parse(_cantCtrl.text),
               ),
             );
           },

@@ -1,7 +1,7 @@
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -23,65 +23,65 @@ String _estadoComunLabel(String name, AppLocalizations s) {
   }
 }
 
-extension EstadoSolicitudL10n on EstadoSolicitud {
+extension EstadoSolicitudL10n on RequestStatus {
   String localizedLabel(AppLocalizations s) => _estadoComunLabel(name, s);
 }
 
-extension EstadoReservaL10n on EstadoReserva {
+extension EstadoReservaL10n on ReservationStatus {
   String localizedLabel(AppLocalizations s) => _estadoComunLabel(name, s);
 }
 
-extension EstadoExcursionL10n on EstadoExcursion {
+extension ActivityStatusL10n on ActivityStatus {
   String localizedLabel(AppLocalizations s) {
     switch (this) {
-      case EstadoExcursion.disponible:
+      case ActivityStatus.disponible:
         return s.statusAvailable;
-      case EstadoExcursion.noDisponible:
+      case ActivityStatus.noDisponible:
         return s.statusNotAvailable;
     }
   }
 }
 
-extension EstadoEquipamientoL10n on EstadoEquipamiento {
+extension EstadoEquipamientoL10n on EquipmentStatus {
   String localizedLabel(AppLocalizations s) {
     switch (this) {
-      case EstadoEquipamiento.disponible:
+      case EquipmentStatus.disponible:
         return s.statusAvailable;
-      case EstadoEquipamiento.agotado:
+      case EquipmentStatus.agotado:
         return s.statusOutOfStock;
-      case EstadoEquipamiento.mantenimiento:
+      case EquipmentStatus.mantenimiento:
         return s.statusMaintenance;
-      case EstadoEquipamiento.fueraDeServicio:
+      case EquipmentStatus.fueraDeServicio:
         return s.statusOutOfService;
     }
   }
 }
 
-extension CategoriaActividadL10n on CategoriaActividad {
+extension CategoriaActividadL10n on ActivityCategory {
   String localizedLabel(AppLocalizations s) {
     switch (this) {
-      case CategoriaActividad.acuatico:
+      case ActivityCategory.acuatico:
         return s.categoryAquatic;
-      case CategoriaActividad.nieve:
+      case ActivityCategory.nieve:
         return s.categorySnow;
-      case CategoriaActividad.montana:
+      case ActivityCategory.montana:
         return s.categoryMountain;
-      case CategoriaActividad.camping:
+      case ActivityCategory.camping:
         return s.categoryCamping;
     }
   }
 }
 
-extension TipoRolL10n on TipoRol {
+extension TipoRolL10n on UserRole {
   String localizedLabel(AppLocalizations s) {
     switch (this) {
-      case TipoRol.superadmin:
+      case UserRole.superadmin:
         return s.roleSuperadmin;
-      case TipoRol.admin:
+      case UserRole.admin:
         return s.roleAdmin;
-      case TipoRol.usuario:
+      case UserRole.usuario:
         return s.roleUser;
-      case TipoRol.invitado:
+      case UserRole.invitado:
         return s.roleGuest;
     }
   }

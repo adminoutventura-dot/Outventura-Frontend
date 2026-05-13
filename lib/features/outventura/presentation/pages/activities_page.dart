@@ -3,36 +3,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
-import 'package:outventura/features/outventura/presentation/controllers/excursions_page_controller.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/presentation/controllers/activities_page_controller.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/excursion_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/activity_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
-import 'package:outventura/features/outventura/presentation/widgets/excursion_card.dart';
+import 'package:outventura/features/outventura/presentation/widgets/activity_card.dart';
 
-class ExcursionsPage extends ConsumerStatefulWidget {
+class ActivitiesPage extends ConsumerStatefulWidget {
   final bool puedeGestionar;
   final bool puedeSolicitar;
 
-  const ExcursionsPage({
+  const ActivitiesPage({
     super.key,
     this.puedeGestionar = true,
     this.puedeSolicitar = false,
   });
 
   @override
-  ConsumerState<ExcursionsPage> createState() => _ExcursionsPageState();
+  ConsumerState<ActivitiesPage> createState() => _ActivitiesPageState();
 }
 
-class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
+class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
   final SearchFieldController _search = SearchFieldController();
-  final ExcursionsPageController _controller = ExcursionsPageController();
+  final ActivitiesPageController _controller = ActivitiesPageController();
 
   @override
   void dispose() {
@@ -45,7 +45,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
     final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final AsyncValue<List<Activity>> excursionesFiltradas = ref.watch(excursionesFiltadasProvider((
+    final AsyncValue<List<Activity>> actividadesFiltradas = ref.watch(filteredActivitiesProvider((
       query: _search.query,
       estado: _controller.estadoFiltro,
       categoria: _controller.categoriaFiltro,
@@ -55,7 +55,7 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(s.excursionsTitle),
+        title: Text(s.actividadesTitle),
         automaticallyImplyLeading: true,
         actions: [
           Badge(
@@ -86,17 +86,17 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
               onPressed: () async {
                 final Activity? nueva = await Navigator.of(context)
                     .push<Activity>(
-                      MaterialPageRoute(builder: (_) => const ExcursionFormPage()),
+                      MaterialPageRoute(builder: (_) => const ActivityFormPage()),
                     );
                 if (nueva == null) {
                   return;
                 }
-                ref.read(excursionesProvider.notifier).agregar(nueva);
+                ref.read(activitiesProvider.notifier).agregar(nueva);
                 if (!context.mounted) {
                   return;
                 }
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(s.excursionCreated)),
+                  SnackBar(content: Text(s.actividadCreada)),
                 );
               },
             )
@@ -120,9 +120,9 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
               onChanged: (String v) => setState(() => _search.query = v),
             ),
           ),
-          // Lista de excursiones filtradas
+          // Lista de actividades filtradas
           Expanded(
-            child: excursionesFiltradas.when(
+            child: actividadesFiltradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text('Error: $error')),
               data: (List<Activity> lista) => ListView.separated(
@@ -133,32 +133,32 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                 if (lista.isEmpty) {
                   return Center(
                     child: Text(
-                      s.noExcursionsForCategory,
+                      s.noActividadesParaCategoria,
                       style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   );
                 }
-                final Activity excursion = lista[index];
-                return ExcursionCard(
-                  excursion: excursion,
+                final Activity actividad = lista[index];
+                return ActivityCard(
+                  actividad: actividad,
                   onEditar: widget.puedeGestionar
                       ? () async {
                           final Activity? actualizada =
                               await Navigator.of(context).push<Activity>(
                                 MaterialPageRoute(
                                   builder: (BuildContext _) =>
-                                      ExcursionFormPage(excursion: excursion),
+                                      ActivityFormPage(actividad: actividad),
                                 ),
                               );
                           if (actualizada == null) {
                             return;
                           }
-                          ref.read(excursionesProvider.notifier).actualizar(excursion, actualizada);
+                          ref.read(activitiesProvider.notifier).actualizar(actividad, actualizada);
                           if (!context.mounted) {
                             return;
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(s.excursionUpdated)),
+                            SnackBar(content: Text(s.actividadActualizada)),
                           );
                         }
                       : null,
@@ -166,12 +166,12 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                       ? () async {
                           final bool confirm = await showConfirmDialog(
                             context: context,
-                            title: s.deleteExcursion,
+                            title: s.deleteActividad,
                             content:
-                                s.deleteExcursionConfirm('${excursion.startPoint} → ${excursion.endPoint}'),
+                                s.deleteActividadConfirm('${actividad.startPoint} → ${actividad.endPoint}'),
                           );
                           if (confirm) {
-                            ref.read(excursionesProvider.notifier).eliminar(excursion);
+                            ref.read(activitiesProvider.notifier).eliminar(actividad);
                           }
                         }
                       : null,
@@ -182,11 +182,11 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                             return;
                           }
 
-                          final Solicitud? solicitud =
-                              await Navigator.of(context).push<Solicitud>(
+                          final Request? solicitud =
+                              await Navigator.of(context).push<Request>(
                                 MaterialPageRoute(
                                   builder: (_) => SolicitudFormPage(
-                                    initialIdExcursion: excursion.id,
+                                    initialIdActividad: actividad.id,
                                     initialIdUsuario: usuario.id,
                                   ),
                                 ),
@@ -195,11 +195,11 @@ class _ExcursionsPageState extends ConsumerState<ExcursionsPage> {
                           if (solicitud == null) {
                             return;
                           }
-                          ref.read(solicitudesProvider.notifier).agregar(solicitud);
+                          ref.read(requestsProvider.notifier).agregar(solicitud);
                           if (!context.mounted) {
                             return;
                           }
-                          final String mensaje = solicitud.idReserva != null
+                          final String mensaje = solicitud.reservationId != null
                               ? s.requestCreatedWithReservation
                               : s.requestCreated;
                           ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(mensaje)) );

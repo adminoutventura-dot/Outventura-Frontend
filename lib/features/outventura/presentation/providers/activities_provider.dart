@@ -1,19 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/api_delay.dart';
-import 'package:outventura/features/outventura/data/fakes/excursions_fake.dart';
+import 'package:outventura/features/outventura/data/fakes/activities_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
-// Expone una lista de excursiones. Simula llamadas al backend.
-final AsyncNotifierProvider<ExcursionsNotifier, List<Activity>> excursionesProvider =
-    AsyncNotifierProvider<ExcursionsNotifier, List<Activity>>(ExcursionsNotifier.new);
+// Expone una lista de actividades. Simula llamadas al backend.
+final AsyncNotifierProvider<ActivitiesNotifier, List<Activity>> activitiesProvider =
+    AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>(ActivitiesNotifier.new);
 
-// TEMPORAL: el filtro se moverá al backend - GET /api/excursiones?q=... Eliminar este provider.
-// Filtra excursiones por ruta, estado, categoría y rango de fechas. Simula búsqueda en backend.
-final excursionesFiltadasProvider = Provider.family<AsyncValue<List<Activity>>, ({String query, EstadoExcursion? estado, CategoriaActividad? categoria, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
+// TEMPORAL: el filtro se moverá al backend - GET /api/actividades?q=... Eliminar este provider.
+// Filtra actividades por ruta, estado, categoría y rango de fechas. Simula búsqueda en backend.
+final filteredActivitiesProvider = Provider.family<AsyncValue<List<Activity>>, ({String query, ActivityStatus? estado, ActivityCategory? categoria, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
 
-  // Observa el estado asíncrono de todas las excursiones (notifica si cambia y recalcula la lista)
-  final AsyncValue<List<Activity>> asyncTodas = ref.watch(excursionesProvider);
+  // Observa el estado asíncrono de todas las actividades (notifica si cambia y recalcula la lista)
+  final AsyncValue<List<Activity>> asyncTodas = ref.watch(activitiesProvider);
 
   // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodas.whenData((List<Activity> todas) {
@@ -43,49 +43,49 @@ final excursionesFiltadasProvider = Provider.family<AsyncValue<List<Activity>>, 
   });
 });
 
-class ExcursionsNotifier extends AsyncNotifier<List<Activity>> {
+class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   @override
-  // TEMPORAL: reemplazar cuerpo por await dio.get('/excursiones') y eliminar import de excursions_fake.dart.
+  // TEMPORAL: reemplazar cuerpo por await dio.get('/actividades') y eliminar import de activities_fake.dart.
   Future<List<Activity>> build() async {
-    // Simula GET /api/excursiones
+    // Simula GET /api/actividades
     await Future.delayed(ApiDelay.carga);
-    return [...catalogoExcursiones];
+    return [...activitiesFake];
   }
 
-  // Simula POST /api/excursiones
-  Future<void> agregar(Activity excursion) async {
+  // Simula POST /api/actividades
+  Future<void> agregar(Activity actividad) async {
     await Future.delayed(ApiDelay.accion);
     // Saca la lista actual o una vacía si es nula
     final List<Activity> listaActual = [...(state.value ?? [])];
-    // Agrega la nueva excursión a la lista
-    listaActual.add(excursion);
+    // Agrega la nueva actividad a la lista
+    listaActual.add(actividad);
     // Actualiza el estado con la nueva lista
     state = AsyncData(listaActual);
   }
 
-  // Simula PUT /api/excursiones/:id
+  // Simula PUT /api/actividades/:id
   Future<void> actualizar(Activity viejo, Activity nuevo) async {
     await Future.delayed(ApiDelay.accion);
     // Saca la lista actual o una vacía si es nula
     final List<Activity> listaActual = [...(state.value ?? [])];
-    // Busca el índice de la excursión a actualizar
+    // Busca el índice de la actividad a actualizar
     final int index = listaActual.indexWhere((Activity e) => e.id == viejo.id);
     if (index != -1) {
-      // Reemplaza la excursión en la posición encontrada
+      // Reemplaza la actividad en la posición encontrada
       listaActual[index] = nuevo;
     }
     // Actualiza el estado con la lista modificada
     state = AsyncData(listaActual);
   }
 
-  // Simula DELETE /api/excursiones/:id
-  Future<void> eliminar(Activity excursion) async {
+  // Simula DELETE /api/actividades/:id
+  Future<void> eliminar(Activity actividad) async {
     await Future.delayed(ApiDelay.accion);
     // Saca la lista actual o una vacía si es nula
     final List<Activity> listaActual = [...(state.value ?? [])];
-    // Elimina la excursión con el ID coincidente
-    listaActual.removeWhere((Activity e) => e.id == excursion.id);
-    // Actualiza el estado con la lista sin la excursión eliminada
+    // Elimina la actividad con el ID coincidente
+    listaActual.removeWhere((Activity a) => a.id == actividad.id);
+    // Actualiza el estado con la lista sin la actividad eliminada
     state = AsyncData(listaActual);
   }
 }

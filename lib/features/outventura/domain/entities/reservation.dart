@@ -1,5 +1,5 @@
 // Estados posibles de una reserva.
-enum EstadoReserva {
+enum ReservationStatus {
   pendiente,
   confirmada,
   enCurso,
@@ -8,91 +8,91 @@ enum EstadoReserva {
 
   String get label {
     switch (this) {
-      case EstadoReserva.pendiente:
+      case ReservationStatus.pendiente:
         return 'Pendiente';
-      case EstadoReserva.confirmada:
+      case ReservationStatus.confirmada:
         return 'Confirmada';
-      case EstadoReserva.enCurso:
+      case ReservationStatus.enCurso:
         return 'En curso';
-      case EstadoReserva.finalizada:
+      case ReservationStatus.finalizada:
         return 'Finalizada';
-      case EstadoReserva.cancelada:
+      case ReservationStatus.cancelada:
         return 'Cancelada';
     }
   }
 
-  static EstadoReserva fromString(String value) {
-    for (EstadoReserva status in EstadoReserva.values) {
+  static ReservationStatus fromString(String value) {
+    for (ReservationStatus status in ReservationStatus.values) {
       if (status.label.toLowerCase() == value.toLowerCase()) {
         return status;
       }
     }
-    return EstadoReserva.pendiente;
+    return ReservationStatus.pendiente;
   }
 }
 
 // Una línea de reserva (un material y su cantidad).
-class LineaReserva {
-  final int idEquipamiento;
-  final int cantidad;
+class ReservationLine {
+  final int equipmentId;
+  final int quantity;
 
-  const LineaReserva({required this.idEquipamiento, required this.cantidad});
+  const ReservationLine({required this.equipmentId, required this.quantity});
 
-  LineaReserva copyWith({int? idEquipamiento, int? cantidad}) {
-    return LineaReserva(
-      idEquipamiento: idEquipamiento ?? this.idEquipamiento,
-      cantidad: cantidad ?? this.cantidad,
+  ReservationLine copyWith({int? equipmentId, int? quantity}) {
+    return ReservationLine(
+      equipmentId: equipmentId ?? this.equipmentId,
+      quantity: quantity ?? this.quantity,
     );
   }
 }
 
 // TODO: El backend no tiene modelo de Reserva; alinear campos cuando exista.
 // Entidad de reserva.
-class Reserva {
+class Reservation {
   final int id;
-  final int idUsuario;
-  final List<LineaReserva> lineas;
-  final int? idExcursion;
-  final DateTime fechaInicio;
-  final DateTime fechaFin;
-  final EstadoReserva estado;
-  final double cargoDanios;
+  final int userId;
+  final List<ReservationLine> lines;
+  final int? activityId;
+  final DateTime startDate;
+  final DateTime endDate;
+  final ReservationStatus status;
+  final double damageFee;
   // Cantidades dañadas por idEquipamiento: {idEquipamiento: cantidad}.
-  final Map<int, int> itemsDaniados;
+  final Map<int, int> damagedItems;
 
-  const Reserva({
+  const Reservation({
     required this.id,
-    required this.idUsuario,
-    required this.lineas,
-    this.idExcursion,
-    required this.fechaInicio,
-    required this.fechaFin,
-    required this.estado,
-    this.cargoDanios = 0,
-    // idEquipamiento - cantidad dañada.
-    this.itemsDaniados = const {},
+    required this.userId,
+    required this.lines,
+    this.activityId,
+    required this.startDate,
+    required this.endDate,
+    required this.status,
+    this.damageFee = 0,
+    // equipmentId - damaged quantity.
+    this.damagedItems = const {},
   });
 
-  Reserva copyWith({
-    int? idUsuario,
-    List<LineaReserva>? lineas,
-    int? idExcursion,
-    DateTime? fechaInicio,
-    DateTime? fechaFin,
-    EstadoReserva? estado,
-    double? cargoDanios,
-    Map<int, int>? itemsDaniados,
+  Reservation copyWith({
+    int? userId,
+    List<ReservationLine>? lines,
+    int? activityId,
+    DateTime? startDate,
+    DateTime? endDate,
+    ReservationStatus? status,
+    double? damageFee,
+    Map<int, int>? damagedItems,
   }) {
-    return Reserva(
+    return Reservation(
       id: id,
-      idUsuario: idUsuario ?? this.idUsuario,
-      lineas: lineas ?? this.lineas,
-      idExcursion: idExcursion ?? this.idExcursion,
-      fechaInicio: fechaInicio ?? this.fechaInicio,
-      fechaFin: fechaFin ?? this.fechaFin,
-      estado: estado ?? this.estado,
-      cargoDanios: cargoDanios ?? this.cargoDanios,
-      itemsDaniados: itemsDaniados ?? this.itemsDaniados,
+      userId: userId ?? this.userId,
+      lines: lines ?? this.lines,
+      activityId: activityId ?? this.activityId,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      status: status ?? this.status,
+      damageFee: damageFee ?? this.damageFee,
+      damagedItems: damagedItems ?? this.damagedItems,
     );
   }
 }

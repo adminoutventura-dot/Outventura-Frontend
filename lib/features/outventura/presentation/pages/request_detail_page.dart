@@ -8,7 +8,7 @@ import 'package:outventura/features/outventura/presentation/providers/resolvers_
 import 'package:outventura/l10n/app_localizations.dart';
 
 class RequestDetailPage extends ConsumerWidget {
-  final Solicitud solicitud;
+  final Request solicitud;
 
   const RequestDetailPage({super.key, required this.solicitud});
 
@@ -18,24 +18,24 @@ class RequestDetailPage extends ConsumerWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final excursion = ref.watch(excursionPorIdProvider(solicitud.idExcursion));
-    final String? nombreUsuario = solicitud.idUsuario != null
-        ? ref.watch(nombreUsuarioProvider(solicitud.idUsuario!))
+    final actividad = ref.watch(activityByIdProvider(solicitud.activityId));
+    final String? nombreUsuario = solicitud.userId != null
+        ? ref.watch(userNameProvider(solicitud.userId!))
         : null;
-    final String? nombreExperto = solicitud.idExperto != null
-        ? ref.watch(nombreUsuarioProvider(solicitud.idExperto!))
+    final String? nombreExperto = solicitud.expertId != null
+        ? ref.watch(userNameProvider(solicitud.expertId!))
         : null;
-    final reserva = solicitud.idReserva != null
-        ? ref.watch(reservaPorIdProvider(solicitud.idReserva!))
+    final reserva = solicitud.reservationId != null
+        ? ref.watch(reservationByIdProvider(solicitud.reservationId!))
         : null;
 
     // Colores igual que en request_card.dart
-    final Color accentColor = switch (solicitud.estado) {
-      EstadoSolicitud.confirmada => cs.primary,
-      EstadoSolicitud.pendiente => cs.tertiary,
-      EstadoSolicitud.finalizada => cs.secondary.withValues(alpha: 0.35),
-      EstadoSolicitud.cancelada => cs.error,
-      EstadoSolicitud.enCurso => cs.secondary,
+    final Color accentColor = switch (solicitud.status) {
+      RequestStatus.confirmada => cs.primary,
+      RequestStatus.pendiente => cs.tertiary,
+      RequestStatus.finalizada => cs.secondary.withValues(alpha: 0.35),
+      RequestStatus.cancelada => cs.error,
+      RequestStatus.enCurso => cs.secondary,
     };
 
     return Scaffold(
@@ -63,7 +63,7 @@ class RequestDetailPage extends ConsumerWidget {
               borderRadius: BorderRadius.circular(3),
             ),
             child: Text(
-              solicitud.estado.localizedLabel(s),
+              solicitud.status.localizedLabel(s),
               style: tt.labelLarge?.copyWith(color: cs.onPrimary),
               textAlign: TextAlign.center,
             ),
@@ -81,13 +81,13 @@ class RequestDetailPage extends ConsumerWidget {
               DetailRow(
                 Icons.group_outlined,
                 s.participants,
-                s.participantsCount(solicitud.numeroParticipantes),              
+                s.participantsCount(solicitud.participantCount),              
               ),
-              if (solicitud.precioTotal > 0)
+              if (solicitud.totalPrice > 0)
                 DetailRow(
                   Icons.euro_outlined,
                   s.totalPrice,
-                  s.priceEur(solicitud.precioTotal.toStringAsFixed(2)),                
+                  s.priceEur(solicitud.totalPrice.toStringAsFixed(2)),                
                 ),
               if (reserva != null)
                 DetailRow(
@@ -98,46 +98,46 @@ class RequestDetailPage extends ConsumerWidget {
             ],
           ),
 
-          // Excursión
-          if (excursion != null) ...[
+          // Actividad
+          if (actividad != null) ...[
             const SizedBox(height: 20),
             DetailSection(
-              title: s.excursion,
+              title: s.actividad,
               children: [
                 DetailRow(
                   Icons.hiking_outlined,
                   s.route,
-                  '${excursion.startPoint} - ${excursion.endPoint}',                
+                  '${actividad.startPoint} - ${actividad.endPoint}',                
                 ),
                 DetailRow(
                   Icons.calendar_today_outlined,
                   s.start,
-                  FormateadorFecha.withTime(excursion.initDate),                
+                  FormateadorFecha.withTime(actividad.initDate),                
                 ),
                 DetailRow(
                   Icons.event_outlined,
                   s.end,
-                  FormateadorFecha.withTime(excursion.endDate),                
+                  FormateadorFecha.withTime(actividad.endDate),                
                 ),
-                if (excursion.price > 0)
+                if (actividad.price > 0)
                   DetailRow(
                     Icons.euro_outlined,
                     s.basePrice,
-                    s.pricePerPerson(excursion.price.toStringAsFixed(2)),                  
+                    s.pricePerPerson(actividad.price.toStringAsFixed(2)),                  
                   ),
               ],
             ),
           ],
 
           // Materiales solicitados
-          if (solicitud.materialesSolicitados.isNotEmpty) ...[
+          if (solicitud.requestedMaterials.isNotEmpty) ...[
             const SizedBox(height: 20),
             DetailSection(
               title: s.requestedMaterial,
               children: [
-                for (final entry in solicitud.materialesSolicitados.entries)
+                for (final entry in solicitud.requestedMaterials.entries)
                   Builder(builder: (context) {
-                    final String nombre = ref.watch(nombreEquipamientoProvider(entry.key));
+                    final String nombre = ref.watch(equipmentNameProvider(entry.key));
                     return DetailRow(
                       Icons.inventory_2_outlined,
                       nombre,

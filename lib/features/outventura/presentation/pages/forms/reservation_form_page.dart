@@ -8,7 +8,7 @@ import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/core/widgets/app_date_selector.dart';
 import 'package:outventura/core/widgets/app_time_selector.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
@@ -16,14 +16,14 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/controllers/reservation_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
 
 class ReservationFormPage extends ConsumerStatefulWidget {
-  final Reserva? reserva;
+  final Reservation? reserva;
   final int? initialIdUsuario;
-  final int? initialIdExcursion;
+  final int? initialIdActividad;
   final int? initialIdEquipamiento;
   final int initialCantidadEquipamiento;
 
@@ -31,7 +31,7 @@ class ReservationFormPage extends ConsumerStatefulWidget {
     super.key,
     this.reserva,
     this.initialIdUsuario,
-    this.initialIdExcursion,
+    this.initialIdActividad,
     this.initialIdEquipamiento,
     this.initialCantidadEquipamiento = 1,
   });
@@ -59,7 +59,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     } else {
       _controller.aplicarValoresIniciales(
         idUsuario: widget.initialIdUsuario,
-        idExcursion: widget.initialIdExcursion,
+        idActividad: widget.initialIdActividad,
         idEquipamiento: widget.initialIdEquipamiento,
         cantidadEquipamiento: widget.initialCantidadEquipamiento,
       );
@@ -76,7 +76,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
   Future<void> _mostrarDialogoLinea({int? index}) async {
     await _controller.mostrarDialogoLinea(
       context: context,
-      equipamientos: ref.read(equipamientosProvider).value ?? [],
+      equipamientos: ref.read(equipmentProvider).value ?? [],
       setState: setState,
       index: index,
     );
@@ -87,15 +87,15 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
-    final Usuario? usuarioActual = ref.watch(currentUserProvider);
+    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+    final User? usuarioActual = ref.watch(currentUserProvider);
     final bool modoCliente = widget.initialIdUsuario != null;
     final int? idUsuarioFijado = widget.initialIdUsuario ?? usuarioActual?.id;
 
-    List<Usuario> usuariosDisponibles = ref.read(usuariosProvider).value ?? [];
+    List<User> usuariosDisponibles = ref.read(usuariosProvider).value ?? [];
     if (modoCliente && idUsuarioFijado != null) {
       usuariosDisponibles = usuariosDisponibles
-          .where((Usuario u) => u.id == idUsuarioFijado)
+          .where((User u) => u.id == idUsuarioFijado)
           .toList();
     }
 
@@ -122,11 +122,11 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
             children: [
               // Usuario
               const SizedBox(height: 8),
-              AppDropdownField<Usuario>(
+              AppDropdownField<User>(
                 value: _controller.idUsuario,
                 items: usuariosDisponibles,
-                itemValue: (Usuario user) => user.id,
-                itemLabel: (Usuario user) => '${user.name} ${user.surname}',
+                itemValue: (User user) => user.id,
+                itemLabel: (User user) => '${user.name} ${user.surname}',
                 label: s.user,
                 hint: modoCliente ? s.yourUser : s.selectUser,
                 enabled: !modoCliente && widget.reserva == null,
@@ -151,19 +151,19 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               // Excursión (solo editable para administradores; visible en modo edición)
               if (!modoCliente || widget.reserva != null) ...[
                 AppDropdownField<Activity>(
-                  value: _controller.idExcursion,
-                  items: ref.read(excursionesProvider).value ?? [],
+                  value: _controller.idActividad,
+                  items: ref.read(activitiesProvider).value ?? [],
                   itemValue: (e) => e.id,
                   itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
                   prefixIcon: Icons.hiking_outlined,
-                  label: s.excursion,
+                  label: s.actividad,
                   hint: s.none,
                   enabled: !modoCliente && widget.reserva == null,
                   onChanged: (int? v) =>
-                      setState(() => _controller.idExcursion = v),
+                      setState(() => _controller.idActividad = v),
                   validator: (int? v) {
                     if (v == null) {
-                      return s.selectExcursion;
+                      return s.selectActividad;
                     }
                     return null;
                   },
@@ -240,7 +240,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               ),
                 const SizedBox(height: 8),
                 AppChipWrap(
-                  children: EstadoReserva.values.map((EstadoReserva e) {
+                  children: ReservationStatus.values.map((ReservationStatus e) {
                     final bool seleccionado = _controller.estado == e;
                     return AppChoiceChip(
                       label: e.localizedLabel(s),
@@ -283,20 +283,18 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: _controller.lineas.length,
                   itemBuilder: (_, int i) {
-                    final LineaReserva linea = _controller.lineas[i];
+                    final ReservationLine linea = _controller.lineas[i];
 
                     // Buscar el equipamiento que corresponde a esta línea.
-                    Equipamiento equip = equipamientos.first;
-                    for (final Equipamiento eq in equipamientos) {
-                      if (eq.id == linea.idEquipamiento) {
+                    Equipment equip = equipamientos.first;
+                    for (final Equipment eq in equipamientos) {
+                      if (eq.id == linea.equipmentId) {
                         equip = eq;
                         break;
                       }
                     }
 
-                    final int daniadas = _controller.cantidadDaniada(
-                      linea.idEquipamiento,
-                    );
+                    final int daniadas = _controller.cantidadDaniada(linea.equipmentId);
                     // Card de la línea de reserva
                     return ReservationLineCard(
                       linea: linea,
@@ -308,15 +306,15 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                       menosCoste: daniadas > 0
                           ? () => setState(
                               () => _controller.establecerCantidadDaniada(
-                                linea.idEquipamiento,
+                                linea.equipmentId,
                                 daniadas - 1,
                               ),
                             )
                           : null,
-                      masCoste: daniadas < linea.cantidad
+                      masCoste: daniadas < linea.quantity
                           ? () => setState(
                               () => _controller.establecerCantidadDaniada(
-                                linea.idEquipamiento,
+                                linea.equipmentId,
                                 daniadas + 1,
                               ),
                             )
@@ -357,7 +355,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                             confirmLabel: s.deleteReservation,
                           );
                           if (confirmar && context.mounted) {
-                            ref.read(reservasProvider.notifier).eliminar(widget.reserva!);
+                            ref.read(reservationsProvider.notifier).eliminar(widget.reserva!);
                             Navigator.of(context).pop();
                           }
                         },
@@ -381,7 +379,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                           );
                           return;
                         }
-                        final Reserva? reserva = _controller.crearReserva(equipamientos);
+                        final Reservation? reserva = _controller.crearReserva(equipamientos);
                         if (reserva == null) {
                           return;
                         }

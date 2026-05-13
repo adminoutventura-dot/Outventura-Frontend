@@ -13,7 +13,7 @@ import 'package:outventura/features/auth/presentation/controllers/user_form_cont
 
 class UserFormPage extends StatefulWidget {
   // Si se pasa un usuario, el formulario actúa como edición.
-  final Usuario? usuario;
+  final User? usuario;
 
   const UserFormPage({super.key, this.usuario});
 
@@ -44,7 +44,7 @@ class _UserFormPageState extends State<UserFormPage> {
 
   void _submit() {
     if (!_controller.validar()) return;
-    final Usuario usuario = _controller.construirUsuario();
+    final User usuario = _controller.construirUsuario();
     Navigator.of(context).pop(usuario);
   }
 
@@ -150,7 +150,7 @@ class _UserFormPageState extends State<UserFormPage> {
               ),
               const SizedBox(height: 8),
               AppChipWrap(
-                children: TipoRol.values.map((TipoRol rol) {
+                children: UserRole.values.map((UserRole rol) {
                   final bool seleccionado = _controller.rol == rol;
                   return AppChoiceChip(
                     label: rol.localizedLabel(s),

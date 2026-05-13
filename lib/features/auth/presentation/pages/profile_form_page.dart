@@ -8,7 +8,7 @@ import 'package:outventura/features/auth/presentation/controllers/user_form_cont
 import 'package:outventura/l10n/app_localizations.dart';
 
 class ProfileFormPage extends StatefulWidget {
-  final Usuario usuario;
+  final User usuario;
   const ProfileFormPage({super.key, required this.usuario});
 
   @override

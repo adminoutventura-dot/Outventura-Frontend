@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
-class ExcursionsPageController {
-  EstadoExcursion? estadoFiltro;
-  CategoriaActividad? categoriaFiltro;
+class ActivitiesPageController {
+  ActivityStatus? estadoFiltro;
+  ActivityCategory? categoriaFiltro;
   DateTime? fechaDesde;
   DateTime? fechaHasta;
 
   bool get hayFiltros => estadoFiltro != null || categoriaFiltro != null || fechaDesde != null || fechaHasta != null;
 
   void mostrarFiltros(BuildContext context, StateSetter setState) {
-    EstadoExcursion? estadoTemp = estadoFiltro;
-    CategoriaActividad? categoriaTemp = categoriaFiltro;
+    ActivityStatus? estadoTemp = estadoFiltro;
+    ActivityCategory? categoriaTemp = categoriaFiltro;
     DateTime? desdeTemp = fechaDesde;
     DateTime? hastaTemp = fechaHasta;
     final s = AppLocalizations.of(context)!;
@@ -24,8 +24,8 @@ class ExcursionsPageController {
       grupos: [
         FilterGrupo(
           titulo: s.statusFilter,
-          chips: EstadoExcursion.values
-              .map((EstadoExcursion e) => FilterChipSpec(
+          chips: ActivityStatus.values
+              .map((ActivityStatus e) => FilterChipSpec(
                     label: e.localizedLabel(s),
                     seleccionado: estadoTemp == e,
                     onToggle: () => setModal(() => estadoTemp = estadoTemp == e ? null : e),
@@ -34,8 +34,8 @@ class ExcursionsPageController {
         ),
         FilterGrupo(
           titulo: s.categoryFilter,
-          chips: CategoriaActividad.values
-              .map((CategoriaActividad c) => FilterChipSpec(
+          chips: ActivityCategory.values
+              .map((ActivityCategory c) => FilterChipSpec(
                     label: c.localizedLabel(s),
                     seleccionado: categoriaTemp == c,
                     onToggle: () => setModal(() => categoriaTemp = categoriaTemp == c ? null : c),

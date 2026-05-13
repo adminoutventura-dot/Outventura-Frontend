@@ -382,11 +382,11 @@ abstract class AppLocalizations {
   /// **'Inicio'**
   String get tabHome;
 
-  /// No description provided for @tabExcursions.
+  /// No description provided for @tabActividades.
   ///
   /// In es, this message translates to:
-  /// **'Excursiones'**
-  String get tabExcursions;
+  /// **'Actividades'**
+  String get tabActividades;
 
   /// No description provided for @tabEquipment.
   ///
@@ -436,11 +436,11 @@ abstract class AppLocalizations {
   /// **'Panel de Administración'**
   String get adminPanel;
 
-  /// No description provided for @excursionsLabel.
+  /// No description provided for @actividadesLabel.
   ///
   /// In es, this message translates to:
-  /// **'EXCURSIONES'**
-  String get excursionsLabel;
+  /// **'ACTIVIDADES'**
+  String get actividadesLabel;
 
   /// No description provided for @equipmentLabel.
   ///
@@ -532,29 +532,29 @@ abstract class AppLocalizations {
   /// **'No tienes solicitudes todavía.'**
   String get noRequestsYet;
 
-  /// No description provided for @newExcursions.
+  /// No description provided for @nuevasActividades.
   ///
   /// In es, this message translates to:
-  /// **'NUEVAS EXCURSIONES'**
-  String get newExcursions;
+  /// **'NUEVAS ACTIVIDADES'**
+  String get nuevasActividades;
 
-  /// No description provided for @noNewExcursions.
+  /// No description provided for @noNuevasActividades.
   ///
   /// In es, this message translates to:
-  /// **'No hay excursiones nuevas.'**
-  String get noNewExcursions;
+  /// **'No hay actividades nuevas.'**
+  String get noNuevasActividades;
 
-  /// No description provided for @excursionsTitle.
+  /// No description provided for @actividadesTitle.
   ///
   /// In es, this message translates to:
-  /// **'Excursiones'**
-  String get excursionsTitle;
+  /// **'Actividades'**
+  String get actividadesTitle;
 
-  /// No description provided for @excursionCreated.
+  /// No description provided for @actividadCreada.
   ///
   /// In es, this message translates to:
-  /// **'Excursión creada correctamente.'**
-  String get excursionCreated;
+  /// **'Actividad creada correctamente.'**
+  String get actividadCreada;
 
   /// No description provided for @searchByRoute.
   ///
@@ -562,29 +562,29 @@ abstract class AppLocalizations {
   /// **'Buscar por ruta...'**
   String get searchByRoute;
 
-  /// No description provided for @noExcursionsForCategory.
+  /// No description provided for @noActividadesParaCategoria.
   ///
   /// In es, this message translates to:
-  /// **'No hay excursiones para esta categoría.'**
-  String get noExcursionsForCategory;
+  /// **'No hay actividades para esta categoría.'**
+  String get noActividadesParaCategoria;
 
-  /// No description provided for @excursionUpdated.
+  /// No description provided for @actividadActualizada.
   ///
   /// In es, this message translates to:
-  /// **'Excursión actualizada correctamente.'**
-  String get excursionUpdated;
+  /// **'Actividad actualizada correctamente.'**
+  String get actividadActualizada;
 
-  /// No description provided for @deleteExcursion.
+  /// No description provided for @deleteActividad.
   ///
   /// In es, this message translates to:
-  /// **'Eliminar excursión'**
-  String get deleteExcursion;
+  /// **'Eliminar actividad'**
+  String get deleteActividad;
 
-  /// No description provided for @deleteExcursionConfirm.
+  /// No description provided for @deleteActividadConfirm.
   ///
   /// In es, this message translates to:
   /// **'¿Eliminar \"{route}\"?'**
-  String deleteExcursionConfirm(String route);
+  String deleteActividadConfirm(String route);
 
   /// No description provided for @requestCreatedWithReservation.
   ///
@@ -658,11 +658,11 @@ abstract class AppLocalizations {
   /// **'Reservas'**
   String get reservationsTitle;
 
-  /// No description provided for @searchByUserOrExcursion.
+  /// No description provided for @searchByUserOrActividad.
   ///
   /// In es, this message translates to:
-  /// **'Buscar por usuario o excursión...'**
-  String get searchByUserOrExcursion;
+  /// **'Buscar por usuario o actividad...'**
+  String get searchByUserOrActividad;
 
   /// No description provided for @noReservations.
   ///
@@ -688,11 +688,11 @@ abstract class AppLocalizations {
   /// **'Solicitudes'**
   String get requestsTitle;
 
-  /// No description provided for @searchByExcursionRoute.
+  /// No description provided for @searchByActividadRoute.
   ///
   /// In es, this message translates to:
-  /// **'Buscar por excursión (ruta)...'**
-  String get searchByExcursionRoute;
+  /// **'Buscar por actividad (ruta)...'**
+  String get searchByActividadRoute;
 
   /// No description provided for @noRequests.
   ///
@@ -820,11 +820,11 @@ abstract class AppLocalizations {
   /// **'Información general'**
   String get generalInfo;
 
-  /// No description provided for @excursion.
+  /// No description provided for @actividad.
   ///
   /// In es, this message translates to:
-  /// **'Excursión'**
-  String get excursion;
+  /// **'Actividad'**
+  String get actividad;
 
   /// No description provided for @start.
   ///
@@ -934,23 +934,23 @@ abstract class AppLocalizations {
   /// **'Material solicitado'**
   String get requestedMaterial;
 
-  /// No description provided for @editExcursion.
+  /// No description provided for @editActividad.
   ///
   /// In es, this message translates to:
-  /// **'Editar excursión'**
-  String get editExcursion;
+  /// **'Editar actividad'**
+  String get editActividad;
 
-  /// No description provided for @newExcursion.
+  /// No description provided for @nuevaActividad.
   ///
   /// In es, this message translates to:
-  /// **'Nueva excursión'**
-  String get newExcursion;
+  /// **'Nueva actividad'**
+  String get nuevaActividad;
 
-  /// No description provided for @excursionSection.
+  /// No description provided for @actividadSection.
   ///
   /// In es, this message translates to:
-  /// **'Excursión'**
-  String get excursionSection;
+  /// **'Actividad'**
+  String get actividadSection;
 
   /// No description provided for @startPoint.
   ///
@@ -1138,11 +1138,11 @@ abstract class AppLocalizations {
   /// **'Ninguna'**
   String get none;
 
-  /// No description provided for @selectExcursion.
+  /// No description provided for @selectActividad.
   ///
   /// In es, this message translates to:
-  /// **'Selecciona una Excursión'**
-  String get selectExcursion;
+  /// **'Selecciona una Actividad'**
+  String get selectActividad;
 
   /// No description provided for @reservationLines.
   ///
@@ -1228,16 +1228,16 @@ abstract class AppLocalizations {
   /// **'Añadir todos'**
   String get addAll;
 
-  /// No description provided for @selectExcursionToSeeMaterial.
+  /// No description provided for @selectActividadToSeeMaterial.
   ///
   /// In es, this message translates to:
-  /// **'Selecciona una excursión para ver material recomendado.'**
-  String get selectExcursionToSeeMaterial;
+  /// **'Selecciona una actividad para ver material recomendado.'**
+  String get selectActividadToSeeMaterial;
 
   /// No description provided for @noRecommendedMaterial.
   ///
   /// In es, this message translates to:
-  /// **'Esta excursión no requiere material recomendado.'**
+  /// **'Esta actividad no requiere material recomendado.'**
   String get noRecommendedMaterial;
 
   /// No description provided for @materialId.
@@ -1276,11 +1276,11 @@ abstract class AppLocalizations {
   /// **'Resumen de precio'**
   String get priceSummary;
 
-  /// No description provided for @excursionPrice.
+  /// No description provided for @actividadPrice.
   ///
   /// In es, this message translates to:
-  /// **'Excursión (×{count})'**
-  String excursionPrice(int count);
+  /// **'Actividad (×{count})'**
+  String actividadPrice(int count);
 
   /// No description provided for @materialsRental.
   ///
@@ -1507,13 +1507,13 @@ abstract class AppLocalizations {
   /// No description provided for @acceptRequestConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Aceptar la solicitud #{id}?\nSe generará una excursión automáticamente.'**
+  /// **'¿Aceptar la solicitud #{id}?\nSe generará una actividad automáticamente.'**
   String acceptRequestConfirm(int id);
 
   /// No description provided for @requestAccepted.
   ///
   /// In es, this message translates to:
-  /// **'Solicitud aceptada. Excursión generada.'**
+  /// **'Solicitud aceptada. Actividad generada.'**
   String get requestAccepted;
 
   /// No description provided for @materialReservationCreated.

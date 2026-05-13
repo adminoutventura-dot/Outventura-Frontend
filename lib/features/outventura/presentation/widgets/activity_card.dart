@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
-class ExcursionCard extends StatelessWidget {
-  final Activity excursion;
+class ActivityCard extends StatelessWidget {
+  final Activity actividad;
   final String? imagenAsset;
   final VoidCallback? onEditar;
   final VoidCallback? onEliminar;
   final VoidCallback? onSolicitar;
 
-  const ExcursionCard({
+  const ActivityCard({
     super.key,
-    required this.excursion,
+    required this.actividad,
     this.imagenAsset,
     this.onEditar,
     this.onEliminar,
@@ -29,7 +29,7 @@ class ExcursionCard extends StatelessWidget {
     // Obtiene el esquema de colores del tema actual.
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final String? imagenResuelta = imagenAsset ?? excursion.imageAsset;
+    final String? imagenResuelta = imagenAsset ?? actividad.imageAsset;
     final s = AppLocalizations.of(context)!;
 
     return Container(
@@ -74,7 +74,7 @@ class ExcursionCard extends StatelessWidget {
                     right: 60,
                     child: Text(
                       // Punto de inicio y fin.
-                      '${excursion.startPoint} → ${excursion.endPoint}',
+                      '${actividad.startPoint} → ${actividad.endPoint}',
                       style: tt.labelLarge?.copyWith(
                         color: cs.surface,
                         shadows: [Shadow(color: cs.onSurface.withAlpha(180), blurRadius: 4)],
@@ -110,7 +110,7 @@ class ExcursionCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       // Punto de inicio y fin.
-                      '${excursion.startPoint} → ${excursion.endPoint}',
+                      '${actividad.startPoint} → ${actividad.endPoint}',
                       style: tt.labelLarge?.copyWith(color: cs.onSurface),
                       // Trunca el texto si es muy largo.
                       overflow: TextOverflow.ellipsis,
@@ -133,7 +133,7 @@ class ExcursionCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       // Fecha de inicio.
-                      FormateadorFecha.short(excursion.initDate),
+                      FormateadorFecha.short(actividad.initDate),
                       style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(width: 10),
@@ -141,7 +141,7 @@ class ExcursionCard extends StatelessWidget {
                     Icon(Icons.schedule, size: 12, color: cs.onSurfaceVariant),
                     const SizedBox(width: 4),
                     Text(
-                      '${FormateadorFecha.timeOnly(excursion.initDate)} - ${FormateadorFecha.timeOnly(excursion.endDate)}',
+                      '${FormateadorFecha.timeOnly(actividad.initDate)} - ${FormateadorFecha.timeOnly(actividad.endDate)}',
                       style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(width: 10),
@@ -150,13 +150,13 @@ class ExcursionCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       // Número de plazas.
-                      s.placesCount(excursion.maxParticipants),
+                      s.placesCount(actividad.maxParticipants),
                       style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
-                    if (excursion.price > 0) ...[
+                    if (actividad.price > 0) ...[
                       const SizedBox(width: 10),
                       Text(
-                        s.pricePerPersonShort(excursion.price.toStringAsFixed(0)),
+                        s.pricePerPersonShort(actividad.price.toStringAsFixed(0)),
                         style: tt.labelMedium?.copyWith(color: cs.primary),
                       ),
                     ],
@@ -170,8 +170,8 @@ class ExcursionCard extends StatelessWidget {
                       spacing: 6,
                       runSpacing: 4,
                       // Categorías
-                      children: excursion.categories
-                          .map((CategoriaActividad c) => TagWidget(
+                      children: actividad.categories
+                          .map((ActivityCategory c) => TagWidget(
                                 text: c.localizedLabel(s),
                                 backgroundColor: cs.secondary.withValues(alpha: 0.15),
                                 textColor: cs.onPrimaryContainer,

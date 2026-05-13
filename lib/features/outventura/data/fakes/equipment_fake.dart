@@ -2,129 +2,129 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
 // Materiales de prueba del catálogo, con distintas categorías y estados.
-final List<Equipamiento> equipamientosFake = [
+final List<Equipment> equipmentFake = [
   // --- Acampada ---
-  const Equipamiento(
+  const Equipment(
     id: 1,
     title: 'Tienda de campaña 4 estaciones',
     description: 'Para 2 personas, resistente al viento y la lluvia.',
-    categories: [CategoriaActividad.camping, CategoriaActividad.montana],
+    categories: [ActivityCategory.camping, ActivityCategory.montana],
     units: 8,
     totalUnits: 10,
-    status: EstadoEquipamiento.disponible,
+    status: EquipmentStatus.disponible,
     pricePerDay: 12.50,
     damageFee: 150.0,
   ),
-  const Equipamiento(
+  const Equipment(
     id: 2,
     title: 'Saco de dormir -10°C',
-    categories: [CategoriaActividad.camping, CategoriaActividad.nieve],
+    categories: [ActivityCategory.camping, ActivityCategory.nieve],
     units: 10,
     totalUnits: 10,
-    status: EstadoEquipamiento.disponible,
+    status: EquipmentStatus.disponible,
     pricePerDay: 10.0,
     damageFee: 120.0,
     imageAsset: 'assets/images/Camino.jpg',
   ),
 
   // --- Acuática ---
-  const Equipamiento(
+  const Equipment(
     id: 3,
     title: 'Kayak individual',
     description: 'Kayak rígido de poliéster con pala y chaleco salvavidas incluidos.',
-    categories: [CategoriaActividad.acuatico],
+    categories: [ActivityCategory.acuatico],
     units: 6,
     totalUnits: 8,
-    status: EstadoEquipamiento.disponible,
+    status: EquipmentStatus.disponible,
     pricePerDay: 25.0,
     damageFee: 300.0,
   ),
-  const Equipamiento(
+  const Equipment(
     id: 4,
     title: 'Tabla de SUP',
     description: 'Tabla de paddle surf hinchable con remo y bomba.',
-    categories: [CategoriaActividad.acuatico],
+    categories: [ActivityCategory.acuatico],
     units: 3,
     totalUnits: 6,
-    status: EstadoEquipamiento.agotado,
+    status: EquipmentStatus.agotado,
     pricePerDay: 20.0,
     damageFee: 200.0,
     imageAsset: 'assets/images/Camino.jpg',
   ),
 
   // --- Senderismo ---
-  const Equipamiento(
+  const Equipment(
     id: 5,
     title: 'Mochila 60L',
     description: 'Mochila de trekking con soporte lumbar y funda impermeable.',
-    categories: [CategoriaActividad.montana, CategoriaActividad.camping],
+    categories: [ActivityCategory.montana, ActivityCategory.camping],
     units: 12,
     totalUnits: 15,
-    status: EstadoEquipamiento.disponible,
+    status: EquipmentStatus.disponible,
     pricePerDay: 7.0,
     damageFee: 80.0,
     imageAsset: 'assets/images/Camino.jpg',
   ),
-  const Equipamiento(
+  const Equipment(
     id: 6,
     title: 'Bastones de trekking',
     description: 'Par de bastones telescópicos de aluminio con puntas de carburo.',
-    categories: [CategoriaActividad.montana, CategoriaActividad.nieve],
+    categories: [ActivityCategory.montana, ActivityCategory.nieve],
     units: 15,
     totalUnits: 15,
-    status: EstadoEquipamiento.disponible,
+    status: EquipmentStatus.disponible,
     pricePerDay: 3.0,
     damageFee: 25.0,
     imageAsset: 'assets/images/Camino.jpg',
   ),
 
   // --- Montaña ---
-  const Equipamiento(
+  const Equipment(
     id: 7,
     title: 'Arnés de escalada',
     description: 'Arnés homologado CE para escalada y vías ferratas.',
-    categories: [CategoriaActividad.montana],
+    categories: [ActivityCategory.montana],
     units: 4,
     totalUnits: 10,
-    status: EstadoEquipamiento.mantenimiento,
+    status: EquipmentStatus.mantenimiento,
     pricePerDay: 5.0,
     damageFee: 90.0,
     imageAsset: 'assets/images/Camino.jpg',
   ),
-  const Equipamiento(
+  const Equipment(
     id: 8,
     title: 'Casco de montaña',
     description: 'Casco polivalente para escalada y vías ferratas, ajuste regulable.',
-    categories: [CategoriaActividad.montana, CategoriaActividad.nieve],
+    categories: [ActivityCategory.montana, ActivityCategory.nieve],
     units: 8,
     totalUnits: 10,
-    status: EstadoEquipamiento.disponible,
+    status: EquipmentStatus.disponible,
     pricePerDay: 4.0,
     damageFee: 70.0,
     imageAsset: 'assets/images/Camino.jpg',
   ),
 
   // --- Nieve ---
-  const Equipamiento(
+  const Equipment(
     id: 9,
     title: 'Raquetas de nieve',
     description: 'Par de raquetas de aluminio para actividades en terreno nevado.',
-    categories: [CategoriaActividad.nieve],
+    categories: [ActivityCategory.nieve],
     units: 10,
     totalUnits: 12,
-    status: EstadoEquipamiento.disponible,
+    status: EquipmentStatus.disponible,
     pricePerDay: 8.0,
     damageFee: 60.0,
     imageAsset: 'assets/images/Camino.jpg',
   ),
-  const Equipamiento(
+  const Equipment(
     id: 10,
     title: 'Piolet',
     description: 'Piolet técnico de aluminio para ascensiones en nieve y hielo.',
-    categories: [CategoriaActividad.nieve, CategoriaActividad.montana],
+    categories: [ActivityCategory.nieve, ActivityCategory.montana],
     units: 5,
     totalUnits: 8,
-    status: EstadoEquipamiento.fueraDeServicio,
+    status: EquipmentStatus.fueraDeServicio,
     pricePerDay: 6.0,
     damageFee: 100.0,
     imageAsset: 'assets/images/Camino.jpg',

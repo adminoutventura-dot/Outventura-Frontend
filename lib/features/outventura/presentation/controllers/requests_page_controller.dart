@@ -10,14 +10,14 @@ import 'package:outventura/core/utils/enum_translations.dart';
 
 class RequestsPageController {
   // --- Filtros ---
-  EstadoSolicitud? estadoFiltro;
+  RequestStatus? estadoFiltro;
   DateTime? fechaDesde;
   DateTime? fechaHasta;
 
   bool get hayFiltros => estadoFiltro != null || fechaDesde != null || fechaHasta != null;
 
   void mostrarFiltros(BuildContext context, StateSetter setState) {
-    EstadoSolicitud? estadoTemp = estadoFiltro;
+    RequestStatus? estadoTemp = estadoFiltro;
     DateTime? desdeTemp = fechaDesde;
     DateTime? hastaTemp = fechaHasta;
     final s = AppLocalizations.of(context)!;
@@ -26,8 +26,8 @@ class RequestsPageController {
       grupos: [
         FilterGrupo(
           titulo: s.statusFilter,
-          chips: EstadoSolicitud.values
-              .map((EstadoSolicitud e) => FilterChipSpec(
+          chips: RequestStatus.values
+              .map((RequestStatus e) => FilterChipSpec(
                     label: e.localizedLabel(s),
                     seleccionado: estadoTemp == e,
                     onToggle: () => setModal(() => estadoTemp = estadoTemp == e ? null : e),
@@ -60,7 +60,7 @@ class RequestsPageController {
   // --- Acciones ---
   // Acepta una solicitud después de pedir confirmación al usuario.
   Future<void> aceptar({
-    required Solicitud solicitud,
+    required Request solicitud,
     required BuildContext context,
     required WidgetRef ref,
     required bool Function() isMounted,
@@ -78,7 +78,7 @@ class RequestsPageController {
     if (!confirm) {
       return;
     }
-    ref.read(solicitudesProvider.notifier).aceptar(solicitud);
+    ref.read(requestsProvider.notifier).aceptar(solicitud);
 
     if (isMounted()) {
       messenger.showSnackBar(
@@ -91,12 +91,12 @@ class RequestsPageController {
 
   // Navega a la página de edición de la solicitud. Si el resultado no es nulo, actualiza la solicitud con el resultado.
   Future<void> editar({
-    required Solicitud solicitud,
+    required Request solicitud,
     required BuildContext context,
     required WidgetRef ref,
     int? fixedIdUsuario,
   }) async {
-    final Solicitud? result = await Navigator.push<Solicitud>(
+    final Request? result = await Navigator.push<Request>(
       context,
       MaterialPageRoute(
         builder: (BuildContext _) => SolicitudFormPage(
@@ -109,11 +109,11 @@ class RequestsPageController {
     if (result == null) {
       return;
     }
-    ref.read(solicitudesProvider.notifier).actualizar(solicitud, result);
+    ref.read(requestsProvider.notifier).actualizar(solicitud, result);
     if (!context.mounted) {
       return;
     }
-    if (result.idReserva != null && solicitud.idReserva == null) {
+    if (result.reservationId != null && solicitud.reservationId == null) {
       final s = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(s.materialReservationCreated)),
@@ -123,7 +123,7 @@ class RequestsPageController {
 
   // Rechaza la solicitud después de pedir confirmación al usuario.
   Future<void> rechazar({
-    required Solicitud solicitud,
+    required Request solicitud,
     required BuildContext context,
     required WidgetRef ref,
     required bool Function() isMounted,
@@ -140,7 +140,7 @@ class RequestsPageController {
       return;
     }
 
-    ref.read(solicitudesProvider.notifier).rechazar(solicitud);
+    ref.read(requestsProvider.notifier).rechazar(solicitud);
 
     if (isMounted()) {
       messenger.showSnackBar(

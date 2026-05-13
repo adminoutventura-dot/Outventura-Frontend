@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/presentation/pages/users_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/requests_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/excursions_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
@@ -24,9 +24,9 @@ class HomeAdminPage extends ConsumerWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
-    final List<Activity> excursiones = ref.watch(excursionesProvider).value ?? [];
-    final List<Equipamiento> equipamientos = ref.watch(equipamientosProvider).value ?? [];
-    final List<Solicitud> solicitudes = ref.watch(solicitudesProvider).value ?? [];
+    final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
+    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+    final List<Request> solicitudes = ref.watch(requestsProvider).value ?? [];
 
     return Scaffold(
       // Barra superior con título y fondo degradado.
@@ -76,12 +76,12 @@ class HomeAdminPage extends ConsumerWidget {
                       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                       child: Row(
                         children: [
-                          // Tarjeta de excursiones.
+                          // Tarjeta de actividades.
                           StatCard(
                             colorScheme: cs,
                             textTheme: tt,
-                            value: '${excursiones.length}',
-                            label: s.excursionsLabel,
+                            value: '${actividades.length}',
+                            label: s.actividadesLabel,
                           ),
                           const SizedBox(width: 10),
                           // Tarjeta de equipamiento.
@@ -97,7 +97,7 @@ class HomeAdminPage extends ConsumerWidget {
                             colorScheme: cs,
                             textTheme: tt,
                             value:
-                                '${solicitudes.where((Solicitud s) => s.estado == EstadoSolicitud.pendiente).length}',
+                                '${solicitudes.where((Request s) => s.status == RequestStatus.pendiente).length}',
                             label: s.pendingLabel,
                           ),
                         ],
@@ -162,14 +162,14 @@ class HomeAdminPage extends ConsumerWidget {
                 const SizedBox(height: 12),
 
                 // Tarjetas de solicitudes recientes.
-                for (Solicitud solicitud in solicitudes)
+                for (Request solicitud in solicitudes)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: SolicitudCard(
+                    child: RequestCard(
                       solicitud: solicitud,
-                      excursion: ref.watch(excursionPorIdProvider(solicitud.idExcursion)) ?? excursiones.first,
-                      nombreUsuario: solicitud.idUsuario != null
-                          ? ref.watch(nombreUsuarioProvider(solicitud.idUsuario!))
+                      actividad: ref.watch(activityByIdProvider(solicitud.activityId)) ?? actividades.first,
+                      nombreUsuario: solicitud.userId != null
+                          ? ref.watch(userNameProvider(solicitud.userId!))
                           : null,
                     ),
                   ),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/auth/data/fakes/users_fake.dart';
 import 'package:outventura/features/outventura/data/fakes/equipment_fake.dart';
-import 'package:outventura/features/outventura/data/fakes/excursions_fake.dart';
+import 'package:outventura/features/outventura/data/fakes/activities_fake.dart';
 import 'package:outventura/features/outventura/data/fakes/reservations_fake.dart';
 import 'package:outventura/features/outventura/data/fakes/requests_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/widgets/equipment_card.dart';
-import 'package:outventura/features/outventura/presentation/widgets/excursion_card.dart';
+import 'package:outventura/features/outventura/presentation/widgets/activity_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
@@ -42,21 +42,21 @@ class CardsDemo extends StatelessWidget {
             ],
           ),
 
-          // EXCURSION CARD
+          // ACTIVITY CARD
           const SizedBox(height: 24),
-          Text('ExcursionCard – Con imagen (admin)', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          Text('ActivityCard – Con imagen (admin)', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          ExcursionCard(
-            excursion: catalogoExcursiones[0],
+          ActivityCard(
+            actividad: activitiesFake[0],
             onEditar: () {},
             onEliminar: () {},
           ),
 
           const SizedBox(height: 16),
-          Text('ExcursionCard – Sin imagen (usuario)', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          Text('ActivityCard – Sin imagen (usuario)', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          ExcursionCard(
-            excursion: catalogoExcursiones[2],
+          ActivityCard(
+            actividad: activitiesFake[2],
             onSolicitar: () {},
           ),
 
@@ -64,17 +64,17 @@ class CardsDemo extends StatelessWidget {
           const SizedBox(height: 24),
           Text('SolicitudCard – Solo lectura', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          SolicitudCard(
-            solicitud: solicitudesFake[0],
-            excursion: catalogoExcursiones.firstWhere((Activity e) => e.id == solicitudesFake[0].idExcursion),
+          RequestCard(
+            solicitud: requestsFake[0],
+            actividad: activitiesFake.firstWhere((Activity e) => e.id == requestsFake[0].activityId),
           ),
 
           const SizedBox(height: 16),
           Text('SolicitudCard – Pendiente con acciones', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          SolicitudCard(
-            solicitud: solicitudesFake[1],
-            excursion: catalogoExcursiones.firstWhere((Activity e) => e.id == solicitudesFake[1].idExcursion),
+          RequestCard(
+            solicitud: requestsFake[1],
+            actividad: activitiesFake.firstWhere((Activity e) => e.id == requestsFake[1].activityId),
             onGestionar: () {},
             onCancelar: () {},
             onEditar: () {},
@@ -84,16 +84,16 @@ class CardsDemo extends StatelessWidget {
           const SizedBox(height: 24),
           Text('ReservaCard – Pendiente con acciones', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          ReservaCard(
-            reserva: reservasFake[0],
-            nombreUsuario: '${usuariosFake[2].name} ${usuariosFake[2].surname}',
-            nombreExcursion: () {
-              final Activity? ex = catalogoExcursiones.where((Activity e) => e.id == reservasFake[0].idExcursion).firstOrNull;
+          ReservationCard(
+            reserva: reservationsFake[0],
+            nombreUsuario: '${usersFake[2].name} ${usersFake[2].surname}',
+            nombreActividad: () {
+              final Activity? ex = activitiesFake.where((Activity e) => e.id == reservationsFake[0].activityId).firstOrNull;
               return ex != null ? '${ex.startPoint} → ${ex.endPoint}' : null;
             }(),
-            lineas: reservasFake[0].lineas.map((LineaReserva l) {
-              final Equipamiento eq = equipamientosFake.firstWhere((Equipamiento e) => e.id == l.idEquipamiento, orElse: () => equipamientosFake.first);
-              return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.cantidad);
+            lineas: reservationsFake[0].lines.map((ReservationLine l) {
+              final Equipment eq = equipmentFake.firstWhere((Equipment e) => e.id == l.equipmentId, orElse: () => equipmentFake.first);
+              return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.quantity);
             }).toList(),
             onAprobar: () {},
             onRechazar: () {},
@@ -102,12 +102,12 @@ class CardsDemo extends StatelessWidget {
           const SizedBox(height: 16),
           Text('ReservaCard – Confirmada', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          ReservaCard(
-            reserva: reservasFake[1],
-            nombreUsuario: '${usuariosFake[2].name} ${usuariosFake[2].surname}',
-            lineas: reservasFake[1].lineas.map((LineaReserva l) {
-              final Equipamiento eq = equipamientosFake.firstWhere((Equipamiento e) => e.id == l.idEquipamiento, orElse: () => equipamientosFake.first);
-              return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.cantidad);
+          ReservationCard(
+            reserva: reservationsFake[1],
+            nombreUsuario: '${usersFake[2].name} ${usersFake[2].surname}',
+            lineas: reservationsFake[1].lines.map((ReservationLine l) {
+              final Equipment eq = equipmentFake.firstWhere((Equipment e) => e.id == l.equipmentId, orElse: () => equipmentFake.first);
+              return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.quantity);
             }).toList(),
             onRegistrarDevolucion: () {},
             onCancelar: () {},
@@ -118,10 +118,10 @@ class CardsDemo extends StatelessWidget {
           Text('ReservationLineCard – Sin daños', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
           ReservationLineCard(
-            linea: reservasFake[0].lineas.first,
-            equipamiento: equipamientosFake.firstWhere(
-              (Equipamiento e) => e.id == reservasFake[0].lineas.first.idEquipamiento,
-              orElse: () => equipamientosFake.first,
+            linea: reservationsFake[0].lines.first,
+            equipamiento: equipmentFake.firstWhere(
+              (Equipment e) => e.id == reservationsFake[0].lines.first.equipmentId,
+              orElse: () => equipmentFake.first,
             ),
             cantidadDaniada: 0,
             onEdit: () {},
@@ -132,10 +132,10 @@ class CardsDemo extends StatelessWidget {
           Text('ReservationLineCard – Con daños', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
           ReservationLineCard(
-            linea: reservasFake[0].lineas.first,
-            equipamiento: equipamientosFake.firstWhere(
-              (Equipamiento e) => e.id == reservasFake[0].lineas.first.idEquipamiento,
-              orElse: () => equipamientosFake.first,
+            linea: reservationsFake[0].lines.first,
+            equipamiento: equipmentFake.firstWhere(
+              (Equipment e) => e.id == reservationsFake[0].lines.first.equipmentId,
+              orElse: () => equipmentFake.first,
             ),
             cantidadDaniada: 2,
             onEdit: () {},
@@ -148,13 +148,13 @@ class CardsDemo extends StatelessWidget {
           const SizedBox(height: 24),
           Text('EquipmentCard – Solo lectura', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          EquipmentCard(equipamiento: equipamientosFake[0]),
+          EquipmentCard(equipamiento: equipmentFake[0]),
 
           const SizedBox(height: 16),
           Text('EquipmentCard – Con acciones', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
           EquipmentCard(
-            equipamiento: equipamientosFake[1],
+            equipamiento: equipmentFake[1],
             onEditar: () {},
             onEliminar: () {},
           ),
@@ -163,17 +163,17 @@ class CardsDemo extends StatelessWidget {
           const SizedBox(height: 24),
           Text('UserCard – Superadmin', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          UserCard(usuario: usuariosFake[0], onEditar: () {}, onEliminar: () {}),
+          UserCard(usuario: usersFake[0], onEditar: () {}, onEliminar: () {}),
 
           const SizedBox(height: 16),
           Text('UserCard – Admin', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          UserCard(usuario: usuariosFake[1]),
+          UserCard(usuario: usersFake[1]),
 
           const SizedBox(height: 16),
           Text('UserCard – Usuario', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          UserCard(usuario: usuariosFake[2]),
+          UserCard(usuario: usersFake[2]),
         ],
       ),
     );

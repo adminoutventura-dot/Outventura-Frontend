@@ -51,7 +51,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
     // Query: texto de búsqueda.
     // Estado: estado seleccionado (disponible, agotado, en mantenimiento...).
     // Categoria: caategoria seleccionada.
-    final AsyncValue<List<Equipamiento>> equipamientosFiltrados = ref.watch(equipamientosFiltradosProvider((
+    final AsyncValue<List<Equipment>> equipamientosFiltrados = ref.watch(filteredEquipmentProvider((
       query: _search.query,
       estado: _controller.estadoFiltro,
       categoria: _controller.categoriaFiltro,
@@ -89,8 +89,8 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
       floatingActionButton: widget.puedeGestionar
           ? AddFab(
               onPressed: () async {
-                final Equipamiento? nuevo = await Navigator.of(context)
-                    .push<Equipamiento>(
+                final Equipment? nuevo = await Navigator.of(context)
+                    .push<Equipment>(
                       MaterialPageRoute(
                         builder: (_) => const EquipmentFormPage(),
                       ),
@@ -98,7 +98,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                 if (nuevo == null) {
                   return;
                 }
-                ref.read(equipamientosProvider.notifier).agregar(nuevo);
+                ref.read(equipmentProvider.notifier).agregar(nuevo);
                 if (!context.mounted) {
                   return;
                 }
@@ -131,7 +131,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
             child: equipamientosFiltrados.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text('Error: $error')),
-              data: (List<Equipamiento> lista) => ListView.separated(
+              data: (List<Equipment> lista) => ListView.separated(
               padding: EdgeInsets.fromLTRB( 12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
               itemCount: lista.isEmpty ? 1 : lista.length,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
@@ -145,13 +145,13 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                   );
                 }
 
-                final Equipamiento equipamiento = lista[index];
+                final Equipment equipamiento = lista[index];
                 return EquipmentCard(
                   equipamiento: equipamiento,
                   onEditar: widget.puedeGestionar
                       ? () async {
-                          final Equipamiento? actualizado =
-                              await Navigator.of(context).push<Equipamiento>(
+                          final Equipment? actualizado =
+                              await Navigator.of(context).push<Equipment>(
                                 MaterialPageRoute(
                                   builder: (BuildContext _) =>
                                       EquipmentFormPage(
@@ -162,7 +162,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           if (actualizado == null) {
                             return;
                           }
-                          ref.read(equipamientosProvider.notifier).actualizar(equipamiento, actualizado);
+                          ref.read(equipmentProvider.notifier).actualizar(equipamiento, actualizado);
                           if (!context.mounted) {
                             return;
                           }
@@ -179,7 +179,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             content: s.deleteEquipmentConfirm(equipamiento.title),
                           );
                           if (confirm) {
-                            ref.read(equipamientosProvider.notifier).eliminar(equipamiento);
+                            ref.read(equipmentProvider.notifier).eliminar(equipamiento);
                           }
                         }
                       : null,
@@ -190,8 +190,8 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             return;
                           }
 
-                          final Reserva? reserva = await Navigator.of(context)
-                              .push<Reserva>(
+                          final Reservation? reserva = await Navigator.of(context)
+                              .push<Reservation>(
                                 MaterialPageRoute(
                                   builder: (_) => ReservationFormPage(
                                     initialIdUsuario: usuario.id,
@@ -204,7 +204,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             return;
                           }
 
-                          ref.read(reservasProvider.notifier).agregar(reserva);
+                          ref.read(reservationsProvider.notifier).agregar(reserva);
                           if (!context.mounted) {
                             return;
                           }

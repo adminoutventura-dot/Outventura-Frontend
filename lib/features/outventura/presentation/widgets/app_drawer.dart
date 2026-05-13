@@ -14,7 +14,7 @@ class AppDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Usuario? usuario = ref.watch(currentUserProvider);
+    final User? usuario = ref.watch(currentUserProvider);
     final ColorScheme cs = Theme.of(context).colorScheme;
     final s = AppLocalizations.of(context)!;
 

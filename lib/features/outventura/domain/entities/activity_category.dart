@@ -1,5 +1,5 @@
 // Categorías de actividad disponibles en Outventura.
-enum CategoriaActividad {
+enum ActivityCategory {
   acuatico,
   nieve,
   montana,
@@ -7,29 +7,29 @@ enum CategoriaActividad {
 
   String get code {
     switch (this) {
-      case CategoriaActividad.acuatico:
+      case ActivityCategory.acuatico:
         return 'ACUATICO';
-      case CategoriaActividad.nieve:
+      case ActivityCategory.nieve:
         return 'NIEVE';
-      case CategoriaActividad.montana:
+      case ActivityCategory.montana:
         return 'MONTANA';
-      case CategoriaActividad.camping:
+      case ActivityCategory.camping:
         return 'CAMPING';
     }
   }
 
   // Crea una categoría a partir del valor en texto que devuelve el backend.
-  static CategoriaActividad fromString(String value) {
-    for (CategoriaActividad category in CategoriaActividad.values) {
+  static ActivityCategory fromString(String value) {
+    for (ActivityCategory category in ActivityCategory.values) {
       if (category.code == value) {
         return category;
       }
     }
-    return CategoriaActividad.montana;
+    return ActivityCategory.montana;
   }
 
   // Devuelve una categoría a partir de un valor dinámico que puede ser un String o un Map con un campo 'code'.
-  static CategoriaActividad? fromDynamic(dynamic value) {
+  static ActivityCategory? fromDynamic(dynamic value) {
     if (value is String) {
       return fromString(value);
     }

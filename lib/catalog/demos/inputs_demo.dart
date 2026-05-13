@@ -6,13 +6,13 @@ import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/core/widgets/app_time_selector.dart';
 import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/auth/data/fakes/users_fake.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/data/fakes/excursions_fake.dart';
+import 'package:outventura/features/outventura/data/fakes/activities_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
 class InputsDemo extends StatefulWidget {
@@ -24,11 +24,11 @@ class InputsDemo extends StatefulWidget {
 
 class _InputsDemoState extends State<InputsDemo> {
   // Chips
-  final Set<CategoriaActividad> _chips = {};
+  final Set<ActivityCategory> _chips = {};
 
   // Dropdowns
   int? _idUsuario;
-  int? _idExcursion;
+  int? _idActividad;
 
   // Date
   DateTime _fecha = DateTime(2026, 6, 15);
@@ -77,30 +77,30 @@ class _InputsDemoState extends State<InputsDemo> {
           const SizedBox(height: 24),
           Text('AppDropdownField – Usuario', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          AppDropdownField<Usuario>(
+          AppDropdownField<User>(
             value: _idUsuario,
-            items: usuariosFake,
-            itemValue: (Usuario u) => u.id,
-            itemLabel: (Usuario u) => '${u.name} ${u.surname}',
+            items: usersFake,
+            itemValue: (User u) => u.id,
+            itemLabel: (User u) => '${u.name} ${u.surname}',
             prefixIcon: Icons.person_outline,
             label: 'Experto asignado',
             hint: 'Sin asignar',
             onChanged: (int? v) => setState(() => _idUsuario = v),
           ),
 
-          // AppExcursionDropdown 
+          // AppDropdownField (Actividad)
           const SizedBox(height: 24),
-          Text('AppExcursionDropdown', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          Text('AppDropdownField – Actividad', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
           AppDropdownField<Activity>(
-            value: _idExcursion,
-            items: catalogoExcursiones,
+            value: _idActividad,
+            items: activitiesFake,
             itemValue: (e) => e.id,
             itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
             prefixIcon: Icons.hiking_outlined,
-            label: 'Excursión',
-            hint: 'Selecciona una excursión',
-            onChanged: (int? v) => setState(() => _idExcursion = v),
+            label: 'Actividad',
+            hint: 'Selecciona una actividad',
+            onChanged: (int? v) => setState(() => _idActividad = v),
           ),
 
           // AppDateSelector + AppTimeSelector
@@ -127,7 +127,7 @@ class _InputsDemoState extends State<InputsDemo> {
           Text('AppChoiceChip – Selección múltiple', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
           AppChipWrap(
-            children: CategoriaActividad.values.map((CategoriaActividad cat) => AppChoiceChip(
+            children: ActivityCategory.values.map((ActivityCategory cat) => AppChoiceChip(
               label: cat.code,
               seleccionado: _chips.contains(cat),
               onSelected: (_) => setState(() {

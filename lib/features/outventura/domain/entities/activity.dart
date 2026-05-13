@@ -2,27 +2,27 @@ import 'package:outventura/features/outventura/domain/entities/activity_category
 
 // TODO: El backend no define el estado de actividad; alinear cuando exista.
 // Estados posibles de una actividad.
-enum EstadoExcursion {
+enum ActivityStatus {
   disponible,
   noDisponible;
 
   // Devuelve el nombre legible del estado.
   String get code {
     switch (this) {
-      case EstadoExcursion.disponible:
+      case ActivityStatus.disponible:
         return 'disponible';
-      case EstadoExcursion.noDisponible:
+      case ActivityStatus.noDisponible:
         return 'noDisponible';
     }
   }
 
-  static EstadoExcursion fromString(String value) {
-    for (EstadoExcursion status in EstadoExcursion.values) {
+  static ActivityStatus fromString(String value) {
+    for (ActivityStatus status in ActivityStatus.values) {
       if (status.code == value) {
         return status;
       }
     }
-    return EstadoExcursion.disponible;
+    return ActivityStatus.disponible;
   }
 }
 
@@ -36,10 +36,10 @@ class Activity {
   final int difficulty;
   final int maxParticipants;
   final String? startEndPoint;
-  final List<CategoriaActividad> categories;
+  final List<ActivityCategory> categories;
   // TODO: Campos solo en front: imageAsset, status, price, materialsPerParticipant.
   final String? imageAsset;
-  final EstadoExcursion status;
+  final ActivityStatus status;
   final double price;
   final Map<int, int> materialsPerParticipant;
 
@@ -54,7 +54,7 @@ class Activity {
     this.startEndPoint,
     required this.categories,
     this.imageAsset,
-    this.status = EstadoExcursion.disponible,
+    this.status = ActivityStatus.disponible,
     this.price = 0,
     this.materialsPerParticipant = const {},
   });
@@ -65,12 +65,12 @@ class Activity {
   // Crea una Activity a partir del JSON que devuelve el backend.
   factory Activity.fromMap(Map<String, dynamic> map) {
     final dynamic categoriesRaw = map['categories'];
-    final List<CategoriaActividad> parsedCategories = (categoriesRaw is List)
+    final List<ActivityCategory> parsedCategories = (categoriesRaw is List)
         ? categoriesRaw
-            .map((dynamic e) => CategoriaActividad.fromDynamic(e))
-            .whereType<CategoriaActividad>()
+            .map((dynamic e) => ActivityCategory.fromDynamic(e))
+            .whereType<ActivityCategory>()
             .toList()
-        : <CategoriaActividad>[];
+        : <ActivityCategory>[];
 
     return Activity(
       id: (map['id_activity'] ?? map['id']) as int,
@@ -84,8 +84,8 @@ class Activity {
       categories: parsedCategories,
       imageAsset: map['imageAsset'] as String?,
       status: map['status'] != null
-          ? EstadoExcursion.fromString(map['status'] as String)
-          : EstadoExcursion.disponible,
+          ? ActivityStatus.fromString(map['status'] as String)
+          : ActivityStatus.disponible,
       price: (map['price'] as num?)?.toDouble() ?? 0,
       materialsPerParticipant:
           (map['materialsPerParticipant'] as Map<String, dynamic>?)?.map(
@@ -105,9 +105,9 @@ class Activity {
     int? difficulty,
     int? maxParticipants,
     String? startEndPoint,
-    List<CategoriaActividad>? categories,
+    List<ActivityCategory>? categories,
     String? imageAsset,
-    EstadoExcursion? status,
+    ActivityStatus? status,
     double? price,
     Map<int, int>? materialsPerParticipant,
   }) {

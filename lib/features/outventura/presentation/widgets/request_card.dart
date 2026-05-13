@@ -3,24 +3,24 @@ import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-import 'package:outventura/features/outventura/domain/entities/excursion.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
-class SolicitudCard extends StatelessWidget {
-  final Solicitud solicitud;
-  final Activity excursion;
+class RequestCard extends StatelessWidget {
+  final Request solicitud;
+  final Activity actividad;
   final String? nombreUsuario;
   final VoidCallback? onGestionar;
   final VoidCallback? onCancelar;
   final VoidCallback? onEditar;
   final VoidCallback? onVerDetalle;
 
-  const SolicitudCard({
+  const RequestCard({
     super.key,
     required this.solicitud,
-    required this.excursion,
+    required this.actividad,
     this.nombreUsuario,
     this.onGestionar,
     this.onCancelar,
@@ -39,28 +39,28 @@ class SolicitudCard extends StatelessWidget {
       Color badgeBg,
       Color badgeFg,
       Color accentColor,
-    ) = switch (solicitud.estado) {
-      EstadoSolicitud.confirmada => (
+    ) = switch (solicitud.status) {
+      RequestStatus.confirmada => (
         cs.primary, 
         cs.onPrimary, 
         cs.primary
       ),
-      EstadoSolicitud.pendiente => (
+      RequestStatus.pendiente => (
         cs.tertiary,
         cs.onPrimary,
         cs.onTertiary,
       ),
-      EstadoSolicitud.finalizada => (
+      RequestStatus.finalizada => (
         cs.onSurfaceVariant,
         cs.onPrimary,
         cs.onSurfaceVariant,
       ),
-      EstadoSolicitud.cancelada => (
+      RequestStatus.cancelada => (
         cs.error, 
         cs.onError, 
         cs.error
       ),
-      EstadoSolicitud.enCurso => (
+      RequestStatus.enCurso => (
         cs.secondary,
         cs.onPrimary,
         cs.secondary,
@@ -99,7 +99,7 @@ class SolicitudCard extends StatelessWidget {
                             runSpacing: 2,
                             children: [
                               Text(
-                                excursion.startPoint,
+                                actividad.startPoint,
                                 style: tt.labelLarge?.copyWith(
                                   color: cs.onSurface,
                                 ),
@@ -110,7 +110,7 @@ class SolicitudCard extends StatelessWidget {
                                 color: cs.onSurfaceVariant,
                               ),
                               Text(
-                                excursion.endPoint,
+                                actividad.endPoint,
                                 style: tt.labelLarge?.copyWith(
                                   color: cs.onSurface,
                                 ),
@@ -123,7 +123,7 @@ class SolicitudCard extends StatelessWidget {
                             [
                               '#${solicitud.id}',
                               if (nombreUsuario != null) nombreUsuario,
-                              solicitud.idExperto != null
+                              solicitud.expertId != null
                                   ? s.assignedExpert
                                   : s.noExpert,
                               // Separa por guion
@@ -138,7 +138,7 @@ class SolicitudCard extends StatelessWidget {
                     const SizedBox(width: 10),
                     // Badge estado
                     TagWidget(
-                      text: solicitud.estado.localizedLabel(s),
+                      text: solicitud.status.localizedLabel(s),
                       backgroundColor: badgeBg,
                       textColor: badgeFg,
                     ),
@@ -158,7 +158,7 @@ class SolicitudCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      FormateadorFecha.short(excursion.initDate),
+                      FormateadorFecha.short(actividad.initDate),
                       style: tt.labelSmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),
@@ -173,7 +173,7 @@ class SolicitudCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${FormateadorFecha.timeOnly(excursion.initDate)} - ${FormateadorFecha.timeOnly(excursion.endDate)}',
+                      '${FormateadorFecha.timeOnly(actividad.initDate)} - ${FormateadorFecha.timeOnly(actividad.endDate)}',
                       style: tt.labelSmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),
@@ -188,7 +188,7 @@ class SolicitudCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      s.participantsCount(solicitud.numeroParticipantes),
+                      s.participantsCount(solicitud.participantCount),
                       style: tt.labelSmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),
@@ -209,9 +209,9 @@ class SolicitudCard extends StatelessWidget {
                     // Categorías
                     Row(
                       spacing: 5,
-                      children: excursion.categories
+                      children: actividad.categories
                           .map(
-                            (CategoriaActividad c) => TagWidget(
+                            (ActivityCategory c) => TagWidget(
                               text: c.localizedLabel(s),
                               backgroundColor: cs.secondary.withValues(alpha: 0.15),
                               textColor: cs.onPrimaryContainer,

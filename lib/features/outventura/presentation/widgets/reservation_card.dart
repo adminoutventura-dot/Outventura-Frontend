@@ -9,13 +9,13 @@ import 'package:outventura/core/utils/enum_translations.dart';
 // Información de una línea de reserva lista para mostrar en la tarjeta.
 typedef LineaDisplayInfo = ({String nombre, String? imagen, int cantidad});
 
-class ReservaCard extends StatelessWidget {
-  final Reserva reserva;
+class ReservationCard extends StatelessWidget {
+  final Reservation reserva;
 
   // Líneas de la reserva con datos resueltos por el padre (nombre, imagen, cantidad).
   final List<LineaDisplayInfo> lineas;
   final String nombreUsuario;
-  final String? nombreExcursion;
+  final String? nombreActividad;
 
   final VoidCallback? onEditar;
   final VoidCallback? onAprobar;
@@ -24,12 +24,12 @@ class ReservaCard extends StatelessWidget {
   final VoidCallback? onCancelar;
   final VoidCallback? onVerDetalle;
 
-  const ReservaCard({
+  const ReservationCard({
     super.key,
     required this.reserva,
     required this.lineas,
     required this.nombreUsuario,
-    this.nombreExcursion,
+    this.nombreActividad,
     this.onEditar,
     this.onAprobar,
     this.onRechazar,
@@ -44,12 +44,12 @@ class ReservaCard extends StatelessWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    final (Color badgeBg, Color badgeFg, Color accentColor) = switch (reserva.estado) {
-      EstadoReserva.pendiente => (cs.tertiary, cs.onPrimary, cs.onTertiary),
-      EstadoReserva.confirmada => (cs.primary, cs.onPrimary, cs.primary),
-      EstadoReserva.finalizada => (cs.onSurfaceVariant, cs.onPrimary, cs.onSurfaceVariant),
-      EstadoReserva.cancelada => (cs.error, cs.onError, cs.error),
-      EstadoReserva.enCurso => (cs.secondary, cs.onPrimary, cs.secondary),
+    final (Color badgeBg, Color badgeFg, Color accentColor) = switch (reserva.status) {
+      ReservationStatus.pendiente => (cs.tertiary, cs.onPrimary, cs.onTertiary),
+      ReservationStatus.confirmada => (cs.primary, cs.onPrimary, cs.primary),
+      ReservationStatus.finalizada => (cs.onSurfaceVariant, cs.onPrimary, cs.onSurfaceVariant),
+      ReservationStatus.cancelada => (cs.error, cs.onError, cs.error),
+      ReservationStatus.enCurso => (cs.secondary, cs.onPrimary, cs.secondary),
     };
 
     // Lista de imágenes de los equipamientos, filtrando los nulos
@@ -145,7 +145,7 @@ class ReservaCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  '${FormateadorFecha.short(reserva.fechaInicio)} - ${FormateadorFecha.short(reserva.fechaFin)}',
+                                  '${FormateadorFecha.short(reserva.startDate)} - ${FormateadorFecha.short(reserva.endDate)}',
                                   style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                                   softWrap: true,
                                 ),
@@ -159,13 +159,13 @@ class ReservaCard extends StatelessWidget {
                               Icon(Icons.schedule_outlined, size: 12, color: cs.onSurfaceVariant),
                               const SizedBox(width: 4),
                               Text(
-                                '${FormateadorFecha.timeOnly(reserva.fechaInicio)} - ${FormateadorFecha.timeOnly(reserva.fechaFin)}',
+                                '${FormateadorFecha.timeOnly(reserva.startDate)} - ${FormateadorFecha.timeOnly(reserva.endDate)}',
                                 style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                               ),
                             ],
                           ),
                           // Excursión vinculada (opcional)
-                          if (nombreExcursion != null) ...[
+                          if (nombreActividad != null) ...[
                             const SizedBox(height: 4),
                             Row(
                               children: [
@@ -173,7 +173,7 @@ class ReservaCard extends StatelessWidget {
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    nombreExcursion!,
+                                    nombreActividad!,
                                     style: tt.labelSmall?.copyWith(color: cs.primary),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -186,7 +186,7 @@ class ReservaCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     TagWidget(
-                      text: reserva.estado.localizedLabel(s),
+                      text: reserva.status.localizedLabel(s),
                       backgroundColor: badgeBg,
                       textColor: badgeFg,
                     ),
@@ -226,13 +226,13 @@ class ReservaCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (reserva.cargoDanios > 0) ...[
+                    if (reserva.damageFee > 0) ...[
                       Row(
                         children: [
                           Icon(Icons.warning_amber_outlined, size: 12, color: cs.error),
                           const SizedBox(width: 4),
                           Text(
-                            s.damageChargeAmount(reserva.cargoDanios.toStringAsFixed(2)),
+                            s.damageChargeAmount(reserva.damageFee.toStringAsFixed(2)),
                             style: tt.labelSmall?.copyWith(color: cs.error),
                           ),
                           const SizedBox(width: 12),

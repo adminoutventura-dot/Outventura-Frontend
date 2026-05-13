@@ -5,13 +5,13 @@ import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
 class UsersPageController {
-  TipoRol? rolFiltro;
+  UserRole? rolFiltro;
   bool? activoFiltro;
 
   bool get hayFiltros => rolFiltro != null || activoFiltro != null;
 
   void mostrarFiltros(BuildContext context, StateSetter setState) {
-    TipoRol? rolTemp = rolFiltro;
+    UserRole? rolTemp = rolFiltro;
     bool? activoTemp = activoFiltro;
     final s = AppLocalizations.of(context)!;
 
@@ -34,8 +34,8 @@ class UsersPageController {
         ),
         FilterGrupo(
           titulo: s.roleFilter,
-          chips: TipoRol.values
-              .map((TipoRol r) => FilterChipSpec(
+          chips: UserRole.values
+              .map((UserRole r) => FilterChipSpec(
                     label: r.localizedLabel(s),
                     seleccionado: rolTemp == r,
                     onToggle: () => setModal(() => rolTemp = rolTemp == r ? null : r),

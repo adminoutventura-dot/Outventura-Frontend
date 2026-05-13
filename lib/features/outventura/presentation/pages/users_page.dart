@@ -32,7 +32,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final AppLocalizations s = AppLocalizations.of(context)!;
-    final AsyncValue<List<Usuario>> filtrados = ref.watch(usuariosFiltradosProvider((
+    final AsyncValue<List<User>> filtrados = ref.watch(usuariosFiltradosProvider((
       query: _search.query,
       rol: _controller.rolFiltro,
       activo: _controller.activoFiltro,
@@ -70,7 +70,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       ),
       floatingActionButton: AddFab(
         onPressed: () async {
-          final Usuario? nuevo = await Navigator.push<Usuario>(
+          final User? nuevo = await Navigator.push<User>(
             context,
             MaterialPageRoute(builder: (_) => const UserFormPage()),
           );
@@ -112,7 +112,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             child: filtrados.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text('Error: $error')),
-              data: (List<Usuario> usuarios) => ListView.separated(
+              data: (List<User> usuarios) => ListView.separated(
                 padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
                 itemCount: usuarios.isEmpty ? 1 : usuarios.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
@@ -130,7 +130,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                   return UserCard(
                     usuario: usuarios[index],
                     onEditar: () async {
-                      final Usuario? actualizado = await Navigator.push<Usuario>(
+                      final User? actualizado = await Navigator.push<User>(
                         context,
                         MaterialPageRoute(
                           builder: (BuildContext _) =>

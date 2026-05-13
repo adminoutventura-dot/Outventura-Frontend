@@ -13,12 +13,12 @@ class EquipmentFormController {
   final TextEditingController precioController = TextEditingController();
   final TextEditingController tarifaController = TextEditingController();
 
-  List<CategoriaActividad> categorias = [];
-  EstadoEquipamiento estado = EstadoEquipamiento.disponible;
+  List<ActivityCategory> categorias = [];
+  EquipmentStatus estado = EquipmentStatus.disponible;
   String? imagenAsset;
   bool editando = false;
 
-  Equipamiento? seleccionado;
+  Equipment? seleccionado;
 
   // Valida el formulario antes de enviarlo.
   bool validar() {
@@ -29,7 +29,7 @@ class EquipmentFormController {
   }
 
   // Alternar la selección de una categoría
-  void alternarCategoria(CategoriaActividad cat) {
+  void alternarCategoria(ActivityCategory cat) {
     if (categorias.contains(cat)) {
       categorias.remove(cat);
     } else {
@@ -38,7 +38,7 @@ class EquipmentFormController {
   }
 
   // Cargar los datos de un material
-  void cargarEquipo(Equipamiento equipamiento) {
+  void cargarEquipo(Equipment equipamiento) {
     editando = true;
     seleccionado = equipamiento;
     nombreController.text = equipamiento.title;
@@ -48,23 +48,23 @@ class EquipmentFormController {
     // toStringAsFixed(2) convierte un double a String con exactamente 2 decimales.
     precioController.text = equipamiento.pricePerDay.toStringAsFixed(2);
     tarifaController.text = equipamiento.damageFee.toStringAsFixed(2);
-    categorias = List<CategoriaActividad>.from(equipamiento.categories);
+    categorias = List<ActivityCategory>.from(equipamiento.categories);
     estado = equipamiento.status;
     imagenAsset = equipamiento.imageAsset;
   }
 
   // Construye el objeto Equipamiento con los datos del formulario.
-  Equipamiento? crearEquipamiento() {
+  Equipment? crearEquipamiento() {
     if (!validar()) {
       return null;
     }
     
     final int id = seleccionado?.id ?? GeneradorId.idEntero();
-    return Equipamiento(
+    return Equipment(
       id: id,
       title: nombreController.text.trim(),
       description: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
-      categories: List<CategoriaActividad>.from(categorias),
+      categories: List<ActivityCategory>.from(categorias),
       units: int.tryParse(stockController.text) ?? 0,
       totalUnits: int.tryParse(stockTotalController.text) ?? 0,
       status: estado,
@@ -84,7 +84,7 @@ class EquipmentFormController {
     precioController.clear();
     tarifaController.clear();
     categorias = [];
-    estado = EstadoEquipamiento.disponible;
+    estado = EquipmentStatus.disponible;
   }
 
   // Libera de la memoria los TextEditingController

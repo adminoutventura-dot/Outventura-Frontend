@@ -10,19 +10,19 @@ class UserFormController {
   final TextEditingController email = TextEditingController();
   final TextEditingController telefono = TextEditingController();
 
-  TipoRol rol = TipoRol.usuario;
+  UserRole rol = UserRole.usuario;
   bool activo = true;
   String? foto;
   bool editando = false;
 
-  Usuario? seleccionado;
+  User? seleccionado;
 
   bool validar() {
     return formKey.currentState?.validate() ?? false;
   }
 
   // Cargar los datos
-  void cargarUsuario(Usuario usuario) {
+  void cargarUsuario(User usuario) {
     editando = true;
     seleccionado = usuario;
     nombre.text = usuario.name;
@@ -42,13 +42,13 @@ class UserFormController {
     apellidos.clear();
     email.clear();
     telefono.clear();
-    rol = TipoRol.usuario;
+    rol = UserRole.usuario;
     activo = true;
   }
 
   // Construye un Usuario a partir de los datos del formulario.
-  Usuario construirUsuario() {
-    return Usuario(
+  User construirUsuario() {
+    return User(
       id: seleccionado?.id ?? DateTime.now().millisecondsSinceEpoch,
       name: nombre.text.trim(),
       surname: apellidos.text.trim(),
