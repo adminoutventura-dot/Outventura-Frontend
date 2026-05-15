@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/utils/form_validators.dart';
@@ -43,14 +44,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    colorScheme.onSurface.withAlpha(128),
-                    colorScheme.onSurface.withAlpha(179),
-                  ],
-                ),
+                gradient: AppGradients.loginOverlay(colorScheme),
               ),
             ),
           ),

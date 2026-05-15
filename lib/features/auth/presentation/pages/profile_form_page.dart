@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
@@ -52,11 +53,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
         automaticallyImplyLeading: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [cs.surfaceContainer, cs.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: AppGradients.profileHeader(cs),
           ),
         ),
       ),

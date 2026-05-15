@@ -89,10 +89,15 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
         : <Object>[];
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: OutventuraAppBar(title: s.calendarTitle),
       drawer: const AppDrawer(),
       body: Column(
         children: [
+          // Empuja el contenido justo debajo de la parte plana del AppBar
+          // (kToolbarHeight + status bar). Las partes sin nada son transparentes
+          // y dejan ver el calendario por detrás.
+          SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight),
           ColoredBox(
             color: Color.alphaBlend(cs.surface.withValues(alpha: 0.8), cs.onTertiary),
             child: TableCalendar(

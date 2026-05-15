@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/app/theme/app_gradients.dart';
 
 // SliverAppBar reutilizable para páginas de detalle.
 class DetailSliverHeader extends StatelessWidget {
@@ -27,11 +28,7 @@ class DetailSliverHeader extends StatelessWidget {
         collapseMode: CollapseMode.pin,
         background: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [color, color.withValues(alpha: 0.6)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: AppGradients.detailHeader(color),
           ),
           child: Stack(
             children: [

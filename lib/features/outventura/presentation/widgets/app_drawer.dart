@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/app/theme/app_text_styles.dart';
@@ -26,11 +27,7 @@ class AppDrawer extends ConsumerWidget {
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [cs.tertiary, cs.primary],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: AppGradients.drawer(cs),
             ),
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 24,

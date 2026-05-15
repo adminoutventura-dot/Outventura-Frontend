@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
@@ -57,13 +58,7 @@ class ActivityCard extends StatelessWidget {
                   // Degradado
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        // Degradado oscuro.
-                        colors: [Colors.transparent, cs.onSurface.withAlpha(250)],
-                        stops: const [0.4, 1.0],
-                      ),
+                      gradient: AppGradients.cardImageOverlay(cs),
                     ),
                   ),
 
