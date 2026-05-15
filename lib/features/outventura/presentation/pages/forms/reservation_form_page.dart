@@ -20,6 +20,7 @@ import 'package:outventura/features/outventura/presentation/providers/equipment_
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
+import 'package:outventura/core/widgets/bottom_price_bar.dart';
 
 class ReservationFormPage extends ConsumerStatefulWidget {
   final Reservation? reserva;
@@ -92,6 +93,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     final User? usuarioActual = ref.watch(currentUserProvider);
     final bool modoCliente = widget.initialIdUsuario != null;
     final int? idUsuarioFijado = widget.initialIdUsuario ?? usuarioActual?.id;
+    final double totalPrice = _controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos);
 
     List<User> usuariosDisponibles = ref.read(usuariosProvider).value ?? [];
     if (modoCliente && idUsuarioFijado != null) {
@@ -103,8 +105,24 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: OutventuraAppBar(title: widget.reserva != null ? s.editReservation(widget.reserva!.id) : s.newReservation),
+      bottomNavigationBar: BottomPriceBar(
+        totalLabel: s.total,
+        price: s.priceEur(totalPrice.toStringAsFixed(2)),
+        actionLabel: s.save,
+        onPressed: () {
+          if (_controller.lineas.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(s.addAtLeastOneLine)),
+            );
+            return;
+          }
+          final Reservation? reserva = _controller.crearReserva(equipamientos);
+          if (reserva == null) return;
+          Navigator.of(context).pop(reserva);
+        },
+      ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB( 20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
         child: Form(
           key: _controller.formKey,
           child: Column(
@@ -368,57 +386,26 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   ),
                 ),
               ],
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
 
-              // Botones: Borrar reserva (si edición) + Guardar en la misma fila
-              Row(
-                children: [
-                  if (widget.reserva != null) ...[
-                    Expanded(
-                      child: SecondaryButton(
-                        label: s.deleteReservation,
-                        onPressed: () async {
-                          final bool confirmar = await showConfirmDialog(
-                            context: context,
-                            title: s.deleteReservation,
-                            content: s.deleteReservationConfirm,
-                            confirmLabel: s.deleteReservation,
-                          );
-                          if (confirmar && context.mounted) {
-                            ref.read(reservationsProvider.notifier).eliminar(widget.reserva!);
-                            Navigator.of(context).pop();
-                          }
-                        },
-                        borderColor: cs.error,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                  ],
-                  Expanded(
-                    child: PrimaryButton(
-                      label: s.save,
-                      icon: Icons.save_outlined,
-                      onPressed: () {
-                        if (_controller.lineas.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                s.addAtLeastOneLine,
-                              ),
-                            ),
-                          );
-                          return;
-                        }
-                        final Reservation? reserva = _controller.crearReserva(equipamientos);
-                        if (reserva == null) {
-                          return;
-                        }
-                        Navigator.of(context).pop(reserva);
-                      },
-                    ),
-                  ),
-                ],
-              ),
+              // Botón de borrar (solo en modo edición)
+              if (widget.reserva != null)
+                SecondaryButton(
+                  label: s.deleteReservation,
+                  onPressed: () async {
+                    final bool confirmar = await showConfirmDialog(
+                      context: context,
+                      title: s.deleteReservation,
+                      content: s.deleteReservationConfirm,
+                      confirmLabel: s.deleteReservation,
+                    );
+                    if (confirmar && context.mounted) {
+                      ref.read(reservationsProvider.notifier).eliminar(widget.reserva!);
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  borderColor: cs.error,
+                ),
             ],
           ),
         ),
