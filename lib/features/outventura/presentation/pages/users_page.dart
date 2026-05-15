@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/outventura_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
@@ -39,9 +40,8 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     )));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.usersTitle),
-        automaticallyImplyLeading: true,
+      appBar: OutventuraAppBar(
+        title: s.usersTitle,
         actions: [
           Badge(
             isLabelVisible: _controller.hayFiltros,
@@ -55,18 +55,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             ),
           ),
         ],
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                cs.surfaceContainer,
-                cs.primary,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
       ),
       floatingActionButton: AddFab(
         onPressed: () async {

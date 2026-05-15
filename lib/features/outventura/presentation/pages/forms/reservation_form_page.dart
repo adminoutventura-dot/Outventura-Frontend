@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/outventura_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
@@ -101,18 +102,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        title: Text(widget.reserva != null ? s.editReservation(widget.reserva!.id) : s.newReservation),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [cs.surfaceContainer, cs.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-      ),
+      appBar: OutventuraAppBar(title: widget.reserva != null ? s.editReservation(widget.reserva!.id) : s.newReservation),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB( 20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
         child: Form(
@@ -323,20 +313,60 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   },
                 ),
 
-              // Total cargos por daños
-              if (_controller.totalCargoDanios(equipamientos) > 0) ...[
-                const Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(s.totalDamages, style: tt.labelMedium),
-                    Text(
-                      s.priceEur(_controller.totalCargoDanios(equipamientos).toStringAsFixed(2)),
-                      style: tt.labelMedium?.copyWith(color: cs.error),
-                    ),
-                  ],
+              // Resumen de precio
+              if (_controller.lineas.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: cs.onTertiary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: cs.onTertiary),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(s.priceSummary, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(s.materialsRental, style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
+                          Text(
+                            s.priceEur(_controller.totalAlquiler(equipamientos).toStringAsFixed(2)),
+                            style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer),
+                          ),
+                        ],
+                      ),
+                      if (_controller.totalCargoDanios(equipamientos) > 0) ...[
+                        const SizedBox(height: 2),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(s.totalDamages, style: tt.bodySmall?.copyWith(color: cs.error)),
+                            Text(
+                              '+ ${s.priceEur(_controller.totalCargoDanios(equipamientos).toStringAsFixed(2))}',
+                              style: tt.bodySmall?.copyWith(color: cs.error),
+                            ),
+                          ],
+                        ),
+                      ],
+                      const Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(s.total, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
+                          Text(
+                            s.priceEur(
+                              (_controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos)).toStringAsFixed(2),
+                            ),
+                            style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 20),
               ],
               const SizedBox(height: 32),
 

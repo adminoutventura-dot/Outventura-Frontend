@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/outventura_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
@@ -127,18 +128,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEdit ? s.editRequest : s.newRequest),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [cs.surfaceContainer, cs.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-      ),
+      appBar: OutventuraAppBar(title: isEdit ? s.editRequest : s.newRequest),
       body: Form(
         key: _controller.formKey,
         child: ListView(

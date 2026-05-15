@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/outventura_app_bar.dart';
+import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
@@ -12,7 +14,7 @@ import 'package:outventura/features/outventura/presentation/providers/requests_p
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
-import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
+
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
@@ -39,18 +41,38 @@ class HomeClientePage extends ConsumerWidget {
     final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.clientPanel),
-        automaticallyImplyLeading: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Theme.of(context).colorScheme.surfaceContainer,
-                Theme.of(context).colorScheme.primary,
+      appBar: OutventuraAppBar(
+        title: s.clientPanel,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(72),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ReservationsPage(puedeGestionar: false, puedeCrear: true),
+                      ),
+                    ),
+                    child: StatCard(value: '${misReservas.length}', label: s.myReservations, foregroundColor: cs.onPrimary),
+                  ),
+                ),
+                _HeaderDivider(),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const RequestsPage(puedeGestionar: false, puedeCrear: true),
+                      ),
+                    ),
+                    child: StatCard(value: '${misSolicitudes.length}', label: s.myRequests, foregroundColor: cs.onPrimary),
+                  ),
+                ),
+                _HeaderDivider(),
+                Expanded(child: StatCard(value: '$solicitudesPendientes', label: s.pendingLabel, foregroundColor: cs.onPrimary)),
               ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
             ),
           ),
         ),
@@ -58,73 +80,9 @@ class HomeClientePage extends ConsumerWidget {
       drawer: const AppDrawer(),
       body: Column(
         children: [
-          Container(
-            color: cs.surfaceContainer,
-            child: SafeArea(
-              bottom: false,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: cs.onPrimary,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: cs.onSurfaceVariant.withAlpha(50),
-                      width: 2,
-                    ),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const ReservationsPage(puedeGestionar: false, puedeCrear: true),
-                            ),
-                          ),
-                          child: StatCard(
-                            colorScheme: cs,
-                            textTheme: tt,
-                            value: '${misReservas.length}',
-                            label: s.myReservations,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const RequestsPage(puedeGestionar: false, puedeCrear: true),
-                            ),
-                          ),
-                          child: StatCard(
-                            colorScheme: cs,
-                            textTheme: tt,
-                            value: '${misSolicitudes.length}',
-                            label: s.myRequests,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: StatCard(
-                          colorScheme: cs,
-                          textTheme: tt,
-                          value: '$solicitudesPendientes',
-                          label: s.pendingLabel,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB( 12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
               children: [
                 const SizedBox(height: 24),
                 Text(
@@ -216,6 +174,18 @@ class HomeClientePage extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _HeaderDivider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 36,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      color: Theme.of(context).colorScheme.onPrimary.withAlpha(80),
     );
   }
 }

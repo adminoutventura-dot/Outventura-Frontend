@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/outventura_app_bar.dart';
+import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
@@ -12,7 +14,7 @@ import 'package:outventura/features/outventura/presentation/providers/requests_p
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
-import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
+
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
@@ -29,20 +31,26 @@ class HomeAdminPage extends ConsumerWidget {
     final List<Request> solicitudes = ref.watch(requestsProvider).value ?? [];
 
     return Scaffold(
-      // Barra superior con título y fondo degradado.
-      appBar: AppBar(
-        title: Text(s.adminPanel),
-        // Icono del Drawer
-        automaticallyImplyLeading: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Theme.of(context).colorScheme.surfaceContainer,
-                Theme.of(context).colorScheme.primary,
+      appBar: OutventuraAppBar(
+        title: s.adminPanel,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(65),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 30),
+            child: Row(
+              children: [
+                Expanded(child: StatCard(value: '${actividades.length}', label: s.actividadesLabel, foregroundColor: cs.onPrimary)),
+                _HeaderDivider(),
+                Expanded(child: StatCard(value: '${equipamientos.length}', label: s.equipmentLabel, foregroundColor: cs.onPrimary)),
+                _HeaderDivider(),
+                Expanded(
+                  child: StatCard(
+                    value: '${solicitudes.where((Request r) => r.status == RequestStatus.pendiente).length}',
+                    label: s.pendingLabel,
+                    foregroundColor: cs.onPrimary,
+                  ),
+                ),
               ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
             ),
           ),
         ),
@@ -53,65 +61,9 @@ class HomeAdminPage extends ConsumerWidget {
 
       body: Column(
         children: [
-          // Contenedor de estadísticas.
-          Container(
-            color: cs.surfaceContainer,
-            child: SafeArea(
-              bottom: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Fila de tarjetas de estadísticas.
-                  Container(
-                    decoration: BoxDecoration(
-                      color: cs.onPrimary,
-                      border: Border(
-                        bottom: BorderSide(
-                          color: cs.onSurfaceVariant.withAlpha(50),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      child: Row(
-                        children: [
-                          // Tarjeta de actividades.
-                          StatCard(
-                            colorScheme: cs,
-                            textTheme: tt,
-                            value: '${actividades.length}',
-                            label: s.actividadesLabel,
-                          ),
-                          const SizedBox(width: 10),
-                          // Tarjeta de equipamiento.
-                          StatCard(
-                            colorScheme: cs,
-                            textTheme: tt,
-                            value: '${equipamientos.length}',
-                            label: s.equipmentLabel,
-                          ),
-                          const SizedBox(width: 10),
-                          // Tarjeta de pendientes.
-                          StatCard(
-                            colorScheme: cs,
-                            textTheme: tt,
-                            value:
-                                '${solicitudes.where((Request s) => s.status == RequestStatus.pendiente).length}',
-                            label: s.pendingLabel,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Contenido principal.
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB( 12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
               children: [
                 const SizedBox(height: 24),
                 // Sección de accesos rápidos de gestión.
@@ -178,6 +130,18 @@ class HomeAdminPage extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _HeaderDivider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 36,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      color: Theme.of(context).colorScheme.onPrimary.withAlpha(80),
     );
   }
 }

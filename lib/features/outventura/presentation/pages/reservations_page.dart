@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/outventura_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
@@ -54,9 +55,8 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
     )));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.puedeGestionar ? s.reservationManagement : s.reservationsTitle),
-        automaticallyImplyLeading: true,
+      appBar: OutventuraAppBar(
+        title: widget.puedeGestionar ? s.reservationManagement : s.reservationsTitle,
         actions: [
           Badge(
             isLabelVisible: _controller.hayFiltros,
@@ -70,15 +70,6 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
             ),
           ),
         ],
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [cs.surfaceContainer, cs.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
       ),
       floatingActionButton: widget.puedeCrear
           ? AddFab(

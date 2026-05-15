@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/outventura_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
@@ -58,11 +59,9 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
     )));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.equipmentTitle),
-        automaticallyImplyLeading: true,
+      appBar: OutventuraAppBar(
+        title: s.equipmentTitle,
         actions: [
-          // Botón de filtros, muestra un punto rojo (Badge) si hay filtros activos.
           Badge(
             isLabelVisible: _controller.hayFiltros,
             alignment: const AlignmentDirectional(0.5, -0.5),
@@ -75,15 +74,6 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
             ),
           ),
         ],
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [cs.surfaceContainer, cs.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
       ),
       drawer: const AppDrawer(),
       floatingActionButton: widget.puedeGestionar

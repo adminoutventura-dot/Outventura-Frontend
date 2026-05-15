@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/outventura_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
@@ -88,19 +89,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
         : <Object>[];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.calendarTitle),
-        automaticallyImplyLeading: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [cs.surfaceContainer, cs.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-      ),
+      appBar: OutventuraAppBar(title: s.calendarTitle),
       drawer: const AppDrawer(),
       body: Column(
         children: [

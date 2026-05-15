@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/core/widgets/outventura_app_bar.dart';
 import 'package:outventura/features/preferences/controllers/preferences_controller.dart';
 import 'package:outventura/features/preferences/data/models/preferences.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -18,115 +19,72 @@ class PreferencesPage extends ConsumerWidget {
 
     return Scaffold(
       // Barra superior.
-      appBar: AppBar(
-        title: Text(s.preferencesTitle),
-        automaticallyImplyLeading: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Theme.of(context).colorScheme.surfaceContainer, Theme.of(context).colorScheme.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-      ),
+      appBar: OutventuraAppBar(title: s.preferencesTitle),
       body: prefsAsync.when(
+        // Preferencias cargadas.
         data: (Preferencias prefs) => ListView(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           children: [
-            // IDIOMA
-            _PrefsCard(
-              icon: Icons.language_outlined,
-              title: s.language,
-              cs: cs,
-              tt: tt,
-              trailing: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
+            // Selector de idioma.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Idioma', style: tt.titleMedium),
+                DropdownButton<String>(
                   value: prefs.idioma,
-                  borderRadius: BorderRadius.circular(12),
                   items: [
-                    DropdownMenuItem(value: 'es', child: Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text(s.spanish, style: tt.bodyMedium))),
-                    DropdownMenuItem(value: 'en', child: Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text(s.english, style: tt.bodyMedium))),
-                    DropdownMenuItem(value: 'ca', child: Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text(s.catalan, style: tt.bodyMedium))),
+                    DropdownMenuItem(
+                      value: 'es',
+                      child: Text('Español', style: tt.bodyMedium),
+                    ),
+                    DropdownMenuItem(
+                      value: 'en',
+                      child: Text('Inglés', style: tt.bodyMedium),
+                    ),
                   ],
                   onChanged: (String? value) {
                     if (value != null) {
+                      // Actualiza el idioma seleccionado.
                       ref.read(preferenciasProvider.notifier).actualizarPreferencias(
                         prefs.copyWith(idioma: value),
                       );
                     }
                   },
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: 12),
-
-            // TEMA OSCURO
-            _PrefsCard(
-              icon: prefs.temaOscuro ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-              title: s.darkTheme,
-              cs: cs,
-              tt: tt,
-              trailing: Switch(
-                value: prefs.temaOscuro,
-                onChanged: (bool value) {
-                  ref.read(preferenciasProvider.notifier).actualizarPreferencias(
-                    prefs.copyWith(temaOscuro: value),
-                  );
-                },
-                activeThumbColor: cs.primary,
-                activeTrackColor: cs.primaryContainer,
-                inactiveThumbColor: cs.onSurfaceVariant,
-                inactiveTrackColor: cs.onSurfaceVariant.withValues(alpha: 0.35),
-                trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
-              ),
+            const SizedBox(height: 16),
+            // Selector de tema oscuro.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Tema oscuro', style: tt.titleMedium),
+                Switch(
+                    value: prefs.temaOscuro,
+                    onChanged: (bool value) {
+                      // Actualiza la preferencia de tema oscuro.
+                      ref.read(preferenciasProvider.notifier).actualizarPreferencias(
+                        prefs.copyWith(temaOscuro: value),
+                      );
+                    },
+                    activeThumbColor: cs.primary,
+                    activeTrackColor: cs.primaryContainer,
+                    inactiveThumbColor: cs.onSurfaceVariant,
+                    inactiveTrackColor: cs.onSurfaceVariant.withValues(alpha: 0.35),
+                    trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+                  ),
+              ],
             ),
           ],
         ),
+        // Indicador de carga mientras se obtienen las preferencias.
         loading: () => const Center(child: CircularProgressIndicator()),
+        // Mensaje de error si falla la carga.
         error: (Object err, StackTrace stack) => Center(
-          child: Text('Error: $err', style: tt.bodyMedium?.copyWith(color: cs.error)),
-        ),
-      ),
-    );
-  }
-}
-
-// CARD DE PREFERENCIAS 
-class _PrefsCard extends StatelessWidget {
-  const _PrefsCard({
-    required this.icon,
-    required this.title,
-    required this.cs,
-    required this.tt,
-    required this.trailing,
-  });
-
-  final IconData icon;
-  final String title;
-  final ColorScheme cs;
-  final TextTheme tt;
-  final Widget trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
-      ),
-      color: cs.surfaceContainerLowest,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: Row(
-          children: [
-            Icon(icon, color: cs.primary, size: 22),
-            const SizedBox(width: 16),
-            Expanded(child: Text(title, style: tt.titleMedium)),
-            trailing,
-          ],
+          child: Text(
+            'Error: $err',
+            style: tt.bodyMedium?.copyWith(color: cs.error),
+          ),
         ),
       ),
     );

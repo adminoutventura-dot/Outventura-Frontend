@@ -1,5 +1,6 @@
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
+import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 
 // Calcula el precio total de una solicitud: precio actividad × participantes + alquiler materiales.
 // TEMPORAL: lógica local mientras no hay backend.
@@ -62,6 +63,25 @@ double calcularCargoDanios({
     );
     if (coincidencias.isNotEmpty) {
       total = coincidencias.first.damageFee * entry.value + total;
+    }
+  }
+  return total;
+}
+
+// Calcula el coste de alquiler de una reserva: precioAlquilerDiario × cantidad × días.
+double calcularPrecioReserva({
+  required List<ReservationLine> lineas,
+  required DateTime fechaDesde,
+  required DateTime fechaHasta,
+  required List<Equipment> equipamientos,
+}) {
+  final int dias = fechaHasta.difference(fechaDesde).inDays.clamp(1, 999);
+  final Map<int, Equipment> equipPorId = {for (final Equipment e in equipamientos) e.id: e};
+  double total = 0;
+  for (final ReservationLine linea in lineas) {
+    final Equipment? equip = equipPorId[linea.equipmentId];
+    if (equip != null) {
+      total += equip.pricePerDay * linea.quantity * dias;
     }
   }
   return total;

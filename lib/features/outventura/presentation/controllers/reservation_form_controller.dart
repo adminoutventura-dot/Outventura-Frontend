@@ -37,6 +37,16 @@ class ReservationFormController {
     );
   }
 
+  // Total de alquiler de equipamientos: precioAlquilerDiario × cantidad × días.
+  double totalAlquiler(List<Equipment> equipamientos) {
+    return calcularPrecioReserva(
+      lineas: lineas,
+      fechaDesde: fechaDesde,
+      fechaHasta: fechaHasta,
+      equipamientos: equipamientos,
+    );
+  }
+
   bool validar() {
     if (formKey.currentState == null) {
       return false;

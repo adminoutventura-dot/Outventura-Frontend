@@ -32,13 +32,13 @@ class CardsDemo extends StatelessWidget {
           // STAT CARD
           Text('StatCard – Fila de estadísticas', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
-          Row(
+          const Row(
             children: [
-              StatCard(colorScheme: cs, textTheme: tt, value: '12', label: 'Reservas'),
-              const SizedBox(width: 8),
-              StatCard(colorScheme: cs, textTheme: tt, value: '3', label: 'Pendientes'),
-              const SizedBox(width: 8),
-              StatCard(colorScheme: cs, textTheme: tt, value: '47', label: 'Usuarios'),
+              Expanded(child: StatCard(value: '12', label: 'Reservas')),
+              SizedBox(width: 8),
+              Expanded(child: StatCard(value: '3', label: 'Pendientes')),
+              SizedBox(width: 8),
+              Expanded(child: StatCard(value: '47', label: 'Usuarios')),
             ],
           ),
 

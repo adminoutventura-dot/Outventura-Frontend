@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/outventura_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
@@ -54,9 +55,8 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
     )));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.actividadesTitle),
-        automaticallyImplyLeading: true,
+      appBar: OutventuraAppBar(
+        title: s.actividadesTitle,
         actions: [
           Badge(
             isLabelVisible: _controller.hayFiltros,
@@ -70,15 +70,6 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
             ),
           ),
         ],
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [cs.surfaceContainer, cs.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
       ),
       drawer: const AppDrawer(),
       floatingActionButton: widget.puedeGestionar
