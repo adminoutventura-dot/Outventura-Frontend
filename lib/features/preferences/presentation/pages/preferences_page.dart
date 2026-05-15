@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/widgets/outventura_app_bar.dart';
+import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/features/preferences/controllers/preferences_controller.dart';
 import 'package:outventura/features/preferences/data/models/preferences.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -19,7 +19,7 @@ class PreferencesPage extends ConsumerWidget {
 
     return Scaffold(
       // Barra superior.
-      appBar: OutventuraAppBar(title: s.preferencesTitle),
+      appBar: CustomAppBar(title: s.preferencesTitle),
       body: prefsAsync.when(
         // Preferencias cargadas.
         data: (Preferencias prefs) => ListView(

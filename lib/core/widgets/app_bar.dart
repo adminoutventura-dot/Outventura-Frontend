@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:outventura/app/theme/app_gradients.dart';
 
 // AppBar reutilizable con efecto cortado
-class OutventuraAppBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
   final PreferredSizeWidget? bottom;
   
-  const OutventuraAppBar({
+  const CustomAppBar({
     super.key,
     required this.title,
     this.actions,

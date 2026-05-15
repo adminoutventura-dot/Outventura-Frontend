@@ -26,7 +26,8 @@ class BottomPriceBar extends StatelessWidget {
     return ClipPath(
       clipper: _BottomBarClipper(),
       child: Container(
-        padding: EdgeInsets.fromLTRB(20, 36, 20, bottomPadding + 16),
+        height: 160,
+        padding: EdgeInsets.fromLTRB(40, 80, 40, bottomPadding + 16),
         decoration: BoxDecoration(gradient: AppGradients.appBar(cs)),
         child: Row(
           children: [
@@ -70,33 +71,39 @@ class BottomPriceBar extends StatelessWidget {
   }
 }
 
-/// Clipper que crea el corte curvo superior: sube en el centro, baja en los lados.
 class _BottomBarClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
-
-    const double wave = 28; // cuánto bajan los lados respecto al centro
-
     final path = Path();
 
-    // Lado izquierdo: comienza abajo (y = wave)
-    path.moveTo(0, wave);
+    // Empieza un poco abajo izquierda
+    path.moveTo(0, 100);
 
-    // Arco hacia el centro (sube hasta y = 0)
+    // Curva redondeada izquierda
     path.quadraticBezierTo(
-      size.width * 0.25, 0,
-      size.width * 0.50, 0,
+      0,
+      60,
+      60,
+      60,
     );
 
-    // Arco desde el centro de vuelta abajo (y = wave)
+    // Línea recta central
+    path.lineTo(size.width * 0.85, 60);
+
+    // Curva progresiva final
     path.quadraticBezierTo(
-      size.width * 0.75, 0,
-      size.width, wave,
+      size.width * 0.95,
+      60,
+      size.width,
+      0,
     );
 
-    // Resto del rectángulo (lados y fondo)
+    // Lado derecho hacia abajo
     path.lineTo(size.width, size.height);
+
+    // Parte inferior
     path.lineTo(0, size.height);
+
     path.close();
 
     return path;

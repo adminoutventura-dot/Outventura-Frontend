@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/widgets/outventura_app_bar.dart';
+import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
@@ -55,7 +55,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
     )));
 
     return Scaffold(
-      appBar: OutventuraAppBar(
+      appBar: CustomAppBar(
         title: s.actividadesTitle,
         actions: [
           Badge(

@@ -48,9 +48,10 @@ class _MainScaffoldState extends State<MainScaffold> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         child: Material(
-          elevation: 8,
-          shadowColor: cs.onSurface.withValues(alpha: 0.2),
+          elevation: 2,
+          shadowColor: cs.onSurface.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(32),
+          
           clipBehavior: Clip.antiAlias,
           child: BottomNavigationBar(
             currentIndex: _indiceActual,

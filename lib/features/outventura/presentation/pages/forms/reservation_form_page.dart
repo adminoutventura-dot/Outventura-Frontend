@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/widgets/outventura_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/core/widgets/app_bar_forms.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
@@ -104,7 +104,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: OutventuraAppBar(title: widget.reserva != null ? s.editReservation(widget.reserva!.id) : s.newReservation),
+      appBar: CustomAppBarForm(title: widget.reserva != null ? s.editReservation(widget.reserva!.id) : s.newReservation),
       bottomNavigationBar: BottomPriceBar(
         totalLabel: s.total,
         price: s.priceEur(totalPrice.toStringAsFixed(2)),
@@ -137,14 +137,9 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 itemLabel: (User user) => '${user.name} ${user.surname}',
                 label: s.user,
                 hint: modoCliente ? s.yourUser : s.selectUser,
-                enabled: !modoCliente && widget.reserva == null,
-
-                // id usuario es = v, significa que se ha seleccionado un usuario, si es null, no se ha seleccionado ninguno.
-                // v es el id del usuario seleccionado.
+                enabled: !modoCliente,
                 onChanged: (int? v) {
-                  if (modoCliente) {
-                    return;
-                  }
+                  if (modoCliente) return;
                   setState(() => _controller.idUsuario = v);
                 },
                 validator: (int? v) {
@@ -156,28 +151,24 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Excursión (solo editable para administradores; visible en modo edición)
-              if (!modoCliente || widget.reserva != null) ...[
-                AppDropdownField<Activity>(
-                  value: _controller.idActividad,
-                  items: ref.read(activitiesProvider).value ?? [],
-                  itemValue: (e) => e.id,
-                  itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
-                  prefixIcon: Icons.hiking_outlined,
-                  label: s.actividad,
-                  hint: s.none,
-                  enabled: !modoCliente && widget.reserva == null,
-                  onChanged: (int? v) =>
-                      setState(() => _controller.idActividad = v),
-                  validator: (int? v) {
-                    if (v == null) {
-                      return s.selectActividad;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-              ],
+              // Excursión (siempre visible; editable si no es modo cliente)
+              AppDropdownField<Activity>(
+                value: _controller.idActividad,
+                items: ref.read(activitiesProvider).value ?? [],
+                itemValue: (e) => e.id,
+                itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
+                prefixIcon: Icons.hiking_outlined,
+                label: s.actividad,
+                hint: s.none,
+                enabled: !modoCliente,
+                onChanged: (int? v) =>
+                    setState(() => _controller.idActividad = v),
+                validator: (int? v) {
+                  if (v == null) return s.selectActividad;
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
 
               // Fechas
               Text(

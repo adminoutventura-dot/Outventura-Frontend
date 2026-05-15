@@ -7,7 +7,7 @@ class AppGradients {
   // Degradados ya en uso en la app 
 
   /// AppBar principal: primary → primary semitransparente (diagonal).
-  /// Usado en [OutventuraAppBar].
+  /// Usado en [CustomAppBar].
   static LinearGradient appBar(ColorScheme cs) => LinearGradient(
         colors: [cs.primary, cs.primary.withValues(alpha: 0.72)],
         begin: Alignment.topLeft,

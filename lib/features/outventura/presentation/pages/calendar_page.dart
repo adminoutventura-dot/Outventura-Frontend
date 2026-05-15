@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/widgets/outventura_app_bar.dart';
+import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
@@ -90,7 +90,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: OutventuraAppBar(title: s.calendarTitle),
+      appBar: CustomAppBar(title: s.calendarTitle),
       drawer: const AppDrawer(),
       body: Column(
         children: [

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/widgets/outventura_app_bar.dart';
+import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
@@ -41,7 +41,7 @@ class HomeClientePage extends ConsumerWidget {
     final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
 
     return Scaffold(
-      appBar: OutventuraAppBar(
+      appBar: CustomAppBar(
         title: s.clientPanel,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(72),

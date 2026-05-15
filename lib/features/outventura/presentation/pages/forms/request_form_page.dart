@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/widgets/outventura_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
+import 'package:outventura/core/widgets/app_bar_forms.dart';
+import 'package:outventura/core/widgets/bottom_price_bar.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
@@ -127,8 +128,42 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
       precioPorId[e.id] = e.pricePerDay;
     }
 
+    final double totalPrice = _controller.calcularPrecioTotal(actividades, equipamientos);
+
     return Scaffold(
-      appBar: OutventuraAppBar(title: isEdit ? s.editRequest : s.newRequest),
+      appBar: CustomAppBarForm(title: isEdit ? s.editRequest : s.newRequest),
+      bottomNavigationBar: BottomPriceBar(
+        totalLabel: s.total,
+        price: s.priceEur(totalPrice.toStringAsFixed(2)),
+        actionLabel: isEdit ? s.save : s.create,
+        onPressed: () {
+          // Si no hay reserva asociada pero se han seleccionado materiales, crear la reserva antes de guardar.
+          if (_controller.idReserva == null && _controller.tieneMateriales) {
+            final Reservation? reserva = _controller.crearReservaDesdeSolicitud(
+              context: context,
+              ref: ref,
+            );
+            if (reserva == null) return;
+          }
+
+          // Crear la solicitud a partir de los datos del formulario.
+          final Request? solicitud = _controller.crearSolicitud(actividades, equipamientos);
+          if (solicitud == null) return;
+
+          // Sincronizar la reserva asociada si existe.
+          final List<Reservation> reservasActuales = ref.read(reservationsProvider).value ?? [];
+          final Reservation? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
+          if (reservaActualizada != null && solicitud.reservationId != null) {
+            final Reservation? original = _controller.buscarReserva(reservasActuales, solicitud.reservationId!);
+            if (original != null) {
+              ref.read(reservationsProvider.notifier).actualizar(original, reservaActualizada);
+            }
+          }
+
+          // Cerrar la página y devolver la solicitud.
+          Navigator.of(context).pop(solicitud);
+        },
+      ),
       body: Form(
         key: _controller.formKey,
         child: ListView(
@@ -425,71 +460,27 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               ),
               const SizedBox(height: 16),
             ],
-            const SizedBox(height: 12),
-            // Botones: Editar reserva (si existe) + Guardar/Crear en la misma fila
-            Row(
-              children: [
-                if (isEdit && _controller.idReserva != null) ...[
-                  Expanded(
-                    child: SecondaryButton(
-                      label: s.editReservationBtn,
-                      icon: Icons.book_online_outlined,
-                      onPressed: () async {
-                        final List<Reservation> reservas = ref.read(reservationsProvider).value ?? [];
-                        final Reservation? reservaAsociada = _controller.buscarReserva(reservas, _controller.idReserva!);
-                        if (reservaAsociada == null) return;
-                        final Reservation? actualizada = await Navigator.of(context).push<Reservation>(
-                          MaterialPageRoute(
-                            builder: (_) => ReservationFormPage(reserva: reservaAsociada),
-                          ),
-                        );
-                        if (actualizada != null) {
-                          ref.read(reservationsProvider.notifier).actualizar(reservaAsociada, actualizada);
-                        }
-                      },
+            // Botón: Editar reserva (solo si existe reserva asociada)
+            if (isEdit && _controller.idReserva != null) ...[
+              const SizedBox(height: 12),
+              SecondaryButton(
+                label: s.editReservationBtn,
+                icon: Icons.book_online_outlined,
+                onPressed: () async {
+                  final List<Reservation> reservas = ref.read(reservationsProvider).value ?? [];
+                  final Reservation? reservaAsociada = _controller.buscarReserva(reservas, _controller.idReserva!);
+                  if (reservaAsociada == null) return;
+                  final Reservation? actualizada = await Navigator.of(context).push<Reservation>(
+                    MaterialPageRoute(
+                      builder: (_) => ReservationFormPage(reserva: reservaAsociada),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                ],
-                Expanded(
-                  child: PrimaryButton(
-                    label: isEdit ? s.save : s.create,
-                    onPressed: () {
-
-                      // Si no hay reserva asociada pero se han seleccionado materiales, crear la reserva antes de guardar la solicitud.
-                      if (_controller.idReserva == null && _controller.tieneMateriales) {
-                        final Reservation? reserva = _controller.crearReservaDesdeSolicitud(
-                          context: context,
-                          ref: ref,
-                        );
-                        if (reserva == null) {
-                          return;
-                        }
-                      }
-
-                      //  Crear la solicitud a partir de los datos actuales del formulario y la guarda en variable.
-                      final Request? solicitud = _controller.crearSolicitud(actividades, equipamientos);
-                      if (solicitud == null) {
-                        return;
-                      }
-
-                      // Sincroniza la reserva asociada a la solicitud con los datos actuales.
-                      final List<Reservation> reservasActuales = ref.read(reservationsProvider).value ?? [];
-                      final Reservation? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
-                      if (reservaActualizada != null && solicitud.reservationId != null) {
-                        final Reservation? original = _controller.buscarReserva(reservasActuales, solicitud.reservationId!);
-                        if (original != null) {
-                          ref.read(reservationsProvider.notifier).actualizar(original, reservaActualizada);
-                        }
-                      }
-
-                      // Cierra la página y devuelve la solicitud a la página anterior
-                      Navigator.of(context).pop(solicitud);
-                    },
-                  ),
-                ),
-              ],
-            ),
+                  );
+                  if (actualizada != null) {
+                    ref.read(reservationsProvider.notifier).actualizar(reservaAsociada, actualizada);
+                  }
+                },
+              ),
+            ],
           ],
         ),
       ),

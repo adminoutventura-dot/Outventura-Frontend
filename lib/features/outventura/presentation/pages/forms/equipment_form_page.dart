@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/widgets/outventura_app_bar.dart';
+import 'package:outventura/core/widgets/app_bar_forms.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
@@ -46,7 +46,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: OutventuraAppBar(title: _controller.editando ? s.editEquipment : s.newEquipment),
+      appBar: CustomAppBarForm(title: _controller.editando ? s.editEquipment : s.newEquipment),
 
       // SingleChildScrollView permite que un solo hijo sea scrollable. 
       body: SingleChildScrollView(
