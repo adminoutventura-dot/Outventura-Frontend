@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/core/widgets/detail_sliver_header.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
 class RequestDetailPage extends ConsumerWidget {
@@ -19,6 +21,7 @@ class RequestDetailPage extends ConsumerWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
 
     final actividad = ref.watch(activityByIdProvider(solicitud.activityId));
+    
     final String? nombreUsuario = solicitud.userId != null
         ? ref.watch(userNameProvider(solicitud.userId!))
         : null;
@@ -29,6 +32,34 @@ class RequestDetailPage extends ConsumerWidget {
         ? ref.watch(reservationByIdProvider(solicitud.reservationId!))
         : null;
 
+    // --- PRECIO DE LA ACTIVIDAD ---
+    final double precioCalculadoActividad = actividad != null
+        ? (actividad.price * solicitud.participantCount)
+        : (solicitud.totalPrice > 0 ? solicitud.totalPrice : 0.0);
+
+    // --- CÁLCULO DEL PRECIO DE LA RESERVA ---
+    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+    double precioReservaConDanios = 0.0;
+
+    if (reserva != null) {
+      double costeAlquilerMaterial = 0.0;
+      final int dias = reserva.endDate.difference(reserva.startDate).inDays;
+      final int multiplicadorDias = dias <= 0 ? 1 : dias;
+
+      for (final linea in reserva.lines) {
+        final Equipment? matchingEquip = equipamientos.cast<Equipment?>().firstWhere(
+          (e) => e?.id == linea.equipmentId,
+          orElse: () => null,
+        );
+        if (matchingEquip != null) {
+          costeAlquilerMaterial += matchingEquip.pricePerDay * linea.quantity * multiplicadorDias;
+        }
+      }
+      precioReservaConDanios = costeAlquilerMaterial + reserva.damageFee;
+    }
+
+    final double importeFinalTodoIncluido = precioCalculadoActividad + precioReservaConDanios;
+
     final Color accentColor = switch (solicitud.status) {
       RequestStatus.confirmada => cs.primary,
       RequestStatus.pendiente  => cs.tertiary,
@@ -38,17 +69,13 @@ class RequestDetailPage extends ConsumerWidget {
     };
 
     return Scaffold(
-// CustomScrollView porque necesitamos: SliverAppBar que se colapsa y Contenido normal debajo (SliverToBoxAdapter)
       body: CustomScrollView(
         slivers: [
-          // Header 
           DetailSliverHeader(
             title: s.requestDetail(solicitud.id),
             subtitle: solicitud.status.localizedLabel(s),
             color: accentColor,
           ),
-
-          // Contenido 
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(20, 24, 20, MediaQuery.of(context).padding.bottom + 32),
@@ -58,20 +85,17 @@ class RequestDetailPage extends ConsumerWidget {
                   // Stats
                   Row(
                     children: [
-                      // Participantes
                       DetailStatItem(
                         label: s.participants,
                         value: '${solicitud.participantCount}',
                       ),
-                      // Precio total
-                      if (solicitud.totalPrice > 0) ...[
+                      if (importeFinalTodoIncluido > 0) ...[
                         Container(width: 1, height: 36, color: cs.outlineVariant),
                         DetailStatItem(
-                          label: s.totalPrice,
-                          value: s.priceEur(solicitud.totalPrice.toStringAsFixed(2)),
+                          label: s.total,
+                          value: s.priceEur(importeFinalTodoIncluido.toStringAsFixed(2)),
                         ),
                       ],
-                      // Materiales solicitados
                       if (solicitud.requestedMaterials.isNotEmpty) ...[
                         Container(width: 1, height: 36, color: cs.outlineVariant),
                         DetailStatItem(
@@ -96,12 +120,6 @@ class RequestDetailPage extends ConsumerWidget {
                         s.participants,
                         s.participantsCount(solicitud.participantCount),
                       ),
-                      if (solicitud.totalPrice > 0)
-                        DetailRow(
-                          Icons.euro_outlined,
-                          s.totalPrice,
-                          s.priceEur(solicitud.totalPrice.toStringAsFixed(2)),
-                        ),
                       if (reserva != null)
                         DetailRow(
                           Icons.book_online_outlined,
@@ -149,17 +167,38 @@ class RequestDetailPage extends ConsumerWidget {
                       title: s.requestedMaterial,
                       children: [
                         for (final entry in solicitud.requestedMaterials.entries)
-                          Builder(builder: (context) {
-                            final String nombre = ref.watch(equipmentNameProvider(entry.key));
-                            return DetailRow(
-                              Icons.inventory_2_outlined,
-                              nombre,
-                              s.unitsShort(entry.value),
-                            );
-                          }),
+                          DetailRow(
+                            Icons.inventory_2_outlined,
+                            ref.watch(equipmentNameProvider(entry.key)),
+                            s.unitsShort(entry.value),
+                          ),
                       ],
                     ),
                   ],
+
+                  // Resumen de precios
+                  const SizedBox(height: 20),
+                  DetailSection(
+                    title: s.priceSummary,
+                    children: [
+                      DetailRow(
+                        Icons.confirmation_number_outlined,
+                        s.actividadSection,
+                        s.priceEur(precioCalculadoActividad.toStringAsFixed(2)),
+                      ),
+                      if (reserva != null)
+                        DetailRow(
+                          Icons.inventory_2_outlined,
+                          s.associatedReservation,
+                          s.priceEur(precioReservaConDanios.toStringAsFixed(2)),
+                        ),
+                      DetailRow(
+                        Icons.analytics_outlined,
+                        s.total,
+                        s.priceEur(importeFinalTodoIncluido.toStringAsFixed(2)),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -169,5 +208,3 @@ class RequestDetailPage extends ConsumerWidget {
     );
   }
 }
-
-

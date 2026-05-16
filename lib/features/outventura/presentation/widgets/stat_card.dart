@@ -32,7 +32,7 @@ class StatCard extends StatelessWidget {
         Text(
           value,
           style: isPlain
-              ? tt.titleMedium?.copyWith(color: textColor, fontWeight: FontWeight.bold)
+              ? tt.titleMedium?.copyWith(color: textColor)
               : tt.labelLarge?.copyWith(color: textColor),
         ),
         const SizedBox(height: 2),

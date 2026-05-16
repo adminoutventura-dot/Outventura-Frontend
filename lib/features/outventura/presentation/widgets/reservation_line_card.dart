@@ -9,6 +9,7 @@ class ReservationLineCard extends StatelessWidget {
   final ReservationLine linea;
   final Equipment equipamiento;
   final int cantidadDaniada;
+  final bool esCliente;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback? menosCoste;
@@ -19,6 +20,7 @@ class ReservationLineCard extends StatelessWidget {
     required this.linea,
     required this.equipamiento,
     required this.cantidadDaniada,
+    this.esCliente = false,
     required this.onEdit,
     required this.onDelete,
     this.menosCoste,
@@ -32,6 +34,9 @@ class ReservationLineCard extends StatelessWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final double totalDanio = cantidadDaniada * equipamiento.damageFee;
 
+    // Solo se muestra la sección inferior de gestión de averías si NO es cliente
+    final bool mostrarSeccionDanios = !esCliente;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
@@ -40,12 +45,25 @@ class ReservationLineCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Fila superior: Icono, Nombre + Precio unitario, Cantidad y Acciones
             Row(
               children: [
                 Icon(Icons.inventory_2_outlined, color: cs.primary, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(equipamiento.title, style: tt.bodyMedium),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(equipamiento.title, style: tt.bodyMedium),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${s.priceEur(equipamiento.pricePerDay.toStringAsFixed(2))}/ud.',
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 TagWidget(
                   text: 'x${linea.quantity}',
@@ -68,52 +86,64 @@ class ReservationLineCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        s.damagedUnits,
-                        style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-                      ),
-                      Text(
-                        s.damageFeePerUnit(equipamiento.damageFee.toStringAsFixed(2)),
-                        style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-                      ),
-                    ],
+            
+            // --- SECCIÓN DE DAÑOS (SOLO PARA TRABAJADORES/ADMINS) ---
+            if (mostrarSeccionDanios) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Marca cantidad de unidades dañadas:',
+                          style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                        Text(
+                          '${s.damageCharge}: ${s.damageFeePerUnit(equipamiento.damageFee.toStringAsFixed(2))}',
+                          style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.7)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.remove),
+                    onPressed: menosCoste,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Text(
+                      '$cantidadDaniada / ${linea.quantity}',
+                      style: tt.bodyMedium,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add), 
+                    onPressed: masCoste,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 5),
+              Divider(
+                color: cs.onSurfaceVariant.withValues(alpha: 0.35),
+                thickness: 1,
+                height: 0,
+              ),
+
+              // Total por daños en esta línea
+              if (cantidadDaniada > 0) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '${totalDanio.toStringAsFixed(2)} €',
+                    style: tt.labelMedium?.copyWith(
+                      color: cs.error,
+                    ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.remove),
-                  onPressed: menosCoste,
-                ),
-                Text(
-                  '$cantidadDaniada / ${linea.quantity}',
-                  style: tt.bodyMedium,
-                ),
-                IconButton(icon: const Icon(Icons.add), onPressed: masCoste),
               ],
-            ),
-            const SizedBox(height: 5),
-            Divider(
-              color: cs.onSurfaceVariant.withValues(alpha: 0.35),
-              thickness: 1,
-              height: 0,
-            ),
-
-            // Total cantidad dañada
-            if (cantidadDaniada > 0) ...[
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '${totalDanio.toStringAsFixed(2)} €',
-                  style: tt.labelMedium?.copyWith(color: cs.error),
-                ),
-              ),
             ],
           ],
         ),
@@ -121,4 +151,3 @@ class ReservationLineCard extends StatelessWidget {
     );
   }
 }
-

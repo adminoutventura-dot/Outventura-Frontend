@@ -253,13 +253,12 @@ class ReservationCard extends StatelessWidget {
                       ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onAprobar!),
                     ],
                     if (onRegistrarDevolucion != null) ...[
-                      
                       ActionIcon(icon: Icons.assignment_return_outlined, color: cs.secondary, onTap: onRegistrarDevolucion!),
                     ],
-                    if (onEditar != null)
+                    if (onEditar != null) ...[
                       const SizedBox(width: 8),
-                      ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!
-                    ),
+                      ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!),
+                    ],
                     if (onVerDetalle != null) ...[
                       const SizedBox(width: 8),
                       ActionIcon(icon: Icons.chevron_right, color: cs.onPrimaryContainer, onTap: onVerDetalle!),

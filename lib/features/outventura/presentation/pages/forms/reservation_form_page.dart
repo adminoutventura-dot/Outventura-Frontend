@@ -102,7 +102,15 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
           .toList();
     }
 
+    // --- CÁLCULO DE ALTURAS PARA EL TRASPASO DE BARS ---
+    final double topPadding = MediaQuery.of(context).padding.top + kToolbarHeight;
+    // Estimación estándar para el BottomPriceBar (puedes ajustarlo si mide diferente)
+    final double bottomBarHeight = MediaQuery.of(context).padding.bottom + 100;
+
+
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       backgroundColor: cs.surface,
       appBar: CustomAppBarForm(title: widget.reserva != null ? s.editReservation(widget.reserva!.id) : s.newReservation),
       bottomNavigationBar: BottomPriceBar(
@@ -122,7 +130,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
         },
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+        padding: EdgeInsets.fromLTRB(20, topPadding + 20, 20, bottomBarHeight + 24),
         child: Form(
           key: _controller.formKey,
           child: Column(
@@ -275,112 +283,77 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   ),
                 )
               else
-                ListView.builder(
-                  // Hace que el ListView solo ocupe el espacio necesario para mostrar sus hijos.
-                  shrinkWrap: true,
-                  // Desactiva el scroll del ListView, para que el scroll lo maneje el SingleChildScrollView.
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _controller.lineas.length,
-                  itemBuilder: (_, int i) {
-                    final ReservationLine linea = _controller.lineas[i];
+                for (int i = 0; i < _controller.lineas.length; i++) ...[
+                  Builder(
+                    builder: (_) {
+                      final ReservationLine linea = _controller.lineas[i];
 
-                    // Buscar el equipamiento que corresponde a esta línea.
-                    Equipment equip = equipamientos.first;
-                    for (final Equipment eq in equipamientos) {
-                      if (eq.id == linea.equipmentId) {
-                        equip = eq;
-                        break;
+                      Equipment equip = equipamientos.first;
+                      for (final Equipment eq in equipamientos) {
+                        if (eq.id == linea.equipmentId) {
+                          equip = eq;
+                          break;
+                        }
                       }
-                    }
 
-                    final int daniadas = _controller.cantidadDaniada(linea.equipmentId);
-                    // Card de la línea de reserva
-                    return ReservationLineCard(
-                      linea: linea,
-                      equipamiento: equip,
-                      cantidadDaniada: daniadas,
-                      onEdit: () => _mostrarDialogoLinea(index: i),
-                      onDelete: () =>
-                          setState(() => _controller.eliminarLinea(i)),
-                      menosCoste: daniadas > 0
-                          ? () => setState(
-                              () => _controller.establecerCantidadDaniada(
-                                linea.equipmentId,
-                                daniadas - 1,
-                              ),
-                            )
-                          : null,
-                      masCoste: daniadas < linea.quantity
-                          ? () => setState(
-                              () => _controller.establecerCantidadDaniada(
-                                linea.equipmentId,
-                                daniadas + 1,
-                              ),
-                            )
-                          : null,
-                    );
-                  },
-                ),
-
-              // Resumen de precio
-              if (_controller.lineas.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: cs.onTertiary.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: cs.onTertiary),
+                      final int daniadas = _controller.cantidadDaniada(linea.equipmentId);
+                      
+                      return ReservationLineCard(
+                        linea: linea,
+                        equipamiento: equip,
+                        cantidadDaniada: daniadas,
+                        esCliente: modoCliente,
+                        onEdit: () => _mostrarDialogoLinea(index: i),
+                        onDelete: () => setState(() => _controller.eliminarLinea(i)),
+                        menosCoste: daniadas > 0
+                            ? () => setState(
+                                  () => _controller.establecerCantidadDaniada(
+                                    linea.equipmentId,
+                                    daniadas - 1,
+                                  ),
+                                )
+                            : null,
+                        masCoste: daniadas < linea.quantity
+                            ? () => setState(
+                                  () => _controller.establecerCantidadDaniada(
+                                    linea.equipmentId,
+                                    daniadas + 1,
+                                  ),
+                                )
+                            : null,
+                      );
+                    },
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ],
+
+              const Divider(),
+              
+              // Daños
+              if (_controller.lineas.isNotEmpty) ...[
+                const SizedBox(height: 5),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(s.priceSummary, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
-                      const SizedBox(height: 6),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(s.materialsRental, style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
-                          Text(
-                            s.priceEur(_controller.totalAlquiler(equipamientos).toStringAsFixed(2)),
-                            style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer),
-                          ),
-                        ],
-                      ),
-                      if (_controller.totalCargoDanios(equipamientos) > 0) ...[
-                        const SizedBox(height: 2),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(s.totalDamages, style: tt.bodySmall?.copyWith(color: cs.error)),
-                            Text(
-                              '+ ${s.priceEur(_controller.totalCargoDanios(equipamientos).toStringAsFixed(2))}',
-                              style: tt.bodySmall?.copyWith(color: cs.error),
-                            ),
-                          ],
+                      Text(s.total, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
+                      Text(
+                        s.priceEur(
+                          (_controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos)).toStringAsFixed(2),
                         ),
-                      ],
-                      const Divider(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(s.total, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
-                          Text(
-                            s.priceEur(
-                              (_controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos)).toStringAsFixed(2),
-                            ),
-                            style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer),
-                          ),
-                        ],
+                        style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer),
                       ),
+
                     ],
                   ),
                 ),
               ],
+              
               const SizedBox(height: 16),
 
               // Botón de borrar (solo en modo edición)
-              if (widget.reserva != null)
+              if (widget.reserva != null) ...[
+                const SizedBox(height: 20),
                 SecondaryButton(
                   label: s.deleteReservation,
                   onPressed: () async {
@@ -397,6 +370,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   },
                   borderColor: cs.error,
                 ),
+              ],
             ],
           ),
         ),

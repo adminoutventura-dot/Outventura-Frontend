@@ -81,7 +81,6 @@ class FilterBottomSheetContent extends StatelessWidget {
             children: [
               Text(
                 s.filtersTitle,
-                style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               TertiaryButton(
                 label: s.clearAll,

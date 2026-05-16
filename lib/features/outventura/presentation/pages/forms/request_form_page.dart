@@ -19,6 +19,7 @@ import 'package:outventura/features/outventura/presentation/controllers/request_
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart'; // <-- TU ARCHIVO DE PROVIDERS
 import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 
 class SolicitudFormPage extends ConsumerStatefulWidget {
@@ -39,20 +40,17 @@ class SolicitudFormPage extends ConsumerStatefulWidget {
 
 class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
   late final RequestFormController _controller;
-  // Al editar sin reserva, los materiales se ocultan hasta que el usuario pulse "Añadir materiales".
   bool _mostrarMateriales = false;
 
   @override
   void initState() {
     super.initState();
     _controller = RequestFormController();
-    // Si se ha pasado una solicitud, cargar sus datos en el controlador. 
     if (widget.solicitud != null) {
       _controller.cargarSolicitud(widget.solicitud!);
       if (widget.initialIdUsuario != null) {
         _controller.idUsuario = widget.initialIdUsuario;
       }
-      // Si no, aplicar valores iniciales.
     } else {
       _controller.aplicarValoresIniciales(
         idActividad: widget.initialIdActividad,
@@ -62,9 +60,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
     if (widget.solicitud == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
         setState(() => _controller.recalcularMateriales(ref.read(activitiesProvider).value ?? []));
       });
     }
@@ -85,7 +81,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
     final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
 
-    // Si la reserva vinculada fue borrada desde otra pantalla, limpiar el controller.
     if (_controller.idReserva != null) {
       final List<Reservation> reservas = ref.watch(reservationsProvider).value ?? [];
       final bool reservaAunExiste = reservas.any((Reservation r) => r.id == _controller.idReserva);
@@ -101,7 +96,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
       }
     }
 
-    // Indica si estamos en modo cliente (se ha pasado un idUsuario fijo).
     final bool modoCliente = widget.initialIdUsuario != null;
 
     List<User> usuariosDisponibles = ref.watch(usuariosProvider).value ?? [];
@@ -111,33 +105,27 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
           .toList();
     }
 
-    final Activity? actividadSeleccionada = _controller.buscarActividadSeleccionada( actividades );
+    final Activity? actividadSeleccionada = _controller.buscarActividadSeleccionada(actividades);
 
-    // Cargo por daños de la reserva asociada (si existe y tiene daños registrados).
     final List<Reservation> todasReservas = ref.watch(reservationsProvider).value ?? [];
     final Reservation? reservaAsociada = _controller.idReserva != null
         ? todasReservas.where((Reservation r) => r.id == _controller.idReserva).firstOrNull
         : null;
     final double cargoDanios = reservaAsociada?.damageFee ?? 0;
 
-    // Mapa para mostrar el nombre del equipamiento a partir de su id.
-    final Map<int, String> nombrePorId = {};
-    final Map<int, double> precioPorId = {};
-    for (final Equipment e in equipamientos) {
-      nombrePorId[e.id] = e.title;
-      precioPorId[e.id] = e.pricePerDay;
-    }
-
     final double totalPrice = _controller.calcularPrecioTotal(actividades, equipamientos);
+    final double topPadding = MediaQuery.of(context).padding.top + kToolbarHeight;
+    final double bottomBarHeight = MediaQuery.of(context).padding.bottom + 100;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       appBar: CustomAppBarForm(title: isEdit ? s.editRequest : s.newRequest),
       bottomNavigationBar: BottomPriceBar(
         totalLabel: s.total,
         price: s.priceEur(totalPrice.toStringAsFixed(2)),
         actionLabel: isEdit ? s.save : s.create,
         onPressed: () {
-          // Si no hay reserva asociada pero se han seleccionado materiales, crear la reserva antes de guardar.
           if (_controller.idReserva == null && _controller.tieneMateriales) {
             final Reservation? reserva = _controller.crearReservaDesdeSolicitud(
               context: context,
@@ -146,11 +134,9 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             if (reserva == null) return;
           }
 
-          // Crear la solicitud a partir de los datos del formulario.
           final Request? solicitud = _controller.crearSolicitud(actividades, equipamientos);
           if (solicitud == null) return;
 
-          // Sincronizar la reserva asociada si existe.
           final List<Reservation> reservasActuales = ref.read(reservationsProvider).value ?? [];
           final Reservation? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
           if (reservaActualizada != null && solicitud.reservationId != null) {
@@ -160,16 +146,14 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             }
           }
 
-          // Cerrar la página y devolver la solicitud.
           Navigator.of(context).pop(solicitud);
         },
       ),
       body: Form(
         key: _controller.formKey,
         child: ListView(
-          padding: EdgeInsets.fromLTRB( 16, 16, 16, MediaQuery.of(context).padding.bottom + 24 ),
+          padding: EdgeInsets.fromLTRB(20, topPadding + 20, 20, bottomBarHeight + 24),
           children: [
-            // Usuario (cliente)
             AppDropdownField<User>(
               value: _controller.idUsuario,
               items: usuariosDisponibles,
@@ -185,7 +169,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             ),
 
             const SizedBox(height: 20),
-            // Excursión
             AppDropdownField<Activity>(
               value: _controller.idActividad,
               items: actividades,
@@ -197,13 +180,14 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               isRequired: true,
               enabled: !modoCliente,
               onChanged: (int? v) {
-                setState(() => _controller.idActividad = v);
-                setState(() => _controller.recalcularMateriales(actividades));
+                setState(() {
+                  _controller.idActividad = v;
+                  _controller.recalcularMateriales(actividades);
+                });
               },
             ),
 
             const SizedBox(height: 20),
-            // Participantes
             CustomInputField(
               controller: _controller.participantesCtrl,
               labelText: s.numberOfParticipants,
@@ -212,11 +196,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               onChanged: (_) => setState(() => _controller.recalcularMateriales(actividades)),
             ),
 
-            // Material recomendado y selección de materiales (solo si se ha seleccionado una excursión)
             const SizedBox(height: 20),
-            // Al crear: materiales con controles desde el inicio.
-            // Al editar sin reserva: botón para mostrar materiales, ocultos por defecto.
-            // Al editar con reserva: materiales en solo lectura.
             if (!isEdit || _mostrarMateriales) ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -242,9 +222,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               ),
               const SizedBox(height: 8),
 
-              // Si no hay excursión seleccionada, mostrar mensaje. 
-              // Si la excursión no requiere material, mostrar otro mensaje. 
-              // Si hay materiales, mostrarlos con controles para modificar las cantidades.
               if (actividadSeleccionada == null)
                 Text(
                   s.selectActividadToSeeMaterial,
@@ -259,13 +236,15 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 ..._controller.materialesSolicitados.entries.map((entry) {
                   final int idEquipamiento = entry.key;
                   final int cantidad = entry.value;
-                  final String nombre = nombrePorId[idEquipamiento] ?? s.materialId(idEquipamiento);
-                  final double? precioDiario = precioPorId[idEquipamiento];
+                  
+                  final String nombre = ref.watch(equipmentNameProvider(idEquipamiento));
+                  final Equipment? item = equipamientos.cast<Equipment?>().firstWhere((e) => e?.id == idEquipamiento, orElse: () => null);
+                  final double? precioDiario = item?.pricePerDay;
+
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
                       children: [
-                        // Nombre del material y precio diario 
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,8 +258,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                             ],
                           ),
                         ),
-
-                        // Botones: - (cantidad) + 
                         IconButton(
                           icon: const Icon(Icons.remove, size: 18),
                           onPressed: cantidad > 0
@@ -300,10 +277,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                     ),
                   );
                 }),
-
-            // Si estamos editando una solicitud sin reserva, mostrar botón para añadir materiales recomendados.
             ] else if (isEdit && _controller.idReserva == null && actividadSeleccionada != null && actividadSeleccionada.materialsPerParticipant.isNotEmpty) ...[
-              // Editando sin reserva: botón para añadir materiales
               TertiaryButton(
                 label: s.addMaterials,
                 icon: Icons.add,
@@ -314,23 +288,20 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                   }
                 }),
               ),
-
-            // Si estamos editando una solicitud con reserva, mostrar materiales en solo lectura (sin controles).
             ] else if (_controller.idReserva != null && _controller.materialesSolicitados.isNotEmpty) ...[
               Text(
                 s.reservedMaterialSection,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-
-              // .entries — convierte el Map<int, int> en un iterable de pares MapEntry<int, int> (clave=idEquipamiento, valor=cantidad)
-              // .map((entry) { ... }) — transforma cada entrada en un widget Padding con la fila de ese material
-              // ... (spread operator) — "despliega" la lista resultante dentro del array de widgets
               ..._controller.materialesSolicitados.entries.map((entry) {
                 final int idEquipamiento = entry.key;
                 final int cantidad = entry.value;
-                final String nombre = nombrePorId[idEquipamiento] ?? s.materialId(idEquipamiento);
-                final double? precioDiario = precioPorId[idEquipamiento];
+                
+                final String nombre = ref.watch(equipmentNameProvider(idEquipamiento));
+                final Equipment? item = equipamientos.cast<Equipment?>().firstWhere((e) => e?.id == idEquipamiento, orElse: () => null);
+                final double? precioDiario = item?.pricePerDay;
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
@@ -355,12 +326,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               }),
             ],
 
-            
             const SizedBox(height: 20),
-            // Si está en modo cliente, mostrar campos adicionales para estado y experto (solo lectura para el cliente, editable para el gestor).
             if (!modoCliente) ...[
-              const SizedBox(height: 20),
-              // Estado
               Text(
                 s.status,
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
@@ -378,7 +345,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               ),
 
               const SizedBox(height: 20),
-              // Experto
               AppDropdownField<User>(
                 value: _controller.idExperto,
                 items: ref.watch(usuariosProvider).value ?? [],
@@ -387,23 +353,24 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 prefixIcon: Icons.star_outline,
                 label: s.expert,
                 hint: s.selectExpert,
-                onChanged: (int? val) =>
-                    setState(() => _controller.idExperto = val),
+                onChanged: (int? val) => setState(() => _controller.idExperto = val),
               ),
             ],
 
             const SizedBox(height: 28),
-            // Resumen de precio total
             if (actividadSeleccionada != null) ...[
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration( color: cs.onTertiary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12), border: Border.all(color: cs.onTertiary) ),
+                decoration: BoxDecoration(
+                  color: cs.onTertiary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: cs.onTertiary),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(s.priceSummary, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
                     const SizedBox(height: 6),
-                    // Precio total de la excursión (precio por participante * número de participantes).
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -411,8 +378,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                         Text(s.priceEur((actividadSeleccionada.price * _controller.numeroParticipantes).toStringAsFixed(2)), style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer)),
                       ],
                     ),
-
-                    // Si hay materiales, mostrar el precio total de los materiales.
                     if (_controller.tieneMateriales) ...[
                       const SizedBox(height: 2),
                       Row(
@@ -430,20 +395,16 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                       ),
                     ],
                     const Divider(),
-
-                    // Precio total (excursión + materiales).
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(s.total, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
                         Text(
                           s.priceEur(_controller.calcularPrecioTotal(actividades, equipamientos).toStringAsFixed(2)), 
-                          style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)
+                          style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer),
                         ),
                       ],
                     ),
-
-                    // Cargo por daños (separado del total, solo si hay daños registrados)
                     if (cargoDanios > 0) ...[
                       const SizedBox(height: 6),
                       const Divider(),
@@ -460,7 +421,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               ),
               const SizedBox(height: 16),
             ],
-            // Botón: Editar reserva (solo si existe reserva asociada)
             if (isEdit && _controller.idReserva != null) ...[
               const SizedBox(height: 12),
               SecondaryButton(

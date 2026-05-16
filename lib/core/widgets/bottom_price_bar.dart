@@ -43,7 +43,6 @@ class BottomPriceBar extends StatelessWidget {
                   price,
                   style: tt.titleMedium?.copyWith(
                     color: cs.onPrimary,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
@@ -61,7 +60,6 @@ class BottomPriceBar extends StatelessWidget {
               ),
               child: Text(
                 actionLabel,
-                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],
