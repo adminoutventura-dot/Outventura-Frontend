@@ -53,7 +53,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
         automaticallyImplyLeading: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
-            gradient: AppGradients.profileHeader(cs),
+            gradient: AppGradients.appBar(cs),
           ),
         ),
       ),

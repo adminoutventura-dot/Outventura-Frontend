@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      padding: 20px;
+    }
+
+    .controls {
+      position: sticky;
+      top: 0;
+      background: #1a1a1a;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      z-index: 100;
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      flex-wrap: wrap;
+    }
+
+    .screen-btn {
+      padding: 10px 20px;
+      background: #2a2a2a;
+      border: 2px solid #444;
+      border-radius: 8px;
+      color: #e0e0e0;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .screen-btn:hover {
+      background: #333;
+      border-color: #666;
+    }
+
+    .screen-btn.active {
+      border-color: #8B8C22;
+      background: rgba(139, 140, 34, 0.15);
+      color: #B8B923;
+    }
+
+    .mockup-container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .phone-mockup {
+      width: 380px;
+      background: #000;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .screen-content {
+      background: #FFFBF5;
+      min-height: 812px;
+      position: relative;
+    }
+
+    /* Header Otoñal */
+    .autumn-header {
+      background: linear-gradient(135deg, #8B8C22 0%, #6D6E1A 100%);
+      padding: 48px 24px 32px;
+      position: relative;
+      overflow: hidden;
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+    }
+
+    .autumn-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .autumn-header::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .menu-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      margin-bottom: 16px;
+      cursor: pointer;
+    }
+
+    .header-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .header-subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 400;
+    }
+
+    /* Search Bar */
+    .search-container {
+      padding: 0 24px;
+      margin-top: -24px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .search-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .search-bar svg {
+      width: 20px;
+      height: 20px;
+      color: #A59B8D;
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+      color: #2a2a2a;
+      background: transparent;
+    }
+
+    .search-bar input::placeholder {
+      color: #A59B8D;
+    }
+
+    /* Cards Container */
+    .cards-container {
+      padding: 24px;
+    }
+
+    /* Card Otoñal */
+    .autumn-card {
+      background: white;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-header {
+      padding: 16px;
+      border-bottom: 1px solid #F0F0F0;
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+    }
+
+    .card-title-section {
+      flex: 1;
+    }
+
+    .card-route {
+      font-size: 15px;
+      font-weight: 600;
+      color: #2a2a2a;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .arrow-icon {
+      color: #8B8C22;
+      font-size: 14px;
+    }
+
+    .card-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .card-meta {
+      font-size: 12px;
+      color: #A59B8D;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-meta svg {
+      width: 12px;
+      height: 12px;
+      color: #8B8C22;
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-confirmada {
+      background: #E8F5E1;
+      color: #4A7C2E;
+    }
+
+    .status-pendiente {
+      background: #FFF4E6;
+      color: #C17817;
+    }
+
+    .status-finalizada {
+      background: #F5EFE6;
+      color: #8B6F47;
+    }
+
+    .status-cancelada {
+      background: #FCE8E3;
+      color: #C24A2E;
+    }
+
+    .card-body {
+      padding: 16px;
+      background: #FAFAFA;
+    }
+
+    .tag-container {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background: white;
+      border: 1px solid #E0E0E0;
+      color: #5a5a5a;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* Stats Cards */
+    .stats-section {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 700;
+      color: #8B8C22;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #6a6a6a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #E0E0E0;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0 12px;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+
+    .nav-item {
+      text-align: center;
+      padding: 8px 12px;
+      color: #A59B8D;
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: #8B8C22;
+    }
+
+    .nav-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .nav-label {
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* User Card */
+    .user-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .user-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8B8C22 0%, #6D6E1A 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #2a2a2a;
+      margin-bottom: 4px;
+    }
+
+    .user-email {
+      font-size: 13px;
+      color: #A59B8D;
+      margin-bottom: 4px;
+    }
+
+    .user-phone {
+      font-size: 12px;
+      color: #A59B8D;
+    }
+
+    .user-role {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .role-admin {
+      background: #FCE8E3;
+      color: #C24A2E;
+    }
+
+    .role-experto {
+      background: #E8F5E1;
+      color: #4A7C2E;
+    }
+
+    .role-cliente {
+      background: #FFF4E6;
+      color: #C17817;
+    }
+
+    /* Equipment Cards */
+    .equipment-card {
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .equipment-image {
+      width: 100%;
+      height: 140px;
+      background: linear-gradient(135deg, #F5EFE6 0%, #E8E0D5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .equipment-image svg {
+      width: 60px;
+      height: 60px;
+      color: #8B8C22;
+      opacity: 0.6;
+    }
+
+    .equipment-status {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .disponible {
+      background: #E8F5E1;
+      color: #4A7C2E;
+    }
+
+    .reservado {
+      background: #FCE8E3;
+      color: #C24A2E;
+    }
+
+    .equipment-info {
+      padding: 16px;
+    }
+
+    .equipment-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #2a2a2a;
+      margin-bottom: 6px;
+    }
+
+    .equipment-desc {
+      font-size: 13px;
+      color: #A59B8D;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .equipment-price {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .price-amount {
+      font-size: 16px;
+      font-weight: 700;
+      color: #8B8C22;
+    }
+
+    .price-period {
+      font-size: 12px;
+      color: #A59B8D;
+    }
+
+    .equipment-units {
+      font-size: 12px;
+      color: #6a6a6a;
+    }
+
+    /* Detail Screen */
+    .detail-section {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .section-title {
+      font-size: 13px;
+      color: #8B8C22;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #F5EFE6;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #F5F5F5;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-icon {
+      width: 36px;
+      height: 36px;
+      background: #F5EFE6;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8B8C22;
+      flex-shrink: 0;
+    }
+
+    .detail-content {
+      flex: 1;
+    }
+
+    .detail-label {
+      font-size: 12px;
+      color: #A59B8D;
+      margin-bottom: 2px;
+    }
+
+    .detail-value {
+      font-size: 14px;
+      color: #2a2a2a;
+      font-weight: 500;
+    }
+
+    /* Buttons */
+    .button-container {
+      padding: 0 24px 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      flex: 1;
+      background: linear-gradient(135deg, #8B8C22 0%, #6D6E1A 100%);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(139, 140, 34, 0.3);
+    }
+
+    .btn-secondary {
+      flex: 1;
+      background: white;
+      color: #8B8C22;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border: 2px solid #8B8C22;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      flex: 1;
+      background: #C24A2E;
+      color: white;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Nueva Solicitud Form */
+    .form-section {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      color: #6a6a6a;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #E0E0E0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #2a2a2a;
+      background: white;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #8B8C22;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #E0E0E0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #2a2a2a;
+      background: white;
+      cursor: pointer;
+    }
+
+    /* Nueva Reserva Form */
+    .reservation-item {
+      background: #FAFAFA;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid #E0E0E0;
+    }
+
+    .reservation-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .reservation-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2a2a2a;
+    }
+
+    .reservation-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .qty-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid #E0E0E0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      color: #8B8C22;
+    }
+
+    .qty-display {
+      min-width: 40px;
+      text-align: center;
+      font-weight: 600;
+      color: #2a2a2a;
+    }
+
+    .total-section {
+      background: #F5EFE6;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .total-label {
+      font-size: 14px;
+      color: #6a6a6a;
+      font-weight: 600;
+    }
+
+    .total-amount {
+      font-size: 24px;
+      font-weight: 700;
+      color: #8B8C22;
+    }
+
+    /* Detalle Solicitud/Reserva */
+    .detail-header-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      border-top: 4px solid #8B8C22;
+    }
+
+    .detail-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2a2a2a;
+      margin-bottom: 12px;
+    }
+
+    .detail-subtitle {
+      font-size: 13px;
+      color: #A59B8D;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="controls">
+    <button class="screen-btn active" onclick="showScreen(0)">🏠 Panel Admin</button>
+    <button class="screen-btn" onclick="showScreen(1)">📋 Solicitudes</button>
+    <button class="screen-btn" onclick="showScreen(2)">📅 Reservas</button>
+    <button class="screen-btn" onclick="showScreen(3)">👥 Usuarios</button>
+    <button class="screen-btn" onclick="showScreen(4)">🎒 Equipamiento</button>
+    <button class="screen-btn" onclick="showScreen(5)">➕ Nueva Solicitud</button>
+    <button class="screen-btn" onclick="showScreen(6)">➕ Nueva Reserva</button>
+    <button class="screen-btn" onclick="showScreen(7)">📄 Detalle Solicitud</button>
+    <button class="screen-btn" onclick="showScreen(8)">📄 Detalle Reserva</button>
+  </div>
+
+  <div class="mockup-container">
+    
+    <!-- Screen 0: Panel Admin -->
+    <div class="phone-mockup screen" id="screen0">
+      <div class="screen-content">
+        <div class="autumn-header">
+          <div class="header-content">
+            <div class="menu-icon">☰</div>
+            <h1 class="header-title">Panel de Administración</h1>
+            <p class="header-subtitle">Gestiona excursiones y equipamiento</p>
+          </div>
+        </div>
+
+        <div class="stats-section">
+          <div class="stat-card">
+            <div class="stat-number">12</div>
+            <div class="stat-label">Excursiones</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">25</div>
+            <div class="stat-label">Equipamiento</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">8</div>
+            <div class="stat-label">Pendientes</div>
+          </div>
+        </div>
+
+        <div class="cards-container">
+          <h3 style="font-size: 16px; color: #2a2a2a; margin-bottom: 16px; font-weight: 600;">Solicitudes Recientes</h3>
+          
+          <div class="autumn-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-route">
+                  Puerto de Sóller <span class="arrow-icon">→</span> Torre Picada
+                </div>
+                <div class="card-meta-row">
+                  <div class="card-meta">#SOL-001 · Laura Sánchez Torres</div>
+                </div>
+                <div class="card-meta">
+                  1 may 2026 · 6 personas
+                </div>
+              </div>
+              <div class="status-badge status-confirmada">Confirmada</div>
+            </div>
+            <div class="card-body">
+              <div class="tag-container">
+                <div class="tag">Acuático</div>
+                <div class="tag">Montaña</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="autumn-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-route">
+                  Deltebre <span class="arrow-icon">→</span> Isla de Buda
+                </div>
+                <div class="card-meta-row">
+                  <div class="card-meta">#SOL-002 · Diego Navarro Pérez</div>
+                </div>
+                <div class="card-meta">
+                  10 jun 2026 · 4 personas
+                </div>
+              </div>
+              <div class="status-badge status-pendiente">Pendiente</div>
+            </div>
+            <div class="card-body">
+              <div class="tag-container">
+                <div class="tag">Acuático</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item active">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Inicio</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">🥾</div>
+            <div class="nav-label">Excursiones</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">🎒</div>
+            <div class="nav-label">Material</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">📅</div>
+            <div class="nav-label">Reservas</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">👥</div>
+            <div class="nav-label">Usuarios</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 1: Solicitudes -->
+    <div class="phone-mockup screen" id="screen1" style="display: none;">
+      <div class="screen-content">
+        <div class="autumn-header">
+          <div class="header-content">
+            <div class="menu-icon">☰</div>
+            <h1 class="header-title">Gestión de Solicitudes</h1>
+            <p class="header-subtitle">Administra las peticiones de excursiones</p>
+          </div>
+        </div>
+
+        <div class="search-container">
+          <div class="search-bar">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" stroke-width="2"/>
+              <path d="M21 21l-4.35-4.35" stroke-width="2"/>
+            </svg>
+            <input type="text" placeholder="Buscar por excursión, ruta...">
+          </div>
+        </div>
+
+        <div class="cards-container">
+          <div class="autumn-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-route">
+                  Puerto de Sóller <span class="arrow-icon">→</span> Torre Picada
+                </div>
+                <div class="card-meta-row">
+                  <div class="card-meta">#SOL-001 · Laura Sánchez · Experto asignado</div>
+                </div>
+                <div class="card-meta">
+                  1 may 2026 · 10:00 - 14:00 · 6 personas
+                </div>
+              </div>
+              <div class="status-badge status-confirmada">Confirmada</div>
+            </div>
+            <div class="card-body">
+              <div class="tag-container">
+                <div class="tag">Acuático</div>
+                <div class="tag">Montaña</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="autumn-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-route">
+                  Fuente Dé <span class="arrow-icon">→</span> Torre Horcados Rojos
+                </div>
+                <div class="card-meta-row">
+                  <div class="card-meta">#SOL-003 · Laura Sánchez · Sin experto</div>
+                </div>
+                <div class="card-meta">
+                  15 jul 2026 · 10:00 - 14:00 · 3 personas
+                </div>
+              </div>
+              <div class="status-badge status-pendiente">Pendiente</div>
+            </div>
+            <div class="card-body">
+              <div class="tag-container">
+                <div class="tag">Acuático</div>
+                <div class="tag">Montaña</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="autumn-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-route">
+                  Benasque <span class="arrow-icon">→</span> Pico Cerler
+                </div>
+                <div class="card-meta-row">
+                  <div class="card-meta">#SOL-004 · Laura Sánchez · Experto asignado</div>
+                </div>
+                <div class="card-meta">
+                  20 dic 2026 · 08:00 - 16:00 · 2 personas
+                </div>
+              </div>
+              <div class="status-badge status-finalizada">Finalizada</div>
+            </div>
+            <div class="card-body">
+              <div class="tag-container">
+                <div class="tag">Nieve</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Inicio</div>
+          </div>
+          <div class="nav-item active">
+            <div class="nav-icon">📋</div>
+            <div class="nav-label">Solicitudes</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">📅</div>
+            <div class="nav-label">Reservas</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">🎒</div>
+            <div class="nav-label">Material</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">👥</div>
+            <div class="nav-label">Usuarios</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Reservas -->
+    <div class="phone-mockup screen" id="screen2" style="display: none;">
+      <div class="screen-content">
+        <div class="autumn-header">
+          <div class="header-content">
+            <div class="menu-icon">☰</div>
+            <h1 class="header-title">Gestión de Reservas</h1>
+            <p class="header-subtitle">Administra las reservas de material</p>
+          </div>
+        </div>
+
+        <div class="search-container">
+          <div class="search-bar">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" stroke-width="2"/>
+              <path d="M21 21l-4.35-4.35" stroke-width="2"/>
+            </svg>
+            <input type="text" placeholder="Buscar por usuario o excursión...">
+          </div>
+        </div>
+
+        <div class="cards-container">
+          <div class="autumn-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-route">#RES-101 · Ana García López</div>
+                <div class="card-meta">
+                  1 may 2026 - 2 may 2026
+                </div>
+                <div class="card-meta">
+                  Puerto de Sóller → Torre Picada
+                </div>
+              </div>
+              <div class="status-badge status-confirmada">Confirmada</div>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 13px; color: #6a6a6a;">Mochila 60L</span>
+                  <span style="font-size: 13px; font-weight: 600; color: #8B8C22;">×6</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 13px; color: #6a6a6a;">Bastones</span>
+                  <span style="font-size: 13px; font-weight: 600; color: #8B8C22;">×12</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="autumn-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-route">#RES-103 · Laura Sánchez Torres</div>
+                <div class="card-meta">
+                  1 abr 2026 - 3 abr 2026
+                </div>
+                <div class="card-meta">
+                  Deltebre → Isla de Buda
+                </div>
+              </div>
+              <div class="status-badge status-finalizada">Devuelta</div>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 13px; color: #6a6a6a;">Tabla de SUP</span>
+                  <span style="font-size: 13px; font-weight: 600; color: #8B8C22;">×1</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 13px; color: #6a6a6a;">Saco de dormir -10°C</span>
+                  <span style="font-size: 13px; font-weight: 600; color: #8B8C22;">×3</span>
+                </div>
+                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #F0F0F0; display: flex; align-items: center; gap: 6px;">
+                  <svg width="14" height="14" fill="none" stroke="#C24A2E" viewBox="0 0 24 24">
+                    <path d="M12 2L2 12l10 10 10-10L12 2z" stroke-width="2"/>
+                    <path d="M12 8v4M12 16h.01" stroke-width="2"/>
+                  </svg>
+                  <span style="font-size: 12px; color: #C24A2E; font-weight: 600;">Cargo daños: 50.00 €</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="autumn-card">
+            <div class="card-header">
+              <div class="card-title-section">
+                <div class="card-route">#RES-105 · Laura Sánchez Torres</div>
+                <div class="card-meta">
+                  15 jul 2026 - 17 jul 2026
+                </div>
+                <div class="card-meta">
+                  Fuente Dé → Torre de los Horcados Rojos
+                </div>
+              </div>
+              <div class="status-badge status-pendiente">Pendiente</div>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 13px; color: #6a6a6a;">Saco de dormir -10°C</span>
+                  <span style="font-size: 13px; font-weight: 600; color: #8B8C22;">×3</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Inicio</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">📋</div>
+            <div class="nav-label">Solicitudes</div>
+          </div>
+          <div class="nav-item active">
+            <div class="nav-icon">📅</div>
+            <div class="nav-label">Reservas</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">🎒</div>
+            <div class="nav-label">Material</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">👥</div>
+            <div class="nav-label">Usuarios</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: Usuarios -->
+    <div class="phone-mockup screen" id="screen3" style="display: none;">
+      <div class="screen-content">
+        <div class="autumn-header">
+          <div class="header-content">
+            <div class="menu-icon">☰</div>
+            <h1 class="header-title">Usuarios</h1>
+            <p class="header-subtitle">Gestiona los usuarios del sistema</p>
+          </div>
+        </div>
+
+        <div class="search-container">
+          <div class="search-bar">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" stroke-width="2"/>
+              <path d="M21 21l-4.35-4.35" stroke-width="2"/>
+            </svg>
+            <input type="text" placeholder="Buscar por nombre, email...">
+          </div>
+        </div>
+
+        <div class="cards-container">
+          <div class="user-card">
+            <div class="user-avatar">AG</div>
+            <div class="user-info">
+              <div class="user-name">Ana García López</div>
+              <div class="user-email">admin@outventura.com</div>
+              <div class="user-phone">📞 800 111 222</div>
+            </div>
+            <div class="user-role role-admin">Admin</div>
+          </div>
+
+          <div class="user-card">
+            <div class="user-avatar">CM</div>
+            <div class="user-info">
+              <div class="user-name">Carlos Martínez Ruiz</div>
+              <div class="user-email">cmartinez@outventura.com</div>
+              <div class="user-phone">📞 800 111 222</div>
+            </div>
+            <div class="user-role role-experto">Experto</div>
+          </div>
+
+          <div class="user-card">
+            <div class="user-avatar">LS</div>
+            <div class="user-info">
+              <div class="user-name">Laura Sánchez Torres</div>
+              <div class="user-email">lsanchez@outventura.com</div>
+              <div class="user-phone">📞 800 111 222</div>
+            </div>
+            <div class="user-role role-cliente">Cliente</div>
+          </div>
+
+          <div class="user-card">
+            <div class="user-avatar">DN</div>
+            <div class="user-info">
+              <div class="user-name">Diego Navarro Pérez</div>
+              <div class="user-email">dnavarro@outventura.com</div>
+              <div class="user-phone">📞 800 111 222</div>
+            </div>
+            <div class="user-role role-cliente">Cliente</div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Inicio</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">📋</div>
+            <div class="nav-label">Solicitudes</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">📅</div>
+            <div class="nav-label">Reservas</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">🎒</div>
+            <div class="nav-label">Material</div>
+          </div>
+          <div class="nav-item active">
+            <div class="nav-icon">👥</div>
+            <div class="nav-label">Usuarios</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 4: Equipamiento -->
+    <div class="phone-mockup screen" id="screen4" style="display: none;">
+      <div class="screen-content">
+        <div class="autumn-header">
+          <div class="header-content">
+            <div class="menu-icon">☰</div>
+            <h1 class="header-title">Equipamiento</h1>
+            <p class="header-subtitle">Gestiona el inventario de material</p>
+          </div>
+        </div>
+
+        <div class="search-container">
+          <div class="search-bar">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" stroke-width="2"/>
+              <path d="M21 21l-4.35-4.35" stroke-width="2"/>
+            </svg>
+            <input type="text" placeholder="Buscar por nombre...">
+          </div>
+        </div>
+
+        <div class="cards-container">
+          <div class="equipment-card">
+            <div class="equipment-image">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm11 0h7v7h-7v-7z"/>
+              </svg>
+              <div class="equipment-status disponible">Disponible</div>
+            </div>
+            <div class="equipment-info">
+              <div class="equipment-name">Tienda de campaña 4 estaciones</div>
+              <div class="equipment-desc">Para 2 personas, resistente al viento y lluvia.</div>
+              <div class="equipment-price">
+                <span class="price-amount">12.50€</span>
+                <span class="price-period">/día</span>
+              </div>
+              <div class="equipment-units">📦 8 uds</div>
+            </div>
+          </div>
+
+          <div class="equipment-card">
+            <div class="equipment-image">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-14l-8-4m8 4v14m0 0l-8-4m8 4l8-4m-16 0V7l8-4" stroke-width="2"/>
+              </svg>
+              <div class="equipment-status disponible">Disponible</div>
+            </div>
+            <div class="equipment-info">
+              <div class="equipment-name">Saco de dormir -10°C</div>
+              <div class="equipment-desc">Cómodo y cálido, ideal para frío extremo.</div>
+              <div class="equipment-price">
+                <span class="price-amount">10.00€</span>
+                <span class="price-period">/día</span>
+              </div>
+              <div class="equipment-units">📦 10 uds</div>
+            </div>
+          </div>
+
+          <div class="equipment-card">
+            <div class="equipment-image">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <ellipse cx="12" cy="12" rx="9" ry="6" stroke-width="2"/>
+                <path d="M12 6v12" stroke-width="2"/>
+              </svg>
+              <div class="equipment-status reservado">Reservado</div>
+            </div>
+            <div class="equipment-info">
+              <div class="equipment-name">Kayak individual</div>
+              <div class="equipment-desc">Kayak rígido de poliéster con pala.</div>
+              <div class="equipment-price">
+                <span class="price-amount">25.00€</span>
+                <span class="price-period">/día</span>
+              </div>
+              <div class="equipment-units">📦 4 uds</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Inicio</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">📋</div>
+            <div class="nav-label">Solicitudes</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">📅</div>
+            <div class="nav-label">Reservas</div>
+          </div>
+          <div class="nav-item active">
+            <div class="nav-icon">🎒</div>
+            <div class="nav-label">Material</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon">👥</div>
+            <div class="nav-label">Usuarios</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 5: Nueva Solicitud -->
+    <div class="phone-mockup screen" id="screen5" style="display: none;">
+      <div class="screen-content">
+        <div class="autumn-header">
+          <div class="header-content">
+            <div class="menu-icon">←</div>
+            <h1 class="header-title">Nueva Solicitud</h1>
+            <p class="header-subtitle">Crea una nueva excursión</p>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-group">
+            <label class="form-label">Cliente</label>
+            <select class="form-select">
+              <option>Selecciona un cliente</option>
+              <option>Laura Sánchez Torres</option>
+              <option>Diego Navarro Pérez</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Excursión</label>
+            <select class="form-select">
+              <option>Selecciona una excursión</option>
+              <option>Puerto de Sóller → Torre Picada</option>
+              <option>Deltebre → Isla de Buda</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Número de participantes</label>
+            <input type="number" class="form-input" placeholder="0" value="6">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Fecha</label>
+            <input type="date" class="form-input" value="2026-05-01">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Hora inicio</label>
+            <input type="time" class="form-input" value="10:00">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Hora fin</label>
+            <input type="time" class="form-input" value="14:00">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select class="form-select">
+              <option>Pendiente</option>
+              <option>Confirmada</option>
+              <option>Finalizada</option>
+              <option>Cancelada</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-container">
+          <button class="btn-secondary">Cancelar</button>
+          <button class="btn-primary">Crear Solicitud</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 6: Nueva Reserva -->
+    <div class="phone-mockup screen" id="screen6" style="display: none;">
+      <div class="screen-content">
+        <div class="autumn-header">
+          <div class="header-content">
+            <div class="menu-icon">←</div>
+            <h1 class="header-title">Nueva Reserva</h1>
+            <p class="header-subtitle">Reserva material para excursión</p>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-group">
+            <label class="form-label">Usuario</label>
+            <select class="form-select">
+              <option>Selecciona un usuario</option>
+              <option>Ana García López</option>
+              <option>Laura Sánchez Torres</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Excursión</label>
+            <select class="form-select">
+              <option>Selecciona una excursión</option>
+              <option>Puerto de Sóller → Torre Picada</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Fecha inicio</label>
+            <input type="date" class="form-input" value="2026-05-01">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Fecha fin</label>
+            <input type="date" class="form-input" value="2026-05-02">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label" style="margin-bottom: 16px;">Líneas de reserva</label>
+          
+          <div class="reservation-item">
+            <div class="reservation-header">
+              <div class="reservation-name">Mochila 60L</div>
+              <button class="btn-danger" style="padding: 6px 12px; font-size: 12px;">Eliminar</button>
+            </div>
+            <div class="reservation-controls">
+              <button class="qty-btn">−</button>
+              <div class="qty-display">6</div>
+              <button class="qty-btn">+</button>
+              <div style="margin-left: auto; font-size: 14px; font-weight: 600; color: #8B8C22;">75.00 €</div>
+            </div>
+          </div>
+
+          <div class="reservation-item">
+            <div class="reservation-header">
+              <div class="reservation-name">Bastones</div>
+              <button class="btn-danger" style="padding: 6px 12px; font-size: 12px;">Eliminar</button>
+            </div>
+            <div class="reservation-controls">
+              <button class="qty-btn">−</button>
+              <div class="qty-display">12</div>
+              <button class="qty-btn">+</button>
+              <div style="margin-left: auto; font-size: 14px; font-weight: 600; color: #8B8C22;">60.00 €</div>
+            </div>
+          </div>
+
+          <button class="btn-secondary" style="width: 100%; margin-top: 12px;">+ Añadir material</button>
+
+          <div class="total-section">
+            <div class="total-row">
+              <div class="total-label">Total reserva</div>
+              <div class="total-amount">135.00 €</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-container">
+          <button class="btn-secondary">Cancelar</button>
+          <button class="btn-primary">Guardar Reserva</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 7: Detalle Solicitud -->
+    <div class="phone-mockup screen" id="screen7" style="display: none;">
+      <div class="screen-content">
+        <div class="autumn-header">
+          <div class="header-content">
+            <div class="menu-icon">←</div>
+            <h1 class="header-title">Solicitud #SOL-001</h1>
+            <p class="header-subtitle">Detalles de la excursión</p>
+          </div>
+        </div>
+
+        <div class="detail-header-card">
+          <div class="status-badge status-confirmada" style="display: inline-block; margin-bottom: 12px;">Confirmada</div>
+          <div class="detail-title">Puerto de Sóller → Torre Picada</div>
+          <div class="detail-subtitle">Laura Sánchez Torres · 6 personas</div>
+        </div>
+
+        <div class="detail-section">
+          <div class="section-title">Información General</div>
+          
+          <div class="detail-row">
+            <div class="detail-icon">📅</div>
+            <div class="detail-content">
+              <div class="detail-label">Fecha</div>
+              <div class="detail-value">1 may 2026</div>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-icon">⏰</div>
+            <div class="detail-content">
+              <div class="detail-label">Horario</div>
+              <div class="detail-value">10:00 - 14:00</div>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-icon">👥</div>
+            <div class="detail-content">
+              <div class="detail-label">Participantes</div>
+              <div class="detail-value">6 personas</div>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-icon">🥾</div>
+            <div class="detail-content">
+              <div class="detail-label">Experto asignado</div>
+              <div class="detail-value">Carlos Martínez Ruiz</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="section-title">Etiquetas</div>
+          <div class="tag-container">
+            <div class="tag">Acuático</div>
+            <div class="tag">Montaña</div>
+          </div>
+        </div>
+
+        <div class="button-container">
+          <button class="btn-secondary">Editar</button>
+          <button class="btn-danger">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 8: Detalle Reserva -->
+    <div class="phone-mockup screen" id="screen8" style="display: none;">
+      <div class="screen-content">
+        <div class="autumn-header">
+          <div class="header-content">
+            <div class="menu-icon">←</div>
+            <h1 class="header-title">Reserva #RES-101</h1>
+            <p class="header-subtitle">Detalles de la reserva</p>
+          </div>
+        </div>
+
+        <div class="detail-header-card">
+          <div class="status-badge status-confirmada" style="display: inline-block; margin-bottom: 12px;">Confirmada</div>
+          <div class="detail-title">Ana García López</div>
+          <div class="detail-subtitle">1 may 2026 - 2 may 2026</div>
+        </div>
+
+        <div class="detail-section">
+          <div class="section-title">Información General</div>
+          
+          <div class="detail-row">
+            <div class="detail-icon">🥾</div>
+            <div class="detail-content">
+              <div class="detail-label">Excursión</div>
+              <div class="detail-value">Puerto de Sóller → Torre Picada</div>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-icon">📅</div>
+            <div class="detail-content">
+              <div class="detail-label">Fecha inicio</div>
+              <div class="detail-value">1 may 2026</div>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-icon">📅</div>
+            <div class="detail-content">
+              <div class="detail-label">Fecha fin</div>
+              <div class="detail-value">2 may 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="section-title">Material Reservado</div>
+          
+          <div class="detail-row">
+            <div class="detail-content">
+              <div class="detail-value">Mochila 60L</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 14px; color: #6a6a6a;">×6</span>
+              <span style="font-size: 14px; font-weight: 600; color: #8B8C22;">75.00 €</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-content">
+              <div class="detail-value">Bastones</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 14px; color: #6a6a6a;">×12</span>
+              <span style="font-size: 14px; font-weight: 600; color: #8B8C22;">60.00 €</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="total-section" style="margin: 0;">
+            <div class="total-row">
+              <div class="total-label">Total reserva</div>
+              <div class="total-amount">135.00 €</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-container">
+          <button class="btn-secondary">Editar</button>
+          <button class="btn-danger">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function showScreen(index) {
+      const screens = document.querySelectorAll('.screen');
+      const buttons = document.querySelectorAll('.screen-btn');
+      
+      screens.forEach((screen, i) => {
+        screen.style.display = i === index ? 'block' : 'none';
+      });
+      
+      buttons.forEach((btn, i) => {
+        if (i === index) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

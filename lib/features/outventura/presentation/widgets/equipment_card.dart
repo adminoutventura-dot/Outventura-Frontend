@@ -30,26 +30,13 @@ class _EquipmentCardState extends State<EquipmentCard> {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    Color badgeBg;
-    Color badgeFg;
-    switch (widget.equipamiento.status) {
-      case EquipmentStatus.disponible:
-        badgeBg = cs.primary;
-        badgeFg = cs.onPrimary;
-        break;
-      case EquipmentStatus.agotado:
-        badgeBg = cs.tertiary;
-        badgeFg = cs.onPrimary;
-        break;
-      case EquipmentStatus.mantenimiento:
-        badgeBg = cs.onSurfaceVariant;
-        badgeFg = cs.onPrimary;
-        break;
-      case EquipmentStatus.fueraDeServicio:
-        badgeBg = cs.error;
-        badgeFg = cs.onError;
-        break;
-    }
+    // Color base según el estado actual del equipamiento
+    final Color statusColor = switch (widget.equipamiento.status) {
+      EquipmentStatus.disponible => cs.primary,
+      EquipmentStatus.agotado => cs.tertiary,
+      EquipmentStatus.mantenimiento => cs.onSurfaceVariant,
+      EquipmentStatus.fueraDeServicio => cs.error,
+    };
 
     final double stockPorcentaje = widget.equipamiento.totalUnits > 0
         ? (widget.equipamiento.units / widget.equipamiento.totalUnits).clamp(0.0, 1.0)
@@ -105,10 +92,11 @@ class _EquipmentCardState extends State<EquipmentCard> {
                           ),
                         ),
                         const SizedBox(width: 3),
+                        // Badge de estado
                         TagWidget(
                           text: widget.equipamiento.status.localizedLabel(s),
-                          backgroundColor: badgeBg,
-                          textColor: badgeFg,
+                          backgroundColor: statusColor.withValues(alpha: 0.15),
+                          textColor: statusColor,
                         ),
                       ],
                     ),
@@ -180,7 +168,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                         // Alquilar
                         if (widget.onAlquilar != null) ...[
                           if (widget.onEliminar != null)
-                          const SizedBox(width: 10),
+                            const SizedBox(width: 10),
 
                           ActionIcon(
                             icon: Icons.add,

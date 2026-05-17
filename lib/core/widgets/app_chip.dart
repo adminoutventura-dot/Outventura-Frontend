@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
 // Grupo de chips que se pueden seleccionar. 
@@ -21,7 +22,6 @@ class AppChoiceChip extends StatelessWidget {
   final void Function(bool) onSelected;
 
   final Color? selectedColor;
-
   final Color? selectedBorderColor;
 
   const AppChoiceChip({
@@ -38,25 +38,38 @@ class AppChoiceChip extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final Color selColor = selectedColor ?? cs.onTertiary;
+    final Color selColor = selectedColor ?? cs.tertiary; 
     final Color selBorder = selectedBorderColor ?? cs.tertiary;
 
-    return ChoiceChip(
-      label: Text(label),
-      selected: seleccionado,
-      onSelected: onSelected,
-      selectedColor: selColor,
-      checkmarkColor: cs.onSurface,
-      backgroundColor: cs.onPrimary,
-      labelStyle: tt.labelMedium?.copyWith(
-        color: seleccionado ? cs.onSurface : cs.onSurfaceVariant,
-      ),
-      side: BorderSide(
-        color: seleccionado ? selBorder : cs.onSurfaceVariant,
-        width: 1.5,
-      ),
-      shape: RoundedRectangleBorder(
+    return Container(
+      padding: seleccionado ? const EdgeInsets.all(1.5) : const EdgeInsets.all(0), 
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
+        gradient: seleccionado ? AppGradients.cardAccent(selBorder) : null,
+      ),
+      child: ChoiceChip(
+        label: seleccionado 
+            ? ShaderMask(
+                blendMode: BlendMode.srcIn,
+                shaderCallback: (bounds) => AppGradients.cardAccent(selColor).createShader(bounds),
+                child: Text(label),
+              )
+            : Text(label),
+        selected: seleccionado,
+        onSelected: onSelected,
+        selectedColor: cs.surface,
+        backgroundColor: cs.onPrimary,
+        checkmarkColor: selColor, 
+        labelStyle: tt.labelMedium?.copyWith(
+          color: seleccionado ? selColor : cs.onSurfaceVariant
+        ),
+        side: BorderSide(
+          color: seleccionado ? Colors.transparent : cs.onSurfaceVariant,
+          width: seleccionado ? 0 : 1.5,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
       ),
     );
   }
@@ -69,7 +82,6 @@ class AppFilterChip extends StatelessWidget {
   final void Function(bool) onSelected;
 
   final Color? selectedColor;
-
   final Color? selectedBorderColor;
 
   const AppFilterChip({
@@ -86,33 +98,47 @@ class AppFilterChip extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final Color selColor = selectedColor ?? cs.secondary.withValues(alpha: 0.2);
+    final Color selColor = selectedColor ?? cs.primary; 
     final Color selBorder = selectedBorderColor ?? cs.primary;
 
-    return FilterChip(
-      label: Text(label),
-      // Indica si el chip debe mostrarse como seleccionado o no.
-      selected: seleccionado,
-      // Callback que se ejecuta cuando el usuario pulsa el chip.
-      onSelected: onSelected,
-      selectedColor: selColor,
-      checkmarkColor: cs.onPrimaryContainer,
-      backgroundColor: cs.onPrimary,
-      labelStyle: tt.labelMedium?.copyWith(
-        color: seleccionado ? cs.onPrimaryContainer : cs.onSurfaceVariant,
-      ),
-      side: BorderSide(
-        color: seleccionado ? selBorder : cs.onSurfaceVariant,
-        width: 1.5,
-      ),
-      shape: RoundedRectangleBorder(
+    return Container(
+      padding: seleccionado ? const EdgeInsets.all(1.5) : const EdgeInsets.all(0),
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
+        gradient: seleccionado ? AppGradients.cardAccent(selBorder) : null,
+      ),
+      child: FilterChip(
+        label: seleccionado 
+            ? ShaderMask(
+                blendMode: BlendMode.srcIn,
+                shaderCallback: (bounds) => AppGradients.cardAccent(selColor).createShader(bounds),
+                child: Text(label),
+              )
+            : Text(label),
+      // Indica si el chip debe mostrarse como seleccionado o no.
+        selected: seleccionado,
+      // Callback que se ejecuta cuando el usuario pulsa el chip.
+        onSelected: onSelected,
+        selectedColor: cs.surface,
+        backgroundColor: cs.onPrimary,
+        checkmarkColor: selColor,
+        labelStyle: tt.labelMedium?.copyWith(
+          color: seleccionado ? selColor : cs.onSurfaceVariant,
+          fontWeight: seleccionado ? FontWeight.bold : FontWeight.normal,
+        ),
+        side: BorderSide(
+          color: seleccionado ? Colors.transparent : cs.onSurfaceVariant,
+          width: seleccionado ? 0 : 1.5,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
       ),
     );
   }
 }
 
-// FormField de selección múltiple con chips que se integra con Form y muestra errores.
+// FormField de selección múltiple con chips
 class AppFilterChipFormField extends StatelessWidget {
   final List<ActivityCategory> seleccionados;
   final void Function(ActivityCategory) onToggle;

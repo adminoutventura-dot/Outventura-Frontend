@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
@@ -14,7 +14,6 @@ import 'package:outventura/features/outventura/presentation/providers/requests_p
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
-
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
@@ -78,100 +77,115 @@ class HomeClientePage extends ConsumerWidget {
         ),
       ),
       drawer: const AppDrawer(),
-      body: Column(
+      body: ListView(
+        padding: EdgeInsets.fromLTRB(16, 24, 16, MediaQuery.of(context).padding.bottom + 32),
         children: [
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.fromLTRB( 12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
-              children: [
-                const SizedBox(height: 24),
-                Text(
-                  s.greeting(usuario.name),
-                  style: tt.titleLarge?.copyWith(color: cs.onSurface),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  s.clientDescription,
-                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: PrimaryButton(
-                    label: s.myReservationsBtn,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const ReservationsPage(puedeGestionar: false, puedeCrear: true),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: PrimaryButton(
-                    label: s.myRequestsBtn,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const RequestsPage(puedeGestionar: false, puedeCrear: true),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  s.recentRequests,
-                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
-                const SizedBox(height: 12),
-                if (misSolicitudes.isEmpty)
-                  Text(
-                    s.noRequestsYet,
-                    style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                  )
-                else
-                  for (final Request solicitud in misSolicitudes.take(3))
-                    Builder(builder: (context) {
-                      final Activity? act = ref.watch(activityByIdProvider(solicitud.activityId));
-                      if (act == null) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: RequestCard(
-                          solicitud: solicitud,
-                          actividad: act,
-                          nombreUsuario: '${usuario.name} ${usuario.surname}',
-                        ),
-                      );
-                    }),
-                const SizedBox(height: 24),
-                Text(
-                  s.nuevasActividades,
-                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
-                const SizedBox(height: 12),
-                if (actividades.isEmpty)
-                  Text(
-                    s.noNuevasActividades,
-                    style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                  )
-                else
-                // Muestra las 3 actividades más recientes (asumiendo que están ordenadas por fecha de creación)
-                  for (final Activity actividad in actividades.take(3).toList().reversed)
-                    Card(
-                      elevation: 2,
-                      margin: const EdgeInsets.only(bottom: 10),
-                      child: ListTile(
-                        leading: const Icon(Icons.hiking_outlined),
-                        title: Text(actividad.startPoint, style: tt.titleMedium),
-                        subtitle: actividad.description != null
-                          ? Text(actividad.description!, maxLines: 2, overflow: TextOverflow.ellipsis)
-                            : null,
-                        trailing: Icon(Icons.arrow_forward_ios, color: cs.primary, size: 18),
-                      ),
-                    ),
-              ],
-            ),
+          Text(
+            s.greeting(usuario.name),
+            style: tt.titleLarge?.copyWith(color: cs.onSurface, fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 6),
+          Text(
+            s.clientDescription,
+            style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: 20),
+          
+          // --- FILA HORIZONTAL DE BOTONES ---
+          Row(
+            children: [
+              Expanded(
+                child: SecondaryButton(
+                  label: s.myReservationsBtn,
+                  backgroundColor: cs.surface,
+                  borderColor: cs.tertiary,
+                  borderRadius: 5,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ReservationsPage(puedeGestionar: false, puedeCrear: true),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SecondaryButton(
+                  label: s.myRequestsBtn,
+                  backgroundColor: cs.surface,
+                  borderColor: cs.tertiary,
+                  borderRadius: 5,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const RequestsPage(puedeGestionar: false, puedeCrear: true),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 28),
+          Text(
+            s.recentRequests,
+            style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: 12),
+          
+          if (misSolicitudes.isEmpty)
+            Text(
+              s.noRequestsYet,
+              style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.7)),
+            )
+          else
+            // Eliminado el Builder gracias al uso directo de tu provider
+            ...misSolicitudes.take(3).map((Request solicitud) {
+              final Activity? act = ref.watch(activityByIdProvider(solicitud.activityId));
+              if (act == null) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: RequestCard(
+                  solicitud: solicitud,
+                  actividad: act,
+                  nombreUsuario: '${usuario.name} ${usuario.surname}',
+                ),
+              );
+            }),
+            
+          const SizedBox(height: 24),
+          Text(
+            s.nuevasActividades,
+            style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: 12),
+          
+          if (actividades.isEmpty)
+            Text(
+              s.noNuevasActividades,
+              style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.7)),
+            )
+          else
+            ...actividades.take(3).toList().reversed.map((Activity actividad) {
+              return Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.2),
+                  ),
+                ),
+                margin: const EdgeInsets.only(bottom: 10),
+                child: ListTile(
+                  leading: Icon(
+                    Icons.hiking_outlined, 
+                    color: cs.primary,
+                  ),
+                  title: Text(actividad.startPoint, style: tt.titleMedium),
+                  subtitle: actividad.description != null
+                      ? Text(actividad.description!, maxLines: 2, overflow: TextOverflow.ellipsis)
+                      : null,
+                ),
+              );
+            }),
         ],
       ),
     );
@@ -185,7 +199,7 @@ class _HeaderDivider extends StatelessWidget {
       width: 1,
       height: 36,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      color: Theme.of(context).colorScheme.onPrimary.withAlpha(80),
+      color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
     );
   }
 }

@@ -97,152 +97,158 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
           // Empuja el contenido justo debajo de la parte plana del AppBar
           // (kToolbarHeight + status bar). Las partes sin nada son transparentes
           // y dejan ver el calendario por detrás.
-          SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight),
+          ColoredBox(
+            color: cs.tertiary,
+            child: SizedBox(
+              height: MediaQuery.of(context).padding.top + kToolbarHeight + 50,
+              width: double.infinity,
+            ),
+          ),
           ColoredBox(
             color: Color.alphaBlend(cs.surface.withValues(alpha: 0.8), cs.onTertiary),
             child: TableCalendar(
-            firstDay: DateTime.now().subtract(const Duration(days: 365)),
-            lastDay: DateTime.now().add(const Duration(days: 365)),
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
+              firstDay: DateTime.now().subtract(const Duration(days: 365)),
+              lastDay: DateTime.now().add(const Duration(days: 365)),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                });
+              },
+              onPageChanged: (focusedDay) {
                 _focusedDay = focusedDay;
-              });
-            },
-            onPageChanged: (focusedDay) {
-              _focusedDay = focusedDay;
-            },
-            eventLoader: (day) => _eventosDelDia(day, misReservas, misSolicitudes, actividades),
-            locale: Localizations.localeOf(context).toString(),
-            startingDayOfWeek: StartingDayOfWeek.monday,
-
-            // Estilo del header (mes y flechas)
-            headerStyle: HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-              decoration: BoxDecoration(color: cs.tertiary),
-              titleTextStyle: AppTextStyles.titleMedium.copyWith(color: cs.surface),
-              leftChevronIcon: Icon(Icons.chevron_left, color: cs.surface),
-              rightChevronIcon: Icon(Icons.chevron_right, color: cs.surface),
-            ),
-
-            // Estilo de la fila de días de la semana 
-            daysOfWeekHeight: 36,
-            daysOfWeekStyle: DaysOfWeekStyle(
-              decoration: BoxDecoration(color: cs.tertiary),
-              weekdayStyle: AppTextStyles.labelMedium.copyWith(color: cs.surface),
-              weekendStyle: AppTextStyles.labelMedium.copyWith(color: cs.surface.withValues(alpha: 0.7)),
-            ),
-            calendarBuilders: CalendarBuilders(
-              dowBuilder: (context, day) {
-                final days = [s.monShort, s.tueShort, s.wedShort, s.thuShort, s.friShort, s.satShort, s.sunShort];
-                final label = days[day.weekday - 1];
-                final isWeekend = day.weekday == 6 || day.weekday == 7;
-                return Container(
-                  color: cs.tertiary,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Text(
-                    label,
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: isWeekend ? cs.surface.withValues(alpha: 0.7) : cs.surface,
-                    ),
-                  ),
-                );
               },
+              eventLoader: (day) => _eventosDelDia(day, misReservas, misSolicitudes, actividades),
+              locale: Localizations.localeOf(context).toString(),
+              startingDayOfWeek: StartingDayOfWeek.monday,
 
-              // Celda seleccionada: fondo blanco + círculo azul
-              selectedBuilder: (context, day, focusedDay) {
-                return Container(
-                  color: cs.surface,
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: cs.onTertiary,
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '${day.day}',
-                      style: AppTextStyles.bodySmall.copyWith(color: cs.tertiary),
-                    ),
-                  ),
-                );
-              },
-
-              // Marcadores de eventos debajo del número del día
-              markerBuilder: (context, day, events) {
-                if (events.isEmpty) return const SizedBox.shrink();
-                final reservas = events.whereType<Reservation>().length;
-                final solicitudes = events.whereType<Request>().length;
-                return Positioned(
-                  bottom: 4,
-                  left: 2,
-                  right: 2,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (reservas > 0)
-                        Container(
-                          margin: const EdgeInsets.only(right: 2),
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: cs.tertiary,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            s.reservationsBadge(reservas),
-                            style: AppTextStyles.titleSmall.copyWith(color: cs.onPrimary),
-                          ),
-                        ),
-                      if (solicitudes > 0)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: cs.primary,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            s.requestsBadge(solicitudes),
-                            style: AppTextStyles.titleSmall.copyWith(color: cs.onPrimary),
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              },
-            ),
-
-            // Altura de las filas (días)
-            rowHeight: 64,
-
-            // Estilo de las celdas
-            calendarStyle: CalendarStyle(
-              // Día de hoy (sin seleccionar)
-              todayDecoration: BoxDecoration(
-                color: cs.onTertiary.withValues(alpha: 0.3),
-                shape: BoxShape.circle,
+              // Estilo del header (mes y flechas)
+              headerStyle: HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                decoration: BoxDecoration(color: cs.tertiary),
+                titleTextStyle: AppTextStyles.titleMedium.copyWith(color: cs.surface),
+                leftChevronIcon: Icon(Icons.chevron_left, color: cs.surface),
+                rightChevronIcon: Icon(Icons.chevron_right, color: cs.surface),
               ),
-              todayTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.tertiary),
 
-              // Días fuera del mes actual
-              outsideTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.onSurface.withValues(alpha: 0.35)),
-              outsideDaysVisible: true,
+              // Estilo de la fila de días de la semana 
+              daysOfWeekHeight: 36,
+              daysOfWeekStyle: DaysOfWeekStyle(
+                decoration: BoxDecoration(color: cs.tertiary),
+                weekdayStyle: AppTextStyles.labelMedium.copyWith(color: cs.surface),
+                weekendStyle: AppTextStyles.labelMedium.copyWith(color: cs.surface.withValues(alpha: 0.7)),
+              ),
+              calendarBuilders: CalendarBuilders(
+                dowBuilder: (context, day) {
+                  final days = [s.monShort, s.tueShort, s.wedShort, s.thuShort, s.friShort, s.satShort, s.sunShort];
+                  final label = days[day.weekday - 1];
+                  final isWeekend = day.weekday == 6 || day.weekday == 7;
+                  return Container(
+                    color: cs.tertiary,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      label,
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: isWeekend ? cs.surface.withValues(alpha: 0.7) : cs.surface,
+                      ),
+                    ),
+                  );
+                },
 
-              // Días normales del mes
-              defaultTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.onSurface),
-              weekendTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.onSurface),
+                // Celda seleccionada: fondo blanco + círculo azul
+                selectedBuilder: (context, day, focusedDay) {
+                  return Container(
+                    color: cs.surface,
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: cs.onTertiary,
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '${day.day}',
+                        style: AppTextStyles.bodySmall.copyWith(color: cs.tertiary),
+                      ),
+                    ),
+                  );
+                },
 
-              // Fondo de celdas 
-              defaultDecoration: BoxDecoration(color: cs.surface),
-              weekendDecoration: BoxDecoration(color: cs.surface.withValues(alpha: 0.5)),
-              outsideDecoration: BoxDecoration(color: cs.surface.withValues(alpha: 0.5)),
+                // Marcadores de eventos debajo del número del día
+                markerBuilder: (context, day, events) {
+                  if (events.isEmpty) return const SizedBox.shrink();
+                  final reservas = events.whereType<Reservation>().length;
+                  final solicitudes = events.whereType<Request>().length;
+                  return Positioned(
+                    bottom: 4,
+                    left: 2,
+                    right: 2,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (reservas > 0)
+                          Container(
+                            margin: const EdgeInsets.only(right: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: cs.tertiary,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              s.reservationsBadge(reservas),
+                              style: AppTextStyles.titleSmall.copyWith(color: cs.onPrimary),
+                            ),
+                          ),
+                        if (solicitudes > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: cs.primary,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              s.requestsBadge(solicitudes),
+                              style: AppTextStyles.titleSmall.copyWith(color: cs.onPrimary),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+
+              // Altura de las filas (días)
+              rowHeight: 64,
+
+              // Estilo de las celdas
+              calendarStyle: CalendarStyle(
+                // Día de hoy (sin seleccionar)
+                todayDecoration: BoxDecoration(
+                  color: cs.onTertiary.withValues(alpha: 0.3),
+                  shape: BoxShape.circle,
+                ),
+                todayTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.tertiary),
+
+                // Días fuera del mes actual
+                outsideTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.onSurface.withValues(alpha: 0.35)),
+                outsideDaysVisible: true,
+
+                // Días normales del mes
+                defaultTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.onSurface),
+                weekendTextStyle: AppTextStyles.bodySmall.copyWith(color: cs.onSurface),
+
+                // Fondo de celdas 
+                defaultDecoration: BoxDecoration(color: cs.surface),
+                weekendDecoration: BoxDecoration(color: cs.surface.withValues(alpha: 0.5)),
+                outsideDecoration: BoxDecoration(color: cs.surface.withValues(alpha: 0.5)),
+              ),
             ),
-          ),
           ), // ColoredBox
 
           Divider(height: 1, color: cs.onTertiary),

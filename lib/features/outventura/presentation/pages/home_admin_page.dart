@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
@@ -14,7 +14,6 @@ import 'package:outventura/features/outventura/presentation/providers/requests_p
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
-
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
@@ -26,6 +25,7 @@ class HomeAdminPage extends ConsumerWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
+    
     final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
     final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
     final List<Request> solicitudes = ref.watch(requestsProvider).value ?? [];
@@ -55,79 +55,91 @@ class HomeAdminPage extends ConsumerWidget {
           ),
         ),
       ),
-
-      // Drawer
       drawer: const AppDrawer(),
-
-      body: Column(
+      body: ListView(
+        padding: EdgeInsets.fromLTRB(16, 24, 16, MediaQuery.of(context).padding.bottom + 32),
         children: [
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.fromLTRB( 12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
-              children: [
-                const SizedBox(height: 24),
-                // Sección de accesos rápidos de gestión.
-                Text(
-                  s.management,
-                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: SecondaryButton(
-                    backgroundColor: cs.surface,
-                    label: s.users,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const UsersPage()),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: SecondaryButton(
-                    backgroundColor: cs.surface,
-                    label: s.reservations,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ReservationsPage(puedeGestionar: true, puedeCrear: true)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: SecondaryButton(
-                    backgroundColor: cs.surface,
-                    label: s.requests,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const RequestsPage(puedeGestionar: true, puedeCrear: true)),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-                // Título de sección.
-                Text(
-                  s.recentRequests,
-                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
-                const SizedBox(height: 12),
-
-                // Tarjetas de solicitudes recientes.
-                for (Request solicitud in solicitudes)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: RequestCard(
-                      solicitud: solicitud,
-                      actividad: ref.watch(activityByIdProvider(solicitud.activityId)) ?? actividades.first,
-                      nombreUsuario: solicitud.userId != null
-                          ? ref.watch(userNameProvider(solicitud.userId!))
-                          : null,
-                    ),
-                  ),
-              ],
-            ),
+          // Título de la sección de gestión
+          Text(
+            s.management,
+            style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
+          const SizedBox(height: 12),
+          
+          // --- FILA HORIZONTAL DE BOTONES ---
+          Row(
+            children: [
+              Expanded(
+                child: SecondaryButton(
+                  label: s.users,
+                  backgroundColor: cs.surface,
+                  borderColor: cs.tertiary,
+                  borderRadius: 5,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const UsersPage()),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SecondaryButton(
+                  label: s.reservations,
+                  backgroundColor: cs.surface,
+                  borderColor: cs.tertiary,
+                  borderRadius: 5,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ReservationsPage(puedeGestionar: true, puedeCrear: true)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SecondaryButton(
+                  label: s.requests,
+                  backgroundColor: cs.surface,
+                  borderColor: cs.tertiary,
+                  borderRadius: 5,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const RequestsPage(puedeGestionar: true, puedeCrear: true)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 28),
+          
+          // Título de sección de Solicitudes Recientes
+          Text(
+            s.recentRequests,
+            style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: 12),
+
+          // Tarjetas de solicitudes recientes
+          if (solicitudes.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Center(
+                child: Text(
+                  s.noReservations,
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.7)),
+                ),
+              ),
+            )
+          else
+            ...solicitudes.take(3).map((Request solicitud) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: RequestCard(
+                  solicitud: solicitud,
+                  actividad: ref.watch(activityByIdProvider(solicitud.activityId)) ?? actividades.first,
+                  nombreUsuario: solicitud.userId != null
+                      ? ref.watch(userNameProvider(solicitud.userId!))
+                      : null,
+                ),
+              );
+            }),
         ],
       ),
     );

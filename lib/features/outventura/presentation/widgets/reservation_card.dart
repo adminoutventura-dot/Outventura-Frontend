@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
@@ -6,12 +7,11 @@ import 'package:outventura/features/outventura/domain/entities/reservation.dart'
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
-// Información de una línea de reserva lista para mostrar en la tarjeta.
+
 typedef LineaDisplayInfo = ({String nombre, String? imagen, int cantidad});
 
 class ReservationCard extends StatelessWidget {
   final Reservation reserva;
-
   // Líneas de la reserva con datos resueltos por el padre (nombre, imagen, cantidad).
   final List<LineaDisplayInfo> lineas;
   final String nombreUsuario;
@@ -44,12 +44,13 @@ class ReservationCard extends StatelessWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    final (Color badgeBg, Color badgeFg, Color accentColor) = switch (reserva.status) {
-      ReservationStatus.pendiente => (cs.tertiary, cs.onPrimary, cs.onTertiary),
-      ReservationStatus.confirmada => (cs.primary, cs.onPrimary, cs.primary),
-      ReservationStatus.finalizada => (cs.onSurfaceVariant, cs.onPrimary, cs.onSurfaceVariant),
-      ReservationStatus.cancelada => (cs.error, cs.onError, cs.error),
-      ReservationStatus.enCurso => (cs.secondary, cs.onPrimary, cs.secondary),
+    // Colores base para el texto del badge según el estado
+    final Color statusColor = switch (reserva.status) {
+      ReservationStatus.pendiente => cs.tertiary,
+      ReservationStatus.confirmada => cs.primary,
+      ReservationStatus.enCurso => cs.secondary,
+      ReservationStatus.finalizada => cs.onSurfaceVariant,
+      ReservationStatus.cancelada => cs.error,
     };
 
     // Lista de imágenes de los equipamientos, filtrando los nulos
@@ -65,8 +66,13 @@ class ReservationCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Accent line
-          Container(height: 3, color: accentColor),
+          // --- LÍNEA DE ACENTO SUPERIOR CON DEGRADADO ---
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: AppGradients.cardAccent(statusColor),
+            ),
+            child: const SizedBox(height: 4, width: double.infinity),
+          ),
 
           Padding(
             padding: const EdgeInsets.fromLTRB(13, 11, 12, 10),
@@ -185,38 +191,39 @@ class ReservationCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
+                    // Badge con el color armonizado del estado correspondiente
                     TagWidget(
                       text: reserva.status.localizedLabel(s),
-                      backgroundColor: badgeBg,
-                      textColor: badgeFg,
+                      backgroundColor: statusColor.withValues(alpha: 0.15),
+                      textColor: statusColor,
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 10),
 
-                //  Líneas de la reserva
+                // Líneas de la reserva
                 ...lineas.map((LineaDisplayInfo l) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      Icon(Icons.inventory_2_outlined, size: 14, color: cs.onSurfaceVariant),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          l.nombre,
-                          style: tt.bodySmall?.copyWith(color: cs.onSurface),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        children: [
+                          Icon(Icons.inventory_2_outlined, size: 14, color: cs.onSurfaceVariant),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              l.nombre,
+                              style: tt.bodySmall?.copyWith(color: cs.onSurface),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          TagWidget(
+                            text: 'x${l.cantidad}',
+                            backgroundColor: cs.secondary.withValues(alpha: 0.15),
+                            textColor: cs.onPrimaryContainer,
+                          ),
+                        ],
                       ),
-                      TagWidget(
-                        text: 'x${l.cantidad}',
-                        backgroundColor: cs.secondary.withValues(alpha: 0.15),
-                        textColor: cs.onPrimaryContainer,
-                      ),
-                    ],
-                  ),
-                )),
+                    )),
 
                 const SizedBox(height: 5),
                 Divider(height: 1, color: cs.onSurfaceVariant.withValues(alpha: 0.2)),
@@ -239,9 +246,7 @@ class ReservationCard extends StatelessWidget {
                         ],
                       ),
                     ],
-
                     const Spacer(),
-
                     if (onCancelar != null)
                       ActionIcon(icon: Icons.cancel_outlined, color: cs.error, onTap: onCancelar!),
                     if (onRechazar != null) ...[
@@ -273,6 +278,3 @@ class ReservationCard extends StatelessWidget {
     );
   }
 }
-
-
-

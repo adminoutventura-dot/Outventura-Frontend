@@ -157,7 +157,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tabActividades => 'Actividades';
 
   @override
-  String get tabEquipment => 'Equipamiento';
+  String get tabEquipment => 'Equipo';
 
   @override
   String get tabCalendar => 'Calendario';

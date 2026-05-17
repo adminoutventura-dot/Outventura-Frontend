@@ -391,7 +391,7 @@ abstract class AppLocalizations {
   /// No description provided for @tabEquipment.
   ///
   /// In es, this message translates to:
-  /// **'Equipamiento'**
+  /// **'Equipo'**
   String get tabEquipment;
 
   /// No description provided for @tabCalendar.

@@ -157,7 +157,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get tabActividades => 'Activitats';
 
   @override
-  String get tabEquipment => 'Equipament';
+  String get tabEquipment => 'Equip';
 
   @override
   String get tabCalendar => 'Calendari';

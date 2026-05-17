@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
@@ -28,44 +29,22 @@ class RequestCard extends StatelessWidget {
     this.onVerDetalle,
   });
 
-
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    final (
-      Color badgeBg,
-      Color badgeFg,
-      Color accentColor,
-    ) = switch (solicitud.status) {
-      RequestStatus.confirmada => (
-        cs.primary, 
-        cs.onPrimary, 
-        cs.primary
-      ),
-      RequestStatus.pendiente => (
-        cs.tertiary,
-        cs.onPrimary,
-        cs.onTertiary,
-      ),
-      RequestStatus.finalizada => (
-        cs.onSurfaceVariant,
-        cs.onPrimary,
-        cs.onSurfaceVariant,
-      ),
-      RequestStatus.cancelada => (
-        cs.error, 
-        cs.onError, 
-        cs.error
-      ),
-      RequestStatus.enCurso => (
-        cs.secondary,
-        cs.onPrimary,
-        cs.secondary,
-      ),
+    // Colores base para armonizar el texto y fondo del badge según el estado
+    // Estructura idéntica: Extraemos el color base según el estado actual
+    final Color statusColor = switch (solicitud.status) {
+      RequestStatus.pendiente => cs.tertiary,
+      RequestStatus.confirmada => cs.primary,
+      RequestStatus.enCurso => cs.secondary,
+      RequestStatus.finalizada => cs.onSurfaceVariant,
+      RequestStatus.cancelada => cs.error,
     };
+
 
     return Container(
       decoration: BoxDecoration(
@@ -77,8 +56,13 @@ class RequestCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Línea según estado
-          Container(height: 3, color: accentColor),
+          // --- LÍNEA DE ACENTO SUPERIOR CON DEGRADADO ---
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: AppGradients.cardAccent(statusColor),
+            ),
+            child: const SizedBox(height: 4, width: double.infinity),
+          ),
 
           Padding(
             padding: const EdgeInsets.fromLTRB(13, 11, 12, 10),
@@ -126,7 +110,6 @@ class RequestCard extends StatelessWidget {
                               solicitud.expertId != null
                                   ? s.assignedExpert
                                   : s.noExpert,
-                              // Separa por guion
                             ].join('  -  '),
                             style: tt.labelSmall?.copyWith(
                               color: cs.onSurfaceVariant,
@@ -136,11 +119,11 @@ class RequestCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    // Badge estado
+                    // Badge estado con el fondo suave y texto a juego
                     TagWidget(
                       text: solicitud.status.localizedLabel(s),
-                      backgroundColor: badgeBg,
-                      textColor: badgeFg,
+                      backgroundColor: statusColor.withValues(alpha: 0.15),
+                      textColor: statusColor,
                     ),
                   ],
                 ),
@@ -150,7 +133,6 @@ class RequestCard extends StatelessWidget {
                 // Fecha / Horario / Participantes
                 Row(
                   children: [
-                    // Icono + fecha
                     Icon(
                       Icons.calendar_today_outlined,
                       size: 12,
@@ -164,8 +146,6 @@ class RequestCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-
-                    // Icono + horario
                     Icon(
                       Icons.schedule,
                       size: 12,
@@ -179,8 +159,6 @@ class RequestCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-
-                    // Icono + participantes
                     Icon(
                       Icons.group_outlined,
                       size: 12,
@@ -232,7 +210,6 @@ class RequestCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                         ],
-
                         if (onGestionar != null) ...[
                           ActionIcon(
                             icon: Icons.check_circle_outline,
@@ -241,7 +218,6 @@ class RequestCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                         ],
-
                         if (onEditar != null) ...[
                           ActionIcon(
                             icon: Icons.edit_outlined,
@@ -250,7 +226,6 @@ class RequestCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                         ],
-
                         if (onVerDetalle != null) ...[
                           ActionIcon(
                             icon: Icons.chevron_right,
@@ -271,4 +246,3 @@ class RequestCard extends StatelessWidget {
     );
   }
 }
-
