@@ -60,6 +60,8 @@ class AppChoiceChip extends StatelessWidget {
         selectedColor: cs.surface,
         backgroundColor: cs.onPrimary,
         checkmarkColor: selColor, 
+        // Quita el margen invisible que añade Material Design alrededor del widget
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         labelStyle: tt.labelMedium?.copyWith(
           color: seleccionado ? selColor : cs.onSurfaceVariant
         ),
@@ -122,6 +124,7 @@ class AppFilterChip extends StatelessWidget {
         selectedColor: cs.surface,
         backgroundColor: cs.onPrimary,
         checkmarkColor: selColor,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         labelStyle: tt.labelMedium?.copyWith(
           color: seleccionado ? selColor : cs.onSurfaceVariant,
           fontWeight: seleccionado ? FontWeight.bold : FontWeight.normal,

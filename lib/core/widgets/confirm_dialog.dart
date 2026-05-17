@@ -33,7 +33,6 @@ Future<bool> showConfirmDialog({
           label: confirmLabel!,
           onPressed: () => Navigator.pop(context, true),
           backgroundColor: isDanger ? cs.error : null,
-          icon: isDanger ? Icons.delete_outline : Icons.check,
         ),
       ],
     ),

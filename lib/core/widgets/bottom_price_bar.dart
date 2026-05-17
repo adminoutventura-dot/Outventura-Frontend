@@ -26,7 +26,7 @@ class BottomPriceBar extends StatelessWidget {
     return ClipPath(
       clipper: _BottomBarClipper(),
       child: Container(
-        height: 160,
+        height: 190,
         padding: EdgeInsets.fromLTRB(40, 80, 40, bottomPadding + 16),
         decoration: BoxDecoration(gradient: AppGradients.appBar(cs)),
         child: Row(
@@ -53,7 +53,7 @@ class BottomPriceBar extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: cs.onPrimary,
                 foregroundColor: cs.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 28),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),

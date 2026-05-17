@@ -73,23 +73,26 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
       ),
       drawer: const AppDrawer(),
       floatingActionButton: widget.puedeGestionar
-          ? AddFab(
-              onPressed: () async {
-                final Activity? nueva = await Navigator.of(context)
-                    .push<Activity>(
-                      MaterialPageRoute(builder: (_) => const ActivityFormPage()),
-                    );
-                if (nueva == null) {
-                  return;
-                }
-                ref.read(activitiesProvider.notifier).agregar(nueva);
-                if (!context.mounted) {
-                  return;
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(s.actividadCreada)),
-                );
-              },
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 100.0),
+              child: AddFab(
+                onPressed: () async {
+                  final Activity? nueva = await Navigator.of(context)
+                      .push<Activity>(
+                        MaterialPageRoute(builder: (_) => const ActivityFormPage()),
+                      );
+                  if (nueva == null) {
+                    return;
+                  }
+                  ref.read(activitiesProvider.notifier).agregar(nueva);
+                  if (!context.mounted) {
+                    return;
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(s.actividadCreada)),
+                  );
+                },
+              ),
             )
           : null,
 

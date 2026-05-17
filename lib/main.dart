@@ -9,17 +9,10 @@ import 'package:outventura/features/preferences/controllers/preferences_controll
 import 'package:outventura/features/preferences/data/models/preferences.dart';
 
 // TODO: Revisar si se divide entre entities y models (Recordatorio)  
-// TODO: BottomNavigationBar arreglar que hay espacio por abajo en telefonos.
-// TODO: Arreblar botones de usuarios reservas y solicitudes que se pasa abajo.
+// TODO: Arreglar botones de usuarios reservas y solicitudes que se pasa abajo.
 // TODO: Actividades: Se corta el texto por la derecha, arreglarlo.
-// TODO: Calendario: Que los circulitos puedan pasar abajo.
 // TODO: El boton de eliminar usuario no va.
-// TODO: Borde de las chips seleccionadas muy grande.
-// TODO: Quitar boton de papelera de la alerta de cancelar reserva.
-// TODO: BottomBar se vemal.
-// TODO: Actividad y equipo no tienen el boton de add.
 // TODO: Añadir el subir fotos.
-// TODO: Falta idioma catalan.
 // TODO: Ajustar pagina para que n corte en el app y bottom: Home. Actividad form, Equipo form, Users form, Perfil form.
 
 void main() async {

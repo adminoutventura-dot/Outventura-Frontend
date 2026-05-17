@@ -41,6 +41,10 @@ class PreferencesPage extends ConsumerWidget {
                       value: 'en',
                       child: Text('Inglés', style: tt.bodyMedium),
                     ),
+                    DropdownMenuItem(
+                      value: 'ca',
+                      child: Text('Catalán', style: tt.bodyMedium),
+                    ),
                   ],
                   onChanged: (String? value) {
                     if (value != null) {

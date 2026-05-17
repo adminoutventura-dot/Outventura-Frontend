@@ -186,15 +186,18 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   final reservas = events.whereType<Reservation>().length;
                   final solicitudes = events.whereType<Request>().length;
                   return Positioned(
-                    bottom: 4,
+                    bottom: 2,
                     left: 2,
                     right: 2,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    child: Wrap(
+                      // Wrap para permitir el salto de línea 
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 3, 
+                      runSpacing: 2, 
                       children: [
                         if (reservas > 0)
                           Container(
-                            margin: const EdgeInsets.only(right: 2),
                             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                             decoration: BoxDecoration(
                               color: cs.tertiary,

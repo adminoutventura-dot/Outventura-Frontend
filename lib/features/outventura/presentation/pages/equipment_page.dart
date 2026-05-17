@@ -77,25 +77,28 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
       ),
       drawer: const AppDrawer(),
       floatingActionButton: widget.puedeGestionar
-          ? AddFab(
-              onPressed: () async {
-                final Equipment? nuevo = await Navigator.of(context)
-                    .push<Equipment>(
-                      MaterialPageRoute(
-                        builder: (_) => const EquipmentFormPage(),
-                      ),
-                    );
-                if (nuevo == null) {
-                  return;
-                }
-                ref.read(equipmentProvider.notifier).agregar(nuevo);
-                if (!context.mounted) {
-                  return;
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(s.materialCreated)),
-                );
-              },
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 100.0),
+              child: AddFab(
+                onPressed: () async {
+                  final Equipment? nuevo = await Navigator.of(context)
+                      .push<Equipment>(
+                        MaterialPageRoute(
+                          builder: (_) => const EquipmentFormPage(),
+                        ),
+                      );
+                  if (nuevo == null) {
+                    return;
+                  }
+                  ref.read(equipmentProvider.notifier).agregar(nuevo);
+                  if (!context.mounted) {
+                    return;
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(s.materialCreated)),
+                  );
+                },
+              ),
             )
           : null,
       body: Column(

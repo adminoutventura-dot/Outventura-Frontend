@@ -45,43 +45,44 @@ class _MainScaffoldState extends State<MainScaffold> {
     return Scaffold(
       extendBody: true,
       body: _pages[_indiceActual],
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-        child: Material(
-          elevation: 2,
-          shadowColor: cs.onSurface.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(32),
-          
-          clipBehavior: Clip.antiAlias,
-          child: BottomNavigationBar(
-            currentIndex: _indiceActual,
-            onTap: (int index) => setState(() => _indiceActual = index),
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: cs.primary,
-            unselectedItemColor: cs.onSurfaceVariant,
-            backgroundColor: cs.surface,
-            items: [
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.home_outlined),
-                activeIcon: const Icon(Icons.home),
-                label: s.tabHome,
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.hiking_outlined),
-                activeIcon: const Icon(Icons.hiking),
-                label: s.tabActividades,
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.inventory_2_outlined),
-                activeIcon: const Icon(Icons.inventory_2),
-                label: s.tabEquipment,
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.calendar_today_outlined),
-                activeIcon: const Icon(Icons.calendar_today),
-                label: s.tabCalendar,
-              ),
-            ],
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: Material(
+            elevation: 2,
+            shadowColor: cs.onSurface.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(32),
+            clipBehavior: Clip.antiAlias,
+            child: BottomNavigationBar(
+              currentIndex: _indiceActual,
+              onTap: (int index) => setState(() => _indiceActual = index),
+              type: BottomNavigationBarType.fixed,
+              selectedItemColor: cs.primary,
+              unselectedItemColor: cs.onSurfaceVariant,
+              backgroundColor: cs.surface,
+              items: [
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.home_outlined),
+                  activeIcon: const Icon(Icons.home),
+                  label: s.tabHome,
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.hiking_outlined),
+                  activeIcon: const Icon(Icons.hiking),
+                  label: s.tabActividades,
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.inventory_2_outlined),
+                  activeIcon: const Icon(Icons.inventory_2),
+                  label: s.tabEquipment,
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.calendar_today_outlined),
+                  activeIcon: const Icon(Icons.calendar_today),
+                  label: s.tabCalendar,
+                ),
+              ],
+            ),
           ),
         ),
       ),
