@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/id_generator.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
@@ -300,7 +301,7 @@ class RequestFormController {
   }) {
     final String? error = mensajeErrorReserva(context);
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      showErrorSnackBar(context, error);
       return null;
     }
     final List<Activity> actividades = ref.read(activitiesProvider).value ?? [];

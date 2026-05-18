@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:outventura/app/theme/app_theme.dart';
 import 'package:outventura/features/auth/presentation/pages/login_page.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
+import 'package:outventura/features/outventura/presentation/pages/main_scaffold.dart';
 import 'package:outventura/features/preferences/controllers/preferences_controller.dart';
 import 'package:outventura/features/preferences/data/models/preferences.dart';
 
@@ -35,6 +38,10 @@ class MainApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<Preferencias> preferenciasAsync = ref.watch(preferenciasProvider);
+    // Restaurar sesión al iniciar la app.
+    ref.watch(sessionRestorerProvider);
+    // Observar el usuario actual para decidir qué pantalla mostrar.
+    final User? usuarioActual = ref.watch(currentUserProvider);
 
     return preferenciasAsync.when(
       data: (Preferencias preferences) => MaterialApp(
@@ -51,7 +58,10 @@ class MainApp extends ConsumerWidget {
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: preferences.temaOscuro ? ThemeMode.dark : ThemeMode.light,
-        home: const LoginPage(),
+        // Si hay usuario logueado, mostrar MainScaffold. Si no, mostrar LoginPage.
+        home: usuarioActual != null
+            ? MainScaffold(usuario: usuarioActual)
+            : const LoginPage(),
       ),
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (Object error, StackTrace stack) => MaterialApp(

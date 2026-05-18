@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -70,9 +71,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           if (!context.mounted) {
             return;
           }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(s.userCreated)),
-          );
+          showSuccessSnackBar(context, s.userCreated);
         },
         icon: Icons.person_add_outlined,
       ),
@@ -133,9 +132,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                       if (!context.mounted) {
                         return;
                       }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(s.userUpdated)),
-                      );
+                      showSuccessSnackBar(context, s.userUpdated);
                     },
                     onEliminar: () async {
                       final bool confirmar = await showConfirmDialog(
@@ -146,9 +143,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                       );
                       if (!confirmar || !context.mounted) return;
                       ref.read(usuariosProvider.notifier).eliminar(usuarios[index]);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(s.userDeleted)),
-                      );
+                      showSuccessSnackBar(context, s.userDeleted);
                     },
                   );
                 },

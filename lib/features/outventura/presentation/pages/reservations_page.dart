@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -87,9 +88,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                 if (!context.mounted) {
                   return;
                 }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(s.reservationCreated)),
-                );
+                showSuccessSnackBar(context, s.reservationCreated);
               },
             )
           : null,
@@ -174,9 +173,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                           if (!context.mounted) {
                             return;
                           }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(s.reservationUpdated)),
-                          );
+                          showSuccessSnackBar(context, s.reservationUpdated);
                         },
                         onAprobar: onAprobar,
                         onRechazar: onRechazar,

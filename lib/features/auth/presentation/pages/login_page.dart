@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/main_scaffold.dart';
@@ -18,6 +19,7 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final LoginController _controller = LoginController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -155,22 +157,48 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           const SizedBox(height: 8),
 
                           // Botón principal
-                          PrimaryButton(
-                            label: s.login,
-                            onPressed: () async {
-                              if (_controller.formKey.currentState?.validate() ?? false) {
-                                final String email = _controller.emailController.text.trim();
-                                final usuario = await ref.read(currentUserProvider.notifier).login(email);
-                                if (!context.mounted || usuario == null) return;
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (BuildContext _) => MainScaffold(usuario: usuario),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
+                          _isLoading
+                                // Si está cargando, mostrar un indicador de progreso en lugar del botón de login
+                              ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                                // Si no está cargando, mostrar el botón de login
+                              : PrimaryButton(
+                                  label: s.login,
+                                  onPressed: () async {
+                                    if (!(_controller.formKey.currentState?.validate() ?? false)) {
+                                      return;
+                                    }
+                                    setState(() => _isLoading = true);
+                                    try {
+                                      final String email = _controller.emailController.text.trim();
+                                      final String password = _controller.passwordController.text;
+                                      final usuario = await ref.read(currentUserProvider.notifier).login(email, password);
+
+                                      if (!context.mounted || usuario == null) {
+                                        return;
+                                      }
+
+                                      // Navegar a la pantalla principal, reemplazando el login.
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute( builder: (_) => MainScaffold(usuario: usuario)),
+                                      );
+                                    } catch (e) {
+
+                                      // Si ocurre un error mostrar un SnackBar con el mensaje de error.
+                                      if (context.mounted) {
+                                        showErrorSnackBar(context, e);
+                                      }
+
+                                    } finally {
+                                      // Detener el indicador de carga.
+                                      if (mounted) {
+                                        setState(() => _isLoading = false);
+                                      }
+                                    }
+                                  },
+                                ),
 
                           const SizedBox(height: 20),
 

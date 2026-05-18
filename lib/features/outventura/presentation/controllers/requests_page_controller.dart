@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
@@ -63,9 +64,7 @@ class RequestsPageController {
     required Request solicitud,
     required BuildContext context,
     required WidgetRef ref,
-    required bool Function() isMounted,
   }) async {
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final s = AppLocalizations.of(context)!;
     final bool confirm = await showConfirmDialog(
       context: context,
@@ -80,12 +79,8 @@ class RequestsPageController {
     }
     ref.read(requestsProvider.notifier).aceptar(solicitud);
 
-    if (isMounted()) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(s.requestAccepted),
-        ),
-      );
+    if (context.mounted) {
+      showSuccessSnackBar(context, s.requestAccepted);
     }
   }
 
@@ -115,9 +110,7 @@ class RequestsPageController {
     }
     if (result.reservationId != null && solicitud.reservationId == null) {
       final s = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(s.materialReservationCreated)),
-      );
+      showSuccessSnackBar(context, s.materialReservationCreated);
     }
   }
 
@@ -126,9 +119,7 @@ class RequestsPageController {
     required Request solicitud,
     required BuildContext context,
     required WidgetRef ref,
-    required bool Function() isMounted,
   }) async {
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final s = AppLocalizations.of(context)!;
     final bool confirm = await showConfirmDialog(
       context: context,
@@ -142,10 +133,8 @@ class RequestsPageController {
 
     ref.read(requestsProvider.notifier).rechazar(solicitud);
 
-    if (isMounted()) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(s.requestRejected)),
-      );
+    if (context.mounted) {
+      showSuccessSnackBar(context, s.requestRejected);
     }
   }
 }

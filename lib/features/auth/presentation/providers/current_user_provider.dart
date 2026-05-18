@@ -8,6 +8,22 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 final NotifierProvider<CurrentUserNotifier, User?> currentUserProvider =
     NotifierProvider<CurrentUserNotifier, User?>(CurrentUserNotifier.new);
 
+// Provider que intenta restaurar la sesión al iniciar la app.
+// Si existe un token guardado, asume que el usuario tiene una sesión activa.
+final FutureProvider<void> sessionRestorerProvider = FutureProvider<void>(
+  (ref) async {
+    final token = await readAuthToken();
+    if (token != null) {
+      // Token existe: intentar restaurar la sesión.
+      // TODO: cuando el back esté listo, hacer GET /auth/profile para obtener los datos del usuario.
+      // De momento, restauramos con datos fake.
+      await Future.delayed(const Duration(milliseconds: 500));
+      final User usuario = usersFake[0]; // Simulado
+      ref.read(currentUserProvider.notifier).setUsuario(usuario);
+    }
+  },
+);
+
 class CurrentUserNotifier extends Notifier<User?> {
   // Estado inicial: no hay usuario logueado.
   @override

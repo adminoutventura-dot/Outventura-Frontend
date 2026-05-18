@@ -96,6 +96,19 @@ class Activity {
     );
   }
 
+  // Convierte la actividad a un mapa para enviar al backend.
+  // Los campos solo del front (imageAsset, status, price, materialsPerParticipant) se omiten.
+  Map<String, dynamic> toMap() => {
+    'title': title,
+    'description': description,
+    'init_date': initDate.toIso8601String(),
+    'end_date': endDate.toIso8601String(),
+    'difficulty': difficulty,
+    'max_participants': maxParticipants,
+    'start_end_point': startEndPoint,
+    // Las categorías se asignan por separado: POST /activity/:id/category/:catId
+  };
+
   // Crea una nueva actividad a partir de la actual, permitiendo modificar algunos campos.
   Activity copyWith({
     String? title,

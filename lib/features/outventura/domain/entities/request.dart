@@ -80,6 +80,19 @@ class Request {
     );
   }
 
+  // Convierte la solicitud a un mapa. El backend no tiene modelo de Solicitud aún.
+  Map<String, dynamic> toMap() => {
+    'activityId': activityId,
+    'participantCount': participantCount,
+    'status': status.label,
+    'expertId': expertId,
+    'userId': userId,
+    'reservationId': reservationId,
+    'requestedMaterials':
+        requestedMaterials.map((k, v) => MapEntry(k.toString(), v)),
+    'totalPrice': totalPrice,
+  };
+
   // Crea una nueva solicitud a partir de la actual, permitiendo modificar algunos campos.
   Request copyWith({
     int? activityId,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -89,9 +90,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                 final String mensaje = nueva.reservationId != null
                     ? s.requestCreatedWithReservation
                     : s.requestCreated;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(mensaje)),
-                );
+                showSuccessSnackBar(context, mensaje);
               },
             )
           : null,
@@ -154,7 +153,6 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                                 solicitud: soli,
                                 context: context,
                                 ref: ref,
-                                isMounted: () => mounted,
                               )
                             : null,
                         onCancelar: soli.status == RequestStatus.pendiente
@@ -162,7 +160,6 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                                 solicitud: soli,
                                 context: context,
                                 ref: ref,
-                                isMounted: () => mounted,
                               )
                             : null,
                         onEditar: (!widget.puedeGestionar && soli.status != RequestStatus.pendiente)

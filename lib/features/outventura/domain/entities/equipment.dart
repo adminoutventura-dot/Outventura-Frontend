@@ -96,6 +96,17 @@ class Equipment {
     );
   }
 
+  // Convierte el material a un mapa para enviar al backend.
+  // Los campos solo del front (totalUnits, damageFee, imageAsset) se omiten.
+  // TODO: el backend espera 'statusId' (int); necesita mapearse desde code cuando el back exista.
+  Map<String, dynamic> toMap() => {
+    'title': title,
+    'description': description,
+    'units': units,
+    'price_per_day': pricePerDay,
+    // Las categorías se asignan por separado: POST /equipment/:id/category/:catId
+  };
+
   // Crea un nuevo material a partir del actual, permitiendo modificar algunos campos.
   Equipment copyWith({
     String? title,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_bar_forms.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -119,9 +120,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
         actionLabel: s.save,
         onPressed: () {
           if (_controller.lineas.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(s.addAtLeastOneLine)),
-            );
+            showErrorSnackBar(context, s.addAtLeastOneLine);
             return;
           }
           final Booking? reserva = _controller.crearReserva(equipamientos);

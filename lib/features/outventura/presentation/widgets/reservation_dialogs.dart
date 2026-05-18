@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -19,9 +20,7 @@ Future<void> mostrarDialogoAprobacion(
   );
   if (!context.mounted || !ok) return;
   onConfirm();
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(s.reservationApproved)),
-  );
+  showSuccessSnackBar(context, s.reservationApproved);
 }
 
 // Muestra el diálogo de confirmación para rechazar una reserva.
@@ -39,9 +38,7 @@ Future<void> mostrarDialogoRechazo(
   );
   if (!context.mounted || !ok) return;
   onConfirm();
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(s.reservationRejected)),
-  );
+  showSuccessSnackBar(context, s.reservationRejected);
 }
 
 // Muestra el diálogo de confirmación para cancelar una reserva.
@@ -77,7 +74,5 @@ Future<void> mostrarDialogoDevolucion(
   );
   if (!context.mounted || !ok) return;
   onConfirm();
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(s.returnRegistered)),
-  );
+  showSuccessSnackBar(context, s.returnRegistered);
 }

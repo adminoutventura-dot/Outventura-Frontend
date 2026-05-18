@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -94,9 +95,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                   if (!context.mounted) {
                     return;
                   }
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(s.materialCreated)),
-                  );
+                  showSuccessSnackBar(context, s.materialCreated);
                 },
               ),
             )
@@ -159,9 +158,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           if (!context.mounted) {
                             return;
                           }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(s.materialUpdated)),
-                          );
+                          showSuccessSnackBar(context, s.materialUpdated);
                         }
                       : null,
                   onEliminar: widget.puedeGestionar
@@ -201,9 +198,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           if (!context.mounted) {
                             return;
                           }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(s.reservationCreated)),
-                          );
+                          showSuccessSnackBar(context, s.reservationCreated);
                         }
                       : null,
                 );
