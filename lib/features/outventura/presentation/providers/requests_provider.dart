@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/api_delay.dart';
+import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/outventura/data/fakes/requests_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
@@ -66,51 +67,67 @@ class RequestsNotifier extends AsyncNotifier<List<Request>> {
   @override
   // TEMPORAL: reemplazar cuerpo por await dio.get('/solicitudes') y eliminar import de requests_fake.dart.
   Future<List<Request>> build() async {
-    // Simula GET /api/solicitudes
-    await Future.delayed(ApiDelay.carga);
-    return [...requestsFake];
+    try {
+      // Simula GET /api/solicitudes
+      await Future.delayed(ApiDelay.carga);
+      return [...requestsFake];
+    } catch (e) {
+      throw parseDioError(e);
+    }
   }
 
   // TEMPORAL: reemplazar cuerpo por await dio.post('/solicitudes', data: solicitud.toJson()).
   // Simula POST /api/solicitudes
   Future<void> agregar(Request solicitud) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Request> listaActual = [...(state.value ?? [])];
-    
-    // Agrega la nueva solicitud a la lista
-    listaActual.add(solicitud);
+    try {
+      await Future.delayed(ApiDelay.accion);
+      // Saca la lista actual o una vacía si es nula
+      final List<Request> listaActual = [...(state.value ?? [])];
 
-    // Actualiza el estado con la nueva lista
-    state = AsyncData(listaActual);
+      // Agrega la nueva solicitud a la lista
+      listaActual.add(solicitud);
+
+      // Actualiza el estado con la nueva lista
+      state = AsyncData(listaActual);
+    } catch (e) {
+      throw parseDioError(e);
+    }
   }
 
   // TEMPORAL: reemplazar cuerpo por await dio.put('/solicitudes/${viejo.id}', data: nuevo.toJson()).
   // Simula PUT /api/solicitudes/:id
   Future<void> actualizar(Request viejo, Request nuevo) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Request> listaActual = [...(state.value ?? [])];
-    // Busca el índice de la solicitud a actualizar
-    final int index = listaActual.indexWhere((Request s) => s.id == viejo.id);
-    if (index != -1) {
-      // Reemplaza la solicitud en la posición encontrada
-      listaActual[index] = nuevo;
+    try {
+      await Future.delayed(ApiDelay.accion);
+      // Saca la lista actual o una vacía si es nula
+      final List<Request> listaActual = [...(state.value ?? [])];
+      // Busca el índice de la solicitud a actualizar
+      final int index = listaActual.indexWhere((Request s) => s.id == viejo.id);
+      if (index != -1) {
+        // Reemplaza la solicitud en la posición encontrada
+        listaActual[index] = nuevo;
+      }
+      // Actualiza el estado con la lista modificada
+      state = AsyncData(listaActual);
+    } catch (e) {
+      throw parseDioError(e);
     }
-    // Actualiza el estado con la lista modificada
-    state = AsyncData(listaActual);
   }
 
   // TEMPORAL: reemplazar cuerpo por await dio.delete('/solicitudes/${solicitud.id}').
   // Simula DELETE /api/solicitudes/:id
   Future<void> eliminar(Request solicitud) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Request> listaActual = [...(state.value ?? [])];
-    // Elimina la solicitud con el ID coincidente
-    listaActual.removeWhere((Request s) => s.id == solicitud.id);
-    // Actualiza el estado con la lista sin la solicitud eliminada
-    state = AsyncData(listaActual);
+    try {
+      await Future.delayed(ApiDelay.accion);
+      // Saca la lista actual o una vacía si es nula
+      final List<Request> listaActual = [...(state.value ?? [])];
+      // Elimina la solicitud con el ID coincidente
+      listaActual.removeWhere((Request s) => s.id == solicitud.id);
+      // Actualiza el estado con la lista sin la solicitud eliminada
+      state = AsyncData(listaActual);
+    } catch (e) {
+      throw parseDioError(e);
+    }
   }
 
   // TEMPORAL: reemplazar cuerpo por await dio.patch('/solicitudes/${solicitud.id}/aceptar').

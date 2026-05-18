@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/api_delay.dart';
+import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/outventura/data/fakes/equipment_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
@@ -39,48 +40,64 @@ class EquipmentNotifier extends AsyncNotifier<List<Equipment>> {
   @override
   // TEMPORAL: reemplazar cuerpo por await dio.get('/equipamientos') y eliminar import de equipment_fake.dart.
   Future<List<Equipment>> build() async {
-    // Simula GET /api/equipamientos
-    await Future.delayed(ApiDelay.carga);
-    return [...equipmentFake];
+    try {
+      // Simula GET /api/equipamientos
+      await Future.delayed(ApiDelay.carga);
+      return [...equipmentFake];
+    } catch (e) {
+      throw parseDioError(e);
+    }
   }
 
   // TEMPORAL: reemplazar cuerpo por await dio.post('/equipamientos', data: equipamiento.toJson()).
   // Simula POST /api/equipamientos
   Future<void> agregar(Equipment equipamiento) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Equipment> listaActual = [...(state.value ?? [])];
-    // Agrega el nuevo equipamiento a la lista
-    listaActual.add(equipamiento);
-    // Actualiza el estado con la nueva lista
-    state = AsyncData(listaActual);
+    try {
+      await Future.delayed(ApiDelay.accion);
+      // Saca la lista actual o una vacía si es nula
+      final List<Equipment> listaActual = [...(state.value ?? [])];
+      // Agrega el nuevo equipamiento a la lista
+      listaActual.add(equipamiento);
+      // Actualiza el estado con la nueva lista
+      state = AsyncData(listaActual);
+    } catch (e) {
+      throw parseDioError(e);
+    }
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.put('/equipamientos/${viejo.id}', data: nuevo.toJson()).
-  // Simula PUT /api/equipamientos/:id
+  // TEMPORAL: reemplazar por await dio.patch('/equipment/${viejo.id}', data: nuevo.toMap()); actualizar estado con Equipment.fromMap(response.data).
+  // Simula PATCH /equipment/:id
   Future<void> actualizar(Equipment viejo, Equipment nuevo) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Equipment> listaActual = [...(state.value ?? [])];
-    // Busca el índice del equipamiento a actualizar
-    final int index = listaActual.indexWhere((Equipment e) => e.id == viejo.id);
-    if (index != -1) {
-      // Reemplaza el equipamiento en la posición encontrada
-      listaActual[index] = nuevo;
+    try {
+      await Future.delayed(ApiDelay.accion);
+      // Saca la lista actual o una vacía si es nula
+      final List<Equipment> listaActual = [...(state.value ?? [])];
+      // Busca el índice del equipamiento a actualizar
+      final int index = listaActual.indexWhere((Equipment e) => e.id == viejo.id);
+      if (index != -1) {
+        // Reemplaza el equipamiento en la posición encontrada
+        listaActual[index] = nuevo;
+      }
+      // Actualiza el estado con la lista modificada
+      state = AsyncData(listaActual);
+    } catch (e) {
+      throw parseDioError(e);
     }
-    // Actualiza el estado con la lista modificada
-    state = AsyncData(listaActual);
   }
 
   // TEMPORAL: reemplazar cuerpo por await dio.delete('/equipamientos/${equipamiento.id}').
   // Simula DELETE /api/equipamientos/:id
   Future<void> eliminar(Equipment equipamiento) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Equipment> listaActual = [...(state.value ?? [])];
-    // Elimina el equipamiento con el ID coincidente
-    listaActual.removeWhere((Equipment e) => e.id == equipamiento.id);
-    // Actualiza el estado con la lista sin el equipamiento eliminado
-    state = AsyncData(listaActual);
+    try {
+      await Future.delayed(ApiDelay.accion);
+      // Saca la lista actual o una vacía si es nula
+      final List<Equipment> listaActual = [...(state.value ?? [])];
+      // Elimina el equipamiento con el ID coincidente
+      listaActual.removeWhere((Equipment e) => e.id == equipamiento.id);
+      // Actualiza el estado con la lista sin el equipamiento eliminado
+      state = AsyncData(listaActual);
+    } catch (e) {
+      throw parseDioError(e);
+    }
   }
 }

@@ -38,6 +38,20 @@ class BookingLine {
 
   const BookingLine({required this.equipmentId, required this.quantity});
 
+  // Crea una línea de reserva a partir de un mapa (del backend al frontend).
+  factory BookingLine.fromMap(Map<String, dynamic> map) {
+    return BookingLine(
+      equipmentId: (map['equipmentId'] ?? map['id_equipment']) as int,
+      quantity: (map['quantity'] as num).toInt(),
+    );
+  }
+
+  // Convierte la línea a un mapa para enviar al backend.
+  Map<String, dynamic> toMap() => {
+    'equipmentId': equipmentId,
+    'quantity': quantity,
+  };
+
   BookingLine copyWith({int? equipmentId, int? quantity}) {
     return BookingLine(
       equipmentId: equipmentId ?? this.equipmentId,
@@ -46,7 +60,6 @@ class BookingLine {
   }
 }
 
-// TODO: El backend no tiene modelo de Reserva; alinear campos cuando exista.
 // Entidad de reserva.
 class Booking {
   final int id;
@@ -57,7 +70,6 @@ class Booking {
   final DateTime endDate;
   final BookingStatus status;
   final double damageFee;
-  // Cantidades dañadas por idEquipamiento: {idEquipamiento: cantidad}.
   final Map<int, int> damagedItems;
 
   const Booking({
@@ -69,9 +81,64 @@ class Booking {
     required this.endDate,
     required this.status,
     this.damageFee = 0,
-    // equipmentId - damaged quantity.
     this.damagedItems = const {},
   });
+
+  // Convierte un JSON (mapa) del backend en una instancia de Booking
+  factory Booking.fromMap(Map<String, dynamic> map) {
+    final linesRaw = map['lines'] as List? ?? [];
+    final lines = linesRaw
+        .map((e) => BookingLine.fromMap(e as Map<String, dynamic>))
+        .toList();
+
+    // El activityId puede venir directamente o de la primera línea que lo tenga.
+    final int? activityId = map['activityId'] as int? ??
+        (linesRaw.isNotEmpty
+            ? (linesRaw.first as Map<String, dynamic>)['activityId'] as int?
+            : null);
+
+    // Las fechas vienen de la actividad vinculada; si no existen, se usa created_at como fallback.
+    final DateTime fallback = map['created_at'] != null
+        ? DateTime.parse(map['created_at'] as String)
+        : DateTime.now();
+    final DateTime startDate = map['startDate'] != null
+        ? DateTime.parse(map['startDate'] as String)
+        : fallback;
+    final DateTime endDate = map['endDate'] != null
+        ? DateTime.parse(map['endDate'] as String)
+        : fallback;
+
+    final dynamic statusRaw = map['status'];
+    final String statusCode = statusRaw is String
+        ? statusRaw
+        : (statusRaw is Map<String, dynamic> ? statusRaw['code'] as String? ?? '' : '');
+
+    return Booking(
+      id: (map['id_booking'] ?? map['id']) as int,
+      userId: (map['userId'] ?? map['id_user']) as int,
+      lines: lines,
+      activityId: activityId,
+      startDate: startDate,
+      endDate: endDate,
+      status: BookingStatus.fromString(statusCode),
+      damageFee: (map['damageFee'] as num?)?.toDouble() ?? 0,
+      damagedItems: (map['damagedItems'] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(int.parse(k), (v as num).toInt()),
+          ) ??
+          {},
+    );
+  }
+
+  // Convierte la reserva a un mapa para enviar al backend.
+  Map<String, dynamic> toMap() => {
+    'userId': userId,
+    'activityId': activityId,
+    'startDate': startDate.toIso8601String(),
+    'endDate': endDate.toIso8601String(),
+    'lines': lines.map((l) => l.toMap()).toList(),
+    'damageFee': damageFee,
+    'damagedItems': damagedItems.map((k, v) => MapEntry(k.toString(), v)),
+  };
 
   Booking copyWith({
     int? userId,

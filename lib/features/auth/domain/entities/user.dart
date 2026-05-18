@@ -34,7 +34,8 @@ class User {
     return User(
       id: (map['id_user'] ?? map['id']) as int,
       name: map['name'] as String,
-      surname: map['surname'] as String,
+      // El login solo devuelve {id, name, email, role}; surname/phone/photo son opcionales.
+      surname: map['surname'] as String? ?? '',
       email: map['email'] as String,
       phone: map['phone']?.toString(),
       role: UserRole.fromString(roleText),

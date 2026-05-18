@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/api_delay.dart';
+import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/data/fakes/reservations_fake.dart';
@@ -70,49 +71,65 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
   @override
   // TEMPORAL: reemplazar cuerpo por await dio.get('/reservas') y eliminar import de reservations_fake.dart.
   Future<List<Booking>> build() async {
-    // Simula GET /api/reservas
-    await Future.delayed(ApiDelay.carga);
-    return [...reservationsFake];
+    try {
+      // Simula GET /api/reservas
+      await Future.delayed(ApiDelay.carga);
+      return [...reservationsFake];
+    } catch (e) {
+      throw parseDioError(e);
+    }
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.post('/reservas', data: reserva.toJson()).
-  // Simula POST /api/reservas
+  // TEMPORAL: reemplazar por await dio.post('/booking', data: reserva.toMap()); ref.invalidateSelf() para recargar la lista.
+  // Simula POST /booking
   Future<void> agregar(Booking reserva) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Booking> listaActual = [...(state.value ?? [])];
-    // Agrega la nueva reserva a la lista
-    listaActual.add(reserva);
-    // Actualiza el estado con la nueva lista
-    state = AsyncData(listaActual);
+    try {
+      await Future.delayed(ApiDelay.accion);
+      // Saca la lista actual o una vacía si es nula
+      final List<Booking> listaActual = [...(state.value ?? [])];
+      // Agrega la nueva reserva a la lista
+      listaActual.add(reserva);
+      // Actualiza el estado con la nueva lista
+      state = AsyncData(listaActual);
+    } catch (e) {
+      throw parseDioError(e);
+    }
   }
 
   // TEMPORAL: reemplazar cuerpo por await dio.put('/reservas/${viejo.id}', data: nuevo.toJson()).
   // Simula PUT /api/reservas/:id
   Future<void> actualizar(Booking viejo, Booking nuevo) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Booking> listaActual = [...(state.value ?? [])];
-    // Busca el índice de la reserva a actualizar
-    final int index = listaActual.indexWhere((Booking r) => r.id == viejo.id);
-    if (index != -1) {
-      // Reemplaza la reserva en la posición encontrada
-      listaActual[index] = nuevo;
+    try {
+      await Future.delayed(ApiDelay.accion);
+      // Saca la lista actual o una vacía si es nula
+      final List<Booking> listaActual = [...(state.value ?? [])];
+      // Busca el índice de la reserva a actualizar
+      final int index = listaActual.indexWhere((Booking r) => r.id == viejo.id);
+      if (index != -1) {
+        // Reemplaza la reserva en la posición encontrada
+        listaActual[index] = nuevo;
+      }
+      // Actualiza el estado con la lista modificada
+      state = AsyncData(listaActual);
+    } catch (e) {
+      throw parseDioError(e);
     }
-    // Actualiza el estado con la lista modificada
-    state = AsyncData(listaActual);
   }
 
   // TEMPORAL: reemplazar cuerpo por await dio.delete('/reservas/${reserva.id}').
   // Simula DELETE /api/reservas/:id
   Future<void> eliminar(Booking reserva) async {
-    await Future.delayed(ApiDelay.accion);
-    // Saca la lista actual o una vacía si es nula
-    final List<Booking> listaActual = [...(state.value ?? [])];
-    // Elimina la reserva con el ID coincidente
-    listaActual.removeWhere((Booking r) => r.id == reserva.id);
-    // Actualiza el estado con la lista sin la reserva eliminada
-    state = AsyncData(listaActual);
+    try {
+      await Future.delayed(ApiDelay.accion);
+      // Saca la lista actual o una vacía si es nula
+      final List<Booking> listaActual = [...(state.value ?? [])];
+      // Elimina la reserva con el ID coincidente
+      listaActual.removeWhere((Booking r) => r.id == reserva.id);
+      // Actualiza el estado con la lista sin la reserva eliminada
+      state = AsyncData(listaActual);
+    } catch (e) {
+      throw parseDioError(e);
+    }
   }
 
   // TEMPORAL: reemplazar cuerpo por await dio.patch('/reservas/${reserva.id}/aprobar').
