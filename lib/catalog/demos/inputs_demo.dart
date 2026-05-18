@@ -24,7 +24,7 @@ class InputsDemo extends StatefulWidget {
 
 class _InputsDemoState extends State<InputsDemo> {
   // Chips
-  final Set<ActivityCategory> _chips = {};
+  final Set<Category> _chips = {};
 
   // Dropdowns
   int? _idUsuario;
@@ -127,7 +127,7 @@ class _InputsDemoState extends State<InputsDemo> {
           Text('AppChoiceChip – Selección múltiple', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 8),
           AppChipWrap(
-            children: ActivityCategory.values.map((ActivityCategory cat) => AppChoiceChip(
+            children: Category.values.map((Category cat) => AppChoiceChip(
               label: cat.code,
               seleccionado: _chips.contains(cat),
               onSelected: (_) => setState(() {

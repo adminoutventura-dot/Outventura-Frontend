@@ -28,8 +28,8 @@ class HomeClientePage extends ConsumerWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    final List<Reservation> misReservas = (ref.watch(reservationsProvider).value ?? [])
-        .where((Reservation r) => r.userId == usuario.id)
+    final List<Booking> misReservas = (ref.watch(reservationsProvider).value ?? [])
+        .where((Booking r) => r.userId == usuario.id)
         .toList();
     final List<Request> misSolicitudes = (ref.watch(requestsProvider).value ?? [])
         .where((Request s) => s.userId == usuario.id)

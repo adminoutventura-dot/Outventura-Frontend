@@ -7,13 +7,13 @@ import 'package:outventura/core/utils/enum_translations.dart';
 
 class EquipmentPageController {
   EquipmentStatus? estadoFiltro;
-  ActivityCategory? categoriaFiltro;
+  Category? categoriaFiltro;
 
   bool get hayFiltros => estadoFiltro != null || categoriaFiltro != null;
 
   void mostrarFiltros(BuildContext context, StateSetter setState) {
     EquipmentStatus? estadoTemp = estadoFiltro;
-    ActivityCategory? categoriaTemp = categoriaFiltro;
+    Category? categoriaTemp = categoriaFiltro;
     final s = AppLocalizations.of(context)!;
 
     mostrarFiltrosSheet(context, (setModal) => FilterBottomSheetContent(
@@ -30,8 +30,8 @@ class EquipmentPageController {
         ),
         FilterGrupo(
           titulo: s.categoryFilter,
-          chips: ActivityCategory.values
-              .map((ActivityCategory c) => FilterChipSpec(
+          chips: Category.values
+              .map((Category c) => FilterChipSpec(
                     label: c.localizedLabel(s),
                     seleccionado: categoriaTemp == c,
                     onToggle: () => setModal(() => categoriaTemp = categoriaTemp == c ? null : c),

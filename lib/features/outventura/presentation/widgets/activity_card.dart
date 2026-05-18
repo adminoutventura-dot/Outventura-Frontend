@@ -24,10 +24,8 @@ class ActivityCard extends StatelessWidget {
     this.onSolicitar,
   });
 
-
   @override
   Widget build(BuildContext context) {
-    // Obtiene el esquema de colores del tema actual.
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final String? imagenResuelta = imagenAsset ?? actividad.imageAsset;
@@ -36,187 +34,181 @@ class ActivityCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: cs.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.onSurfaceVariant.withValues(alpha: 0.2)),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: cs.onSurface.withValues(alpha: 0.15),
+            blurRadius: 2,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      // Asegura que los hijos no se salgan de los bordes redondeados.
       clipBehavior: Clip.hardEdge,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Si hay imagen muestra el contenedor con la imagen y el texto 
+          // -- IMAGEN o HEADER SIN IMAGEN --
           if (imagenResuelta != null)
-          // Contenedor para la imagen.
             SizedBox(
-              height: 120,
+              height: 130,
               width: double.infinity,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Imagen.
                   Image.asset(imagenResuelta, fit: BoxFit.cover),
-                  // Degradado
+                  // Overlay degradado más fuerte en la zona de abajo
                   DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: AppGradients.cardImageOverlay(cs),
                     ),
                   ),
 
-                  // Texto sobre la imagen.
+                  // Ruta sobre la imagen
                   Positioned(
-                    bottom: 10,
-                    left: 12,
-                    right: 60,
-                    child: Text(
-                      // Punto de inicio y fin.
-                      '${actividad.startPoint} → ${actividad.endPoint}',
-                      style: tt.labelLarge?.copyWith(
-                        color: cs.surface,
-                        shadows: [Shadow(color: cs.onSurface.withAlpha(180), blurRadius: 4)],
-                      ),
+                    bottom: 12,
+                    left: 14,
+                    right: 14,
+                    child: Row(
+                      children: [
+                        Icon(Icons.place_outlined, size: 13, color: cs.onPrimary.withValues(alpha: 0.85)),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            '${actividad.startPoint}  →  ${actividad.endPoint}',
+                            style: tt.labelMedium?.copyWith(
+                              color: cs.onPrimary,
+                              fontWeight: FontWeight.w600,
+                              shadows: [Shadow(color: cs.onSurface.withAlpha(160), blurRadius: 6)],
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             )
           else
-          // Si no hay imagen muestra un contenedor con un icono y el texto.
-          // Contenedor sin imagen.
+            // Header sin imagen: banda de color con icono + ruta
             Container(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
-              // Fondo alternativo si no hay imagen.
-              color: cs.primaryContainer,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+              decoration: BoxDecoration(
+                color: cs.primaryContainer.withValues(alpha: 0.35),
+              ),
               child: Row(
                 children: [
-                  // Icono
                   Container(
-                    width: 42,
-                    height: 42,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
-                      // Fondo del icono.
-                      color: cs.surface,
+                      color: cs.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.landscape, size: 20, color: cs.surfaceContainer),
+                    child: Icon(Icons.terrain_outlined, size: 20, color: cs.primary),
                   ),
-                  const SizedBox(width: 10),
-
-                  // Texto
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      // Punto de inicio y fin.
-                      '${actividad.startPoint} → ${actividad.endPoint}',
+                      '${actividad.startPoint}  →  ${actividad.endPoint}',
                       style: tt.labelLarge?.copyWith(color: cs.onSurface),
-                      // Trunca el texto si es muy largo.
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ),
-            
-          // Card - Parte Inferior
+
+          // -- CUERPO --
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+            padding: const EdgeInsets.fromLTRB(14, 11, 14, 13),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Datos en una fila
                 Wrap(
-                  spacing: 10,
-                  runSpacing: 4,
+                  spacing: 14,
+                  runSpacing: 5,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    // Icono + fecha.
+                    // Fecha
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.calendar_today_outlined, size: 12, color: cs.onSurfaceVariant),
+                        Icon(Icons.calendar_today_outlined, size: 13, color: cs.onSurfaceVariant),
                         const SizedBox(width: 4),
-                        Text(
-                          FormateadorFecha.short(actividad.initDate),
-                          style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-                        ),
+                        Text(FormateadorFecha.short(actividad.initDate), style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
                     ),
-                    // Icono + horario.
+                    // Horario
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.schedule, size: 12, color: cs.onSurfaceVariant),
+                        Icon(Icons.schedule_outlined, size: 13, color: cs.onSurfaceVariant),
                         const SizedBox(width: 4),
-                        Text(
-                          '${FormateadorFecha.timeOnly(actividad.initDate)} - ${FormateadorFecha.timeOnly(actividad.endDate)}',
-                          style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-                        ),
+                        Text('${FormateadorFecha.timeOnly(actividad.initDate)} – ${FormateadorFecha.timeOnly(actividad.endDate)}', style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
                     ),
-                    // Icono + plazas.
+                    // Plazas
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.group_outlined, size: 12, color: cs.onSurfaceVariant),
+                        Icon(Icons.group_outlined, size: 13, color: cs.onSurfaceVariant),
                         const SizedBox(width: 4),
-                        Text(
-                          s.placesCount(actividad.maxParticipants),
-                          style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-                        ),
+                        Text(s.placesCount(actividad.maxParticipants), style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
                     ),
                   ],
                 ),
+
+                // Precio
                 if (actividad.price > 0) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    s.pricePerPersonShort(actividad.price.toStringAsFixed(0)),
-                    style: tt.labelMedium?.copyWith(color: cs.primary),
+                  const SizedBox(height: 7),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: cs.primary.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      s.pricePerPersonShort(actividad.price.toStringAsFixed(2)),
+                      style: tt.labelMedium?.copyWith( color: cs.primary),
+                    ),
                   ),
                 ],
-                const SizedBox(height: 8),
+
+                const SizedBox(height: 10),
+
+                // Tags + acciones
                 Row(
                   children: [
-                    // Categorías de la excursión.
                     Wrap(
-                      spacing: 6,
+                      spacing: 5,
                       runSpacing: 4,
-                      // Categorías
                       children: actividad.categories
-                          .map((ActivityCategory c) => TagWidget(
+                          .map((Category c) => TagWidget(
                                 text: c.localizedLabel(s),
-                                backgroundColor: cs.secondary.withValues(alpha: 0.15),
+                                backgroundColor: cs.onSurfaceVariant.withValues(alpha: 0.2),
                                 textColor: cs.onPrimaryContainer,
                               ))
                           .toList(),
                     ),
-
                     const Spacer(),
-                 
-                    // ACCIONES
-                    // Icono Editar
                     if (onEditar != null)
-                      ActionIcon(
-                        icon: Icons.edit_outlined,
-                        color: cs.tertiary,
-                        onTap: onEditar!
-                      ),
-
-                    const SizedBox(width: 10),
-
-                    // Icono Eliminar
+                      ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!),
+                    if (onEditar != null && onEliminar != null)
+                      const SizedBox(width: 6),
                     if (onEliminar != null)
-                      ActionIcon(
-                        icon: Icons.delete_outline,
-                        color: cs.error,
-                        onTap: onEliminar!,
-                      ),
-
-                    // Botón Solicitar
-                    if (onSolicitar != null)
+                      ActionIcon(icon: Icons.delete_outline, color: cs.error, onTap: onEliminar!),
+                    if (onSolicitar != null) ...[
+                      const SizedBox(width: 6),
                       MiniButton(
                         label: s.requestBtn,
                         onPressed: onSolicitar,
-                        textColor: cs.onTertiary,
-                        backgroundColor: cs.onPrimary,
+                        textColor: cs.onPrimary,
+                        backgroundColor: cs.primary,
                       ),
+                    ],
                   ],
                 ),
               ],
@@ -227,7 +219,3 @@ class ActivityCard extends StatelessWidget {
     );
   }
 }
-
-
-
-

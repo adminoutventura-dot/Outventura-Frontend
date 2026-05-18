@@ -64,7 +64,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                s.actividadSection,
+                s.actividadSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -105,7 +105,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
 
               // Fechas
               Text(
-                s.datesSection,
+                s.datesSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -113,7 +113,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                 children: [
                   Expanded(
                     child: AppDateSelector(
-                      label: 'Inicio',
+                      label: s.start,
                       date: _controller.fechaInicio,
                       firstDate: DateTime.now(),
                       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
@@ -125,7 +125,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: AppDateSelector(
-                      label: 'Fin',
+                      label: s.end,
                       date: _controller.fechaFin,
                       firstDate: _controller.fechaInicio,
                       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
@@ -175,17 +175,17 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
 
               // Categorías
               Text(
-                s.categories,
+                s.categories.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
               AppFilterChipFormField(
                 seleccionados: _controller.categorias,
-                onToggle: (ActivityCategory cat) {
+                onToggle: (Category cat) {
                   setState(() => _controller.alternarCategoria(cat));
                 },
                 // El validator recibe la lista de categorías seleccionadas y devuelve un mensaje de error si la lista está vacía.
-                validator: (List<ActivityCategory>? v) {
+                validator: (List<Category>? v) {
                   return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
                 },
               ),
@@ -193,7 +193,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
 
               // Estado
               Text(
-                s.status,
+                s.status.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),

@@ -11,7 +11,7 @@ import 'package:outventura/features/outventura/presentation/providers/equipment_
 import 'package:outventura/l10n/app_localizations.dart';
 
 class ReservationDetailPage extends ConsumerWidget {
-  final Reservation reserva;
+  final Booking reserva;
 
   const ReservationDetailPage({super.key, required this.reserva});
 
@@ -37,11 +37,11 @@ class ReservationDetailPage extends ConsumerWidget {
     });
 
     final Color accentColor = switch (reserva.status) {
-      ReservationStatus.pendiente  => cs.tertiary,
-      ReservationStatus.confirmada => cs.primary,
-      ReservationStatus.enCurso    => cs.secondary,
-      ReservationStatus.finalizada => cs.secondary.withValues(alpha: 0.35),
-      ReservationStatus.cancelada  => cs.error,
+      BookingStatus.pendiente  => cs.tertiary,
+      BookingStatus.confirmada => cs.primary,
+      BookingStatus.enCurso    => cs.secondary,
+      BookingStatus.finalizada => cs.secondary.withValues(alpha: 0.35),
+      BookingStatus.cancelada  => cs.error,
     };
 
     return Scaffold(

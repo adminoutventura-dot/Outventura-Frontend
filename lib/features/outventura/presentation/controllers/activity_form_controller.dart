@@ -18,7 +18,7 @@ class ActivityFormController {
   TimeOfDay horaInicio = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay horaFin = const TimeOfDay(hour: 17, minute: 0);
   ActivityStatus estado = ActivityStatus.disponible;
-  List<ActivityCategory> categorias = [];
+  List<Category> categorias = [];
   String? imagenAsset;
   bool editando = false;
 
@@ -31,7 +31,7 @@ class ActivityFormController {
     return formKey.currentState!.validate();
   }
   
-  void alternarCategoria(ActivityCategory cat) {
+  void alternarCategoria(Category cat) {
     if (categorias.contains(cat)) {
       categorias.remove(cat);
     } else {
@@ -52,7 +52,7 @@ class ActivityFormController {
     horaInicio = TimeOfDay.fromDateTime(actividad.initDate);
     horaFin = TimeOfDay.fromDateTime(actividad.endDate);
     estado = actividad.status;
-    categorias = List<ActivityCategory>.from(actividad.categories);
+    categorias = List<Category>.from(actividad.categories);
     imagenAsset = actividad.imageAsset;
     precioController.text = actividad.price.toStringAsFixed(2);
   }
@@ -101,7 +101,7 @@ class ActivityFormController {
       difficulty: seleccionado?.difficulty ?? 1,
       maxParticipants: int.tryParse(participantesController.text) ?? 1,
       startEndPoint: [puntoInicio, puntoFin].where((e) => e.isNotEmpty).join(' - '),
-      categories: List<ActivityCategory>.from(categorias),
+      categories: List<Category>.from(categorias),
       imageAsset: imagenAsset,
       status: estado,
       price: double.tryParse(precioController.text.replaceAll(',', '.')) ?? 0,

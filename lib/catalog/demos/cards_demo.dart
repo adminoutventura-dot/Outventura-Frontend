@@ -91,7 +91,7 @@ class CardsDemo extends StatelessWidget {
               final Activity? ex = activitiesFake.where((Activity e) => e.id == reservationsFake[0].activityId).firstOrNull;
               return ex != null ? '${ex.startPoint} → ${ex.endPoint}' : null;
             }(),
-            lineas: reservationsFake[0].lines.map((ReservationLine l) {
+            lineas: reservationsFake[0].lines.map((BookingLine l) {
               final Equipment eq = equipmentFake.firstWhere((Equipment e) => e.id == l.equipmentId, orElse: () => equipmentFake.first);
               return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.quantity);
             }).toList(),
@@ -105,7 +105,7 @@ class CardsDemo extends StatelessWidget {
           ReservationCard(
             reserva: reservationsFake[1],
             nombreUsuario: '${usersFake[2].name} ${usersFake[2].surname}',
-            lineas: reservationsFake[1].lines.map((ReservationLine l) {
+            lineas: reservationsFake[1].lines.map((BookingLine l) {
               final Equipment eq = equipmentFake.firstWhere((Equipment e) => e.id == l.equipmentId, orElse: () => equipmentFake.first);
               return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.quantity);
             }).toList(),

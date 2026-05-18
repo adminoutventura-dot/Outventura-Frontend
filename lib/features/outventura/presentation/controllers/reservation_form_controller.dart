@@ -18,16 +18,16 @@ class ReservationFormController {
   DateTime fechaHasta = DateTime.now();
   TimeOfDay horaInicio = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay horaFin = const TimeOfDay(hour: 17, minute: 0);
-  ReservationStatus estado = ReservationStatus.pendiente;
+  BookingStatus estado = BookingStatus.pendiente;
 
   // Líneas de la reserva (material + cantidad).
-  List<ReservationLine> lineas = [];
+  List<BookingLine> lineas = [];
 
   // Daños por línea: idEquipamiento - cantidad dañada.
   Map<int, int> cantidadesDaniadas = {};
 
   bool editando = false;
-  Reservation? seleccionado;
+  Booking? seleccionado;
 
   // Total de cargos por daños calculado usando el servicio de pricing.
   double totalCargoDanios(List<Equipment> equipamientos) {
@@ -58,7 +58,7 @@ class ReservationFormController {
     return cantidadesDaniadas[idEquipamiento] ?? 0;
   }
 
-  void cargarReserva(Reservation reserva) {
+  void cargarReserva(Booking reserva) {
     editando = true;
     seleccionado = reserva;
     idUsuario = reserva.userId;
@@ -83,7 +83,7 @@ class ReservationFormController {
 
     if (idEquipamiento != null && lineas.isEmpty) {
       lineas.add(
-        ReservationLine(
+        BookingLine(
           equipmentId: idEquipamiento,
           quantity: cantidadEquipamiento,
         ),
@@ -91,16 +91,16 @@ class ReservationFormController {
     }
   }
 
-  void agregarLinea(ReservationLine linea) {
+  void agregarLinea(BookingLine linea) {
     lineas.add(linea);
   }
 
-  void actualizarLinea(int index, ReservationLine linea) {
+  void actualizarLinea(int index, BookingLine linea) {
     lineas[index] = linea;
   }
 
   void eliminarLinea(int index) {
-    final ReservationLine linea = lineas[index];
+    final BookingLine linea = lineas[index];
     cantidadesDaniadas.remove(linea.equipmentId);
     lineas.removeAt(index);
   }
@@ -116,14 +116,14 @@ class ReservationFormController {
     required void Function(VoidCallback) setState,
     int? index,
   }) async {
-    final ReservationLine? linea;
+    final BookingLine? linea;
     if (index != null) {
       linea = lineas[index];
     } else {
       linea = null;
     }
 
-    final ReservationLine? result = await mostrarDialogoLineaReserva(
+    final BookingLine? result = await mostrarDialogoLineaReserva(
       context: context,
       equipamientos: equipamientos,
       initialLinea: linea,
@@ -145,7 +145,7 @@ class ReservationFormController {
     });
   }
 
-  Reservation? crearReserva(List<Equipment> equipamientos) {
+  Booking? crearReserva(List<Equipment> equipamientos) {
     if (!validar()) {
       return null;
     }
@@ -155,7 +155,7 @@ class ReservationFormController {
 
     final int id = seleccionado?.id ?? GeneradorId.idEntero();
 
-    return Reservation(
+    return Booking(
       id: id,
       userId: idUsuario!,
       lines: List.unmodifiable(lineas),

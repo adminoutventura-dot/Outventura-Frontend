@@ -13,7 +13,7 @@ class EquipmentFormController {
   final TextEditingController precioController = TextEditingController();
   final TextEditingController tarifaController = TextEditingController();
 
-  List<ActivityCategory> categorias = [];
+  List<Category> categorias = [];
   EquipmentStatus estado = EquipmentStatus.disponible;
   String? imagenAsset;
   bool editando = false;
@@ -29,7 +29,7 @@ class EquipmentFormController {
   }
 
   // Alternar la selección de una categoría
-  void alternarCategoria(ActivityCategory cat) {
+  void alternarCategoria(Category cat) {
     if (categorias.contains(cat)) {
       categorias.remove(cat);
     } else {
@@ -48,7 +48,7 @@ class EquipmentFormController {
     // toStringAsFixed(2) convierte un double a String con exactamente 2 decimales.
     precioController.text = equipamiento.pricePerDay.toStringAsFixed(2);
     tarifaController.text = equipamiento.damageFee.toStringAsFixed(2);
-    categorias = List<ActivityCategory>.from(equipamiento.categories);
+    categorias = List<Category>.from(equipamiento.categories);
     estado = equipamiento.status;
     imagenAsset = equipamiento.imageAsset;
   }
@@ -64,7 +64,7 @@ class EquipmentFormController {
       id: id,
       title: nombreController.text.trim(),
       description: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
-      categories: List<ActivityCategory>.from(categorias),
+      categories: List<Category>.from(categorias),
       units: int.tryParse(stockController.text) ?? 0,
       totalUnits: int.tryParse(stockTotalController.text) ?? 0,
       status: estado,

@@ -894,4 +894,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get darkTheme => 'Tema oscuro';
+
+  @override
+  String get userDataSection => 'Datos de usuario';
+
+  @override
+  String get reservationDataSection => 'Datos de la reserva';
+
+  @override
+  String get requestDataSection => 'Datos de la solicitud';
+
+  @override
+  String get unknownUser => 'Usuario desconocido';
+
+  @override
+  String get unknown => 'Desconocido';
+
+  @override
+  String pricePerUnitDay(String price) {
+    return '$price €/ud·día';
+  }
 }

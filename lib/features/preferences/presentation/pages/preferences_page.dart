@@ -29,21 +29,21 @@ class PreferencesPage extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Idioma', style: tt.titleMedium),
+                Text(s.language, style: tt.titleMedium),
                 DropdownButton<String>(
                   value: prefs.idioma,
                   items: [
                     DropdownMenuItem(
                       value: 'es',
-                      child: Text('Español', style: tt.bodyMedium),
+                      child: Text(s.spanish, style: tt.bodyMedium),
                     ),
                     DropdownMenuItem(
                       value: 'en',
-                      child: Text('Inglés', style: tt.bodyMedium),
+                      child: Text(s.english, style: tt.bodyMedium),
                     ),
                     DropdownMenuItem(
                       value: 'ca',
-                      child: Text('Catalán', style: tt.bodyMedium),
+                      child: Text(s.catalan, style: tt.bodyMedium),
                     ),
                   ],
                   onChanged: (String? value) {
@@ -62,7 +62,7 @@ class PreferencesPage extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Tema oscuro', style: tt.titleMedium),
+                Text(s.darkTheme, style: tt.titleMedium),
                 Switch(
                     value: prefs.temaOscuro,
                     onChanged: (bool value) {
@@ -86,7 +86,7 @@ class PreferencesPage extends ConsumerWidget {
         // Mensaje de error si falla la carga.
         error: (Object err, StackTrace stack) => Center(
           child: Text(
-            'Error: $err',
+            s.error(err.toString()),
             style: tt.bodyMedium?.copyWith(color: cs.error),
           ),
         ),

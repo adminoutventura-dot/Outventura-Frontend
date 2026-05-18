@@ -335,5 +335,13 @@
   "spanish": "Español",
   "english": "Inglés",
   "catalan": "Català",
-  "darkTheme": "Tema oscuro"
+  "darkTheme": "Tema oscuro",
+
+  "userDataSection": "Datos de usuario",
+  "reservationDataSection": "Datos de la reserva",
+  "requestDataSection": "Datos de la solicitud",
+  "unknownUser": "Usuario desconocido",
+  "unknown": "Desconocido",
+  "pricePerUnitDay": "{price} €/ud·día",
+  "@pricePerUnitDay": { "placeholders": { "price": { "type": "String" } } }
 }

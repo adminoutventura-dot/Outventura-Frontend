@@ -10,7 +10,7 @@ final AsyncNotifierProvider<EquipmentNotifier, List<Equipment>> equipmentProvide
 
 // TEMPORAL: el filtro se moverá al backend - GET /api/equipamientos?q=... Eliminar este provider.
 // Filtra equipamientos por nombre, estado y categoría. Simula búsqueda en backend.
-final filteredEquipmentProvider = Provider.family<AsyncValue<List<Equipment>>, ({String query, EquipmentStatus? estado, ActivityCategory? categoria})>((ref, params) {
+final filteredEquipmentProvider = Provider.family<AsyncValue<List<Equipment>>, ({String query, EquipmentStatus? estado, Category? categoria})>((ref, params) {
 
   // Observa el estado asíncrono de todos los equipamientos (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Equipment>> asyncTodos = ref.watch(equipmentProvider);

@@ -81,11 +81,25 @@ class AppGradients {
   // Pasa de un color sólido a su versión ligeramente más clara/transparente.
   static LinearGradient cardAccent(Color baseColor) {
     final hsl = HSLColor.fromColor(baseColor);
-    // Aumentamos la luminosidad un 25% (sin pasar de 1.0) para crear la variante brillante
+    // Aumenta la luminosidad un 25% (sin pasar de 1.0) para crear la variante brillante
     final Color colorBrillante = hsl.withLightness((hsl.lightness + 0.25).clamp(0.0, 1.0)).toColor();
 
     return LinearGradient(
       colors: [baseColor, colorBrillante],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
+  }
+
+  // Degradado diagonal genérico para la línea de acento superior de las tarjetas.
+  // Pasa de un color sólido a su versión ligeramente más clara/transparente.
+  static LinearGradient cardAccentReverse(Color baseColor) {
+    final hsl = HSLColor.fromColor(baseColor);
+    // Aumenta la luminosidad un 25% (sin pasar de 1.0) para crear la variante brillante
+    final Color colorBrillante = hsl.withLightness((hsl.lightness + 0.25).clamp(0.0, 1.0)).toColor();
+
+    return LinearGradient(
+      colors: [colorBrillante, baseColor],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );

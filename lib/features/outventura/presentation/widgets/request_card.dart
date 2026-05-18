@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
@@ -35,213 +34,189 @@ class RequestCard extends StatelessWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    // Colores base para armonizar el texto y fondo del badge según el estado
-    // Estructura idéntica: Extraemos el color base según el estado actual
     final Color statusColor = switch (solicitud.status) {
-      RequestStatus.pendiente => cs.tertiary,
+      RequestStatus.pendiente  => cs.tertiary,
       RequestStatus.confirmada => cs.primary,
-      RequestStatus.enCurso => cs.secondary,
+      RequestStatus.enCurso    => cs.secondary,
       RequestStatus.finalizada => cs.onSurfaceVariant,
-      RequestStatus.cancelada => cs.error,
+      RequestStatus.cancelada  => cs.error,
     };
-
 
     return Container(
       decoration: BoxDecoration(
-        color: cs.surface,
+        // Fondo con tinte del color de estado
+        color: Color.lerp(cs.surface, statusColor, 0.04),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.onSurfaceVariant.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: statusColor.withValues(alpha: 0.3),
+            blurRadius: 2,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       clipBehavior: Clip.hardEdge,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // --- LÍNEA DE ACENTO SUPERIOR CON DEGRADADO ---
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: AppGradients.cardAccent(statusColor),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // -- BARRA LATERAL DEGRADADA --
+            Container(
+              width: 5,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    statusColor,
+                    statusColor.withValues(alpha: 0.45),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
             ),
-            child: const SizedBox(height: 4, width: double.infinity),
-          ),
 
-          Padding(
-            padding: const EdgeInsets.fromLTRB(13, 11, 12, 10),
-            child: Column(
-              children: [
-                // Ruta / badge
-                Row(
+            // -- CONTENIDO --
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(13, 12, 12, 12),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Puntos inicio → fin
-                          Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: 4,
-                            runSpacing: 2,
-                            children: [
-                              Text(
-                                actividad.startPoint,
-                                style: tt.labelLarge?.copyWith(
-                                  color: cs.onSurface,
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward,
-                                size: 13,
-                                color: cs.onSurfaceVariant,
-                              ),
-                              Text(
-                                actividad.endPoint,
-                                style: tt.labelLarge?.copyWith(
-                                  color: cs.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 3),
-                          // Cliente + experto
-                          Text(
-                            [
-                              '#${solicitud.id}',
-                              if (nombreUsuario != null) nombreUsuario,
-                              solicitud.expertId != null
-                                  ? s.assignedExpert
-                                  : s.noExpert,
-                            ].join('  -  '),
-                            style: tt.labelSmall?.copyWith(
-                              color: cs.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    // Badge estado con el fondo suave y texto a juego
-                    TagWidget(
-                      text: solicitud.status.localizedLabel(s),
-                      backgroundColor: statusColor.withValues(alpha: 0.15),
-                      textColor: statusColor,
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 8),
-
-                // Fecha / Horario / Participantes
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today_outlined,
-                      size: 12,
-                      color: cs.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      FormateadorFecha.short(actividad.initDate),
-                      style: tt.labelSmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Icon(
-                      Icons.schedule,
-                      size: 12,
-                      color: cs.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${FormateadorFecha.timeOnly(actividad.initDate)} - ${FormateadorFecha.timeOnly(actividad.endDate)}',
-                      style: tt.labelSmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Icon(
-                      Icons.group_outlined,
-                      size: 12,
-                      color: cs.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      s.participantsCount(solicitud.participantCount),
-                      style: tt.labelSmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 9),
-                Divider(
-                  height: 1,
-                  color: cs.onSurfaceVariant.withValues(alpha: 0.2),
-                ),
-                const SizedBox(height: 9),
-
-                // Tags + acciones
-                Row(
-                  children: [
-                    // Categorías
-                    Row(
-                      spacing: 5,
-                      children: actividad.categories
-                          .map(
-                            (ActivityCategory c) => TagWidget(
-                              text: c.localizedLabel(s),
-                              backgroundColor: cs.secondary.withValues(alpha: 0.15),
-                              textColor: cs.onPrimaryContainer,
-                            ),
-                          )
-                          .toList(),
-                    ),
-                    const Spacer(),
-
-                    // Acciones
+                    // Fila 1: ID + usuario · badge
                     Row(
                       children: [
-                        if (onCancelar != null) ...[
-                          ActionIcon(
-                            icon: Icons.close,
-                            color: cs.error,
-                            onTap: onCancelar!,
+                        Text(
+                          '#${solicitud.id}',
+                          style: tt.labelSmall?.copyWith(
+                            color: statusColor,
+                            fontWeight: FontWeight.w700,
                           ),
-                          const SizedBox(width: 8),
+                        ),
+                        if (nombreUsuario != null) ...[
+                          Text('  ·  ', style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                          Text(
+                            nombreUsuario!,
+                            style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                          ),
+                        ],
+                        const Spacer(),
+                        TagWidget(
+                          text: solicitud.status.localizedLabel(s),
+                          backgroundColor: statusColor.withValues(alpha: 0.13),
+                          textColor: statusColor,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 5),
+
+                    // Fila 2: ruta
+                    Row(
+                      children: [
+                        Text(
+                          actividad.startPoint,
+                          style: tt.labelLarge?.copyWith(color: cs.onSurface),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          child: Icon(Icons.arrow_forward_rounded, size: 14, color: cs.onSurfaceVariant),
+                        ),
+                        Expanded(
+                          child: Text(
+                            actividad.endPoint,
+                            style: tt.labelLarge?.copyWith(color: cs.onSurface),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    // Experto
+                    Text(
+                      solicitud.expertId != null ? s.assignedExpert : s.noExpert,
+                      style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Separador
+                    Divider(height: 1, thickness: 0.5, color: statusColor.withValues(alpha: 0.20)),
+
+                    const SizedBox(height: 10),
+
+                    // Fila metadatos
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 5,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.calendar_today_outlined, size: 13, color: cs.onSurfaceVariant),
+                            const SizedBox(width: 4),
+                            Text(FormateadorFecha.short(actividad.initDate), style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.schedule_outlined, size: 13, color: cs.onSurfaceVariant),
+                            const SizedBox(width: 4),
+                            Text('${FormateadorFecha.timeOnly(actividad.initDate)} – ${FormateadorFecha.timeOnly(actividad.endDate)}', style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.group_outlined, size: 13, color: cs.onSurfaceVariant),
+                            const SizedBox(width: 4),
+                            Text(s.participantsCount(solicitud.participantCount), style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Tags + acciones
+                    Row(
+                      children: [
+                        Wrap(
+                          spacing: 5,
+                          runSpacing: 4,
+                          children: actividad.categories
+                              .map((Category c) => TagWidget(
+                                    text: c.localizedLabel(s),
+                                    backgroundColor: cs.secondary.withValues(alpha: 0.15),
+                                    textColor: cs.onPrimaryContainer,
+                                  ))
+                              .toList(),
+                        ),
+                        const Spacer(),
+                        if (onCancelar != null) ...[
+                          ActionIcon(icon: Icons.close_rounded, color: cs.error, onTap: onCancelar!),
+                          const SizedBox(width: 5),
                         ],
                         if (onGestionar != null) ...[
-                          ActionIcon(
-                            icon: Icons.check_circle_outline,
-                            color: cs.primary,
-                            onTap: onGestionar!,
-                          ),
-                          const SizedBox(width: 8),
+                          ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onGestionar!),
+                          const SizedBox(width: 5),
                         ],
                         if (onEditar != null) ...[
-                          ActionIcon(
-                            icon: Icons.edit_outlined,
-                            color: cs.tertiary,
-                            onTap: onEditar!,
-                          ),
-                          const SizedBox(width: 8),
+                          ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!),
+                          const SizedBox(width: 5),
                         ],
-                        if (onVerDetalle != null) ...[
-                          ActionIcon(
-                            icon: Icons.chevron_right,
-                            color: cs.onPrimaryContainer,
-                            onTap: onVerDetalle!,
-                          ),
-                          const SizedBox(width: 8),
-                        ],
+                        if (onVerDetalle != null)
+                          ActionIcon(icon: Icons.chevron_right_rounded, color: cs.onSurfaceVariant, onTap: onVerDetalle!),
                       ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

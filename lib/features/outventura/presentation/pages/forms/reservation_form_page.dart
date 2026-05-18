@@ -23,7 +23,7 @@ import 'package:outventura/features/outventura/presentation/widgets/reservation_
 import 'package:outventura/core/widgets/bottom_price_bar.dart';
 
 class ReservationFormPage extends ConsumerStatefulWidget {
-  final Reservation? reserva;
+  final Booking? reserva;
   final int? initialIdUsuario;
   final int? initialIdActividad;
   final int? initialIdEquipamiento;
@@ -124,18 +124,23 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
             );
             return;
           }
-          final Reservation? reserva = _controller.crearReserva(equipamientos);
+          final Booking? reserva = _controller.crearReserva(equipamientos);
           if (reserva == null) return;
           Navigator.of(context).pop(reserva);
         },
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20, topPadding + 20, 20, bottomBarHeight + 24),
+        padding: EdgeInsets.fromLTRB(20, topPadding + 40, 20, bottomBarHeight + 24),
         child: Form(
           key: _controller.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                s.reservationDataSection.toUpperCase(),
+                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 10),
               // Usuario
               const SizedBox(height: 8),
               AppDropdownField<User>(
@@ -180,7 +185,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
 
               // Fechas
               Text(
-                s.dates,
+                s.dates.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -242,12 +247,12 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               // Estado (solo visible para trabajadores)
               if (!modoCliente) ...[
                 Text(
-                s.status,
+                s.status.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
                 const SizedBox(height: 8),
                 AppChipWrap(
-                  children: ReservationStatus.values.map((ReservationStatus e) {
+                  children: BookingStatus.values.map((BookingStatus e) {
                     final bool seleccionado = _controller.estado == e;
                     return AppChoiceChip(
                       label: e.localizedLabel(s),
@@ -264,7 +269,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    s.reservationLines,
+                    s.reservationLines.toUpperCase(),
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   TertiaryButton(
@@ -286,7 +291,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 for (int i = 0; i < _controller.lineas.length; i++) ...[
                   Builder(
                     builder: (_) {
-                      final ReservationLine linea = _controller.lineas[i];
+                      final BookingLine linea = _controller.lineas[i];
 
                       Equipment equip = equipamientos.first;
                       for (final Equipment eq in equipamientos) {

@@ -100,7 +100,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           Expanded(
             child: filtrados.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(child: Text('Error: $error')),
+              error: (error, _) => Center(child: Text(s.error(error.toString()))),
               data: (List<User> usuarios) => ListView.separated(
                 padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
                 itemCount: usuarios.isEmpty ? 1 : usuarios.length,

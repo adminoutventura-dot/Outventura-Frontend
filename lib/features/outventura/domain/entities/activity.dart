@@ -36,7 +36,7 @@ class Activity {
   final int difficulty;
   final int maxParticipants;
   final String? startEndPoint;
-  final List<ActivityCategory> categories;
+  final List<Category> categories;
   // TODO: Campos solo en front: imageAsset, status, price, materialsPerParticipant.
   final String? imageAsset;
   final ActivityStatus status;
@@ -65,12 +65,12 @@ class Activity {
   // Crea una Activity a partir del JSON que devuelve el backend.
   factory Activity.fromMap(Map<String, dynamic> map) {
     final dynamic categoriesRaw = map['categories'];
-    final List<ActivityCategory> parsedCategories = (categoriesRaw is List)
+    final List<Category> parsedCategories = (categoriesRaw is List)
         ? categoriesRaw
-            .map((dynamic e) => ActivityCategory.fromDynamic(e))
-            .whereType<ActivityCategory>()
+            .map((dynamic e) => Category.fromDynamic(e))
+            .whereType<Category>()
             .toList()
-        : <ActivityCategory>[];
+        : <Category>[];
 
     return Activity(
       id: (map['id_activity'] ?? map['id']) as int,
@@ -105,7 +105,7 @@ class Activity {
     int? difficulty,
     int? maxParticipants,
     String? startEndPoint,
-    List<ActivityCategory>? categories,
+    List<Category>? categories,
     String? imageAsset,
     ActivityStatus? status,
     double? price,

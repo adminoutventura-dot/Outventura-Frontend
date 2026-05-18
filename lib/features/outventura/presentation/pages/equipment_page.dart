@@ -123,7 +123,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
           Expanded(
             child: equipamientosFiltrados.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(child: Text('Error: $error')),
+              error: (error, _) => Center(child: Text(s.error(error.toString()))),
               data: (List<Equipment> lista) => ListView.separated(
               padding: EdgeInsets.fromLTRB( 12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
               itemCount: lista.isEmpty ? 1 : lista.length,
@@ -183,8 +183,8 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             return;
                           }
 
-                          final Reservation? reserva = await Navigator.of(context)
-                              .push<Reservation>(
+                          final Booking? reserva = await Navigator.of(context)
+                              .push<Booking>(
                                 MaterialPageRoute(
                                   builder: (_) => ReservationFormPage(
                                     initialIdUsuario: usuario.id,

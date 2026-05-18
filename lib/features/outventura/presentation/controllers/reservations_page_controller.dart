@@ -5,14 +5,14 @@ import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
 class ReservationsPageController {
-  ReservationStatus? estadoFiltro;
+  BookingStatus? estadoFiltro;
   DateTime? fechaDesde;
   DateTime? fechaHasta;
 
   bool get hayFiltros => estadoFiltro != null || fechaDesde != null || fechaHasta != null;
 
   void mostrarFiltros(BuildContext context, StateSetter setState) {
-    ReservationStatus? estadoTemp = estadoFiltro;
+    BookingStatus? estadoTemp = estadoFiltro;
     DateTime? desdeTemp = fechaDesde;
     DateTime? hastaTemp = fechaHasta;
 
@@ -20,8 +20,8 @@ class ReservationsPageController {
       grupos: [
         FilterGrupo(
           titulo: AppLocalizations.of(context)!.statusFilter,
-          chips: ReservationStatus.values
-              .map((ReservationStatus e) => FilterChipSpec(
+          chips: BookingStatus.values
+              .map((BookingStatus e) => FilterChipSpec(
                     label: e.localizedLabel(AppLocalizations.of(context)!),
                     seleccionado: estadoTemp == e,
                     onToggle: () => setModal(() => estadoTemp = estadoTemp == e ? null : e),

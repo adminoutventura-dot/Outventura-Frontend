@@ -119,7 +119,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
           Expanded(
             child: filtradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(child: Text('Error: $error')),
+              error: (error, _) => Center(child: Text(s.error(error.toString()))),
               data: (List<Request> lista) => lista.isEmpty
                 ? Center(
                     child: Text(

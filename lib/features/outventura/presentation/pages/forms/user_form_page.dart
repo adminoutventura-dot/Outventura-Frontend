@@ -79,6 +79,13 @@ class _UserFormPageState extends State<UserFormPage> {
                 ),
               ),
               const SizedBox(height: 20),
+
+              Text(
+                s.userDataSection.toUpperCase(),
+                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 8),
+
               // Nombre y Apellidos
               Row(
                 children: [
@@ -137,7 +144,7 @@ class _UserFormPageState extends State<UserFormPage> {
 
               // Rol
               Text(
-                s.role,
+                s.role.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -157,7 +164,7 @@ class _UserFormPageState extends State<UserFormPage> {
               Row(
                 children: [
                   Text(
-                    s.activeUser,
+                    s.activeUser.toUpperCase(),
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   const Spacer(),

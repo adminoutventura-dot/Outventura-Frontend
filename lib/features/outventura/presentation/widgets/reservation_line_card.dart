@@ -6,7 +6,7 @@ import 'package:outventura/features/outventura/domain/entities/reservation.dart'
 import 'package:outventura/l10n/app_localizations.dart';
 
 class ReservationLineCard extends StatelessWidget {
-  final ReservationLine linea;
+  final BookingLine linea;
   final Equipment equipamiento;
   final int cantidadDaniada;
   final bool esCliente;

@@ -6,12 +6,12 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
-Future<ReservationLine?> mostrarDialogoLineaReserva({
+Future<BookingLine?> mostrarDialogoLineaReserva({
   required BuildContext context,
   required List<Equipment> equipamientos,
-  ReservationLine? initialLinea,
+  BookingLine? initialLinea,
 }) {
-  return showDialog<ReservationLine>(
+  return showDialog<BookingLine>(
     context: context,
     builder: (BuildContext ctx) => _LineaReservaDialog(
       equipamientos: equipamientos,
@@ -22,7 +22,7 @@ Future<ReservationLine?> mostrarDialogoLineaReserva({
 
 class _LineaReservaDialog extends StatefulWidget {
   final List<Equipment> equipamientos;
-  final ReservationLine? initialLinea;
+  final BookingLine? initialLinea;
 
   const _LineaReservaDialog({
     required this.equipamientos,
@@ -102,7 +102,7 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
             if (!_formKey.currentState!.validate()) return;
             Navigator.pop(
               context,
-              ReservationLine(
+              BookingLine(
                 equipmentId: _idEquipamiento!,
                 quantity: int.parse(_cantCtrl.text),
               ),

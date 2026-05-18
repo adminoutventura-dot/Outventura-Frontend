@@ -1,5 +1,5 @@
 // Estados posibles de una reserva.
-enum ReservationStatus {
+enum BookingStatus {
   pendiente,
   confirmada,
   enCurso,
@@ -8,38 +8,38 @@ enum ReservationStatus {
 
   String get label {
     switch (this) {
-      case ReservationStatus.pendiente:
+      case BookingStatus.pendiente:
         return 'Pendiente';
-      case ReservationStatus.confirmada:
+      case BookingStatus.confirmada:
         return 'Confirmada';
-      case ReservationStatus.enCurso:
+      case BookingStatus.enCurso:
         return 'En curso';
-      case ReservationStatus.finalizada:
+      case BookingStatus.finalizada:
         return 'Finalizada';
-      case ReservationStatus.cancelada:
+      case BookingStatus.cancelada:
         return 'Cancelada';
     }
   }
 
-  static ReservationStatus fromString(String value) {
-    for (ReservationStatus status in ReservationStatus.values) {
+  static BookingStatus fromString(String value) {
+    for (BookingStatus status in BookingStatus.values) {
       if (status.label.toLowerCase() == value.toLowerCase()) {
         return status;
       }
     }
-    return ReservationStatus.pendiente;
+    return BookingStatus.pendiente;
   }
 }
 
 // Una línea de reserva (un material y su cantidad).
-class ReservationLine {
+class BookingLine {
   final int equipmentId;
   final int quantity;
 
-  const ReservationLine({required this.equipmentId, required this.quantity});
+  const BookingLine({required this.equipmentId, required this.quantity});
 
-  ReservationLine copyWith({int? equipmentId, int? quantity}) {
-    return ReservationLine(
+  BookingLine copyWith({int? equipmentId, int? quantity}) {
+    return BookingLine(
       equipmentId: equipmentId ?? this.equipmentId,
       quantity: quantity ?? this.quantity,
     );
@@ -48,19 +48,19 @@ class ReservationLine {
 
 // TODO: El backend no tiene modelo de Reserva; alinear campos cuando exista.
 // Entidad de reserva.
-class Reservation {
+class Booking {
   final int id;
   final int userId;
-  final List<ReservationLine> lines;
+  final List<BookingLine> lines;
   final int? activityId;
   final DateTime startDate;
   final DateTime endDate;
-  final ReservationStatus status;
+  final BookingStatus status;
   final double damageFee;
   // Cantidades dañadas por idEquipamiento: {idEquipamiento: cantidad}.
   final Map<int, int> damagedItems;
 
-  const Reservation({
+  const Booking({
     required this.id,
     required this.userId,
     required this.lines,
@@ -73,17 +73,17 @@ class Reservation {
     this.damagedItems = const {},
   });
 
-  Reservation copyWith({
+  Booking copyWith({
     int? userId,
-    List<ReservationLine>? lines,
+    List<BookingLine>? lines,
     int? activityId,
     DateTime? startDate,
     DateTime? endDate,
-    ReservationStatus? status,
+    BookingStatus? status,
     double? damageFee,
     Map<int, int>? damagedItems,
   }) {
-    return Reservation(
+    return Booking(
       id: id,
       userId: userId ?? this.userId,
       lines: lines ?? this.lines,

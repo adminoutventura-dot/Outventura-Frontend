@@ -27,7 +27,7 @@ extension EstadoSolicitudL10n on RequestStatus {
   String localizedLabel(AppLocalizations s) => _estadoComunLabel(name, s);
 }
 
-extension EstadoReservaL10n on ReservationStatus {
+extension EstadoReservaL10n on BookingStatus {
   String localizedLabel(AppLocalizations s) => _estadoComunLabel(name, s);
 }
 
@@ -57,16 +57,16 @@ extension EstadoEquipamientoL10n on EquipmentStatus {
   }
 }
 
-extension CategoriaActividadL10n on ActivityCategory {
+extension CategoriaActividadL10n on Category {
   String localizedLabel(AppLocalizations s) {
     switch (this) {
-      case ActivityCategory.acuatico:
+      case Category.acuatico:
         return s.categoryAquatic;
-      case ActivityCategory.nieve:
+      case Category.nieve:
         return s.categorySnow;
-      case ActivityCategory.montana:
+      case Category.montana:
         return s.categoryMountain;
-      case ActivityCategory.camping:
+      case Category.camping:
         return s.categoryCamping;
     }
   }

@@ -304,5 +304,13 @@
   "spanish": "Castellà",
   "english": "Anglès",
   "catalan": "Català",
-  "darkTheme": "Tema fosc"
+  "darkTheme": "Tema fosc",
+
+  "userDataSection": "Dades d'usuari",
+  "reservationDataSection": "Dades de la reserva",
+  "requestDataSection": "Dades de la sol·licitud",
+  "unknownUser": "Usuari desconegut",
+  "unknown": "Desconegut",
+  "pricePerUnitDay": "{price} €/ud·dia",
+  "@pricePerUnitDay": { "placeholders": { "price": { "type": "String" } } }
 }

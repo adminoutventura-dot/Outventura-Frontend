@@ -894,4 +894,24 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get darkTheme => 'Tema fosc';
+
+  @override
+  String get userDataSection => 'Dades d\'usuari';
+
+  @override
+  String get reservationDataSection => 'Dades de la reserva';
+
+  @override
+  String get requestDataSection => 'Dades de la sol·licitud';
+
+  @override
+  String get unknownUser => 'Usuari desconegut';
+
+  @override
+  String get unknown => 'Desconegut';
+
+  @override
+  String pricePerUnitDay(String price) {
+    return '$price €/ud·dia';
+  }
 }

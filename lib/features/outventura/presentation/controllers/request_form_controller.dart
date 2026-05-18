@@ -85,21 +85,21 @@ class RequestFormController {
   }
 
   // Convierte una lista de líneas de reserva en un mapa {idEquipamiento → cantidad}.
-  Map<int, int> materialesDesdeLineas(List<ReservationLine> lineas) {
+  Map<int, int> materialesDesdeLineas(List<BookingLine> lineas) {
     final Map<int, int> materiales = {};
-    for (final ReservationLine linea in lineas) {
+    for (final BookingLine linea in lineas) {
       materiales[linea.equipmentId] = linea.quantity;
     }
     return materiales;
   }
 
   // Convierte el mapa en lista de LineaReserva, filtrando los que tengan cantidad 0.
-  List<ReservationLine> lineasDesdeMateriales() {
+  List<BookingLine> lineasDesdeMateriales() {
     return materialesSolicitados.entries
         .where((entry) => entry.value > 0)
         .map(
           (entry) =>
-              ReservationLine(equipmentId: entry.key, quantity: entry.value),
+              BookingLine(equipmentId: entry.key, quantity: entry.value),
         )
         .toList();
   }
@@ -151,13 +151,13 @@ class RequestFormController {
 
   // TEMPORAL: el backend creará la reserva y devolverá el ID real. Eliminar GeneradorId.idEntero() de aquí.
   // Construye una reserva a partir de la solicitud actual.
-  Reservation? construirReserva(List<Activity> actividades) {
+  Booking? construirReserva(List<Activity> actividades) {
     if (idUsuario == null) {
       return null;
     }
 
     // Crea las líneas de reserva a partir de los materiales solicitados.
-    final List<ReservationLine> lineas = lineasDesdeMateriales();
+    final List<BookingLine> lineas = lineasDesdeMateriales();
     if (lineas.isEmpty) {
       return null;
     }
@@ -166,14 +166,14 @@ class RequestFormController {
     final DateTime inicio = actividad?.initDate ?? DateTime.now();
     final DateTime fin = actividad?.endDate ?? inicio.add(const Duration(days: 1));
 
-    final Reservation reserva = Reservation(
+    final Booking reserva = Booking(
       id: GeneradorId.idEntero(),
       userId: idUsuario!,
       lines: lineas,
       activityId: idActividad,
       startDate: inicio,
       endDate: fin,
-      status: ReservationStatus.pendiente,
+      status: BookingStatus.pendiente,
     );
 
     idReserva = reserva.id;
@@ -181,8 +181,8 @@ class RequestFormController {
   }
 
   // Busca una reserva por su ID en una lista de reservas.
-  Reservation? buscarReserva(List<Reservation> reservas, int id) {
-    for (final Reservation r in reservas) {
+  Booking? buscarReserva(List<Booking> reservas, int id) {
+    for (final Booking r in reservas) {
       if (r.id == id) {
         return r;
       }
@@ -191,7 +191,7 @@ class RequestFormController {
   }
 
   // Sincroniza la reserva existente con los datos actuales de la solicitud.
-  Reservation? sincronizarReserva(Request solicitud, List<Reservation> reservas) {
+  Booking? sincronizarReserva(Request solicitud, List<Booking> reservas) {
     // Obtiene el ID de la reserva asociada a la solicitud.
     final int? idRes = solicitud.reservationId;
     if (idRes == null) {
@@ -199,13 +199,13 @@ class RequestFormController {
     }
     
     // Busca esa reserva en la lista por su ID. 
-    final Reservation? reserva = buscarReserva(reservas, idRes);
+    final Booking? reserva = buscarReserva(reservas, idRes);
     if (reserva == null) {
       return null;
     }
 
     // Convierte los materiales actuales del formulario (materialesSolicitados) en líneas de reserva.
-    final List<ReservationLine> lineas = lineasDesdeMateriales();
+    final List<BookingLine> lineas = lineasDesdeMateriales();
     if (lineas.isEmpty) {
       return null;
     }
@@ -219,19 +219,19 @@ class RequestFormController {
   }
 
   // Crea una reserva a partir de los datos actuales. Devuelve null si hay error de validación.
-  Reservation? crearReserva(List<Activity> actividades) {
-    final Reservation? reserva = construirReserva(actividades);
+  Booking? crearReserva(List<Activity> actividades) {
+    final Booking? reserva = construirReserva(actividades);
     return reserva;
   }
 
   // Sincroniza la reserva asociada a la solicitud con los datos actuales. Devuelve la reserva actualizada.
-  Reservation? sincronizarReservaConSolicitud(Request solicitud, List<Reservation> reservas) {
-    final Reservation? actualizada = sincronizarReserva(solicitud, reservas);
+  Booking? sincronizarReservaConSolicitud(Request solicitud, List<Booking> reservas) {
+    final Booking? actualizada = sincronizarReserva(solicitud, reservas);
     return actualizada;
   }
 
   // Devuelve la reserva actual, o null si no hay ninguna asociada.
-  Reservation? buscarReservaActual(List<Reservation> reservas) {
+  Booking? buscarReservaActual(List<Booking> reservas) {
     if (idReserva == null) {
       return null;
     }
@@ -239,15 +239,15 @@ class RequestFormController {
   }
 
   // Comprueba si la reserva asociada sigue existiendo en la lista.
-  bool reservaExiste(List<Reservation> reservas) {
+  bool reservaExiste(List<Booking> reservas) {
     if (idReserva == null) {
       return false;
     }
-    return reservas.any((Reservation r) => r.id == idReserva);
+    return reservas.any((Booking r) => r.id == idReserva);
   }
 
   // Actualiza los materiales del formulario a partir de la reserva resultado.
-  void actualizarDesdeReserva(Reservation resultado) {
+  void actualizarDesdeReserva(Booking resultado) {
     materialesSolicitados = materialesDesdeLineas(resultado.lines);
   }
 
@@ -294,7 +294,7 @@ class RequestFormController {
 
   // Crea una reserva a partir de los datos actuales del formulario.
   // Si hay un error de validación, muestra un snackbar y devuelve null.
-  Reservation? crearReservaDesdeSolicitud({
+  Booking? crearReservaDesdeSolicitud({
     required BuildContext context,
     required WidgetRef ref,
   }) {
@@ -304,7 +304,7 @@ class RequestFormController {
       return null;
     }
     final List<Activity> actividades = ref.read(activitiesProvider).value ?? [];
-    final Reservation? reserva = crearReserva(actividades);
+    final Booking? reserva = crearReserva(actividades);
     if (reserva != null) {
       ref.read(reservationsProvider.notifier).agregar(reserva);
     }

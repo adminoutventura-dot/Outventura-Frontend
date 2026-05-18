@@ -34,7 +34,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   // Devuelve todos los eventos (reservas y solicitudes) que ocurren en el día.
   List<Object> _eventosDelDia(
     DateTime day,
-    List<Reservation> misReservas,
+    List<Booking> misReservas,
     List<Request> misSolicitudes,
     List<Activity> actividades,
   ) {
@@ -68,14 +68,14 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final s = AppLocalizations.of(context)!;
 
-    final List<Reservation> reservas = ref.watch(reservationsProvider).value ?? [];
+    final List<Booking> reservas = ref.watch(reservationsProvider).value ?? [];
     final List<Request> solicitudes = ref.watch(requestsProvider).value ?? [];
     final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
 
     final misReservas = (widget.esAdmin
             ? reservas
             : reservas.where((r) => r.userId == widget.usuario.id))
-        .where((r) => r.status == ReservationStatus.confirmada || r.status == ReservationStatus.enCurso)
+        .where((r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso)
         .toList();
 
     final misSolicitudes = (widget.esAdmin
@@ -183,7 +183,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 // Marcadores de eventos debajo del número del día
                 markerBuilder: (context, day, events) {
                   if (events.isEmpty) return const SizedBox.shrink();
-                  final reservas = events.whereType<Reservation>().length;
+                  final reservas = events.whereType<Booking>().length;
                   final solicitudes = events.whereType<Request>().length;
                   return Positioned(
                     bottom: 2,
@@ -265,7 +265,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 itemCount: eventosSeleccionados.length,
                 itemBuilder: (context, index) {
                   final evento = eventosSeleccionados[index];
-                  if (evento is Reservation) {
+                  if (evento is Booking) {
                     return _EventoTile(
                       titulo: s.reservationEvent(evento.id),
                       subtitulo: evento.status.localizedLabel(s),

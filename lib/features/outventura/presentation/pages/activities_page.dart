@@ -118,7 +118,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
           Expanded(
             child: actividadesFiltradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(child: Text('Error: $error')),
+              error: (error, _) => Center(child: Text(s.error(error.toString()))),
               data: (List<Activity> lista) => ListView.separated(
               padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
               itemCount: lista.isEmpty ? 1 : lista.length,

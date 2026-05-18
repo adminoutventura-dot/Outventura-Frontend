@@ -304,5 +304,13 @@
   "spanish": "Spanish",
   "english": "English",
   "catalan": "Catalan",
-  "darkTheme": "Dark theme"
+  "darkTheme": "Dark theme",
+
+  "userDataSection": "User data",
+  "reservationDataSection": "Reservation data",
+  "requestDataSection": "Request data",
+  "unknownUser": "Unknown user",
+  "unknown": "Unknown",
+  "pricePerUnitDay": "{price} €/unit·day",
+  "@pricePerUnitDay": { "placeholders": { "price": { "type": "String" } } }
 }

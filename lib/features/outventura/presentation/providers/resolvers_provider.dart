@@ -46,8 +46,8 @@ final activityByIdProvider = Provider.family<Activity?, int>((ref, id) {
 });
 
 // Resuelve una reserva completa por su ID.
-final reservationByIdProvider = Provider.family<Reservation?, int>((ref, id) {
-  final List<Reservation> reservas = ref.watch(reservationsProvider).value ?? [];
-  final int index = reservas.indexWhere((Reservation r) => r.id == id);
+final reservationByIdProvider = Provider.family<Booking?, int>((ref, id) {
+  final List<Booking> reservas = ref.watch(reservationsProvider).value ?? [];
+  final int index = reservas.indexWhere((Booking r) => r.id == id);
   return index != -1 ? reservas[index] : null;
 });

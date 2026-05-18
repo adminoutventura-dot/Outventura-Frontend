@@ -37,7 +37,7 @@ class Equipment {
   final int id;
   final String title;
   final String? description;
-  final List<ActivityCategory> categories;
+  final List<Category> categories;
   final int units;
   // TODO: `totalUnits`, `damageFee` e `imageAsset` son solo del front.
   final int totalUnits;
@@ -65,12 +65,12 @@ class Equipment {
     final dynamic categoriesRaw = map['categories'];
 
     // Comprueba si el campo 'categories' es una lista, y si lo es, mapea cada elemento a CategoriaActividad.
-    final List<ActivityCategory> parsedCategories = (categoriesRaw is List)
+    final List<Category> parsedCategories = (categoriesRaw is List)
         ? categoriesRaw
-            .map((dynamic e) => ActivityCategory.fromDynamic(e))
-            .whereType<ActivityCategory>()
+            .map((dynamic e) => Category.fromDynamic(e))
+            .whereType<Category>()
             .toList()
-        : <ActivityCategory>[];
+        : <Category>[];
 
     // Guarda el valor de 'status' sin importar su formato.
     final dynamic statusRaw = map['status'];
@@ -100,7 +100,7 @@ class Equipment {
   Equipment copyWith({
     String? title,
     String? description,
-    List<ActivityCategory>? categories,
+    List<Category>? categories,
     int? units,
     int? totalUnits,
     EquipmentStatus? status,

@@ -7,7 +7,7 @@ import 'package:outventura/core/utils/enum_translations.dart';
 
 class ActivitiesPageController {
   ActivityStatus? estadoFiltro;
-  ActivityCategory? categoriaFiltro;
+  Category? categoriaFiltro;
   DateTime? fechaDesde;
   DateTime? fechaHasta;
 
@@ -15,7 +15,7 @@ class ActivitiesPageController {
 
   void mostrarFiltros(BuildContext context, StateSetter setState) {
     ActivityStatus? estadoTemp = estadoFiltro;
-    ActivityCategory? categoriaTemp = categoriaFiltro;
+    Category? categoriaTemp = categoriaFiltro;
     DateTime? desdeTemp = fechaDesde;
     DateTime? hastaTemp = fechaHasta;
     final s = AppLocalizations.of(context)!;
@@ -34,8 +34,8 @@ class ActivitiesPageController {
         ),
         FilterGrupo(
           titulo: s.categoryFilter,
-          chips: ActivityCategory.values
-              .map((ActivityCategory c) => FilterChipSpec(
+          chips: Category.values
+              .map((Category c) => FilterChipSpec(
                     label: c.localizedLabel(s),
                     seleccionado: categoriaTemp == c,
                     onToggle: () => setModal(() => categoriaTemp = categoriaTemp == c ? null : c),

@@ -82,8 +82,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
 
     if (_controller.idReserva != null) {
-      final List<Reservation> reservas = ref.watch(reservationsProvider).value ?? [];
-      final bool reservaAunExiste = reservas.any((Reservation r) => r.id == _controller.idReserva);
+      final List<Booking> reservas = ref.watch(reservationsProvider).value ?? [];
+      final bool reservaAunExiste = reservas.any((Booking r) => r.id == _controller.idReserva);
       if (!reservaAunExiste) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
@@ -107,9 +107,9 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
     final Activity? actividadSeleccionada = _controller.buscarActividadSeleccionada(actividades);
 
-    final List<Reservation> todasReservas = ref.watch(reservationsProvider).value ?? [];
-    final Reservation? reservaAsociada = _controller.idReserva != null
-        ? todasReservas.where((Reservation r) => r.id == _controller.idReserva).firstOrNull
+    final List<Booking> todasReservas = ref.watch(reservationsProvider).value ?? [];
+    final Booking? reservaAsociada = _controller.idReserva != null
+        ? todasReservas.where((Booking r) => r.id == _controller.idReserva).firstOrNull
         : null;
     final double cargoDanios = reservaAsociada?.damageFee ?? 0;
 
@@ -127,7 +127,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
         actionLabel: isEdit ? s.save : s.create,
         onPressed: () {
           if (_controller.idReserva == null && _controller.tieneMateriales) {
-            final Reservation? reserva = _controller.crearReservaDesdeSolicitud(
+            final Booking? reserva = _controller.crearReservaDesdeSolicitud(
               context: context,
               ref: ref,
             );
@@ -137,10 +137,10 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
           final Request? solicitud = _controller.crearSolicitud(actividades, equipamientos);
           if (solicitud == null) return;
 
-          final List<Reservation> reservasActuales = ref.read(reservationsProvider).value ?? [];
-          final Reservation? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
+          final List<Booking> reservasActuales = ref.read(reservationsProvider).value ?? [];
+          final Booking? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
           if (reservaActualizada != null && solicitud.reservationId != null) {
-            final Reservation? original = _controller.buscarReserva(reservasActuales, solicitud.reservationId!);
+            final Booking? original = _controller.buscarReserva(reservasActuales, solicitud.reservationId!);
             if (original != null) {
               ref.read(reservationsProvider.notifier).actualizar(original, reservaActualizada);
             }
@@ -152,8 +152,13 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
       body: Form(
         key: _controller.formKey,
         child: ListView(
-          padding: EdgeInsets.fromLTRB(20, topPadding + 20, 20, bottomBarHeight + 24),
+          padding: EdgeInsets.fromLTRB(20, topPadding + 40, 20, bottomBarHeight + 24),
           children: [
+            Text(
+                s.requestDataSection.toUpperCase(),
+                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 10),
             AppDropdownField<User>(
               value: _controller.idUsuario,
               items: usuariosDisponibles,
@@ -202,7 +207,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    s.recommendedMaterial,
+                    s.recommendedMaterial.toUpperCase(),
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   if (actividadSeleccionada != null)
@@ -252,7 +257,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                               Text(nombre, style: tt.bodyMedium),
                               if (precioDiario != null && precioDiario > 0)
                                 Text(
-                                  '  €${precioDiario.toStringAsFixed(2)}/ud·día',
+                                  '  ${s.pricePerUnitDay(precioDiario.toStringAsFixed(2))}',
                                   style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                                 ),
                             ],
@@ -289,11 +294,12 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 }),
               ),
             ] else if (_controller.idReserva != null && _controller.materialesSolicitados.isNotEmpty) ...[
+              const SizedBox(height: 15),
               Text(
-                s.reservedMaterialSection,
+                s.reservedMaterialSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               ..._controller.materialesSolicitados.entries.map((entry) {
                 final int idEquipamiento = entry.key;
                 final int cantidad = entry.value;
@@ -313,7 +319,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                             Text(nombre, style: tt.bodyMedium),
                             if (precioDiario != null && precioDiario > 0)
                               Text(
-                                '  €${precioDiario.toStringAsFixed(2)}/ud·día',
+                                '  ${s.pricePerUnitDay(precioDiario.toStringAsFixed(2))}',
                                 style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                               ),
                           ],
@@ -329,7 +335,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             const SizedBox(height: 20),
             if (!modoCliente) ...[
               Text(
-                s.status,
+                s.status.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -411,7 +417,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Cargo por daños', style: tt.bodySmall?.copyWith(color: cs.error)),
+                          Text(s.damageCharge, style: tt.bodySmall?.copyWith(color: cs.error)),
                           Text('+ €${cargoDanios.toStringAsFixed(2)}', style: tt.bodySmall?.copyWith(color: cs.error)),
                         ],
                       ),
@@ -427,10 +433,10 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 label: s.editReservationBtn,
                 icon: Icons.book_online_outlined,
                 onPressed: () async {
-                  final List<Reservation> reservas = ref.read(reservationsProvider).value ?? [];
-                  final Reservation? reservaAsociada = _controller.buscarReserva(reservas, _controller.idReserva!);
+                  final List<Booking> reservas = ref.read(reservationsProvider).value ?? [];
+                  final Booking? reservaAsociada = _controller.buscarReserva(reservas, _controller.idReserva!);
                   if (reservaAsociada == null) return;
-                  final Reservation? actualizada = await Navigator.of(context).push<Reservation>(
+                  final Booking? actualizada = await Navigator.of(context).push<Booking>(
                     MaterialPageRoute(
                       builder: (_) => ReservationFormPage(reserva: reservaAsociada),
                     ),

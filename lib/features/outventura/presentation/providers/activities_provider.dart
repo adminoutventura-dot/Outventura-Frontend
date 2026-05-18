@@ -10,7 +10,7 @@ final AsyncNotifierProvider<ActivitiesNotifier, List<Activity>> activitiesProvid
 
 // TEMPORAL: el filtro se moverá al backend - GET /api/actividades?q=... Eliminar este provider.
 // Filtra actividades por ruta, estado, categoría y rango de fechas. Simula búsqueda en backend.
-final filteredActivitiesProvider = Provider.family<AsyncValue<List<Activity>>, ({String query, ActivityStatus? estado, ActivityCategory? categoria, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
+final filteredActivitiesProvider = Provider.family<AsyncValue<List<Activity>>, ({String query, ActivityStatus? estado, Category? categoria, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
 
   // Observa el estado asíncrono de todas las actividades (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Activity>> asyncTodas = ref.watch(activitiesProvider);

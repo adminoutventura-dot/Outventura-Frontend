@@ -69,7 +69,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               
               // Categoría
               Text(
-                s.equipmentSection,
+                s.equipmentSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -93,16 +93,16 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
 
               // Categorías
               Text(
-                s.categories,
+                s.categories.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
               AppFilterChipFormField(
                 seleccionados: _controller.categorias,
-                onToggle: (ActivityCategory cat) {
+                onToggle: (Category cat) {
                   setState(() => _controller.alternarCategoria(cat));
                 },
-                validator: (List<ActivityCategory>? v) {
+                validator: (List<Category>? v) {
                   return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
                 },
               ),
@@ -110,7 +110,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
 
               // Estado
               Text(
-                s.status,
+                s.status.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
@@ -131,7 +131,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
 
               // Stock
               Text(
-                s.stockSection,
+                s.stockSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 4),
@@ -164,7 +164,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
 
               // Tarifas
               Text(
-                s.rates,
+                s.rates.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 4),

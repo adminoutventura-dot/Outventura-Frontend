@@ -1725,6 +1725,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tema oscuro'**
   String get darkTheme;
+
+  /// No description provided for @userDataSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos de usuario'**
+  String get userDataSection;
+
+  /// No description provided for @reservationDataSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos de la reserva'**
+  String get reservationDataSection;
+
+  /// No description provided for @requestDataSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos de la solicitud'**
+  String get requestDataSection;
+
+  /// No description provided for @unknownUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario desconocido'**
+  String get unknownUser;
+
+  /// No description provided for @unknown.
+  ///
+  /// In es, this message translates to:
+  /// **'Desconocido'**
+  String get unknown;
+
+  /// No description provided for @pricePerUnitDay.
+  ///
+  /// In es, this message translates to:
+  /// **'{price} €/ud·día'**
+  String pricePerUnitDay(String price);
 }
 
 class _AppLocalizationsDelegate

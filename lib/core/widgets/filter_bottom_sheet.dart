@@ -108,6 +108,8 @@ class FilterBottomSheetContent extends StatelessWidget {
                       label: spec.label,
                       seleccionado: spec.seleccionado,
                       onSelected: (_) => spec.onToggle(),
+                      selectedBorderColor: grupo == grupos.first ? cs.secondary : cs.tertiary,
+                      selectedColor: grupo == grupos.first ? cs.secondary : cs.tertiary,
                     ),
                   )
                   .toList(),
