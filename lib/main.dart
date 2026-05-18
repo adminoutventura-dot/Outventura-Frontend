@@ -8,12 +8,9 @@ import 'package:outventura/features/auth/presentation/pages/login_page.dart';
 import 'package:outventura/features/preferences/controllers/preferences_controller.dart';
 import 'package:outventura/features/preferences/data/models/preferences.dart';
 
-// TODO: Revisar si se divide entre entities y models (Recordatorio)  
+// TODO: Revisar si se divide entre entities y models (Recordatorio)
 // TODO: Arreglar botones de usuarios reservas y solicitudes que se pasa abajo.
-// TODO: Actividades: Se corta el texto por la derecha, arreglarlo.
-// TODO: El boton de eliminar usuario no va.
 // TODO: Añadir el subir fotos.
-// TODO: Ajustar pagina para que n corte en el app y bottom: Home. Actividad form, Equipo form, Users form, Perfil form.
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

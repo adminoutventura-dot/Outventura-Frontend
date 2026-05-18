@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/widgets/app_bar_forms.dart';
+import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -57,14 +57,16 @@ class _UserFormPageState extends State<UserFormPage> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: CustomAppBarForm(title: _controller.editando ? s.editUser : s.newUser),
+      extendBodyBehindAppBar: true,
+      appBar: CustomAppBar(title: _controller.editando ? s.editUser : s.newUser),
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
+        padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom + 24),
         child: Form(
           key: _controller.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 65),
               // Avatar
               Center(
                 child: AppImagePickerField(

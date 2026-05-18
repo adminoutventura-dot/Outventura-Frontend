@@ -100,7 +100,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
           ColoredBox(
             color: cs.tertiary,
             child: SizedBox(
-              height: MediaQuery.of(context).padding.top + kToolbarHeight + 50,
+              height: MediaQuery.of(context).padding.top + kToolbarHeight + 65,
               width: double.infinity,
             ),
           ),

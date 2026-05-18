@@ -10,6 +10,7 @@ import 'package:outventura/features/outventura/presentation/pages/forms/search_c
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
+import 'package:outventura/core/widgets/confirm_dialog.dart';
 
 class UsersPage extends ConsumerStatefulWidget {
   const UsersPage({super.key});
@@ -136,7 +137,19 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                         SnackBar(content: Text(s.userUpdated)),
                       );
                     },
-                    onEliminar: () {},
+                    onEliminar: () async {
+                      final bool confirmar = await showConfirmDialog(
+                        context: context,
+                        title: s.deleteUser,
+                        content: s.deleteUserConfirm('${usuarios[index].name} ${usuarios[index].surname}'),
+                        confirmLabel: s.deleteUser,
+                      );
+                      if (!confirmar || !context.mounted) return;
+                      ref.read(usuariosProvider.notifier).eliminar(usuarios[index]);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(s.userDeleted)),
+                      );
+                    },
                   );
                 },
               ),

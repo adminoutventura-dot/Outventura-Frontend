@@ -383,6 +383,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userUpdated => 'User updated successfully.';
 
   @override
+  String get deleteUser => 'Delete user';
+
+  @override
+  String deleteUserConfirm(String name) {
+    return 'Delete $name? This action cannot be undone.';
+  }
+
+  @override
+  String get userDeleted => 'User deleted successfully.';
+
+  @override
   String reservationDetail(int id) {
     return 'Reservation #$id';
   }

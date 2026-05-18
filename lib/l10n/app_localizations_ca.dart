@@ -385,6 +385,17 @@ class AppLocalizationsCa extends AppLocalizations {
   String get userUpdated => 'Usuari actualitzat correctament.';
 
   @override
+  String get deleteUser => 'Eliminar usuari';
+
+  @override
+  String deleteUserConfirm(String name) {
+    return 'Eliminar a $name? Aquesta acció no es pot desfer.';
+  }
+
+  @override
+  String get userDeleted => 'Usuari eliminat correctament.';
+
+  @override
   String reservationDetail(int id) {
     return 'Reserva #$id';
   }

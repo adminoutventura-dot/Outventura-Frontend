@@ -385,6 +385,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get userUpdated => 'Usuario actualizado correctamente.';
 
   @override
+  String get deleteUser => 'Eliminar usuario';
+
+  @override
+  String deleteUserConfirm(String name) {
+    return '¿Eliminar a $name? Esta acción no se puede deshacer.';
+  }
+
+  @override
+  String get userDeleted => 'Usuario eliminado correctamente.';
+
+  @override
   String reservationDetail(int id) {
     return 'Reserva #$id';
   }

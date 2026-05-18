@@ -808,6 +808,24 @@ abstract class AppLocalizations {
   /// **'Usuario actualizado correctamente.'**
   String get userUpdated;
 
+  /// No description provided for @deleteUser.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar usuario'**
+  String get deleteUser;
+
+  /// No description provided for @deleteUserConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar a {name}? Esta acción no se puede deshacer.'**
+  String deleteUserConfirm(String name);
+
+  /// No description provided for @userDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario eliminado correctamente.'**
+  String get userDeleted;
+
   /// No description provided for @reservationDetail.
   ///
   /// In es, this message translates to:

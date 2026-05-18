@@ -144,6 +144,10 @@
   "searchByNameEmailPhone": "Buscar por nombre, email o teléfono...",
   "noUsers": "No hay usuarios",
   "userUpdated": "Usuario actualizado correctamente.",
+  "deleteUser": "Eliminar usuario",
+  "deleteUserConfirm": "¿Eliminar a {name}? Esta acción no se puede deshacer.",
+  "@deleteUserConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "userDeleted": "Usuario eliminado correctamente.",
 
   "reservationDetail": "Reserva #{id}",
   "@reservationDetail": { "placeholders": { "id": { "type": "int" } } },

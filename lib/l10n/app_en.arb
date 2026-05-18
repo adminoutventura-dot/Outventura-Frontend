@@ -135,6 +135,10 @@
   "searchByNameEmailPhone": "Search by name, email or phone...",
   "noUsers": "No users",
   "userUpdated": "User updated successfully.",
+  "deleteUser": "Delete user",
+  "deleteUserConfirm": "Delete {name}? This action cannot be undone.",
+  "@deleteUserConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "userDeleted": "User deleted successfully.",
 
   "reservationDetail": "Reservation #{id}",
   "generalInfo": "General information",

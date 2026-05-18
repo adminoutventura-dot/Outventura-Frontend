@@ -121,42 +121,56 @@ class ActivityCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    // Icono de calendario.
-                    Icon(Icons.calendar_today_outlined, size: 12, color: cs.onSurfaceVariant),
-                    const SizedBox(width: 4),
-                    Text(
-                      // Fecha de inicio.
-                      FormateadorFecha.short(actividad.initDate),
-                      style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                    // Icono + fecha.
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.calendar_today_outlined, size: 12, color: cs.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text(
+                          FormateadorFecha.short(actividad.initDate),
+                          style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    // Icono de reloj.
-                    Icon(Icons.schedule, size: 12, color: cs.onSurfaceVariant),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${FormateadorFecha.timeOnly(actividad.initDate)} - ${FormateadorFecha.timeOnly(actividad.endDate)}',
-                      style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                    // Icono + horario.
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.schedule, size: 12, color: cs.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${FormateadorFecha.timeOnly(actividad.initDate)} - ${FormateadorFecha.timeOnly(actividad.endDate)}',
+                          style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    // Icono de grupo.
-                    Icon(Icons.group_outlined, size: 12, color: cs.onSurfaceVariant),
-                    const SizedBox(width: 4),
-                    Text(
-                      // Número de plazas.
-                      s.placesCount(actividad.maxParticipants),
-                      style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                    // Icono + plazas.
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.group_outlined, size: 12, color: cs.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text(
+                          s.placesCount(actividad.maxParticipants),
+                          style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ],
                     ),
-                    if (actividad.price > 0) ...[
-                      const SizedBox(width: 10),
-                      Text(
-                        s.pricePerPersonShort(actividad.price.toStringAsFixed(0)),
-                        style: tt.labelMedium?.copyWith(color: cs.primary),
-                      ),
-                    ],
                   ],
                 ),
+                if (actividad.price > 0) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    s.pricePerPersonShort(actividad.price.toStringAsFixed(0)),
+                    style: tt.labelMedium?.copyWith(color: cs.primary),
+                  ),
+                ],
                 const SizedBox(height: 8),
                 Row(
                   children: [

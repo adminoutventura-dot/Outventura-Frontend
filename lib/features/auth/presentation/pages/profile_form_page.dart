@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:outventura/core/utils/form_validators.dart';
+import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
@@ -48,22 +48,18 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
     final s = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.editProfile),
-        automaticallyImplyLeading: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: AppGradients.appBar(cs),
-          ),
-        ),
+      extendBodyBehindAppBar: true,
+      appBar: CustomAppBar(
+        title: s.editProfile,
       ),
       body: Form(
         key: _controller.formKey,
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(20, 24, 20, MediaQuery.of(context).padding.bottom + 24),
+          padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom + 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight + 65),
 
               // Avatar
               Center(

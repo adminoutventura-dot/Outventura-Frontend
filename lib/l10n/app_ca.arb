@@ -135,6 +135,10 @@
   "searchByNameEmailPhone": "Cercar per nom, email o telèfon...",
   "noUsers": "No hi ha usuaris",
   "userUpdated": "Usuari actualitzat correctament.",
+  "deleteUser": "Eliminar usuari",
+  "deleteUserConfirm": "Eliminar a {name}? Aquesta acció no es pot desfer.",
+  "@deleteUserConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "userDeleted": "Usuari eliminat correctament.",
 
   "reservationDetail": "Reserva #{id}",
   "generalInfo": "Informació general",
