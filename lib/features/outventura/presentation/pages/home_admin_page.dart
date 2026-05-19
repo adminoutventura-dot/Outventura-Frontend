@@ -113,6 +113,7 @@ class HomeAdminPage extends ConsumerWidget {
               actividadesHoy: actividadesHoy,
               reservasHoy: reservasHoy,
               enCurso: enCurso,
+              collapsedHeight: 32.0, // Cambiar a 72.5 para contraer hasta la mitad
             ),
           ),
 
@@ -541,6 +542,7 @@ class _HomeAppBarDelegate extends SliverPersistentHeaderDelegate {
   final int actividadesHoy;
   final int reservasHoy;
   final int enCurso;
+  final double collapsedHeight;
 
   const _HomeAppBarDelegate({
     required this.topPadding,
@@ -553,13 +555,14 @@ class _HomeAppBarDelegate extends SliverPersistentHeaderDelegate {
     required this.actividadesHoy,
     required this.reservasHoy,
     required this.enCurso,
+    this.collapsedHeight = 0.0,
   });
 
   @override
   double get maxExtent => topPadding + kToolbarHeight + _kBottomHeight;
 
   @override
-  double get minExtent => topPadding + kToolbarHeight;
+  double get minExtent => topPadding + kToolbarHeight + collapsedHeight;
 
   @override
   bool shouldRebuild(covariant _HomeAppBarDelegate old) =>
