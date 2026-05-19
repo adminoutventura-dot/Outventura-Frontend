@@ -914,4 +914,48 @@ class AppLocalizationsEs extends AppLocalizations {
   String pricePerUnitDay(String price) {
     return '$price €/ud·día';
   }
+
+  @override
+  String get navSubtitleActivities => 'Rutas y actividades de aventura';
+
+  @override
+  String get navSubtitleEquipment => 'Material y stock disponible';
+
+  @override
+  String get navSubtitleUsers => 'Clientes y expertos';
+
+  @override
+  String get navSubtitleReservations => 'Gestión de reservas';
+
+  @override
+  String get navSubtitleRequests => 'Peticiones de clientes';
+
+  @override
+  String pendingRequestsAlert(int count) {
+    return '$count solicitudes pendientes de revisión';
+  }
+
+  @override
+  String get summary => 'Resumen';
+
+  @override
+  String get allGood => 'Todo en orden';
+
+  @override
+  String get todaySection => 'HOY';
+
+  @override
+  String get activitiesToday => 'Excursiones hoy';
+
+  @override
+  String get reservationsToday => 'Reservas hoy';
+
+  @override
+  String get requestsActive => 'Solicitudes activas';
+
+  @override
+  String get upcomingActivities => 'PRÓXIMAS ACTIVIDADES';
+
+  @override
+  String get noUpcomingActivities => 'Sin actividades esta semana';
 }

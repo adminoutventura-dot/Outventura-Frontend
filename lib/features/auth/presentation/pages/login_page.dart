@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
+import 'package:outventura/features/auth/presentation/pages/register_page.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/main_scaffold.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -58,31 +60,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo y título
-                  Icon(
-                    Icons.landscape_rounded,
-                    size: 80,
-                    color: colorScheme.onPrimary,
+                  // Logo Outventura
+                  SvgPicture.asset(
+                    'assets/images/logo.svg',
+                    width: 280,
+                    fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 16),
-
-                  Text(
-                    s.loginTitle,
-                    textAlign: TextAlign.center,
-                    style: textTheme.displaySmall?.copyWith(
-                      color: colorScheme.surface,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  Text(
-                    s.loginSubtitle,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.surface.withAlpha(230),
-                    ),
-                  ),
-
                   const SizedBox(height: 30),
 
                   // Card con formulario
@@ -246,9 +229,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 ),
                               ),
                               TextButton(
-                                onPressed: () {
-                                  // TODO: Página de registro
-                                },
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const RegisterPage()),
+                                ),
                                 style: TextButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 4,

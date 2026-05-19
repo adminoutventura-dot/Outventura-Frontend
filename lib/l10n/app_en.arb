@@ -312,5 +312,24 @@
   "unknownUser": "Unknown user",
   "unknown": "Unknown",
   "pricePerUnitDay": "{price} €/unit·day",
-  "@pricePerUnitDay": { "placeholders": { "price": { "type": "String" } } }
+  "@pricePerUnitDay": { "placeholders": { "price": { "type": "String" } } },
+
+  "navSubtitleActivities": "Adventure routes and activities",
+  "navSubtitleEquipment": "Equipment and available stock",
+  "navSubtitleUsers": "Clients and experts",
+  "navSubtitleReservations": "Reservation management",
+  "navSubtitleRequests": "Client requests",
+  "pendingRequestsAlert": "{count} requests pending review",
+  "@pendingRequestsAlert": { "placeholders": { "count": { "type": "int" } } },
+
+  "summary": "Summary",
+  "allGood": "All good",
+
+  "todaySection": "TODAY",
+  "activitiesToday": "Today's excursions",
+  "reservationsToday": "Today's reservations",
+  "requestsActive": "Active requests",
+
+  "upcomingActivities": "UPCOMING ACTIVITIES",
+  "noUpcomingActivities": "No activities this week"
 }

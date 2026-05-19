@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:outventura/app/theme/app_theme.dart';
+import 'package:outventura/core/widgets/splash_wrapper.dart';
 import 'package:outventura/features/auth/presentation/pages/login_page.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/main_scaffold.dart';
@@ -16,9 +18,10 @@ import 'package:outventura/features/preferences/data/models/preferences.dart';
 // TODO: Añadir el subir fotos.
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await initializeDateFormatting();
-  runApp(const ProviderScope(child: MainApp()));
+  runApp(const ProviderScope(child: SplashWrapper()));
 }
 
 Locale _localeFromString(String code) {
@@ -44,7 +47,8 @@ class MainApp extends ConsumerWidget {
     final User? usuarioActual = ref.watch(currentUserProvider);
 
     return preferenciasAsync.when(
-      data: (Preferencias preferences) => MaterialApp(
+      data: (Preferencias preferences) {
+        return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Outventura',
         locale: _localeFromString(preferences.idioma),
@@ -62,7 +66,8 @@ class MainApp extends ConsumerWidget {
         home: usuarioActual != null
             ? MainScaffold(usuario: usuarioActual)
             : const LoginPage(),
-      ),
+        );
+      },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (Object error, StackTrace stack) => MaterialApp(
         home: Scaffold(

@@ -312,5 +312,24 @@
   "unknownUser": "Usuari desconegut",
   "unknown": "Desconegut",
   "pricePerUnitDay": "{price} €/ud·dia",
-  "@pricePerUnitDay": { "placeholders": { "price": { "type": "String" } } }
+  "@pricePerUnitDay": { "placeholders": { "price": { "type": "String" } } },
+
+  "navSubtitleActivities": "Rutes i activitats d'aventura",
+  "navSubtitleEquipment": "Material i estoc disponible",
+  "navSubtitleUsers": "Clients i experts",
+  "navSubtitleReservations": "Gestió de reserves",
+  "navSubtitleRequests": "Peticions de clients",
+  "pendingRequestsAlert": "{count} sol·licituds pendents de revisió",
+  "@pendingRequestsAlert": { "placeholders": { "count": { "type": "int" } } },
+
+  "summary": "Resum",
+  "allGood": "Tot en ordre",
+
+  "todaySection": "AVUI",
+  "activitiesToday": "Excursions d'avui",
+  "reservationsToday": "Reserves d'avui",
+  "requestsActive": "Sol·licituds actives",
+
+  "upcomingActivities": "PROPERES ACTIVITATS",
+  "noUpcomingActivities": "Sense activitats aquesta setmana"
 }

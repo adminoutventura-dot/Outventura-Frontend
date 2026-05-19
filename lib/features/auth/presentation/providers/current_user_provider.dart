@@ -58,6 +58,15 @@ class CurrentUserNotifier extends Notifier<User?> {
 
   void setUsuario(User usuario) => state = usuario;
 
+  // TODO: reemplazar por:
+  //   await dio.post('/auth/register', data: {
+  //     'name': name, 'surname': surname, 'email': email, 'password': password,
+  //   });
+  Future<void> register(String name, String surname, String email, String password) async {
+    await Future.delayed(ApiDelay.accion);
+    // Registro simulado: no modifica el estado (el usuario deberá hacer login)
+  }
+
   // TODO: reemplazar por: await dio.post('/auth/logout');
   Future<void> cerrarSesion() async {
     await clearAuthToken();

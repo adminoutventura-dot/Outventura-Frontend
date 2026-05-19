@@ -114,11 +114,14 @@ class AppDrawer extends ConsumerWidget {
                   title: Text(s.logout, style: AppTextStyles.labelLarge.copyWith(color: cs.error)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
-                    Navigator.pushReplacement(context, MaterialPageRoute(
-                      builder: (_) => const LoginPage(),
-                    ));
+                    await ref.read(currentUserProvider.notifier).cerrarSesion();
+                    if (context.mounted) {
+                      Navigator.pushReplacement(context, MaterialPageRoute(
+                        builder: (_) => const LoginPage(),
+                      ));
+                    }
                   },
                 ),
               ],

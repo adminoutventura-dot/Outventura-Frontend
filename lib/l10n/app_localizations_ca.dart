@@ -914,4 +914,48 @@ class AppLocalizationsCa extends AppLocalizations {
   String pricePerUnitDay(String price) {
     return '$price €/ud·dia';
   }
+
+  @override
+  String get navSubtitleActivities => 'Rutes i activitats d\'aventura';
+
+  @override
+  String get navSubtitleEquipment => 'Material i estoc disponible';
+
+  @override
+  String get navSubtitleUsers => 'Clients i experts';
+
+  @override
+  String get navSubtitleReservations => 'Gestió de reserves';
+
+  @override
+  String get navSubtitleRequests => 'Peticions de clients';
+
+  @override
+  String pendingRequestsAlert(int count) {
+    return '$count sol·licituds pendents de revisió';
+  }
+
+  @override
+  String get summary => 'Resum';
+
+  @override
+  String get allGood => 'Tot en ordre';
+
+  @override
+  String get todaySection => 'AVUI';
+
+  @override
+  String get activitiesToday => 'Excursions d\'avui';
+
+  @override
+  String get reservationsToday => 'Reserves d\'avui';
+
+  @override
+  String get requestsActive => 'Sol·licituds actives';
+
+  @override
+  String get upcomingActivities => 'PROPERES ACTIVITATS';
+
+  @override
+  String get noUpcomingActivities => 'Sense activitats aquesta setmana';
 }

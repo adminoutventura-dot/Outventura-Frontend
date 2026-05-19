@@ -1761,6 +1761,90 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{price} €/ud·día'**
   String pricePerUnitDay(String price);
+
+  /// No description provided for @navSubtitleActivities.
+  ///
+  /// In es, this message translates to:
+  /// **'Rutas y actividades de aventura'**
+  String get navSubtitleActivities;
+
+  /// No description provided for @navSubtitleEquipment.
+  ///
+  /// In es, this message translates to:
+  /// **'Material y stock disponible'**
+  String get navSubtitleEquipment;
+
+  /// No description provided for @navSubtitleUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Clientes y expertos'**
+  String get navSubtitleUsers;
+
+  /// No description provided for @navSubtitleReservations.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestión de reservas'**
+  String get navSubtitleReservations;
+
+  /// No description provided for @navSubtitleRequests.
+  ///
+  /// In es, this message translates to:
+  /// **'Peticiones de clientes'**
+  String get navSubtitleRequests;
+
+  /// No description provided for @pendingRequestsAlert.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} solicitudes pendientes de revisión'**
+  String pendingRequestsAlert(int count);
+
+  /// No description provided for @summary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen'**
+  String get summary;
+
+  /// No description provided for @allGood.
+  ///
+  /// In es, this message translates to:
+  /// **'Todo en orden'**
+  String get allGood;
+
+  /// No description provided for @todaySection.
+  ///
+  /// In es, this message translates to:
+  /// **'HOY'**
+  String get todaySection;
+
+  /// No description provided for @activitiesToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Excursiones hoy'**
+  String get activitiesToday;
+
+  /// No description provided for @reservationsToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Reservas hoy'**
+  String get reservationsToday;
+
+  /// No description provided for @requestsActive.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitudes activas'**
+  String get requestsActive;
+
+  /// No description provided for @upcomingActivities.
+  ///
+  /// In es, this message translates to:
+  /// **'PRÓXIMAS ACTIVIDADES'**
+  String get upcomingActivities;
+
+  /// No description provided for @noUpcomingActivities.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin actividades esta semana'**
+  String get noUpcomingActivities;
 }
 
 class _AppLocalizationsDelegate

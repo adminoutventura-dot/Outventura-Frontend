@@ -912,4 +912,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String pricePerUnitDay(String price) {
     return '$price €/unit·day';
   }
+
+  @override
+  String get navSubtitleActivities => 'Adventure routes and activities';
+
+  @override
+  String get navSubtitleEquipment => 'Equipment and available stock';
+
+  @override
+  String get navSubtitleUsers => 'Clients and experts';
+
+  @override
+  String get navSubtitleReservations => 'Reservation management';
+
+  @override
+  String get navSubtitleRequests => 'Client requests';
+
+  @override
+  String pendingRequestsAlert(int count) {
+    return '$count requests pending review';
+  }
+
+  @override
+  String get summary => 'Summary';
+
+  @override
+  String get allGood => 'All good';
+
+  @override
+  String get todaySection => 'TODAY';
+
+  @override
+  String get activitiesToday => 'Today\'s excursions';
+
+  @override
+  String get reservationsToday => 'Today\'s reservations';
+
+  @override
+  String get requestsActive => 'Active requests';
+
+  @override
+  String get upcomingActivities => 'UPCOMING ACTIVITIES';
+
+  @override
+  String get noUpcomingActivities => 'No activities this week';
 }
