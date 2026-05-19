@@ -9,6 +9,8 @@ import 'package:outventura/features/outventura/presentation/providers/activities
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/services/resolvers.dart';
 
+// TODO: REVISAR SI SE PUEDE AÑADIR ALGO MÁS AQUÍ DE LA APP PARA OPTIMIZAR
+
 // Resuelve el nombre completo de un usuario por su ID.
 // String -> Valor que devuelve
 // int -> Parámetro que recibe

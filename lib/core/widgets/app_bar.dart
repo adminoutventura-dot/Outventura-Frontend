@@ -34,33 +34,22 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         actions: actions,
         bottom: bottom,
         flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: AppGradients.appBar(cs),
-          ),
+          decoration: BoxDecoration(gradient: AppGradients.appBar(cs)),
           child: Stack(
             children: [
               Positioned(
-                top: -40,
-                right: -40,
+                top: -40, right: -40,
                 child: Container(
-                  width: 180,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: cs.onPrimary.withAlpha(18),
-                  ),
+                  width: 180, height: 180,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: cs.onPrimary.withAlpha(18)),
                 ),
               ),
+
               Positioned(
-                top: 20,
-                right: 90,
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: cs.onPrimary.withAlpha(12),
-                  ),
+                top: 20, right: 90,
+                child: Container( 
+                  width: 80, height: 80, 
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: cs.onPrimary.withAlpha(12))
                 ),
               ),
             ],
@@ -86,11 +75,11 @@ class AppBarClipper extends CustomClipper<Path> {
     // Línea derecha hasta casi abajo
     path.lineTo(size.width, size.height - 20);
     
-    // Curva suave en la parte inferior (estilo "cortado")
+    // Curva suave en la parte inferior
     // Ajusta estos valores para controlar la curvatura
     path.quadraticBezierTo(
       size.width * 0.75,      // Punto de control X
-      size.height + 10,        // Punto de control Y (más pronunciado)
+      size.height + 10,        // Punto de control Y 
       size.width * 0.5,        // Punto final X (centro)
       size.height - 5,         // Punto final Y
     );
@@ -99,7 +88,7 @@ class AppBarClipper extends CustomClipper<Path> {
       size.width * 0.25,       // Punto de control X
       size.height - 30,        // Punto de control Y
       0,                       // Punto final X (izquierda)
-      size.height -10,             // Punto final Y (altura completa)
+      size.height -10,             // Punto final Y (altura completa - 10)
     );
     
     // Cerrar el path

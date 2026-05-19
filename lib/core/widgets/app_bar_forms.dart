@@ -39,6 +39,7 @@ class CustomAppBarForm extends StatelessWidget implements PreferredSizeWidget {
           ),
           child: Stack(
             children: [
+              // Círculo grande a la derecha
               Positioned(
                 top: -40,
                 right: -40,
@@ -51,6 +52,8 @@ class CustomAppBarForm extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
+
+              // Círculo grande a la izquierda
               Positioned(
                 top: 20,
                 right: 90,
@@ -77,13 +80,16 @@ class AppBarClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     //  Ajustes 
-    const double archHeight = 40;   // altura de las orejas laterales
-    const double centerWidth = 1; // fracción del ancho que ocupa la parte alta (0.0–1.0)
-    const double cornerRadius = 40;  // radio de las esquinas interiores
+    // altura de las orejas laterales
+    const double archHeight = 40; 
+    // fracción del ancho que ocupa la parte alta (0.0–1.0)  
+    const double centerWidth = 1; 
+    // radio de las esquinas interiores
+    const double cornerRadius = 40;  
     
 
-    final double sideEnd = (1 - centerWidth) / 2;   // ej. 0.15
-    final double sideStart = 1 - sideEnd;            // ej. 0.85
+    final double sideEnd = (1 - centerWidth) / 2;  
+    final double sideStart = 1 - sideEnd;  
     const double r = cornerRadius;
     final path = Path();
 
@@ -91,7 +97,7 @@ class AppBarClipper extends CustomClipper<Path> {
     path.lineTo(size.width, 0);
     path.lineTo(size.width, size.height);
 
-    // Oreja derecha — esquina inferior interior redondeada
+    // Oreja derecha - esquina inferior interior redondeada
     path.lineTo(size.width * sideStart + r, size.height);
     path.quadraticBezierTo(size.width * sideStart, size.height, size.width * sideStart, size.height - r);
     // Pared interior derecha sube
@@ -102,7 +108,7 @@ class AppBarClipper extends CustomClipper<Path> {
     // Centro plano
     path.lineTo(size.width * sideEnd + r, size.height - archHeight);
 
-    // Oreja izquierda — esquina superior interior redondeada
+    // Oreja izquierda - esquina superior interior redondeada
     path.quadraticBezierTo(size.width * sideEnd, size.height - archHeight, size.width * sideEnd, size.height - archHeight + r);
     // Pared interior izquierda baja
     path.lineTo(size.width * sideEnd, size.height - r);

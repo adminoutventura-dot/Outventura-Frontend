@@ -140,6 +140,8 @@ class Booking {
     'damagedItems': damagedItems.map((k, v) => MapEntry(k.toString(), v)),
   };
 
+  // Crea una copia de la reserva con algunos campos modificados (inmutable).
+  // INMUTABLE: en vez de modificar la instancia actual, se crea una nueva con los cambios deseados.
   Booking copyWith({
     int? userId,
     List<BookingLine>? lines,

@@ -31,36 +31,27 @@ class BottomPriceBar extends StatelessWidget {
         decoration: BoxDecoration(gradient: AppGradients.appBar(cs)),
         child: Row(
           children: [
+            // Información de precio
             Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  totalLabel,
-                  style: tt.labelSmall?.copyWith(color: cs.onPrimary.withAlpha(180)),
-                ),
-                Text(
-                  price,
-                  style: tt.titleMedium?.copyWith(
-                    color: cs.onPrimary,
-                  ),
-                ),
+                Text(totalLabel, style: tt.labelSmall?.copyWith(color: cs.onPrimary.withAlpha(180))),
+                Text(price, style: tt.titleMedium?.copyWith(color: cs.onPrimary)),
               ],
             ),
+
             const Spacer(),
+            // Botón de acción
             FilledButton(
               onPressed: onPressed,
               style: FilledButton.styleFrom(
                 backgroundColor: cs.onPrimary,
                 foregroundColor: cs.primary,
                 padding: const EdgeInsets.symmetric(horizontal: 28),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
-              child: Text(
-                actionLabel,
-              ),
+              child: Text(actionLabel),
             ),
           ],
         ),
@@ -78,12 +69,7 @@ class _BottomBarClipper extends CustomClipper<Path> {
     path.moveTo(0, 100);
 
     // Curva redondeada izquierda
-    path.quadraticBezierTo(
-      0,
-      60,
-      60,
-      60,
-    );
+    path.quadraticBezierTo( 0, 60, 60, 60 );
 
     // Línea recta central
     path.lineTo(size.width * 0.85, 60);

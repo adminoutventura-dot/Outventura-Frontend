@@ -26,10 +26,7 @@ class PrimaryButton extends StatelessWidget {
         foregroundColor: textColor ?? Theme.of(context).colorScheme.onPrimary,
         textStyle: Theme.of(context).textTheme.labelLarge,
         side: BorderSide(color: backgroundColor ?? Theme.of(context).colorScheme.primary),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-        minimumSize: const Size.fromHeight(30),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
       ),
       onPressed: onPressed,
       child: icon != null
@@ -74,11 +71,7 @@ class SecondaryButton extends StatelessWidget {
         foregroundColor: effectiveBorder,
         textStyle: Theme.of(context).textTheme.labelLarge,
         side: BorderSide(color: effectiveBorder, width: 2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
-        minimumSize: const Size(0, 36),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
       ),
       onPressed: onPressed,
       child: icon != null
@@ -182,7 +175,7 @@ class ActionIcon extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(size),
       child: Padding(
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.fromLTRB(4, 4, 4, 6),
         child: Icon(icon, color: color, size: size),
       ),
     );

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class AppGradients {
   AppGradients._();
 
-  // AppBar principal: primary → primary semitransparente (diagonal).
+  // AppBar principal: primary → surfaceContainer (verde oscuro).
   // Usado en [CustomAppBar].
   static LinearGradient appBar(ColorScheme cs) => LinearGradient(
     colors: [cs.surfaceContainer, cs.primary],
@@ -12,7 +12,7 @@ class AppGradients {
     end: Alignment.bottomRight,
   );
 
-  // Header del drawer: tertiary → primary (diagonal).
+  // Header del drawer: tertiary → primary.
   // Usado en [AppDrawer].
   static LinearGradient drawer(ColorScheme cs) => LinearGradient(
     colors: [cs.tertiary, cs.primary],
@@ -48,28 +48,28 @@ class AppGradients {
   
   //----------------------------
 
-  // Primary → primaryContainer (diagonal). Para banners o hero cards.
+  // Primary → primaryContainer. 
   static LinearGradient primaryToPrimaryContainer(ColorScheme cs) => LinearGradient(
     colors: [cs.primary, cs.primaryContainer],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // primaryContainer → primary (diagonal). Para banners o hero cards.
+  // Primary → primaryContainer. 
   static LinearGradient primaryContainerToPrimary(ColorScheme cs) => LinearGradient(
     colors: [cs.primaryContainer, cs.primary],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // Tertiary → onTertiary (diagonal).
+  // Tertiary → onTertiary.
   static LinearGradient tertiaryToOnTertiary(ColorScheme cs) => LinearGradient(
     colors: [cs.tertiary, cs.onTertiary],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // onPrimaryContainer → secondary (diagonal). Tonos fríos-cálidos.
+  // onPrimaryContainer → secondary.
   static LinearGradient onPrimaryContainerToSecondary(ColorScheme cs) => LinearGradient(
     colors: [cs.onPrimaryContainer, cs.secondary],
     begin: Alignment.topLeft,
@@ -77,7 +77,6 @@ class AppGradients {
   );
 
 
-  // Degradado diagonal genérico para la línea de acento superior de las tarjetas.
   // Pasa de un color sólido a su versión ligeramente más clara/transparente.
   static LinearGradient cardAccent(Color baseColor) {
     final hsl = HSLColor.fromColor(baseColor);
@@ -91,7 +90,6 @@ class AppGradients {
     );
   }
 
-  // Degradado diagonal genérico para la línea de acento superior de las tarjetas.
   // Pasa de un color sólido a su versión ligeramente más clara/transparente.
   static LinearGradient cardAccentReverse(Color baseColor) {
     final hsl = HSLColor.fromColor(baseColor);

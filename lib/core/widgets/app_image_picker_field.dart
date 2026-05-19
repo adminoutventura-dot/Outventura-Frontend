@@ -32,6 +32,7 @@ class AppImagePickerField extends StatelessWidget {
           ? Image.asset(imageUrl!, fit: BoxFit.cover)
           : Image.network(imageUrl!, fit: BoxFit.cover);
       imageWidget = img;
+      
     } else {
       imageWidget = ColoredBox(
         color: cs.primary.withValues(alpha: 0.1),

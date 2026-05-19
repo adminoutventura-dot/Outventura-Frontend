@@ -51,10 +51,7 @@ class AppDropdownField<T> extends StatelessWidget {
       style: tt.bodyMedium?.copyWith(color: cs.onSurface),
       // Cuando el dropdown está deshabilitado, no mostrar el ícono de flecha
       icon: enabled
-          ? Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: cs.primary.withValues(alpha: 0.7),
-            )
+          ? Icon( Icons.keyboard_arrow_down_rounded, color: cs.primary.withValues(alpha: 0.7))
           : const SizedBox.shrink(),
       decoration: InputDecoration(
         // Texto que estará encima del campo, siempre visible
@@ -64,27 +61,20 @@ class AppDropdownField<T> extends StatelessWidget {
             ? Icon(prefixIcon, color: cs.primary.withAlpha(150), size: 22)
             : null,
         border: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: cs.onSurfaceVariant.withAlpha(50),
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: cs.onSurfaceVariant.withAlpha(50), width: 1.5),
         ),
         enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: cs.onSurfaceVariant.withAlpha(50),
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: cs.onSurfaceVariant.withAlpha(50), width: 1.5),
         ),
         focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: cs.primaryContainer,
-            width: 2,
-          ),
+          borderSide: BorderSide(color: cs.primaryContainer, width: 2),
         ),
+
         filled: false,
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
         errorText: errorText,
       ),
+
       isExpanded: true,
       menuMaxHeight: 240,
       // El hint se muestra como la primera opción del dropdown, con un estilo diferente
@@ -103,7 +93,15 @@ class AppDropdownField<T> extends StatelessWidget {
       ],
       // Si el campo está deshabilitado, no permitir cambios
       onChanged: enabled ? onChanged : null,
-      validator: validator ?? (isRequired ? (int? v) => v == null ? AppLocalizations.of(context)!.selectAnOption : null : null),
+      // Si no se proporciona un validador, y el campo es obligatorio, usar uno que verifique que no sea null
+      validator: validator ?? (isRequired 
+          ? (int? v) {
+              if (v == null) {
+                return AppLocalizations.of(context)!.selectAnOption;
+              }
+              return null;
+            }
+          : null),
     );
   }
 }

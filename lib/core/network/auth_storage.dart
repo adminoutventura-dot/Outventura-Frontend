@@ -22,3 +22,5 @@
 //     await _storage.delete(key: _refreshKey);
 //   }
 // }
+
+// TODO: Revisar si se necesita este almacenamiento seguro o si se puede usar SharedPreferences para guardar el token de sesión.

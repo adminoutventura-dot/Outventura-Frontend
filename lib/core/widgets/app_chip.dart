@@ -57,23 +57,21 @@ class AppChoiceChip extends StatelessWidget {
                 child: Text(label),
               )
             : Text(label),
+
         selected: seleccionado,
         onSelected: onSelected,
         selectedColor: cs.surface,
         backgroundColor: cs.onPrimary,
         checkmarkColor: selColor, 
+
         // Quita el margen invisible que añade Material Design alrededor del widget
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        labelStyle: tt.labelMedium?.copyWith(
-          color: seleccionado ? selColor : cs.onSurfaceVariant
-        ),
+        labelStyle: tt.labelMedium?.copyWith(color: seleccionado ? selColor : cs.onSurfaceVariant),
         side: BorderSide(
           color: seleccionado ? Colors.transparent : cs.onSurfaceVariant,
           width: seleccionado ? 0 : 1.5,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
   }
@@ -111,6 +109,7 @@ class AppFilterChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         gradient: seleccionado ? AppGradients.cardAccent(selBorder) : null,
       ),
+
       child: FilterChip(
         label: seleccionado 
             ? ShaderMask(
@@ -135,9 +134,7 @@ class AppFilterChip extends StatelessWidget {
           color: seleccionado ? Colors.transparent : cs.onSurfaceVariant,
           width: seleccionado ? 0 : 1.5,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     );
   }

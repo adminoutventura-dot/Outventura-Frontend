@@ -42,37 +42,27 @@ class AppDateSelector extends StatelessWidget {
             );
           },
         );
-        if (picked != null) onDateSelected(picked);
+        if (picked != null) {
+          onDateSelected(picked);
+        }
       },
+
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: cs.onSurfaceVariant.withValues(alpha: 0.2),
-            width: 1.5,
-          ),
+          border: Border.all(color: cs.onSurfaceVariant.withValues(alpha: 0.2), width: 1.5),
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.calendar_today_outlined,
-              size: 18,
-              color: cs.primary.withValues(alpha: 0.7),
-            ),
+            Icon(Icons.calendar_today_outlined, size: 18, color: cs.primary.withValues(alpha: 0.7)),
             const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-                ),
-                Text(
-                  formatted,
-                  style: tt.labelMedium?.copyWith(color: cs.onSurface),
-                ),
+                Text(label, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                Text(formatted, style: tt.labelMedium?.copyWith(color: cs.onSurface)),
               ],
             ),
           ],

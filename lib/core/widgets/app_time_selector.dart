@@ -37,23 +37,26 @@ class AppTimeSelector extends StatelessWidget {
               data: Theme.of(context).copyWith(
                 timePickerTheme: TimePickerThemeData(
                   // "Enter time" (texto)
-                  helpTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
+                  helpTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant),
+
                   // Selector AM/PM
                   dayPeriodColor: WidgetStateColor.resolveWith(
                     (Set<WidgetState> states) => states.contains(WidgetState.selected)
                         ? cs.primary.withValues(alpha: 0.15)
                         : cs.surface,
                   ),
+
                   dayPeriodTextColor: WidgetStateColor.resolveWith(
                     (Set<WidgetState> states) => states.contains(WidgetState.selected)
                         ? cs.primary
                         : cs.onSurfaceVariant,
                   ),
+
                   dayPeriodBorderSide: BorderSide(color: cs.onSurfaceVariant.withValues(alpha: 0.3)),
+
                   // Icono de cambio de modo (texto / reloj)
                   entryModeIconColor: cs.onSurfaceVariant,
+                  
                   // Fondo de los campos hora/minuto
                   hourMinuteColor: WidgetStateColor.resolveWith(
                     (Set<WidgetState> states) => states.contains(WidgetState.selected)
@@ -62,12 +65,15 @@ class AppTimeSelector extends StatelessWidget {
                   ),
                 ),
               ),
+
               child: child!,
             );
             
           },
         );
-        if (picked != null) onTimeSelected(picked);
+        if (picked != null) {
+          onTimeSelected(picked);
+        }
       },
 
       // Boton de selección de hora.
@@ -76,30 +82,17 @@ class AppTimeSelector extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: cs.onSurfaceVariant.withValues(alpha: 0.2),
-            width: 1.5,
-          ),
+          border: Border.all(color: cs.onSurfaceVariant.withValues(alpha: 0.2), width: 1.5),
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.access_time_outlined,
-              size: 18,
-              color: cs.primary.withValues(alpha: 0.7),
-            ),
+            Icon( Icons.access_time_outlined, size: 18, color: cs.primary.withValues(alpha: 0.7)),
             const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-                ),
-                Text(
-                  _formatTime(time),
-                  style: tt.labelMedium?.copyWith(color: cs.onSurface),
-                ),
+                Text( label, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                Text( _formatTime(time), style: tt.labelMedium?.copyWith(color: cs.onSurface)),
               ],
             ),
           ],

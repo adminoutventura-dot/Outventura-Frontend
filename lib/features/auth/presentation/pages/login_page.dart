@@ -38,7 +38,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Stack(
-        fit: StackFit.expand,
         children: [
           // Imagen de fondo
           Positioned.fill(
@@ -55,11 +54,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
 
           // Contenido
-          SingleChildScrollView(
-            child: Padding(
+          Center(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Logo Outventura
                   SvgPicture.asset(
@@ -220,10 +219,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           const SizedBox(height: 20),
 
                           // Registro
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            runSpacing: 8,
-                            spacing: 4,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 s.noAccount,

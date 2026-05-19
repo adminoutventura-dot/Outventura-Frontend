@@ -6,6 +6,7 @@ import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
+// TODO: Comentar
 String _estadoComunLabel(String name, AppLocalizations s) {
   switch (name) {
     case 'pendiente':  

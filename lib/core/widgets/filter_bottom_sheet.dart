@@ -65,8 +65,7 @@ class FilterBottomSheetContent extends StatelessWidget {
           // Drag handle
           Center(
             child: Container(
-              width: 40,
-              height: 4,
+              width: 40, height: 4,
               decoration: BoxDecoration(
                 color: cs.onSurfaceVariant.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(2),
@@ -79,9 +78,7 @@ class FilterBottomSheetContent extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                s.filtersTitle,
-              ),
+              Text(s.filtersTitle),
               TertiaryButton(
                 label: s.clearAll,
                 onPressed: onLimpiar,
@@ -91,8 +88,9 @@ class FilterBottomSheetContent extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Grupos de chips
+          // CHIPS DE FILTROS
           for (final FilterGrupo grupo in grupos) ...[
+            // Título del grupo
             Text(
               grupo.titulo.toUpperCase(),
               style: tt.labelSmall?.copyWith(
@@ -101,6 +99,8 @@ class FilterBottomSheetContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
+
+            // Chips del grupo
             AppChipWrap(
               children: grupo.chips
                   .map(
@@ -127,6 +127,8 @@ class FilterBottomSheetContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
+
+            // Selectores de fecha "Desde - Hasta"
             FilterDateRangeRow(
               start: fechaDesde,
               end: fechaHasta,

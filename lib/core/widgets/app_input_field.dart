@@ -29,6 +29,7 @@ class CustomInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return TextFormField(
       controller: controller,
@@ -38,29 +39,17 @@ class CustomInputField extends StatelessWidget {
       onChanged: onChanged,
       maxLines: maxLines,
       minLines: minLines,
-      style: Theme.of(
-        context,
-      ).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
+      style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
+      
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: Theme.of(
-          context,
-        ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
-        prefixIcon: prefixIcon != null
-            ? Icon(
-                prefixIcon,
-                color: colorScheme.primary.withAlpha(150),
-                size: 22,
-              )
-            : null,
+        labelStyle: textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: colorScheme.primary.withAlpha(150), size: 22) : null,
         suffixIcon: suffixIcon,
 
         // Estilo de los bordes
         border: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: colorScheme.onSurfaceVariant.withAlpha(50),
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: colorScheme.onSurfaceVariant.withAlpha(50), width: 1.5),
         ),
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: colorScheme.primaryContainer, width: 2),
@@ -72,10 +61,7 @@ class CustomInputField extends StatelessWidget {
           borderSide: BorderSide(color: colorScheme.error, width: 2),
         ),
         enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: colorScheme.onSurfaceVariant.withAlpha(50),
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: colorScheme.onSurfaceVariant.withAlpha(50), width: 1.5),
         ),
         filled: false,
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),

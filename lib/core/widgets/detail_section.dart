@@ -22,13 +22,16 @@ class DetailSection extends StatelessWidget {
           title.toUpperCase(),
           style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant, letterSpacing: 1.2),
         ),
+
         const SizedBox(height: 8),
+
         Container(
           decoration: BoxDecoration(
             color: cs.surfaceContainerLow,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: cs.onSurfaceVariant.withValues(alpha: 0.15)),
           ),
+          
           child: Column(
             children: [
               for (int i = 0; i < children.length; i++) ...[

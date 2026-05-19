@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Light theme
-  
   static const Color primaryContainer = Color.fromARGB(255, 175, 214, 141); // lightGreen
   static const Color surfaceContainer = Color(0xFF3B593F);
   static const Color primary = Color(0xFF588C23);

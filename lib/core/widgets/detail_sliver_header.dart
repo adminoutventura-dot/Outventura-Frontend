@@ -27,33 +27,27 @@ class DetailSliverHeader extends StatelessWidget {
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.pin,
         background: Container(
-          decoration: BoxDecoration(
-            gradient: AppGradients.detailHeader(color),
-          ),
+          decoration: BoxDecoration(gradient: AppGradients.detailHeader(color)),
           child: Stack(
             children: [
+              
               // Patrón decorativo de círculos grandes en la esquina superior derecha.
               Positioned(
-                top: -30,
-                right: -30,
+                top: -30, right: -30,
                 child: Container(
-                  width: 180,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: cs.surface.withAlpha(18),
-                  ),
+                  width: 180, height: 180,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: cs.surface.withAlpha(18)),
                 ),
               ),
+
               // Título y subtítulo en la parte inferior
               Positioned(
-                bottom: 20,
-                left: 20,
-                right: 20,
+                bottom: 20, left: 20, right: 20,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Título principal
                     Text(
                       title,
                       style: tt.headlineSmall?.copyWith(
@@ -61,6 +55,8 @@ class DetailSliverHeader extends StatelessWidget {
                         shadows: [Shadow(color: cs.onSurface.withAlpha(100), blurRadius: 8)],
                       ),
                     ),
+
+                    // Mostrar subtítulo solo si se proporciona
                     if (subtitle != null) ...[
                       const SizedBox(height: 4),
                       Text(
