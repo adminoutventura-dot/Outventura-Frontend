@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/utils/enum_translations.dart';
 
 // Grupo de chips que se pueden seleccionar. 
 //El AppChipWrap organiza los chips y el AppChoiceChip representa cada chip individual.
@@ -158,6 +160,7 @@ class AppFilterChipFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
 
     return FormField<List<Category>>(
       initialValue: seleccionados,
@@ -168,7 +171,7 @@ class AppFilterChipFormField extends StatelessWidget {
           AppChipWrap(
             children: Category.values.map((Category cat) {
               return AppFilterChip(
-                label: cat.code,
+                label: cat.localizedLabel(s),
                 seleccionado: seleccionados.contains(cat),
                 onSelected: (_) {
                   onToggle(cat);

@@ -45,7 +45,6 @@ class _EquipmentCardState extends State<EquipmentCard> {
     final String? imagen = widget.equipamiento.imageAsset;
 
     return Container(
-      height: 148,
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(20),
@@ -58,7 +57,8 @@ class _EquipmentCardState extends State<EquipmentCard> {
         ],
       ),
       clipBehavior: Clip.hardEdge,
-      child: Row(
+      child: IntrinsicHeight(
+        child: Row(
         children: [
           // CONTENIDO IZQUIERDO
           Expanded(
@@ -67,111 +67,109 @@ class _EquipmentCardState extends State<EquipmentCard> {
               padding: const EdgeInsets.fromLTRB(15, 13, 8, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Nombre + badge en la misma fila
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.equipamiento.title,
-                          style: tt.labelLarge?.copyWith(color: cs.onSurface),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                    // Nombre + badge en la misma fila
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.equipamiento.title,
+                            style: tt.labelLarge?.copyWith(color: cs.onSurface),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  TagWidget(
-                    text: widget.equipamiento.status.localizedLabel(s),
-                    backgroundColor: statusColor.withValues(alpha: 0.12),
-                    textColor: statusColor,
-                  ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    TagWidget(
+                      text: widget.equipamiento.status.localizedLabel(s),
+                      backgroundColor: statusColor.withValues(alpha: 0.12),
+                      textColor: statusColor,
+                    ),
 
-                  // Descripción
-                  if (widget.equipamiento.description != null) ...[
-                    const SizedBox(height: 5),
-                    Expanded(
-                      child: Text(
+                    // Descripción
+                    if (widget.equipamiento.description != null) ...[
+                      const SizedBox(height: 5),
+                      Text(
                         widget.equipamiento.description!,
                         style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant, height: 1.35),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ] else
-                    const Spacer(),
-
-                  const SizedBox(height: 6),
-
-                  // Precio
-                  Row(
-                    children: [
-                      Icon(Icons.sell_outlined, size: 12, color: cs.onSurfaceVariant),
-                      const SizedBox(width: 4),
-                      Text(
-                        s.pricePerDayShort(widget.equipamiento.pricePerDay.toStringAsFixed(2)),
-                        style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-                      ),
                     ],
-                  ),
 
-                  const SizedBox(height: 5),
+                    const SizedBox(height: 6),
 
-                  // Barra de stock + texto + acciones
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: LinearProgressIndicator(
-                                value: stockPct,
-                                minHeight: 5,
-                                backgroundColor: cs.onSurfaceVariant.withValues(alpha: 0.15),
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  stockPct < 0.25 ? cs.error : cs.primary,
+                    // Precio
+                    Row(
+                      children: [
+                        Icon(Icons.sell_outlined, size: 12, color: cs.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text(
+                          s.pricePerDayShort(widget.equipamiento.pricePerDay.toStringAsFixed(2)),
+                          style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 5),
+
+                    // Barra de stock + texto + acciones
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: stockPct,
+                                  minHeight: 5,
+                                  backgroundColor: cs.onSurfaceVariant.withValues(alpha: 0.15),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    stockPct < 0.25 ? cs.error : cs.primary,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              s.stockInfo(widget.equipamiento.units, widget.equipamiento.totalUnits),
-                              style: tt.labelSmall?.copyWith(fontSize: 10, color: cs.onSurfaceVariant),
-                            ),
+                              const SizedBox(height: 3),
+                              Text(
+                                s.stockInfo(widget.equipamiento.units, widget.equipamiento.totalUnits),
+                                style: tt.labelSmall?.copyWith(fontSize: 10, color: cs.onSurfaceVariant),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Acciones
+                        Row(
+                          children: [
+                            // Si onEditar no es null, mostrar el icono de editar.
+                            if (widget.onEditar != null)
+                              ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: widget.onEditar!),
+                            
+                            // Si onEditar y onEliminar y/o onAlquilar no son null, mostrar un SizedBox de separación.
+                            if (widget.onEditar != null && (widget.onEliminar != null || widget.onAlquilar != null))
+                              const SizedBox(width: 5),
+
+                            // Si onEliminar no es null, mostrar el icono de eliminar.
+                            if (widget.onEliminar != null)
+                              ActionIcon(icon: Icons.delete_outline, color: cs.error, onTap: widget.onEliminar!),
+
+                            // Si onAlquilar no es null, mostrar el icono de alquilar.
+                            if (widget.onAlquilar != null) ...[
+                              if (widget.onEliminar != null) const SizedBox(width: 5),
+                              ActionIcon(icon: Icons.add_rounded, color: cs.primary, onTap: widget.onAlquilar!),
+                            ],
                           ],
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Acciones
-                      Row(
-                        children: [
-                          // Si onEditar no es null, mostrar el icono de editar.
-                          if (widget.onEditar != null)
-                            ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: widget.onEditar!),
-                          
-                          // Si onEditar y onEliminar y/o onAlquilar no son null, mostrar un SizedBox de separación.
-                          if (widget.onEditar != null && (widget.onEliminar != null || widget.onAlquilar != null))
-                            const SizedBox(width: 5),
-
-                          // Si onEliminar no es null, mostrar el icono de eliminar.
-                          if (widget.onEliminar != null)
-                            ActionIcon(icon: Icons.delete_outline, color: cs.error, onTap: widget.onEliminar!),
-
-                          // Si onAlquilar no es null, mostrar el icono de alquilar.
-                          if (widget.onAlquilar != null) ...[
-                            if (widget.onEliminar != null) const SizedBox(width: 5),
-                            ActionIcon(icon: Icons.add_rounded, color: cs.primary, onTap: widget.onAlquilar!),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                      ],
+                    ),
+                  ],
+                ),
             ),
           ),
 
@@ -199,6 +197,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
           ),
         ],
       ),
+    )
     );
   }
 }

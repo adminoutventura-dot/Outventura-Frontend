@@ -29,6 +29,7 @@ class PrimaryButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
+        minimumSize: const Size.fromHeight(30),
       ),
       onPressed: onPressed,
       child: icon != null
@@ -76,6 +77,7 @@ class SecondaryButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
+        minimumSize: const Size.fromHeight(30),
       ),
       onPressed: onPressed,
       child: icon != null
@@ -179,7 +181,7 @@ class ActionIcon extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(size),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, 4, 4, 6),
+        padding: const EdgeInsets.all(4),
         child: Icon(icon, color: color, size: size),
       ),
     );

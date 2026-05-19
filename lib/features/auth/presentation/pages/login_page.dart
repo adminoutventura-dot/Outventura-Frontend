@@ -54,11 +54,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
 
           // Contenido
-          Center(
-            child: SingleChildScrollView(
+          SingleChildScrollView(
+            child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   // Logo Outventura
                   SvgPicture.asset(
@@ -219,8 +219,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           const SizedBox(height: 20),
 
                           // Registro
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            runSpacing: 8,
+                            spacing: 4,
                             children: [
                               Text(
                                 s.noAccount,

@@ -42,6 +42,8 @@ class RequestCard extends StatelessWidget {
       RequestStatus.cancelada  => cs.error,
     };
 
+    final String? imagen = actividad.imageAsset;
+
     return Container(
       decoration: BoxDecoration(
         // Fondo con tinte del color de estado
@@ -60,18 +62,27 @@ class RequestCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // -- BARRA LATERAL DEGRADADA --
+            // -- SIDEBAR CON IMAGEN --
             Container(
-              width: 5,
+              width: 120,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    statusColor,
-                    statusColor.withValues(alpha: 0.45),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
+                color: statusColor.withValues(alpha: 0.08),
+              ),
+              padding: const EdgeInsets.all(8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: imagen != null
+                    ? Image.asset(imagen, fit: BoxFit.cover)
+                    : Container(
+                        color: statusColor.withValues(alpha: 0.20),
+                        child: Center(
+                          child: Icon(
+                            Icons.hiking_outlined,
+                            size: 28,
+                            color: statusColor.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ),
               ),
             ),
 
@@ -83,10 +94,12 @@ class RequestCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Fila 1: ID + usuario · badge
-                    Row(
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
                       children: [
                         Text(
-                          '#${solicitud.id}',
+                          'SOLICITUD #${solicitud.id}',
                           style: tt.labelSmall?.copyWith(
                             color: statusColor,
                             fontWeight: FontWeight.w700,
@@ -99,34 +112,30 @@ class RequestCard extends StatelessWidget {
                             style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                           ),
                         ],
-                        const Spacer(),
-                        TagWidget(
-                          text: solicitud.status.localizedLabel(s),
-                          backgroundColor: statusColor.withValues(alpha: 0.13),
-                          textColor: statusColor,
-                        ),
                       ],
                     ),
 
                     const SizedBox(height: 5),
 
+                    // Badge de estado
+                    TagWidget(
+                      text: solicitud.status.localizedLabel(s),
+                      backgroundColor: statusColor.withValues(alpha: 0.13),
+                      textColor: statusColor,
+                    ),
+
                     // Fila 2: ruta
-                    Row(
+                    Wrap(
+                      spacing: 6,
                       children: [
                         Text(
                           actividad.startPoint,
                           style: tt.labelLarge?.copyWith(color: cs.onSurface),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: Icon(Icons.arrow_forward_rounded, size: 14, color: cs.onSurfaceVariant),
-                        ),
-                        Expanded(
-                          child: Text(
-                            actividad.endPoint,
-                            style: tt.labelLarge?.copyWith(color: cs.onSurface),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        Icon(Icons.arrow_forward_rounded, size: 14, color: cs.onSurfaceVariant),
+                        Text(
+                          actividad.endPoint,
+                          style: tt.labelLarge?.copyWith(color: cs.onSurface),
                         ),
                       ],
                     ),
@@ -181,8 +190,10 @@ class RequestCard extends StatelessWidget {
                     const SizedBox(height: 10),
 
                     // Tags + acciones
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Tags
                         Wrap(
                           spacing: 5,
                           runSpacing: 4,
@@ -194,21 +205,24 @@ class RequestCard extends StatelessWidget {
                                   ))
                               .toList(),
                         ),
-                        const Spacer(),
-                        if (onCancelar != null) ...[
-                          ActionIcon(icon: Icons.close_rounded, color: cs.error, onTap: onCancelar!),
-                          const SizedBox(width: 5),
-                        ],
-                        if (onGestionar != null) ...[
-                          ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onGestionar!),
-                          const SizedBox(width: 5),
-                        ],
-                        if (onEditar != null) ...[
-                          ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!),
-                          const SizedBox(width: 5),
-                        ],
-                        if (onVerDetalle != null)
-                          ActionIcon(icon: Icons.chevron_right_rounded, color: cs.onSurfaceVariant, onTap: onVerDetalle!),
+                        if (actividad.categories.isNotEmpty) const SizedBox(height: 8),
+                        // Botones alineados a la derecha
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Wrap(
+                            spacing: 5,
+                            children: [
+                              if (onCancelar != null)
+                                ActionIcon(icon: Icons.close_rounded, color: cs.error, onTap: onCancelar!),
+                              if (onGestionar != null)
+                                ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onGestionar!),
+                              if (onEditar != null)
+                                ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!),
+                              if (onVerDetalle != null)
+                                ActionIcon(icon: Icons.chevron_right_rounded, color: cs.onSurfaceVariant, onTap: onVerDetalle!),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ],

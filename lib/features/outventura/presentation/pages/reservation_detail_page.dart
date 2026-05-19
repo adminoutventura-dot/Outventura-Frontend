@@ -60,12 +60,21 @@ class ReservationDetailPage extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      DetailStatItem(label: s.start, value: FormateadorFecha.short(reserva.startDate)),
+                      DetailStatItem(
+                        label: s.start,
+                        value: FormateadorFecha.short(reserva.startDate),
+                      ),
                       Container(width: 1, height: 36, color: cs.outlineVariant),
-                      DetailStatItem(label: s.end, value: FormateadorFecha.short(reserva.endDate)),
+                      DetailStatItem(
+                        label: s.end,
+                        value: FormateadorFecha.short(reserva.endDate),
+                      ),
                       if (reserva.lines.isNotEmpty) ...[
                         Container(width: 1, height: 36, color: cs.outlineVariant),
-                        DetailStatItem(label: s.reservedMaterial, value: '${reserva.lines.length}'),
+                        DetailStatItem(
+                          label: s.reservedMaterial,
+                          value: '${reserva.lines.length}',
+                        ),
                       ],
                     ],
                   ),
