@@ -956,4 +956,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noUpcomingActivities => 'No activities this week';
+
+  @override
+  String get revenue => 'Revenue';
+
+  @override
+  String get totalUsers => 'Users';
+
+  @override
+  String get totalReservations => 'Total bookings';
+
+  @override
+  String get occupancyRate => 'Occupancy';
+
+  @override
+  String get weeklyOverview => 'WEEKLY ACTIVITY';
+
+  @override
+  String get requestsByStatus => 'REQUESTS BY STATUS';
+
+  @override
+  String get quickActions => 'QUICK ACTIONS';
+
+  @override
+  String get recentActivity => 'RECENT ACTIVITY';
+
+  @override
+  String get confirmed => 'Confirmed';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get inProgress => 'In progress';
+
+  @override
+  String get finished => 'Finished';
+
+  @override
+  String get cancelled => 'Cancelled';
+
+  @override
+  String get mon => 'M';
+
+  @override
+  String get tue => 'T';
+
+  @override
+  String get wed => 'W';
+
+  @override
+  String get thu => 'T';
+
+  @override
+  String get fri => 'F';
+
+  @override
+  String get sat => 'S';
+
+  @override
+  String get sun => 'S';
 }

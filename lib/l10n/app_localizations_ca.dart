@@ -958,4 +958,64 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get noUpcomingActivities => 'Sense activitats aquesta setmana';
+
+  @override
+  String get revenue => 'Ingressos';
+
+  @override
+  String get totalUsers => 'Usuaris';
+
+  @override
+  String get totalReservations => 'Reserves totals';
+
+  @override
+  String get occupancyRate => 'Ocupació';
+
+  @override
+  String get weeklyOverview => 'ACTIVITAT SETMANAL';
+
+  @override
+  String get requestsByStatus => 'SOL·LICITUDS PER ESTAT';
+
+  @override
+  String get quickActions => 'ACCESSOS RÀPIDS';
+
+  @override
+  String get recentActivity => 'ACTIVITAT RECENT';
+
+  @override
+  String get confirmed => 'Confirmades';
+
+  @override
+  String get pending => 'Pendents';
+
+  @override
+  String get inProgress => 'En curs';
+
+  @override
+  String get finished => 'Finalitzades';
+
+  @override
+  String get cancelled => 'Cancel·lades';
+
+  @override
+  String get mon => 'Dl';
+
+  @override
+  String get tue => 'Dt';
+
+  @override
+  String get wed => 'Dc';
+
+  @override
+  String get thu => 'Dj';
+
+  @override
+  String get fri => 'Dv';
+
+  @override
+  String get sat => 'Ds';
+
+  @override
+  String get sun => 'Dg';
 }

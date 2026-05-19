@@ -69,4 +69,77 @@ final List<Request> requestsFake = [
     reservationId: 106,
     requestedMaterials: {5: 3, 6: 6},
   ),
+
+  // ── Solicitudes de esta semana (19–25 mayo 2026) para la gráfica ──
+  const Request(
+    id: 7,
+    activityId: 6,
+    participantCount: 4,
+    status: RequestStatus.pendiente,
+    userId: 4,
+    requestedMaterials: {},
+  ),
+
+  const Request(
+    id: 8,
+    activityId: 6,
+    participantCount: 2,
+    status: RequestStatus.confirmada,
+    userId: 3,
+    requestedMaterials: {},
+  ),
+
+  const Request(
+    id: 9,
+    activityId: 7,
+    participantCount: 5,
+    status: RequestStatus.pendiente,
+    userId: 4,
+    requestedMaterials: {},
+  ),
+
+  const Request(
+    id: 10,
+    activityId: 8,
+    participantCount: 3,
+    status: RequestStatus.pendiente,
+    userId: 3,
+    requestedMaterials: {},
+  ),
+
+  const Request(
+    id: 11,
+    activityId: 8,
+    participantCount: 6,
+    status: RequestStatus.confirmada,
+    userId: 4,
+    requestedMaterials: {},
+  ),
+
+  const Request(
+    id: 12,
+    activityId: 9,
+    participantCount: 2,
+    status: RequestStatus.pendiente,
+    userId: 3,
+    requestedMaterials: {},
+  ),
+
+  const Request(
+    id: 13,
+    activityId: 10,
+    participantCount: 4,
+    status: RequestStatus.pendiente,
+    userId: 4,
+    requestedMaterials: {},
+  ),
+
+  const Request(
+    id: 14,
+    activityId: 10,
+    participantCount: 3,
+    status: RequestStatus.confirmada,
+    userId: 3,
+    requestedMaterials: {},
+  ),
 ];

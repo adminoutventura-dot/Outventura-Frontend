@@ -362,5 +362,26 @@
   "requestsActive": "Solicitudes activas",
 
   "upcomingActivities": "PRÓXIMAS ACTIVIDADES",
-  "noUpcomingActivities": "Sin actividades esta semana"
+  "noUpcomingActivities": "Sin actividades esta semana",
+
+  "revenue": "Ingresos",
+  "totalUsers": "Usuarios",
+  "totalReservations": "Reservas totales",
+  "occupancyRate": "Ocupación",
+  "weeklyOverview": "ACTIVIDAD SEMANAL",
+  "requestsByStatus": "SOLICITUDES POR ESTADO",
+  "quickActions": "ACCESOS RÁPIDOS",
+  "recentActivity": "ACTIVIDAD RECIENTE",
+  "confirmed": "Confirmadas",
+  "pending": "Pendientes",
+  "inProgress": "En curso",
+  "finished": "Finalizadas",
+  "cancelled": "Canceladas",
+  "mon": "L",
+  "tue": "M",
+  "wed": "X",
+  "thu": "J",
+  "fri": "V",
+  "sat": "S",
+  "sun": "D"
 }

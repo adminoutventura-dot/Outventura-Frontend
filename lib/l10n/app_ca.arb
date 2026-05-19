@@ -331,5 +331,26 @@
   "requestsActive": "Sol·licituds actives",
 
   "upcomingActivities": "PROPERES ACTIVITATS",
-  "noUpcomingActivities": "Sense activitats aquesta setmana"
+  "noUpcomingActivities": "Sense activitats aquesta setmana",
+
+  "revenue": "Ingressos",
+  "totalUsers": "Usuaris",
+  "totalReservations": "Reserves totals",
+  "occupancyRate": "Ocupació",
+  "weeklyOverview": "ACTIVITAT SETMANAL",
+  "requestsByStatus": "SOL·LICITUDS PER ESTAT",
+  "quickActions": "ACCESSOS RÀPIDS",
+  "recentActivity": "ACTIVITAT RECENT",
+  "confirmed": "Confirmades",
+  "pending": "Pendents",
+  "inProgress": "En curs",
+  "finished": "Finalitzades",
+  "cancelled": "Cancel·lades",
+  "mon": "Dl",
+  "tue": "Dt",
+  "wed": "Dc",
+  "thu": "Dj",
+  "fri": "Dv",
+  "sat": "Ds",
+  "sun": "Dg"
 }

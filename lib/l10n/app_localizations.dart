@@ -1845,6 +1845,126 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Sin actividades esta semana'**
   String get noUpcomingActivities;
+
+  /// No description provided for @revenue.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresos'**
+  String get revenue;
+
+  /// No description provided for @totalUsers.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuarios'**
+  String get totalUsers;
+
+  /// No description provided for @totalReservations.
+  ///
+  /// In es, this message translates to:
+  /// **'Reservas totales'**
+  String get totalReservations;
+
+  /// No description provided for @occupancyRate.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocupación'**
+  String get occupancyRate;
+
+  /// No description provided for @weeklyOverview.
+  ///
+  /// In es, this message translates to:
+  /// **'ACTIVIDAD SEMANAL'**
+  String get weeklyOverview;
+
+  /// No description provided for @requestsByStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'SOLICITUDES POR ESTADO'**
+  String get requestsByStatus;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In es, this message translates to:
+  /// **'ACCESOS RÁPIDOS'**
+  String get quickActions;
+
+  /// No description provided for @recentActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'ACTIVIDAD RECIENTE'**
+  String get recentActivity;
+
+  /// No description provided for @confirmed.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmadas'**
+  String get confirmed;
+
+  /// No description provided for @pending.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendientes'**
+  String get pending;
+
+  /// No description provided for @inProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'En curso'**
+  String get inProgress;
+
+  /// No description provided for @finished.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalizadas'**
+  String get finished;
+
+  /// No description provided for @cancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Canceladas'**
+  String get cancelled;
+
+  /// No description provided for @mon.
+  ///
+  /// In es, this message translates to:
+  /// **'L'**
+  String get mon;
+
+  /// No description provided for @tue.
+  ///
+  /// In es, this message translates to:
+  /// **'M'**
+  String get tue;
+
+  /// No description provided for @wed.
+  ///
+  /// In es, this message translates to:
+  /// **'X'**
+  String get wed;
+
+  /// No description provided for @thu.
+  ///
+  /// In es, this message translates to:
+  /// **'J'**
+  String get thu;
+
+  /// No description provided for @fri.
+  ///
+  /// In es, this message translates to:
+  /// **'V'**
+  String get fri;
+
+  /// No description provided for @sat.
+  ///
+  /// In es, this message translates to:
+  /// **'S'**
+  String get sat;
+
+  /// No description provided for @sun.
+  ///
+  /// In es, this message translates to:
+  /// **'D'**
+  String get sun;
 }
 
 class _AppLocalizationsDelegate

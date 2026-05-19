@@ -25,8 +25,8 @@ class StatCard extends StatelessWidget {
     final Color labelColor = foregroundColor?.withAlpha(200) ?? cs.onSurfaceVariant;
 
     final column = Column(
-      crossAxisAlignment: isPlain ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
@@ -38,6 +38,7 @@ class StatCard extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
+          textAlign: TextAlign.center,
           style: tt.labelSmall?.copyWith(color: labelColor, letterSpacing: 0.8),
         ),
       ],

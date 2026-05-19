@@ -25,89 +25,52 @@ class UserCard extends StatelessWidget {
     final s = AppLocalizations.of(context)!;
 
     // Colores según el rol
-    Color badgeBg;
-    Color badgeFg;
-    Color bordeColor;
-
-    if (usuario.role == UserRole.superadmin) {
-      badgeBg = cs.error;
-      badgeFg = cs.onError;
-      bordeColor = cs.error;
-    } else if (usuario.role == UserRole.admin) {
-      badgeBg = cs.tertiary;
-      badgeFg = cs.onPrimary;
-      bordeColor = cs.tertiary;
-    } else if (usuario.role == UserRole.usuario) {
-      badgeBg = cs.secondary;
-      badgeFg = cs.onPrimary;
-      bordeColor = cs.secondary;
-    } else {
-      badgeBg = cs.onSurfaceVariant.withValues(alpha: 0.15);
-      badgeFg = cs.onSurfaceVariant;
-      bordeColor = cs.onSurfaceVariant;
-    }
+    final Color roleColor = switch (usuario.role) {
+      UserRole.superadmin => cs.error,
+      UserRole.admin      => cs.tertiary,
+      UserRole.usuario    => cs.primary,
+      UserRole _          => cs.onSurfaceVariant,
+    };
 
     return Container(
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.onSurfaceVariant.withValues(alpha: 0.2))
+        border: Border.all(color: roleColor.withValues(alpha: 0.18), width: 1.5)
       ),
-      clipBehavior: Clip.hardEdge,
       child: Stack(
         children: [
-          // Barra de color lateral según rol
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: Container(
-              width: 4,
-              decoration: BoxDecoration(
-                color: bordeColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  bottomLeft: Radius.circular(20),
-                ),
-              ),
-            ),
-          ),
-
           // Contenido principal
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                // Coloca el avatar sobre un contenedor circular con borde del color del rol
-                Stack(
-                  // Avatar con borde de color según rol
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: bordeColor.withAlpha(80),
-                          width: 2.5,
-                        ),
-                      ),
-                      child: CircleAvatar(
-                        radius: 28,
-                        backgroundColor: cs.onPrimary,
-                        backgroundImage: usuario.photo != null ? NetworkImage(usuario.photo!) : null,
-                        child: usuario.photo == null
-                            ? Text(
-                                usuario.name[0].toUpperCase(),
-                                style: tt.titleLarge?.copyWith(
-                                  color: bordeColor,
-                                ),
-                              )
-                            : null,
-                      ),
+                // Avatar con degradado
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [roleColor.withValues(alpha: 0.2), roleColor.withValues(alpha: 0.08)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  ],
+                    border: Border.all(color: roleColor.withValues(alpha: 0.25), width: 2),
+                  ),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    backgroundImage: usuario.photo != null ? NetworkImage(usuario.photo!) : null,
+                    child: usuario.photo == null
+                        ? Text(
+                            usuario.name[0].toUpperCase(),
+                            style: tt.headlineSmall?.copyWith(color: roleColor, fontWeight: FontWeight.w700),
+                          )
+                        : null,
+                  ),
                 ),
 
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
 
                 // Información del usuario
                 Expanded(
@@ -131,8 +94,8 @@ class UserCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           TagWidget(
                             text: usuario.role.localizedLabel(s),
-                            backgroundColor: badgeBg,
-                            textColor: badgeFg,
+                            backgroundColor: roleColor.withValues(alpha: 0.14),
+                            textColor: roleColor,
                           ),
                         ],
                       ),
@@ -193,12 +156,10 @@ class UserCard extends StatelessWidget {
                           children: [
                             // Badge de inactivo
                             if (!usuario.active) ...[
-                              const SizedBox(height: 8),
                               TagWidget(
                                 text: s.inactiveAccount,
-                                backgroundColor: cs.error.withValues(alpha: 0.3),
+                                backgroundColor: cs.error.withValues(alpha: 0.12),
                                 textColor: cs.error,
-                                icon: Icons.block_outlined,
                               ),
                             ],
 

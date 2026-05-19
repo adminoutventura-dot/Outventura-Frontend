@@ -84,4 +84,66 @@ final List<Booking> reservationsFake = [
     endDate: DateTime(2026, 5, 1, 12, 0),
     status: BookingStatus.enCurso,
   ),
+
+  // ── Reservas de esta semana (19–25 mayo 2026) para la gráfica ──
+  Booking(
+    id: 107,
+    userId: 4,
+    lines: [const BookingLine(equipmentId: 5, quantity: 2)],
+    activityId: 6,
+    startDate: DateTime(2026, 5, 19, 9, 0),
+    endDate: DateTime(2026, 5, 19, 14, 0),
+    status: BookingStatus.confirmada,
+  ),
+
+  Booking(
+    id: 108,
+    userId: 3,
+    lines: [const BookingLine(equipmentId: 3, quantity: 2)],
+    activityId: 7,
+    startDate: DateTime(2026, 5, 20, 10, 0),
+    endDate: DateTime(2026, 5, 20, 13, 0),
+    status: BookingStatus.confirmada,
+  ),
+
+  Booking(
+    id: 109,
+    userId: 4,
+    lines: [const BookingLine(equipmentId: 8, quantity: 1)],
+    activityId: 8,
+    startDate: DateTime(2026, 5, 21, 8, 0),
+    endDate: DateTime(2026, 5, 21, 16, 0),
+    status: BookingStatus.enCurso,
+  ),
+
+  Booking(
+    id: 110,
+    userId: 3,
+    lines: [const BookingLine(equipmentId: 6, quantity: 3)],
+    activityId: 9,
+    startDate: DateTime(2026, 5, 22, 9, 0),
+    endDate: DateTime(2026, 5, 22, 15, 0),
+    status: BookingStatus.confirmada,
+  ),
+
+  Booking(
+    id: 111,
+    userId: 4,
+    lines: [const BookingLine(equipmentId: 3, quantity: 4)],
+    activityId: 10,
+    startDate: DateTime(2026, 5, 23, 9, 0),
+    endDate: DateTime(2026, 5, 23, 13, 0),
+    status: BookingStatus.confirmada,
+  ),
+
+  Booking(
+    id: 112,
+    userId: 3,
+    lines: [const BookingLine(equipmentId: 5, quantity: 2)],
+    activityId: 7,
+    startDate: DateTime(2026, 5, 24, 10, 0),
+    endDate: DateTime(2026, 5, 24, 13, 0),
+    status: BookingStatus.confirmada,
+  ),
+
 ];

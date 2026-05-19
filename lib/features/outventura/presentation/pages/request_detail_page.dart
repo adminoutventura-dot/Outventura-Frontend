@@ -57,26 +57,34 @@ class RequestDetailPage extends ConsumerWidget {
                 children: [
                   // Stats
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Participantes
-                      DetailStatItem(
-                        label: s.participants,
-                        value: '${solicitud.participantCount}',
+                      Expanded(
+                        child: DetailStatItem(
+                          label: s.participants,
+                          value: '${solicitud.participantCount}',
+                        ),
                       ),
-                      // Precio total
                       if (solicitud.totalPrice > 0) ...[
+                        const SizedBox(width: 12),
                         Container(width: 1, height: 36, color: cs.outlineVariant),
-                        DetailStatItem(
-                          label: s.totalPrice,
-                          value: s.priceEur(solicitud.totalPrice.toStringAsFixed(2)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: DetailStatItem(
+                            label: s.totalPrice,
+                            value: s.priceEur(solicitud.totalPrice.toStringAsFixed(2)),
+                          ),
                         ),
                       ],
-                      // Materiales solicitados
                       if (solicitud.requestedMaterials.isNotEmpty) ...[
+                        const SizedBox(width: 12),
                         Container(width: 1, height: 36, color: cs.outlineVariant),
-                        DetailStatItem(
-                          label: s.requestedMaterial,
-                          value: '${solicitud.requestedMaterials.length}',
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: DetailStatItem(
+                            label: s.requestedMaterial,
+                            value: '${solicitud.requestedMaterials.length}',
+                          ),
                         ),
                       ],
                     ],

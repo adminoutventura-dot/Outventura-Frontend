@@ -15,6 +15,7 @@ import 'package:outventura/features/outventura/presentation/providers/requests_p
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/app/theme/app_text_styles.dart';
+import 'package:outventura/core/widgets/evento_tile.dart';
 
 // Wrapper que permite estado local dentro de ConsumerWidget
 class CalendarPage extends ConsumerStatefulWidget {
@@ -266,7 +267,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 itemBuilder: (context, index) {
                   final evento = eventosSeleccionados[index];
                   if (evento is Booking) {
-                    return _EventoTile(
+                    return EventoTile(
                       titulo: s.reservationEvent(evento.id),
                       subtitulo: evento.status.localizedLabel(s),
                       color: cs.tertiary,
@@ -275,7 +276,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                       )),
                     );
                   } else if (evento is Request) {
-                    return _EventoTile(
+                    return EventoTile(
                       titulo: s.requestEvent(evento.id),
                       subtitulo: evento.status.localizedLabel(s),
                       color: cs.primary,
@@ -304,45 +305,3 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   }
 }
 
-class _EventoTile extends StatelessWidget {
-  final String titulo;
-  final String subtitulo;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _EventoTile({
-    required this.titulo,
-    required this.subtitulo,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Theme.of(context).colorScheme.onPrimary),
-      ),
-      child: ListTile(
-        leading: CircleAvatar(backgroundColor: color, radius: 6),
-        title: Text(
-          titulo,
-          style: AppTextStyles.titleMedium.copyWith(
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        subtitle: Text(
-          subtitulo,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: onTap,
-      ),
-    );
-  }
-}

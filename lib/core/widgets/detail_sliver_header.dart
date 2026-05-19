@@ -94,25 +94,27 @@ class DetailStatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextTheme tt = Theme.of(context).textTheme;
     final ColorScheme cs = Theme.of(context).colorScheme;
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: tt.titleMedium?.copyWith(
-              color: cs.onSurface,
-            ),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: tt.titleMedium?.copyWith(
+            color: cs.onSurface,
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 }

@@ -16,6 +16,8 @@ import 'package:outventura/features/preferences/data/models/preferences.dart';
 // TODO: Revisar si se divide entre entities y models (Recordatorio)
 // TODO: Arreglar botones de usuarios reservas y solicitudes que se pasa abajo.
 // TODO: Añadir el subir fotos.
+// TODO: Añadir borde a logo
+// 
 
 void main() async {
   final WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
