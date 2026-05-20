@@ -333,6 +333,8 @@ class HomeAdminPage extends ConsumerWidget {
   }
 }
 
+
+// TODO: Crear componentes a parte para home admin y cliente
 // Componente para los botones del menú de lado a lado
 class _QuickActionButton extends StatelessWidget {
   final String label;
