@@ -63,12 +63,15 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                 placeholder: Icons.hiking_outlined,
               ),
               const SizedBox(height: 20),
+
+              // Nombre de la actividad
               Text(
                 s.actividadSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              // Puntos inicio / fin
+
+              // Puntos inicio
               CustomInputField(
                 controller: _controller.puntoInicioController,
                 labelText: s.startPoint,
@@ -76,6 +79,8 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                 validator: ValidadoresFormulario.campoObligatorio(s),
               ),
               const SizedBox(height: 14),
+
+              // Punto fin
               CustomInputField(
                 controller: _controller.puntoFinController,
                 labelText: s.endPoint,
@@ -111,6 +116,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
+                  // Fechas de inicio 
                   Expanded(
                     child: AppDateSelector(
                       label: s.start,
@@ -123,6 +129,8 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
+
+                  // Fechas de fin
                   Expanded(
                     child: AppDateSelector(
                       label: s.end,
@@ -137,9 +145,10 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                 ],
               ),
               const SizedBox(height: 12),
-              // Horas de inicio y fin
+            
               Row(
                 children: [
+                  // Horas de inicio
                   Expanded(
                     child: AppTimeSelector(
                       label: s.startTime,
@@ -150,6 +159,8 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
+
+                  // Horas de fin
                   Expanded(
                     child: AppTimeSelector(
                       label: s.endTime,
@@ -179,6 +190,8 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
+
+              // Lista de categorías como chips seleccionables.
               AppFilterChipFormField(
                 seleccionados: _controller.categorias,
                 onToggle: (Category cat) {
@@ -197,6 +210,8 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
+
+              // Lista de estados como chips seleccionables (única selección).
               AppChipWrap(
                 children: ActivityStatus.values.map((ActivityStatus est) {
                   final bool seleccionado = _controller.estado == est;

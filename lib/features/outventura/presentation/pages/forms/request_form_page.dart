@@ -19,7 +19,7 @@ import 'package:outventura/features/outventura/presentation/controllers/request_
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart'; // <-- TU ARCHIVO DE PROVIDERS
+import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 
 class SolicitudFormPage extends ConsumerStatefulWidget {
@@ -46,21 +46,32 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
   void initState() {
     super.initState();
     _controller = RequestFormController();
+
     if (widget.solicitud != null) {
+      // MODO EDICIÓN: viene una solicitud existente
+      // Carga todos sus campos
       _controller.cargarSolicitud(widget.solicitud!);
+
+      // Sobreescribe el usuario si el formulario se abrió desde el perfil de un cliente específico (modo cliente)
+      // Si es admin editando una solicitud existente, no se pasa initialIdUsuario.
       if (widget.initialIdUsuario != null) {
         _controller.idUsuario = widget.initialIdUsuario;
       }
+
     } else {
+      // MODO CREACIÓN: no hay solicitud previa
       _controller.aplicarValoresIniciales(
         idActividad: widget.initialIdActividad,
         idUsuario: widget.initialIdUsuario,
       );
     }
 
+    // Calcular materiales recomendados solo en creación
     if (widget.solicitud == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        // comprobación de seguridad por si el widget fue destruido antes de que el frame se pintara.
         if (!mounted) return;
+
         setState(() => _controller.recalcularMateriales(ref.read(activitiesProvider).value ?? []));
       });
     }
@@ -77,16 +88,24 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    // Se pone a true dentro de cargarSolicitud()
     final bool isEdit = _controller.editando;
     final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
     final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
 
+    // Si la solicitud ya tenía una reserva asociada
     if (_controller.idReserva != null) {
+
+      // Busca esa reserva en el provider
       final List<Booking> reservas = ref.watch(reservationsProvider).value ?? [];
       final bool reservaAunExiste = reservas.any((Booking r) => r.id == _controller.idReserva);
+
+      // Si ya no existe en la lista
       if (!reservaAunExiste) {
+        // Mecanismo de Flutter que programa una función para que se ejecute justo después de que el frame actual termine de pintarse.
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
+            // Si el widget sigue montado, actualiza el estado para eliminar la referencia a la reserva y limpiar los materiales asociados.
             setState(() {
               _controller.idReserva = null;
               _controller.materialesSolicitados.clear();
@@ -98,8 +117,11 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
     final bool modoCliente = widget.initialIdUsuario != null;
 
+    // Lista de usuarios
     List<User> usuariosDisponibles = ref.watch(usuariosProvider).value ?? [];
+    // Si es modo cliente
     if (modoCliente) {
+      // Filtra la lista de usuarios para que solo contenga al cliente específico
       usuariosDisponibles = usuariosDisponibles
           .where((User u) => u.id == widget.initialIdUsuario)
           .toList();
@@ -115,6 +137,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
     final double totalPrice = _controller.calcularPrecioTotal(actividades, equipamientos);
     final double topPadding = MediaQuery.of(context).padding.top + kToolbarHeight;
+
     final double bottomBarHeight = MediaQuery.of(context).padding.bottom + 100;
 
     return Scaffold(
@@ -126,6 +149,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
         price: s.priceEur(totalPrice.toStringAsFixed(2)),
         actionLabel: isEdit ? s.save : s.create,
         onPressed: () {
+          // Validar formulario
           if (_controller.idReserva == null && _controller.tieneMateriales) {
             final Booking? reserva = _controller.crearReservaDesdeSolicitud(
               context: context,
@@ -134,21 +158,30 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             if (reserva == null) return;
           }
 
-          final Request? solicitud = _controller.crearSolicitud(actividades, equipamientos);
+          // Crear o actualizar solicitud
+          final Request? solicitud = _controller.crearEditarSolicitud(actividades, equipamientos);
           if (solicitud == null) return;
 
+          // Lista de reservas
           final List<Booking> reservasActuales = ref.read(reservationsProvider).value ?? [];
+          // Reserva actualizada o creada a partir de la solicitud
           final Booking? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
+
+          // Si hay una reserva actualizada o creada, y la solicitud tiene un ID de reserva asociado
           if (reservaActualizada != null && solicitud.reservationId != null) {
+            // Buscar la reserva original en la lista de reservas usando el ID de reserva de la solicitud
             final Booking? original = _controller.buscarReserva(reservasActuales, solicitud.reservationId!);
+            // Si se encuentra la reserva original, actualizarla en el provider
             if (original != null) {
               ref.read(reservationsProvider.notifier).actualizar(original, reservaActualizada);
             }
           }
 
+          // Devolver la solicitud creada o editada a la pantalla anterior
           Navigator.of(context).pop(solicitud);
         },
       ),
+      
       body: Form(
         key: _controller.formKey,
         child: ListView(

@@ -63,7 +63,7 @@ class RequestFormController {
   }
 
   // Crea una nueva solicitud a partir de los datos del formulario.
-  Request? crearSolicitud(List<Activity> actividades, List<Equipment> equipamientos) {
+  Request? crearEditarSolicitud(List<Activity> actividades, List<Equipment> equipamientos) {
     if (!validar()) {
       return null;
     }

@@ -97,6 +97,8 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
+
+              // Lista de categorías como chips seleccionables.
               AppFilterChipFormField(
                 seleccionados: _controller.categorias,
                 onToggle: (Category cat) {
@@ -114,6 +116,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
+              // Lista de estados como chips seleccionables (única selección).
               AppChipWrap(
                 children: EquipmentStatus.values.map((EquipmentStatus est) {
                   final bool seleccionado = _controller.estado == est;
@@ -136,9 +139,10 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               ),
               const SizedBox(height: 4),
 
-              // Stock disponible y total
+              
               Row(
                 children: [
+                  // Stock disponible
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.stockController,
@@ -149,6 +153,8 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
+
+                  // Stock total
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.stockTotalController,
@@ -172,6 +178,7 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               // Precios
               Row(
                 children: [
+                  // Precio por día
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.precioController,
@@ -182,6 +189,8 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
+
+                  // Precio por hora
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.tarifaController,
