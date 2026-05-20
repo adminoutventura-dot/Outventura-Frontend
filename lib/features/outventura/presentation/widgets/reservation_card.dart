@@ -41,14 +41,16 @@ class ReservationCard extends StatelessWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
+    // Color del badge y los acentos visuales según el estado de la reserva.
     final Color statusColor = switch (reserva.status) {
-      BookingStatus.pendiente  => cs.tertiary,
+      BookingStatus.pendiente => cs.tertiary,
       BookingStatus.confirmada => cs.primary,
-      BookingStatus.enCurso    => cs.secondary,
+      BookingStatus.enCurso => cs.secondary,
       BookingStatus.finalizada => cs.onSurfaceVariant,
-      BookingStatus.cancelada  => cs.error,
+      BookingStatus.cancelada => cs.error,
     };
 
+    // Lista de imágenes de los equipamientos de las líneas (excluye las líneas sin imagen (string)).
     final List<String> imagenes = lineas.map((l) => l.imagen).whereType<String>().toList();
 
     return Container(
@@ -105,8 +107,10 @@ class ReservationCard extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               // Fila 1: ID + usuario + badge
+                              // TODO: HARCODEADO
                               Row(
                                 children: [
+                                  // ID de reserva 
                                   Text(
                                     'RESERVA #${reserva.id}',
                                     style: tt.labelSmall?.copyWith(
@@ -115,6 +119,7 @@ class ReservationCard extends StatelessWidget {
                                     ),
                                   ),
                                   Text('  ·  ', style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                                  // Nombre de usuario
                                   Expanded(
                                     child: Text(
                                       nombreUsuario,
@@ -123,6 +128,7 @@ class ReservationCard extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
+                                  // Badge de estado
                                   TagWidget(
                                     text: reserva.status.localizedLabel(s),
                                     backgroundColor: statusColor.withValues(alpha: 0.13),
@@ -138,6 +144,7 @@ class ReservationCard extends StatelessWidget {
                                 spacing: 10,
                                 runSpacing: 4,
                                 children: [
+                                  // Fechas de la reserva
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -149,6 +156,8 @@ class ReservationCard extends StatelessWidget {
                                       ),
                                     ],
                                   ),
+
+                                  // Horario de la reserva
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -239,27 +248,33 @@ class ReservationCard extends StatelessWidget {
                         ],
                         const Spacer(),
 
-                        // Acciones
+                        // Botones de acción, solo visibles si el callback no es null.
+                        // Cancelar reserva
                         if (onCancelar != null) ...[
                           ActionIcon(icon: Icons.cancel_outlined, color: cs.error, onTap: onCancelar!),
                           const SizedBox(width: 5),
                         ],
+                        // Rechazar reserva pendiente
                         if (onRechazar != null) ...[
                           ActionIcon(icon: Icons.close_rounded, color: cs.error, onTap: onRechazar!),
                           const SizedBox(width: 5),
                         ],
+                        // Aprobar reserva pendiente
                         if (onAprobar != null) ...[
                           ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onAprobar!),
                           const SizedBox(width: 5),
                         ],
+                        // Registrar devolución de reserva en curso
                         if (onRegistrarDevolucion != null) ...[
                           ActionIcon(icon: Icons.assignment_return_outlined, color: cs.secondary, onTap: onRegistrarDevolucion!),
                           const SizedBox(width: 5),
                         ],
+                        // Editar reserva
                         if (onEditar != null) ...[
                           ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!),
                           const SizedBox(width: 5),
                         ],
+                        // Ver detalle completo
                         if (onVerDetalle != null)
                           ActionIcon(icon: Icons.chevron_right_rounded, color: cs.onSurfaceVariant, onTap: onVerDetalle!),
                       ],
@@ -284,13 +299,17 @@ class _ImageGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Si no hay imágenes, mostrar un placeholder con icono genérico.
     if (imagenes.isEmpty) {
       return ColoredBox(
         color: cs.onPrimary.withValues(alpha: 0.20),
         child: Center(child: Icon(Icons.inventory_2_outlined, size: 26, color: cs.onPrimary.withValues(alpha: 0.6))),
       );
     }
-    if (imagenes.length == 1) return Image.asset(imagenes[0], fit: BoxFit.cover);
+    // Si hay una sola imagen, mostrarla a tamaño completo sin grid.
+    if (imagenes.length == 1) {
+      return Image.asset(imagenes[0], fit: BoxFit.cover);
+    }
 
     return GridView.count(
       crossAxisCount: 2,
@@ -298,16 +317,23 @@ class _ImageGrid extends StatelessWidget {
       mainAxisSpacing: 1.5,
       crossAxisSpacing: 1.5,
       children: [
+        // Muestra hasta 3 imágenes. 
         for (int i = 0; i < imagenes.length && i < 3; i++)
           Image.asset(imagenes[i], fit: BoxFit.cover),
+
+        
         if (imagenes.length >= 4)
+          // Si hay exactamente 4 imágenes, la última casilla muestra la cuarta imagen.
           Image.asset(imagenes[3], fit: BoxFit.cover)
+
         else if (imagenes.length == 3)
+        // Si hay 3 imágenes, la última casilla muestra un badge con el número "3".
           ColoredBox(
             color: cs.onPrimary.withValues(alpha: 0.25),
             child: Center(child: Text('3', style: tt.labelSmall?.copyWith(color: cs.onPrimary))),
           ),
         if (imagenes.length > 4)
+          // Si hay más de 4 imágenes, la última casilla muestra un badge con el número de imágenes restantes.
           ColoredBox(
             color: cs.onPrimary.withValues(alpha: 0.40),
             child: Center(child: Text('+${imagenes.length - 3}', style: tt.labelSmall?.copyWith(color: cs.onPrimary))),

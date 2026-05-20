@@ -30,18 +30,20 @@ class _EquipmentCardState extends State<EquipmentCard> {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
+    // Color del badge y la barra de stock según el estado del equipamiento.
     final Color statusColor = switch (widget.equipamiento.status) {
-      EquipmentStatus.disponible      => cs.primary,
-      EquipmentStatus.agotado         => cs.tertiary,
-      EquipmentStatus.mantenimiento   => cs.onSurfaceVariant,
+      EquipmentStatus.disponible => cs.primary,
+      EquipmentStatus.agotado => cs.tertiary,
+      EquipmentStatus.mantenimiento => cs.onSurfaceVariant,
       EquipmentStatus.fueraDeServicio => cs.error,
     };
 
-    // Porcentaje de stock restante (0.0 a 1.0).
+    // Porcentaje de stock restante (0.0 a 1.0). Se usa para la barra de progreso.
     final double stockPct = widget.equipamiento.totalUnits > 0
         ? (widget.equipamiento.units / widget.equipamiento.totalUnits).clamp(0.0, 1.0)
         : 0.0;
 
+    // Imagen del equipamiento (null si no tiene, se muestra un icono por defecto).
     final String? imagen = widget.equipamiento.imageAsset;
 
     return Container(
@@ -84,6 +86,8 @@ class _EquipmentCardState extends State<EquipmentCard> {
                       ],
                     ),
                     const SizedBox(height: 4),
+
+                    // Estado del equipamiento 
                     TagWidget(
                       text: widget.equipamiento.status.localizedLabel(s),
                       backgroundColor: statusColor.withValues(alpha: 0.12),
@@ -117,9 +121,9 @@ class _EquipmentCardState extends State<EquipmentCard> {
 
                     const SizedBox(height: 5),
 
-                    // Barra de stock + texto + acciones
                     Row(
                       children: [
+                        // Barra de stock + texto
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,6 +148,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                           ),
                         ),
                         const SizedBox(width: 8),
+                        
                         // Acciones
                         Row(
                           children: [

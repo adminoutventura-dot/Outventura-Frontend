@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
-import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
@@ -184,6 +183,7 @@ class HomeClientePage extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
+                // TODO: traducir "Categorías Populares"
                 'Categorías Populares',
                 style: tt.labelLarge?.copyWith(color: cs.onSurface),
               ),

@@ -178,16 +178,20 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                           showSuccessSnackBar(context, s.reservationUpdated);
                         },
 
-                        
+                        // Si es gestor y la reserva está pendiente - puede aprobarla.
                         onAprobar: widget.puedeGestionar && res.status == BookingStatus.pendiente
                             ? () => mostrarDialogoAprobacion(context, res, () => notifier.aprobar(res))
                             : null,
+                        // Si es gestor y la reserva está pendiente - puede rechazarla.
                         onRechazar: widget.puedeGestionar && res.status == BookingStatus.pendiente
                             ? () => mostrarDialogoRechazo(context, res, () => notifier.rechazar(res))
                             : null,
+                        // Si es gestor y la reserva está en curso . puede registrar la devolución.
                         onRegistrarDevolucion: widget.puedeGestionar && res.status == BookingStatus.enCurso
                             ? () => mostrarDialogoDevolucion(context, res, () => notifier.registrarDevolucion(res))
                             : null,
+                        // Si es gestor y la reserva está confirmada - puede cancelarla.
+                        // Si es cliente y la reserva está pendiente o confirmada - puede cancelarla.
                         onCancelar: (widget.puedeGestionar && res.status == BookingStatus.confirmada) ||
                                     (!widget.puedeGestionar && (res.status == BookingStatus.pendiente || res.status == BookingStatus.confirmada))
                             ? () => mostrarDialogoCancelacion(context, res, () => notifier.cancelar(res))

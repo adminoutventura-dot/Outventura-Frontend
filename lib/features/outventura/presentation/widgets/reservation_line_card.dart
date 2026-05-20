@@ -50,6 +50,7 @@ class ReservationLineCard extends StatelessWidget {
               children: [
                 Icon(Icons.inventory_2_outlined, color: cs.primary, size: 20),
                 const SizedBox(width: 8),
+                // Nombre del equipamiento y precio por unidad.
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,12 +66,16 @@ class ReservationLineCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                
+                // Cantidad 
                 TagWidget(
                   text: 'x${linea.quantity}',
                   backgroundColor: cs.secondary.withValues(alpha: 0.15),
                   textColor: cs.onPrimaryContainer,
                 ),
                 const SizedBox(width: 4),
+
+                // Boton de editar
                 ActionIcon(
                   icon: Icons.edit_outlined,
                   size: 18,
@@ -78,6 +83,7 @@ class ReservationLineCard extends StatelessWidget {
                   onTap: onEdit,
                 ),
                 const SizedBox(width: 8),
+                // Boton de eliminar
                 ActionIcon(
                   icon: Icons.delete_outline,
                   size: 18,

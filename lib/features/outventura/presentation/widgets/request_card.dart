@@ -34,14 +34,16 @@ class RequestCard extends StatelessWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
+    // Color del badge y los acentos visuales según el estado de la solicitud.
     final Color statusColor = switch (solicitud.status) {
-      RequestStatus.pendiente  => cs.tertiary,
+      RequestStatus.pendiente => cs.tertiary,
       RequestStatus.confirmada => cs.primary,
-      RequestStatus.enCurso    => cs.secondary,
+      RequestStatus.enCurso => cs.secondary,
       RequestStatus.finalizada => cs.onSurfaceVariant,
-      RequestStatus.cancelada  => cs.error,
+      RequestStatus.cancelada => cs.error,
     };
 
+    // Imagen de la actividad asociada (null si no tiene, se muestra un icono genérico).
     final String? imagen = actividad.imageAsset;
 
     return Container(
@@ -71,6 +73,7 @@ class RequestCard extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
+                // Imagen de la actividad o icono genérico
                 child: imagen != null
                     ? Image.asset(imagen, fit: BoxFit.cover)
                     : Container(
@@ -160,6 +163,7 @@ class RequestCard extends StatelessWidget {
                       spacing: 10,
                       runSpacing: 5,
                       children: [
+                        // Fecha de la actividad
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -168,6 +172,8 @@ class RequestCard extends StatelessWidget {
                             Text(FormateadorFecha.short(actividad.initDate), style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                           ],
                         ),
+
+                        // Horario de la actividad
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -176,6 +182,8 @@ class RequestCard extends StatelessWidget {
                             Text('${FormateadorFecha.timeOnly(actividad.initDate)} – ${FormateadorFecha.timeOnly(actividad.endDate)}', style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                           ],
                         ),
+
+                        // Cantidad de participantes
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -206,18 +214,22 @@ class RequestCard extends StatelessWidget {
                               .toList(),
                         ),
                         if (actividad.categories.isNotEmpty) const SizedBox(height: 8),
-                        // Botones alineados a la derecha
+                        // Botones de acción, solo visibles si el callback no es null.
                         Align(
                           alignment: Alignment.centerRight,
                           child: Wrap(
                             spacing: 5,
                             children: [
+                              // Cancelar solicitud
                               if (onCancelar != null)
                                 ActionIcon(icon: Icons.close_rounded, color: cs.error, onTap: onCancelar!),
+                              // Gestionar (aceptar) solicitud pendiente
                               if (onGestionar != null)
                                 ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onGestionar!),
+                              // Editar solicitud
                               if (onEditar != null)
                                 ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!),
+                              // Ver detalle completo
                               if (onVerDetalle != null)
                                 ActionIcon(icon: Icons.chevron_right_rounded, color: cs.onSurfaceVariant, onTap: onVerDetalle!),
                             ],

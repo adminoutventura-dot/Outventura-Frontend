@@ -29,25 +29,25 @@ class AppDrawer extends ConsumerWidget {
             decoration: BoxDecoration(
               gradient: AppGradients.drawer(cs),
             ),
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 24,
-              bottom: 24,
-              left: 20,
-              right: 20,
-            ),
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 24, bottom: 24, left: 20, right: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Avatar con degradado de fondo
                 CircleAvatar(
                   radius: 32,
                   backgroundColor: cs.onTertiary.withValues(alpha: 0.2),
                   child: Icon(Icons.person, size: 36, color: cs.onPrimary),
                 ),
                 const SizedBox(height: 12),
+
+                // Nombre de usuario 
                 Text(
                   usuario?.name ?? s.user,
                   style: AppTextStyles.titleMedium.copyWith(color: cs.onPrimary),
                 ),
+
+                // Email del usuario (si existe)
                 if (usuario?.email != null)
                   Text(
                     usuario!.email,
@@ -62,6 +62,7 @@ class AppDrawer extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
+                // Item - Perfil
                 ListTile(
                   horizontalTitleGap: 8,
                   leading: Icon(Icons.person_outline, color: cs.onSurface, size: 22),
@@ -76,6 +77,8 @@ class AppDrawer extends ConsumerWidget {
                     ));
                   },
                 ),
+
+                // Item - Catálogo de componentes
                 ListTile(
                   horizontalTitleGap: 8,
                   leading: Icon(Icons.map_outlined, color: cs.onSurface, size: 22),
@@ -89,6 +92,8 @@ class AppDrawer extends ConsumerWidget {
                     ));
                   },
                 ),
+
+                // Item - Preferencias
                 ListTile(
                   horizontalTitleGap: 8,
                   leading: Icon(Icons.settings_outlined, color: cs.onSurface, size: 22),
@@ -103,11 +108,13 @@ class AppDrawer extends ConsumerWidget {
                   },
                 ),
 
+                // Separador
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Divider(),
                 ),
-
+                
+                // Item - Cerrar sesión 
                 ListTile(
                   horizontalTitleGap: 8,
                   leading: Icon(Icons.logout, color: cs.error, size: 22),

@@ -16,7 +16,9 @@ import 'package:outventura/features/outventura/presentation/pages/reservation_de
 import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/requests_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/users_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/legend_item.dart';
@@ -40,21 +42,11 @@ class HomeAdminPage extends ConsumerWidget {
     final solicitudes = ref.watch(requestsProvider).value ?? [];
     final actividades = ref.watch(activitiesProvider).value ?? [];
 
-    final int pendientes = solicitudes
-        .where((r) => r.status == RequestStatus.pendiente)
-        .length;
-    final int enCurso = solicitudes
-        .where((r) => r.status == RequestStatus.enCurso)
-        .length;
-    final int confirmadas = solicitudes
-        .where((r) => r.status == RequestStatus.confirmada)
-        .length;
-    final int finalizadas = solicitudes
-        .where((r) => r.status == RequestStatus.finalizada)
-        .length;
-    final int canceladas = solicitudes
-        .where((r) => r.status == RequestStatus.cancelada)
-        .length;
+    final int pendientes = solicitudes.where((r) => r.status == RequestStatus.pendiente).length;
+    final int enCurso = solicitudes.where((r) => r.status == RequestStatus.enCurso).length;
+    final int confirmadas = solicitudes.where((r) => r.status == RequestStatus.confirmada).length;
+    final int finalizadas = solicitudes.where((r) => r.status == RequestStatus.finalizada).length;
+    final int canceladas = solicitudes.where((r) => r.status == RequestStatus.cancelada).length;
 
     final today = DateTime.now();
     final todayStart = DateTime(today.year, today.month, today.day);
@@ -89,9 +81,7 @@ class HomeAdminPage extends ConsumerWidget {
 
     final rawDate = DateFormat.yMMMMEEEEd(locale).format(today);
     final dateStr = rawDate[0].toUpperCase() + rawDate.substring(1);
-    final greeting = adminName.isNotEmpty
-        ? s.greeting(adminName)
-        : s.adminPanel;
+    final greeting = adminName.isNotEmpty ? s.greeting(adminName) : s.adminPanel;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -112,7 +102,8 @@ class HomeAdminPage extends ConsumerWidget {
               actividadesHoy: actividadesHoy,
               reservasHoy: reservasHoy,
               enCurso: enCurso,
-              collapsedHeight: 32.0, // Cambiar a 72.5 para contraer hasta la mitad
+              // Cambiar a 72.5 para contraer hasta la mitad
+              collapsedHeight: 32.0, 
             ),
           ),
 

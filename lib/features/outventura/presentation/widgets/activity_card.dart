@@ -50,8 +50,7 @@ class ActivityCard extends StatelessWidget {
           // -- IMAGEN o HEADER SIN IMAGEN --
           if (imagenResuelta != null)
             SizedBox(
-              height: 130,
-              width: double.infinity,
+              height: 130, width: double.infinity,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -65,13 +64,12 @@ class ActivityCard extends StatelessWidget {
 
                   // Ruta sobre la imagen
                   Positioned(
-                    bottom: 12,
-                    left: 14,
-                    right: 14,
+                    bottom: 12, left: 14, right: 14,
                     child: Row(
                       children: [
                         Icon(Icons.place_outlined, size: 13, color: cs.onPrimary.withValues(alpha: 0.85)),
                         const SizedBox(width: 4),
+                        // Si la ruta es muy larga, se muestra con puntos suspensivos al final.
                         Expanded(
                           child: Text(
                             '${actividad.startPoint}  →  ${actividad.endPoint}',
@@ -98,9 +96,9 @@ class ActivityCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
+                  // Icono de actividad (si no hay imagen, se muestra un icono genérico)
                   Container(
-                    width: 40,
-                    height: 40,
+                    width: 40, height: 40,
                     decoration: BoxDecoration(
                       color: cs.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
@@ -108,6 +106,8 @@ class ActivityCard extends StatelessWidget {
                     child: Icon(Icons.terrain_outlined, size: 20, color: cs.primary),
                   ),
                   const SizedBox(width: 12),
+
+                  // Ruta
                   Expanded(
                     child: Text(
                       '${actividad.startPoint}  →  ${actividad.endPoint}',
@@ -139,7 +139,9 @@ class ActivityCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(FormateadorFecha.short(actividad.initDate), style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
+
                     ),
+                    
                     // Horario
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -149,6 +151,7 @@ class ActivityCard extends StatelessWidget {
                         Text('${FormateadorFecha.timeOnly(actividad.initDate)} – ${FormateadorFecha.timeOnly(actividad.endDate)}', style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
                     ),
+
                     // Plazas
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -194,12 +197,20 @@ class ActivityCard extends StatelessWidget {
                           .toList(),
                     ),
                     const Spacer(),
+                    
+                    // Editar
                     if (onEditar != null)
                       ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!),
+                      
+                    // Si hay acción de editar y eliminar, se muestra un espacio entre ambos iconos.
                     if (onEditar != null && onEliminar != null)
                       const SizedBox(width: 6),
+
+                    // Eliminar
                     if (onEliminar != null)
                       ActionIcon(icon: Icons.delete_outline, color: cs.error, onTap: onEliminar!),
+
+                    // Si hay acción de editar o eliminar, se muestra un espacio entre estos iconos y el botón de solicitar.
                     if (onSolicitar != null) ...[
                       const SizedBox(width: 6),
                       MiniButton(

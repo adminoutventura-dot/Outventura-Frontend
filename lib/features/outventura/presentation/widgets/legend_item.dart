@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Línea de leyenda para el gráfico de pastel.
-/// Muestra un cuadrado de color, etiqueta y cantidad.
+// Línea de leyenda para el gráfico de pastel.
 class LegendItem extends StatelessWidget {
   final Color color;
   final String label;
@@ -24,13 +23,18 @@ class LegendItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
+          // Indicador de color
           Container(
             width: 10,
             height: 10,
             decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3)),
           ),
           const SizedBox(width: 8),
+          
+          // Texto de la leyenda
           Expanded(child: Text(label, style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant))),
+
+          // Valor numérico
           Text('$value', style: tt.labelMedium?.copyWith(color: cs.onSurface, fontWeight: FontWeight.w600)),
         ],
       ),

@@ -20,6 +20,8 @@ class StatCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
+    // Modo plain: texto sin contenedor (para fondos de color, p.ej. el header del cliente).
+    // Modo card: con borde y fondo neutro (para dashboards con fondo claro).
     final bool isPlain = foregroundColor != null;
     final Color textColor = foregroundColor ?? cs.onSurface;
     final Color labelColor = foregroundColor?.withAlpha(200) ?? cs.onSurfaceVariant;
@@ -44,8 +46,12 @@ class StatCard extends StatelessWidget {
       ],
     );
 
-    if (isPlain) return column;
+    // En modo plain devuelve solo la columna sin decoración.
+    if (isPlain) {
+      return column;
+    }
 
+    // En modo card envuelve la columna en un contenedor con borde y fondo.
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
       decoration: BoxDecoration(
