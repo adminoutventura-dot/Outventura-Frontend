@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:outventura/core/widgets/evento_tile.dart';
-import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
-import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
-import 'package:outventura/features/outventura/presentation/pages/activities_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/requests_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservation_detail_page.dart';
@@ -19,7 +16,6 @@ import 'package:outventura/features/outventura/presentation/providers/reservatio
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/home_app_bar_delegate.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
-import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
 class HomeClientePage extends ConsumerWidget {
@@ -43,14 +39,16 @@ class HomeClientePage extends ConsumerWidget {
     final int solicitudesPendientes = ref.watch(userPendingRequestsCountProvider(usuario.id));
     // Últimas 5 actividades para el carrusel
     final actividadesRecientes = ref.watch(recentActivitiesProvider(5));
-    // Top 4 categorías ordenadas por número de actividades
-    final categoriasPopulares = ref.watch(popularCategoriesProvider(4));
 
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: cs.onPrimary,
+      // Extender el cuerpo por detrás del AppBar
+      extendBodyBehindAppBar: true, 
       drawer: const AppDrawer(),
       body: CustomScrollView(
         slivers: [
+          // TODO: Texto de header igual al de otras paginas
+          // -- HEADER COLAPSABLE --
           SliverPersistentHeader(
             pinned: true,
             delegate: HomeAppBarDelegate(
@@ -69,178 +67,145 @@ class HomeClientePage extends ConsumerWidget {
               collapsedHeight: 32.0,
             ),
           ),
+          
+          // -- CONTENIDO --
           SliverPadding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 40),
+            padding: EdgeInsets.only(
+              top: 20, 
+              bottom: MediaQuery.of(context).padding.bottom + 40,
+            ),
             sliver: SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-
-                  // CATEGORÍAS POPULARES
-          if (categoriasPopulares.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                // TODO: traducir "Categorías Populares"
-                'Categorías Populares',
-                style: tt.labelLarge?.copyWith(color: cs.onSurface),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (int i = 0; i < categoriasPopulares.length.clamp(0, 4); i++) ...[
-                    if (i > 0) _HeaderDivider(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.50)),
-                    Expanded(
-                      child: StatCard(
-                        value: '${categoriasPopulares[i].value}',
-                        label: categoriasPopulares[i].key.localizedLabel(s),
-                        foregroundColor: [cs.primary, cs.tertiary, cs.secondary, cs.onSurfaceVariant][i],
+              // Aplicamos el Transform para empujar todo hacia arriba
+              child: Transform.translate(
+                offset: const Offset(0, -35),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    
+                    // MENÚ RÁPIDO SUPERIOR
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Mis Reservas
+                          Expanded(
+                            child: _QuickActionButton(
+                              label: s.myReservationsBtn,
+                              textColor: cs.onSurfaceVariant,
+                              onTap: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const ReservationsPage(
+                                    puedeGestionar: false,
+                                    puedeCrear: true,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          
+                          // Separador sin márgenes
+                          Container(
+                            width: 1,
+                            color: cs.surface,
+                          ),
+                    
+                          // Mis Solicitudes
+                          Expanded(
+                            child: _QuickActionButton(
+                              label: s.myRequestsBtn,
+                              textColor: cs.onSurfaceVariant,
+                              onTap: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const RequestsPage(
+                                    puedeGestionar: false,
+                                    puedeCrear: true,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+
+                    const SizedBox(height: 28),
+
+                    // ACTIVIDADES DESTACADAS - CARRUSEL
+                    if (actividadesRecientes.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          // TODO: traducir "Actividades Destacadas"
+                          'Actividades Destacadas'.toUpperCase(),
+                          style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 200,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: actividadesRecientes.length,
+                          itemBuilder: (context, index) {
+                            final actividad = actividadesRecientes[index];
+                            return _ActivityCarouselCard(
+                              actividad: actividad,
+                              cs: cs,
+                              tt: tt,
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                    ],
+
+                    // MIS ACTIVIDADES RECIENTES (reservas activas + solicitudes pendientes)
+                    if (misReservas.where((r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso).isNotEmpty ||
+                        misSolicitudes.where((s) => s.status == RequestStatus.pendiente || s.status == RequestStatus.confirmada).isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: Text(
+                          s.recentActivity.toUpperCase(),
+                          style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ),
+                      // Solicitudes pendientes o confirmadas
+                      for (final sol in misSolicitudes
+                          .where((s) => s.status == RequestStatus.pendiente || s.status == RequestStatus.confirmada)
+                          .take(2))
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          child: EventoTile(
+                            titulo: s.requestEvent(sol.id),
+                            subtitulo: ref.watch(activityByIdProvider(sol.activityId))?.title ?? s.unknown,
+                            color: cs.primary,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => RequestDetailPage(solicitud: sol)),
+                            ),
+                          ),
+                        ),
+                      // Reservas confirmadas o en curso
+                      for (final res in misReservas
+                          .where((r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso)
+                          .take(2))
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          child: EventoTile(
+                            titulo: s.reservationEvent(res.id),
+                            subtitulo: res.activityId != null
+                                ? ref.watch(activityByIdProvider(res.activityId!))?.title ?? s.unknown
+                                : s.unknown,
+                            color: cs.tertiary,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => ReservationDetailPage(reserva: res)),
+                            ),
+                          ),
+                        ),
+                    ],
                   ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
-          ],
-
-          // ACTIVIDADES DESTACADAS - CARRUSEL
-          if (actividadesRecientes.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // TODO: traducir "Actividades Destacadas"
-                  Text(
-                    'Actividades Destacadas',
-                    style: tt.labelLarge?.copyWith(color: cs.onSurface),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // Navegar a página de actividades
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const ActivitiesPage(),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'Ver todas',
-                      style: tt.labelSmall?.copyWith(color: cs.primary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 200,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: actividadesRecientes.length,
-                itemBuilder: (context, index) {
-                  final actividad = actividadesRecientes[index];
-                  return _ActivityCarouselCard(
-                    actividad: actividad,
-                    cs: cs,
-                    tt: tt,
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 28),
-          ],
-
-          // ACCIONES RÁPIDAS
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SecondaryButton(
-                    label: s.myReservationsBtn,
-                    backgroundColor: cs.surface,
-                    borderColor: cs.tertiary,
-                    borderRadius: 5,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const ReservationsPage(
-                          puedeGestionar: false,
-                          puedeCrear: true,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: SecondaryButton(
-                    label: s.myRequestsBtn,
-                    backgroundColor: cs.surface,
-                    borderColor: cs.tertiary,
-                    borderRadius: 5,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const RequestsPage(
-                          puedeGestionar: false,
-                          puedeCrear: true,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 28),
-
-          // MIS ACTIVIDADES RECIENTES (reservas activas + solicitudes pendientes)
-          if (misReservas.where((r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso).isNotEmpty ||
-              misSolicitudes.where((s) => s.status == RequestStatus.pendiente || s.status == RequestStatus.confirmada).isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: Text(
-                s.recentActivity,
-                style: tt.labelLarge?.copyWith(color: cs.onSurface),
-              ),
-            ),
-            // Solicitudes pendientes o confirmadas
-            for (final sol in misSolicitudes
-                .where((s) => s.status == RequestStatus.pendiente || s.status == RequestStatus.confirmada)
-                .take(2))
-              EventoTile(
-                titulo: s.requestEvent(sol.id),
-                subtitulo: ref.watch(activityByIdProvider(sol.activityId))?.title ?? s.unknown,
-                color: cs.primary,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => RequestDetailPage(solicitud: sol)),
                 ),
               ),
-            // Reservas confirmadas o en curso
-            for (final res in misReservas
-                .where((r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso)
-                .take(2))
-              EventoTile(
-                titulo: s.reservationEvent(res.id),
-                subtitulo: res.activityId != null
-                    ? ref.watch(activityByIdProvider(res.activityId!))?.title ?? s.unknown
-                    : s.unknown,
-                color: cs.tertiary,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => ReservationDetailPage(reserva: res)),
-                ),
-              ),
-                ],
-        ],
-        ),
             ),
           ),
         ],
@@ -248,7 +213,6 @@ class HomeClientePage extends ConsumerWidget {
     );
   }
 }
-
 
 // CARD DE ACTIVIDAD PARA CARRUSEL
 class _ActivityCarouselCard extends StatelessWidget {
@@ -380,17 +344,39 @@ class _ActivityCarouselCard extends StatelessWidget {
   }
 }
 
-class _HeaderDivider extends StatelessWidget {
-  final Color? color;
-  const _HeaderDivider({this.color});
+// Componente para los botones del menú de lado a lado
+class _QuickActionButton extends StatelessWidget {
+  final String label;
+  final Color textColor;
+  final VoidCallback onTap;
+
+  const _QuickActionButton({
+    required this.label,
+    required this.textColor,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 36,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      color: color ?? Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
+    return Material(
+      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.only(top: 30, bottom: 25),
+          alignment: Alignment.center,
+          child: Text(
+            label.toUpperCase(),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
