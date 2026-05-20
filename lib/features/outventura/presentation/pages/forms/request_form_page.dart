@@ -93,23 +93,23 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
     final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
 
-    // Si la solicitud ya tenía una reserva asociada
-    if (_controller.idReserva != null) {
-      // Busca la reserva asociada en el provider
-      final List<Booking> reservas = ref.watch(reservationsProvider).value ?? [];
-      final bool existe = reservas.any((r) => r.id == _controller.idReserva);
-      
-      if (!existe) {
-        // La reserva se eliminó, limpiar y mostrar error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(s.reservationNotFound)),
-        );
-        setState(() {
-          _controller.idReserva = null;
-          _controller.materialesSolicitados.clear();
-        });
-      }
+    // Busca la reserva asociada usando el provider (si hay idReserva).
+    final Booking? reservaAsociada = _controller.idReserva != null
+        ? ref.watch(reservationByIdProvider(_controller.idReserva!))
+        : null;
+
+    // Si la solicitud tenía una reserva asociada pero ya no existe (fue eliminada)
+    if (_controller.idReserva != null && reservaAsociada == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(s.reservationNotFound)),
+      );
+      setState(() {
+        _controller.idReserva = null;
+        _controller.materialesSolicitados.clear();
+      });
     }
+
+    final double cargoDanios = reservaAsociada?.damageFee ?? 0;
 
     final bool modoCliente = widget.initialIdUsuario != null;
 
@@ -124,12 +124,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     }
 
     final Activity? actividadSeleccionada = _controller.buscarActividadSeleccionada(actividades);
-
-    final List<Booking> todasReservas = ref.watch(reservationsProvider).value ?? [];
-    final Booking? reservaAsociada = _controller.idReserva != null
-        ? todasReservas.where((Booking r) => r.id == _controller.idReserva).firstOrNull
-        : null;
-    final double cargoDanios = reservaAsociada?.damageFee ?? 0;
 
     final double totalPrice = _controller.calcularPrecioTotal(actividades, equipamientos);
     final double topPadding = MediaQuery.of(context).padding.top + kToolbarHeight;
@@ -291,12 +285,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                   final int cantidad = entry.value;
                   final String nombre = ref.watch(equipmentNameProvider(idEquipamiento));
 
-                  // equipamientos es la lista de todos los equipos disponibles.
-                  // .cast<Equipment?>() asegura que la lista se trate como nullable por si acaso.
-                  // .firstWhere((e) => e?.id == idEquipamiento, orElse: () => null) busca el primer equipo cuyo id coincide con idEquipamiento.
-                  //    Si lo encuentra, devuelve ese objeto.
-                  //    Si no lo encuentra, devuelve null.
-                  final Equipment? item = equipamientos.cast<Equipment?>().firstWhere((e) => e?.id == idEquipamiento, orElse: () => null);
+                  // Usa el provider cacheado para buscar el equipamiento por ID.
+                  final Equipment? item = ref.watch(equipmentByIdProvider(idEquipamiento));
                   
                   final double? precioDiario = item?.pricePerDay;
 
@@ -376,7 +366,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 final int cantidad = entry.value;
                 
                 final String nombre = ref.watch(equipmentNameProvider(idEquipamiento));
-                final Equipment? item = equipamientos.cast<Equipment?>().firstWhere((e) => e?.id == idEquipamiento, orElse: () => null);
+                // Usa el provider cacheado para buscar el equipamiento por ID.
+                final Equipment? item = ref.watch(equipmentByIdProvider(idEquipamiento));
                 final double? precioDiario = item?.pricePerDay;
 
                 return Padding(
@@ -531,9 +522,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 label: s.editReservationBtn,
                 icon: Icons.book_online_outlined,
                 onPressed: () async {
-                  // Busca la reserva asociada en el provider
-                  final List<Booking> reservas = ref.read(reservationsProvider).value ?? [];
-                  final Booking? reservaAsociada = _controller.buscarReserva(reservas, _controller.idReserva!);
+                  // Lee la reserva asociada del provider cacheado.
+                  final Booking? reservaAsociada = ref.read(reservationByIdProvider(_controller.idReserva!));
 
                   // Si no se encuentra la reserva asociada sale de la función
                   if (reservaAsociada == null) return;

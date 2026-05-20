@@ -53,3 +53,10 @@ final reservationByIdProvider = Provider.family<Booking?, int>((ref, id) {
   final int index = reservas.indexWhere((Booking r) => r.id == id);
   return index != -1 ? reservas[index] : null;
 });
+
+// Resuelve un equipamiento completo por su ID.
+final equipmentByIdProvider = Provider.family<Equipment?, int>((ref, id) {
+  final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+  final int index = equipamientos.indexWhere((Equipment e) => e.id == id);
+  return index != -1 ? equipamientos[index] : null;
+});

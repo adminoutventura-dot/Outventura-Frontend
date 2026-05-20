@@ -72,22 +72,30 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
           ),
         ],
       ),
+      // Solo muestra el FAB de añadir si el usuario tiene permiso para crear reservas (puedeCrear = true).
       floatingActionButton: widget.puedeCrear
           ? AddFab(
               onPressed: () async {
+                // Navega a la página de formulario de reserva. 
                 final Booking? nueva = await Navigator.of(context)
                     .push<Booking>(
                       MaterialPageRoute(
                         builder: (_) => const ReservationFormPage(),
                       ),
                     );
+
+                // Si el resultado es null, el usuario canceló la creación y no se hace nada.
                 if (nueva == null) {
                   return;
                 }
+                // Agrega la nueva reserva al estado global mediante el notifier.
                 notifier.agregar(nueva);
+
                 if (!context.mounted) {
                   return;
                 }
+
+                // Muestra un snackbar de éxito.
                 showSuccessSnackBar(context, s.reservationCreated);
               },
             )
@@ -111,13 +119,16 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
               onChanged: (String v) => setState(() => _search.query = v),
             ),
           ),
-          // Lista
+
+          // Lista de reservas filtradas
           Expanded(
             child: filtradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text(s.error(error.toString()))),
               data: (List<Booking> lista) => lista.isEmpty
+                // Si no hay reservas que mostrar, se muestra un mensaje.
                 ? Center(child: Text(s.noReservations, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)))
+                // Si hay reservas, se muestra la lista de tarjetas de reserva.
                 : ListView.separated(
                     padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
                     itemCount: lista.length,
@@ -125,60 +136,62 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                     itemBuilder: (_, int i) {
                       final Booking res = lista[i];
 
-                      VoidCallback? onAprobar;
-                      if (widget.puedeGestionar && res.status == BookingStatus.pendiente) {
-                        onAprobar = () => mostrarDialogoAprobacion(context, res, () => notifier.aprobar(res));
-                      }
-
-                      VoidCallback? onRechazar;
-                      if (widget.puedeGestionar && res.status == BookingStatus.pendiente) {
-                        onRechazar = () => mostrarDialogoRechazo(context, res, () => notifier.rechazar(res));
-                      }
-
-                      VoidCallback? onRegistrarDevolucion;
-                      if (widget.puedeGestionar && res.status == BookingStatus.enCurso) {
-                        onRegistrarDevolucion = () => mostrarDialogoDevolucion(context, res, () => notifier.registrarDevolucion(res));
-                      }
-
-                      VoidCallback? onCancelar;
-                      if (widget.puedeGestionar && res.status == BookingStatus.confirmada) {
-                        onCancelar = () => mostrarDialogoCancelacion( context, res, () => notifier.cancelar(res));
-                      } else if (!widget.puedeGestionar && (res.status == BookingStatus.pendiente || res.status == BookingStatus.confirmada)) {
-                        onCancelar = () => mostrarDialogoCancelacion( context, res, () => notifier.cancelar(res));
-                      }
-
+                      // Para cada reserva, se construye una ReservationCard.
                       return ReservationCard(
                         reserva: res,
+                        // Para mostrar el nombre e imagen de cada material en la reserva, 
+                        // se mapean las líneas de reserva a una lista de objetos que contienen el nombre, imagen y cantidad de cada material.
                         lineas: res.lines.map((BookingLine linea) => (
                           nombre: ref.watch(equipmentNameProvider(linea.equipmentId)),
                           imagen: ref.watch(equipmentImageProvider(linea.equipmentId)),
                           cantidad: linea.quantity,
                         )).toList(),
-                        
+
                         nombreUsuario: ref.watch(userNameProvider(res.userId)),
                         nombreActividad: ref.watch(activityNameProvider(res.activityId)),
+
+                        // Si el usuario no puede gestionar reservas y la reserva no está pendiente, no se permite editar.
                         onEditar: (!widget.puedeGestionar && res.status != BookingStatus.pendiente)
                             ? null
-                            : () async { 
-                          final Booking? resultado = await Navigator.of(context) .push<Booking>(
-                            MaterialPageRoute( 
-                              builder: (BuildContext _) =>
-                              ReservationFormPage( reserva: res, initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id),
+                            : () async {
+                          // Navega a la página de formulario de reserva para editar la reserva.
+                          final Booking? resultado = await Navigator.of(context).push<Booking>(
+                            MaterialPageRoute(
+                              builder: (BuildContext _) => ReservationFormPage(
+                                reserva: res,
+                                initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+                              ),
                             ),
                           );
+
                           if (resultado == null) {
                             return;
                           }
+
+                          // Actualiza la reserva en el estado global mediante el notifier.
                           notifier.actualizar(res, resultado);
+
                           if (!context.mounted) {
                             return;
                           }
+
                           showSuccessSnackBar(context, s.reservationUpdated);
                         },
-                        onAprobar: onAprobar,
-                        onRechazar: onRechazar,
-                        onRegistrarDevolucion: onRegistrarDevolucion,
-                        onCancelar: onCancelar,
+
+                        
+                        onAprobar: widget.puedeGestionar && res.status == BookingStatus.pendiente
+                            ? () => mostrarDialogoAprobacion(context, res, () => notifier.aprobar(res))
+                            : null,
+                        onRechazar: widget.puedeGestionar && res.status == BookingStatus.pendiente
+                            ? () => mostrarDialogoRechazo(context, res, () => notifier.rechazar(res))
+                            : null,
+                        onRegistrarDevolucion: widget.puedeGestionar && res.status == BookingStatus.enCurso
+                            ? () => mostrarDialogoDevolucion(context, res, () => notifier.registrarDevolucion(res))
+                            : null,
+                        onCancelar: (widget.puedeGestionar && res.status == BookingStatus.confirmada) ||
+                                    (!widget.puedeGestionar && (res.status == BookingStatus.pendiente || res.status == BookingStatus.confirmada))
+                            ? () => mostrarDialogoCancelacion(context, res, () => notifier.cancelar(res))
+                            : null,
                         onVerDetalle: () => Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => ReservationDetailPage(reserva: res),

@@ -12,7 +12,6 @@ import 'package:outventura/core/widgets/app_time_selector.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
@@ -20,6 +19,7 @@ import 'package:outventura/features/outventura/presentation/controllers/reservat
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
 import 'package:outventura/core/widgets/bottom_price_bar.dart';
 
@@ -94,12 +94,15 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     // Se pone a true cuando se pasa una reserva existente para editar.
     final bool isEdit = widget.reserva != null;
     final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
-    final User? usuarioActual = ref.watch(currentUserProvider);
+    
     // modoCliente = true cuando el formulario se abre desde el perfil de un cliente concreto.
     // En ese caso el dropdown de usuario queda deshabilitado.
     final bool modoCliente = widget.initialIdUsuario != null;
-    // ID del usuario que se usará: el pasado como parámetro (modo cliente) o el usuario en sesión.
-    final int? idUsuarioFijado = widget.initialIdUsuario ?? usuarioActual?.id;
+    
+    // ID del usuario que se usará: el pasado como parámetro (modo cliente).
+    // En modo admin es null y se elige del dropdown.
+    final int? idUsuarioFijado = widget.initialIdUsuario;
+
     // Precio total = alquiler de materiales + cargo por daños si los hay.
     final double totalPrice = _controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos);
 
@@ -316,15 +319,9 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                     builder: (_) {
                       final BookingLine linea = _controller.lineas[i];
 
-                      // Busca el equipamiento correspondiente en la lista.
+                      // Resuelve el equipamiento por ID usando el provider.
                       // Usa el primero como fallback si no se encuentra (no debería ocurrir).
-                      Equipment equip = equipamientos.first;
-                      for (final Equipment eq in equipamientos) {
-                        if (eq.id == linea.equipmentId) {
-                          equip = eq;
-                          break;
-                        }
-                      }
+                      final Equipment equip = ref.watch(equipmentByIdProvider(linea.equipmentId)) ?? equipamientos.first;
 
                       // Número de unidades de este equipamiento marcadas como dañadas.
                       final int daniadas = _controller.cantidadDaniada(linea.equipmentId);

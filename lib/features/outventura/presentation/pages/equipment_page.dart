@@ -138,8 +138,10 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                 }
 
                 final Equipment equipamiento = lista[index];
+                // Card de equipamiento
                 return EquipmentCard(
                   equipamiento: equipamiento,
+                  // Editar solo si puede gestionar
                   onEditar: widget.puedeGestionar
                       ? () async {
                           final Equipment? actualizado =
@@ -161,6 +163,8 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           showSuccessSnackBar(context, s.materialUpdated);
                         }
                       : null,
+
+                  // Eliminar solo si puede gestionar
                   onEliminar: widget.puedeGestionar
                       ? () async {
                           final bool confirm = await showConfirmDialog(
@@ -173,6 +177,8 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           }
                         }
                       : null,
+
+                  // Alquilar solo si puede solicitar 
                   onAlquilar: widget.puedeSolicitar
                       ? () async {
                           final usuario = ref.read(currentUserProvider);

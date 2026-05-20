@@ -31,14 +31,14 @@ class RequestDetailPage extends ConsumerWidget {
 
     final Color accentColor = switch (solicitud.status) {
       RequestStatus.confirmada => cs.primary,
-      RequestStatus.pendiente  => cs.tertiary,
-      RequestStatus.enCurso    => cs.secondary,
+      RequestStatus.pendiente => cs.tertiary,
+      RequestStatus.enCurso => cs.secondary,
       RequestStatus.finalizada => cs.secondary.withValues(alpha: 0.35),
-      RequestStatus.cancelada  => cs.error,
+      RequestStatus.cancelada => cs.error,
     };
 
     return Scaffold(
-// CustomScrollView porque necesitamos: SliverAppBar que se colapsa y Contenido normal debajo (SliverToBoxAdapter)
+      // CustomScrollView porque necesitamos: SliverAppBar que se colapsa y Contenido normal debajo (SliverToBoxAdapter)
       body: CustomScrollView(
         slivers: [
           // Header 
@@ -59,12 +59,15 @@ class RequestDetailPage extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // Participantes
                       Expanded(
                         child: DetailStatItem(
                           label: s.participants,
                           value: '${solicitud.participantCount}',
                         ),
                       ),
+
+                      // Precio total (solo si es > 0)
                       if (solicitud.totalPrice > 0) ...[
                         const SizedBox(width: 12),
                         Container(width: 1, height: 36, color: cs.outlineVariant),
@@ -76,6 +79,8 @@ class RequestDetailPage extends ConsumerWidget {
                           ),
                         ),
                       ],
+
+                      // Materiales solicitados (solo si hay)
                       if (solicitud.requestedMaterials.isNotEmpty) ...[
                         const SizedBox(width: 12),
                         Container(width: 1, height: 36, color: cs.outlineVariant),
@@ -95,21 +100,30 @@ class RequestDetailPage extends ConsumerWidget {
                   DetailSection(
                     title: s.generalInfo,
                     children: [
+                      // Usuario
                       if (nombreUsuario != null)
                         DetailRow(Icons.person_outline, s.user, nombreUsuario),
+
+                      // Experto asignado
                       if (nombreExperto != null)
                         DetailRow(Icons.star_outline, s.assignedExpert, nombreExperto),
+
+                      // Participantes
                       DetailRow(
                         Icons.group_outlined,
                         s.participants,
                         s.participantsCount(solicitud.participantCount),
                       ),
+
+                      // Total precio
                       if (solicitud.totalPrice > 0)
                         DetailRow(
                           Icons.euro_outlined,
                           s.totalPrice,
                           s.priceEur(solicitud.totalPrice.toStringAsFixed(2)),
                         ),
+
+                      // Reserva asociada
                       if (reserva != null)
                         DetailRow(
                           Icons.book_online_outlined,
@@ -125,21 +139,28 @@ class RequestDetailPage extends ConsumerWidget {
                     DetailSection(
                       title: s.actividad,
                       children: [
+                        // Ruta
                         DetailRow(
                           Icons.hiking_outlined,
                           s.route,
                           '${actividad.startPoint} - ${actividad.endPoint}',
                         ),
+
+                        // Fechas inicio
                         DetailRow(
                           Icons.calendar_today_outlined,
                           s.start,
                           FormateadorFecha.withTime(actividad.initDate),
                         ),
+
+                        // Fechas fin
                         DetailRow(
                           Icons.event_outlined,
                           s.end,
                           FormateadorFecha.withTime(actividad.endDate),
                         ),
+
+                        // Precio por persona (solo si es > 0)
                         if (actividad.price > 0)
                           DetailRow(
                             Icons.euro_outlined,

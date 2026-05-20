@@ -44,9 +44,11 @@ class _UserFormPageState extends State<UserFormPage> {
     super.dispose();
   }
 
-  // Valida el formulario y, si es correcto, construye el usuario y lo devuelve al llamador.
+  // Valida el formulario y, si es correcto, construye el usuario y lo devuelve.
   void _submit() {
-    if (!_controller.validar()) return;
+    if (!_controller.validar()) {
+      return;
+    }
     final User usuario = _controller.construirUsuario();
     Navigator.of(context).pop(usuario);
   }
@@ -84,16 +86,16 @@ class _UserFormPageState extends State<UserFormPage> {
                 ),
               ),
               const SizedBox(height: 20),
-
+              // Sección de datos personales
               Text(
                 s.userDataSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
 
-              // Nombre y Apellidos
               Row(
                 children: [
+                  // Nombre
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.nombre,
@@ -103,6 +105,7 @@ class _UserFormPageState extends State<UserFormPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
+                  // Apellidos
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.apellidos,
@@ -153,6 +156,7 @@ class _UserFormPageState extends State<UserFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
+              // Chips de roles
               AppChipWrap(
                 children: UserRole.values.map((UserRole rol) {
                   final bool seleccionado = _controller.rol == rol;
@@ -168,11 +172,13 @@ class _UserFormPageState extends State<UserFormPage> {
               // Estado activo
               Row(
                 children: [
+                  // Etiqueta "Usuario activo"
                   Text(
                     s.activeUser.toUpperCase(),
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   const Spacer(),
+                  // Switch para activar/desactivar el usuario.
                   Switch(
                     value: _controller.activo,
                     onChanged: (bool v) => setState(() => _controller.activo = v),

@@ -45,6 +45,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
+
     final usuarioActual = ref.watch(currentUserProvider);
     final AsyncValue<List<Request>> filtradas = ref.watch(filteredRequestsProvider((
       query: _search.query,
@@ -71,25 +72,35 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
           ),
         ],
       ),
+      // Solo muestra el FAB de añadir si el usuario tiene permiso para crear solicitudes.
       floatingActionButton: widget.puedeCrear
           ? AddFab(
               onPressed: () async {
+                // Navega al formulario de creación de solicitud. 
                 final Request? nueva = await Navigator.of(context)
                     .push<Request>(
                       MaterialPageRoute(
                         builder: (_) => const SolicitudFormPage(),
                       ),
                     );
+
                 if (nueva == null) {
                   return;
                 }
+
+                // Si se ha creado una nueva solicitud, la agrega al provider de solicitudes.
                 ref.read(requestsProvider.notifier).agregar(nueva);
+
                 if (!context.mounted) {
                   return;
                 }
+
+                // Muestra un snackbar de éxito. 
+                // Si la solicitud se ha convertido automáticamente en reserva, muestra un mensaje diferente.
                 final String mensaje = nueva.reservationId != null
                     ? s.requestCreatedWithReservation
                     : s.requestCreated;
+
                 showSuccessSnackBar(context, mensaje);
               },
             )
@@ -114,32 +125,50 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
               onChanged: (String v) => setState(() => _search.query = v),
             ),
           ),
-          // Lista
+
+          // Lista de solicitudes filtradas
           Expanded(
             child: filtradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text(s.error(error.toString()))),
               data: (List<Request> lista) => lista.isEmpty
+                // Si no hay solicitudes que mostrar, se muestra un mensaje. 
                 ? Center(
                     child: Text(
                       s.noRequests,
                       style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   )
+
+                // Si hay solicitudes, se muestran en una lista.
                 : ListView.separated(
                     padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
                     itemCount: lista.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (BuildContext context, int index) {
+                      // solicitud actual
                       final Request soli = lista[index];
+                      // Actividad asociada a la solicitud
                       final Activity? actividad = ref.watch(activityByIdProvider(soli.activityId));
-
+                      // Nombre del usuario que hizo la solicitud (si existe)
                       final String? nombreUsuario = soli.userId != null
                           ? ref.watch(userNameProvider(soli.userId!))
                           : null;
-
-                      if (actividad == null) return const SizedBox.shrink();
-
+                      
+                      // Si no se encuentra la actividad muestra la card con un mensaje
+                      if (actividad == null) {
+                        return Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text(
+                              'Solicitud #${soli.id}: Actividad no encontrada',
+                              style: tt.bodySmall?.copyWith(color: cs.error),
+                            ),
+                          ),
+                        );
+                      }
+                      
+                      // Card de solicitud
                       return RequestCard(
                         solicitud: soli,
                         actividad: actividad,
@@ -149,18 +178,10 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                         onGestionar:
                             widget.puedeGestionar &&
                                 soli.status == RequestStatus.pendiente
-                            ? () => _controller.aceptar(
-                                solicitud: soli,
-                                context: context,
-                                ref: ref,
-                              )
+                            ? () => _controller.aceptar( solicitud: soli, context: context, ref: ref)
                             : null,
                         onCancelar: soli.status == RequestStatus.pendiente
-                            ? () => _controller.rechazar(
-                                solicitud: soli,
-                                context: context,
-                                ref: ref,
-                              )
+                            ? () => _controller.rechazar( solicitud: soli, context: context, ref: ref)
                             : null,
                         onEditar: (!widget.puedeGestionar && soli.status != RequestStatus.pendiente)
                             ? null
@@ -172,6 +193,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                                 fixedIdUsuario: widget.puedeGestionar ? null : ref.read(currentUserProvider)?.id,
                               ),
                         onVerDetalle: () {
+                          // Navega a la página de detalle de la solicitud al pulsar sobre la card.
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => RequestDetailPage(solicitud: soli),
                           ));

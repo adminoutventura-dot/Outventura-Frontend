@@ -61,21 +61,28 @@ class _MainScaffoldState extends State<MainScaffold> {
               unselectedItemColor: cs.onSurfaceVariant,
               backgroundColor: cs.surface,
               items: [
+                // Home
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.home_outlined),
                   activeIcon: const Icon(Icons.home),
                   label: s.tabHome,
                 ),
+
+                // Actividades
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.hiking_outlined),
                   activeIcon: const Icon(Icons.hiking),
                   label: s.tabActividades,
                 ),
+
+                // Equipamiento
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.inventory_2_outlined),
                   activeIcon: const Icon(Icons.inventory_2),
                   label: s.tabEquipment,
                 ),
+
+                // Calendario
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.calendar_today_outlined),
                   activeIcon: const Icon(Icons.calendar_today),

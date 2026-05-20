@@ -16,8 +16,7 @@ import 'package:outventura/features/outventura/presentation/pages/reservation_de
 import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/requests_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/users_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/legend_item.dart';
@@ -444,14 +443,7 @@ class HomeAdminPage extends ConsumerWidget {
                             .take(2))
                       EventoTile(
                         titulo: s.requestEvent(r.id),
-                        subtitulo:
-                            actividades
-                                .where((a) => a.id == r.activityId)
-                                .isNotEmpty
-                            ? actividades
-                                  .firstWhere((a) => a.id == r.activityId)
-                                  .title
-                            : s.unknown,
+                        subtitulo: ref.watch(activityByIdProvider(r.activityId))?.title ?? s.unknown,
                         color: cs.primary,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
@@ -469,14 +461,8 @@ class HomeAdminPage extends ConsumerWidget {
                             .take(2))
                       EventoTile(
                         titulo: s.reservationEvent(r.id),
-                        subtitulo:
-                            r.activityId != null &&
-                                actividades
-                                    .where((a) => a.id == r.activityId)
-                                    .isNotEmpty
-                            ? actividades
-                                  .firstWhere((a) => a.id == r.activityId)
-                                  .title
+                        subtitulo: r.activityId != null
+                            ? ref.watch(activityByIdProvider(r.activityId!))?.title ?? s.unknown
                             : s.unknown,
                         color: cs.tertiary,
                         onTap: () => Navigator.of(context).push(
