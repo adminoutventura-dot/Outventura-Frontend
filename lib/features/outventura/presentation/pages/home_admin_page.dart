@@ -1,4 +1,4 @@
-﻿import 'package:fl_chart/fl_chart.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +24,7 @@ import 'package:outventura/features/outventura/presentation/widgets/app_drawer.d
 import 'package:outventura/features/outventura/presentation/widgets/legend_item.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/weekly_bar_chart.dart';
+import 'package:outventura/features/outventura/presentation/widgets/home_app_bar_delegate.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
 class HomeAdminPage extends ConsumerWidget {
@@ -91,19 +92,20 @@ class HomeAdminPage extends ConsumerWidget {
           // -- HEADER COLAPSABLE --
           SliverPersistentHeader(
             pinned: true,
-            delegate: _HomeAppBarDelegate(
+            delegate: HomeAppBarDelegate(
               topPadding: MediaQuery.of(context).padding.top,
               title: s.adminPanel,
               greeting: greeting,
               dateStr: dateStr,
-              activitiesTodayLabel: s.activitiesToday,
-              reservationsTodayLabel: s.reservationsToday,
-              requestsActiveLabel: s.requestsActive,
-              actividadesHoy: actividadesHoy,
-              reservasHoy: reservasHoy,
-              enCurso: enCurso,
-              // Cambiar a 72.5 para contraer hasta la mitad
-              collapsedHeight: 32.0, 
+              statSlots: [
+                // Actividades de hoy
+                HomeStatSlot(value: '$actividadesHoy', label: s.activitiesToday),
+                // Reservas de hoy
+                HomeStatSlot(value: '$reservasHoy', label: s.reservationsToday),
+                // Solicitudes pendientes
+                HomeStatSlot(value: '$enCurso', label: s.requestsActive),
+              ],
+              collapsedHeight: 32.0,
             ),
           ),
 
@@ -125,7 +127,7 @@ class HomeAdminPage extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: StatCard(
-                            value: '${ingresosTotales.toStringAsFixed(0)} €',
+                            value: '${ingresosTotales.toStringAsFixed(0)} �',
                             label: s.revenue,
                             foregroundColor: cs.primary,
                           ),
@@ -217,7 +219,7 @@ class HomeAdminPage extends ConsumerWidget {
                     ),
                   ),
 
-                  // // GRÁFICO SEMANAL //
+                  // // GR�FICO SEMANAL //
                   const SizedBox(height: 28),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -503,185 +505,6 @@ class HomeAdminPage extends ConsumerWidget {
     });
     return (reservasData, solicitudesData);
   }
-}
-
-////////////
-class _HomeAppBarDelegate extends SliverPersistentHeaderDelegate {
-  static const double _kBottomHeight = 145.0;
-
-  final double topPadding;
-  final String title;
-  final String greeting;
-  final String dateStr;
-  final String activitiesTodayLabel;
-  final String reservationsTodayLabel;
-  final String requestsActiveLabel;
-  final int actividadesHoy;
-  final int reservasHoy;
-  final int enCurso;
-  final double collapsedHeight;
-
-  const _HomeAppBarDelegate({
-    required this.topPadding,
-    required this.title,
-    required this.greeting,
-    required this.dateStr,
-    required this.activitiesTodayLabel,
-    required this.reservationsTodayLabel,
-    required this.requestsActiveLabel,
-    required this.actividadesHoy,
-    required this.reservasHoy,
-    required this.enCurso,
-    this.collapsedHeight = 0.0,
-  });
-
-  @override
-  double get maxExtent => topPadding + kToolbarHeight + _kBottomHeight;
-
-  @override
-  double get minExtent => topPadding + kToolbarHeight + collapsedHeight;
-
-  @override
-  bool shouldRebuild(covariant _HomeAppBarDelegate old) =>
-      old.topPadding != topPadding ||
-      old.greeting != greeting ||
-      old.dateStr != dateStr ||
-      old.actividadesHoy != actividadesHoy ||
-      old.reservasHoy != reservasHoy ||
-      old.enCurso != enCurso;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final progress = (shrinkOffset / _kBottomHeight).clamp(0.0, 1.0);
-
-    return ClipPath(
-      clipper: AppBarClipper(),
-      child: Material(
-        elevation: overlapsContent ? 4 : 0,
-        color: Colors.transparent,
-        child: Container(
-          decoration: BoxDecoration(gradient: AppGradients.appBar(cs)),
-          child: Stack(
-            children: [
-              Positioned(
-                top: -40,
-                right: -40,
-                child: _circle(180, cs.onPrimary.withAlpha(18)),
-              ),
-              Positioned(
-                top: 20,
-                right: 90,
-                child: _circle(80, cs.onPrimary.withAlpha(12)),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: topPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Fila del toolbar (siempre visible)
-                    SizedBox(
-                      height: kToolbarHeight,
-                      child: Row(
-                        children: [
-                          Builder(
-                            builder: (ctx) => IconButton(
-                              icon: const Icon(Icons.menu),
-                              color: cs.onPrimary,
-                              onPressed: () => Scaffold.of(ctx).openDrawer(),
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: tt.titleMedium?.copyWith(
-                                color: cs.onPrimary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Contenido colapsable
-                    SizedBox(
-                      height: (maxExtent - shrinkOffset - topPadding - kToolbarHeight)
-                          .clamp(0.0, _kBottomHeight),
-                      child: OverflowBox(
-                        minHeight: 0,
-                        maxHeight: _kBottomHeight,
-                        alignment: Alignment.topLeft,
-                        child: Opacity(
-                          opacity: (1 - progress * 2).clamp(0.0, 1.0),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  greeting,
-                                  style: tt.titleLarge?.copyWith(
-                                    color: cs.onPrimary,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  dateStr,
-                                  style: tt.bodyMedium?.copyWith(
-                                    color: cs.onPrimary.withValues(alpha: 0.78),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: StatCard(
-                                        value: '$actividadesHoy',
-                                        label: activitiesTodayLabel,
-                                        foregroundColor: cs.onPrimary,
-                                      ),
-                                    ),
-                                    const _HeaderDivider(),
-                                    Expanded(
-                                      child: StatCard(
-                                        value: '$reservasHoy',
-                                        label: reservationsTodayLabel,
-                                        foregroundColor: cs.onPrimary,
-                                      ),
-                                    ),
-                                    const _HeaderDivider(),
-                                    Expanded(
-                                      child: StatCard(
-                                        value: '$enCurso',
-                                        label: requestsActiveLabel,
-                                        foregroundColor: cs.onPrimary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _circle(double size, Color color) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-      );
 }
 
 ////////////
