@@ -109,6 +109,7 @@
   "reservationsTitle": "Reserves",
   "searchByUserOrActividad": "Cercar per usuari o activitat...",
   "noReservations": "No hi ha reserves",
+  "reservationNotFound": "No s'ha trobat la reserva associada.",
   "reservationUpdated": "Reserva actualitzada correctament.",
 
   "requestManagement": "Gestió de sol·licituds",

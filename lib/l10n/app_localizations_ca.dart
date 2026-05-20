@@ -308,6 +308,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get noReservations => 'No hi ha reserves';
 
   @override
+  String get reservationNotFound => 'No s\'ha trobat la reserva associada.';
+
+  @override
   String get reservationUpdated => 'Reserva actualitzada correctament.';
 
   @override

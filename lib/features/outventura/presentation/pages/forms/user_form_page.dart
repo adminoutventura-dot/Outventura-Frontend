@@ -13,7 +13,7 @@ import 'package:outventura/features/auth/presentation/controllers/login_controll
 import 'package:outventura/features/auth/presentation/controllers/user_form_controller.dart';
 
 class UserFormPage extends StatefulWidget {
-  // Si se pasa un usuario, el formulario actúa como edición.
+  // Si se pasa un usuario, el formulario actúa en modo edición y precarga sus datos.
   final User? usuario;
 
   const UserFormPage({super.key, this.usuario});
@@ -31,6 +31,7 @@ class _UserFormPageState extends State<UserFormPage> {
     super.initState();
     _controller = UserFormController();
     _loginController = LoginController();
+    // Si se pasa un usuario existente, carga sus datos en el controlador (modo edición).
     if (widget.usuario != null) {
       _controller.cargarUsuario(widget.usuario!);
     }
@@ -43,6 +44,7 @@ class _UserFormPageState extends State<UserFormPage> {
     super.dispose();
   }
 
+  // Valida el formulario y, si es correcto, construye el usuario y lo devuelve al llamador.
   void _submit() {
     if (!_controller.validar()) return;
     final User usuario = _controller.construirUsuario();
@@ -51,14 +53,17 @@ class _UserFormPageState extends State<UserFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    final AppLocalizations s = AppLocalizations.of(context)!;
+    // Se pone a true dentro de cargarUsuario().
+    final bool isEdit = _controller.editando;
 
     return Scaffold(
       backgroundColor: cs.surface,
       extendBodyBehindAppBar: true,
-      appBar: CustomAppBar(title: _controller.editando ? s.editUser : s.newUser),
+      extendBody: true,
+      appBar: CustomAppBar(title: isEdit ? s.editUser : s.newUser),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom + 24),
         child: Form(
@@ -130,13 +135,13 @@ class _UserFormPageState extends State<UserFormPage> {
               const SizedBox(height: 14),
 
               // Contraseña (solo en creación)
-              if (!_controller.editando) ...[
+              if (!isEdit) ...[
                 CustomInputField(
                   controller: _loginController.passwordController,
                   labelText: s.password,
                   prefixIcon: Icons.lock_outline,
                   obscureText: true,
-                  validator: (String? v) => _loginController.validadorContrasena(_controller.editando, v, s),
+                  validator: (String? v) => _loginController.validadorContrasena(isEdit, v, s),
                 ),
                 const SizedBox(height: 20),
               ] else
@@ -188,7 +193,7 @@ class _UserFormPageState extends State<UserFormPage> {
                 child: PrimaryButton(
                   label: s.save,
                   onPressed: _submit,
-                  icon: _controller.editando ? Icons.save_outlined : Icons.person_add_outlined,
+                  icon: isEdit ? Icons.save_outlined : Icons.person_add_outlined,
                 ),
               ),
             ],

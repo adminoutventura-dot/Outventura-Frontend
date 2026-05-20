@@ -51,15 +51,16 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
   void initState() {
     super.initState();
     _controller = ReservationFormController();
-    // Si se ha pasado una reserva, cargar sus datos en el controlador.
+
     if (widget.reserva != null) {
+      // MODO EDICIÓN: carga todos los campos de la reserva existente.
       _controller.cargarReserva(widget.reserva!);
+      // Sobreescribe el usuario si el formulario se abrió desde el perfil de un cliente.
       if (widget.initialIdUsuario != null) {
         _controller.idUsuario = widget.initialIdUsuario;
       }
-
-      // Si no, aplicar valores iniciales (como el idUsuario).
     } else {
+      // MODO CREACIÓN: aplica valores iniciales (idUsuario, idActividad, equipamiento preseleccionado).
       _controller.aplicarValoresIniciales(
         idUsuario: widget.initialIdUsuario,
         idActividad: widget.initialIdActividad,
@@ -90,12 +91,20 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+    // Se pone a true cuando se pasa una reserva existente para editar.
+    final bool isEdit = widget.reserva != null;
     final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
     final User? usuarioActual = ref.watch(currentUserProvider);
+    // modoCliente = true cuando el formulario se abre desde el perfil de un cliente concreto.
+    // En ese caso el dropdown de usuario queda deshabilitado.
     final bool modoCliente = widget.initialIdUsuario != null;
+    // ID del usuario que se usará: el pasado como parámetro (modo cliente) o el usuario en sesión.
     final int? idUsuarioFijado = widget.initialIdUsuario ?? usuarioActual?.id;
+    // Precio total = alquiler de materiales + cargo por daños si los hay.
     final double totalPrice = _controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos);
 
+    // Lista de usuarios disponibles para el dropdown.
+    // En modo cliente se filtra para mostrar solo el usuario fijado.
     List<User> usuariosDisponibles = ref.read(usuariosProvider).value ?? [];
     if (modoCliente && idUsuarioFijado != null) {
       usuariosDisponibles = usuariosDisponibles
@@ -113,18 +122,21 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
       extendBodyBehindAppBar: true,
       extendBody: true,
       backgroundColor: cs.surface,
-      appBar: CustomAppBarForm(title: widget.reserva != null ? s.editReservation(widget.reserva!.id) : s.newReservation),
+      appBar: CustomAppBarForm(title: isEdit ? s.editReservation(widget.reserva!.id) : s.newReservation),
       bottomNavigationBar: BottomPriceBar(
         totalLabel: s.total,
         price: s.priceEur(totalPrice.toStringAsFixed(2)),
-        actionLabel: s.save,
+        actionLabel: isEdit ? s.save : s.create,
         onPressed: () {
+          // Validar que haya al menos una línea de reserva antes de guardar.
           if (_controller.lineas.isEmpty) {
             showErrorSnackBar(context, s.addAtLeastOneLine);
             return;
           }
+          // Construir el objeto Booking a partir del estado del formulario.
           final Booking? reserva = _controller.crearReserva(equipamientos);
           if (reserva == null) return;
+          // Devolver la reserva creada/editada a la pantalla anterior.
           Navigator.of(context).pop(reserva);
         },
       ),
@@ -135,13 +147,13 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Datos de la reserva
               Text(
                 s.reservationDataSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 18),
               // Usuario
-              const SizedBox(height: 8),
               AppDropdownField<User>(
                 value: _controller.idUsuario,
                 items: usuariosDisponibles,
@@ -190,6 +202,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
+                  // Selector de fecha de inicio
                   Expanded(
                     child: AppDateSelector(
                       label: s.from,
@@ -205,6 +218,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
+                  // Selector de fecha de fin
                   Expanded(
                     child: AppDateSelector(
                       label: s.to,
@@ -222,6 +236,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               // Horas
               Row(
                 children: [
+                  // Selector de hora de inicio
                   Expanded(
                     child: AppTimeSelector(
                       label: s.startTime,
@@ -231,6 +246,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
+                  // Selector de hora de fin
                   Expanded(
                     child: AppTimeSelector(
                       label: s.endTime,
@@ -245,11 +261,13 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
 
               // Estado (solo visible para trabajadores)
               if (!modoCliente) ...[
+                // Estado
                 Text(
                 s.status.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
                 const SizedBox(height: 8),
+                // Chips de estado
                 AppChipWrap(
                   children: BookingStatus.values.map((BookingStatus e) {
                     final bool seleccionado = _controller.estado == e;
@@ -267,6 +285,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Título y botón de añadir línea
                   Text(
                     s.reservationLines.toUpperCase(),
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
@@ -278,6 +297,8 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   ),
                 ],
               ),
+
+              // Si no hay líneas, muestra un mensaje. 
               if (_controller.lineas.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
@@ -286,12 +307,17 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                     style: tt.bodySmall?.copyWith(color: cs.error),
                   ),
                 )
+
+              // Si hay líneas, muestra una tarjeta por cada una.
               else
+                // Recorre las líneas de reserva y construye una tarjeta por cada una.
                 for (int i = 0; i < _controller.lineas.length; i++) ...[
                   Builder(
                     builder: (_) {
                       final BookingLine linea = _controller.lineas[i];
 
+                      // Busca el equipamiento correspondiente en la lista.
+                      // Usa el primero como fallback si no se encuentra (no debería ocurrir).
                       Equipment equip = equipamientos.first;
                       for (final Equipment eq in equipamientos) {
                         if (eq.id == linea.equipmentId) {
@@ -300,8 +326,10 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                         }
                       }
 
+                      // Número de unidades de este equipamiento marcadas como dañadas.
                       final int daniadas = _controller.cantidadDaniada(linea.equipmentId);
                       
+                      // Card de reserva 
                       return ReservationLineCard(
                         linea: linea,
                         equipamiento: equip,
@@ -333,6 +361,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               const Divider(),
               
               // Daños
+              // Si hay líneas con equipamiento dañado
               if (_controller.lineas.isNotEmpty) ...[
                 const SizedBox(height: 5),
                 Padding(
@@ -340,7 +369,9 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Etiqueta: Total de daños
                       Text(s.total, style: tt.labelMedium?.copyWith(color: cs.onPrimaryContainer)),
+                      // Precio total de los daños
                       Text(
                         s.priceEur(
                           (_controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos)).toStringAsFixed(2),
@@ -356,7 +387,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               const SizedBox(height: 16),
 
               // Botón de borrar (solo en modo edición)
-              if (widget.reserva != null) ...[
+              if (isEdit) ...[
                 const SizedBox(height: 20),
                 SecondaryButton(
                   label: s.deleteReservation,

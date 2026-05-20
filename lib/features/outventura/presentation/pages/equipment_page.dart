@@ -13,7 +13,7 @@ import 'package:outventura/features/outventura/presentation/pages/forms/reservat
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
+import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/equipment_card.dart';

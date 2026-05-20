@@ -6,7 +6,7 @@ import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/reservations_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
+import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';

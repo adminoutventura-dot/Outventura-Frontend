@@ -670,6 +670,12 @@ abstract class AppLocalizations {
   /// **'No hay reservas'**
   String get noReservations;
 
+  /// No description provided for @reservationNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontró la reserva asociada.'**
+  String get reservationNotFound;
+
   /// No description provided for @reservationUpdated.
   ///
   /// In es, this message translates to:

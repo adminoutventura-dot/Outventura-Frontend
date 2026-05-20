@@ -306,6 +306,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noReservations => 'No reservations';
 
   @override
+  String get reservationNotFound => 'Associated reservation not found.';
+
+  @override
   String get reservationUpdated => 'Reservation updated successfully.';
 
   @override

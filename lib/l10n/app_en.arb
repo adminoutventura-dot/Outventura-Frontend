@@ -109,6 +109,7 @@
   "reservationsTitle": "Reservations",
   "searchByUserOrActividad": "Search by user or activity...",
   "noReservations": "No reservations",
+  "reservationNotFound": "Associated reservation not found.",
   "reservationUpdated": "Reservation updated successfully.",
 
   "requestManagement": "Request management",

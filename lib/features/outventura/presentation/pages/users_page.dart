@@ -7,7 +7,7 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/users_page_controller.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/user_form_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/search_controller.dart';
+import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';

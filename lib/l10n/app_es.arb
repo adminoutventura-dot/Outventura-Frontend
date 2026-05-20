@@ -114,6 +114,7 @@
   "reservationsTitle": "Reservas",
   "searchByUserOrActividad": "Buscar por usuario o actividad...",
   "noReservations": "No hay reservas",
+  "reservationNotFound": "No se encontró la reserva asociada.",
   "reservationUpdated": "Reserva actualizada correctamente.",
 
   "requestManagement": "Gestión de solicitudes",
