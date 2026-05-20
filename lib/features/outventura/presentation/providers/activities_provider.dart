@@ -44,6 +44,25 @@ final filteredActivitiesProvider = Provider.family<AsyncValue<List<Activity>>, (
   });
 });
 
+// Últimas [count] actividades.
+final recentActivitiesProvider = Provider.family<List<Activity>, int>((ref, count) {
+  return (ref.watch(activitiesProvider).value ?? []).take(count).toList();
+});
+
+// Categorías más populares ordenadas por número de actividades, limitado a [limit].
+final popularCategoriesProvider = Provider.family<List<MapEntry<Category, int>>, int>((ref, limit) {
+  final actividades = ref.watch(activitiesProvider).value ?? [];
+  final categoriasCount = <Category, int>{};
+  for (final act in actividades) {
+    for (final cat in act.categories) {
+      categoriasCount[cat] = (categoriasCount[cat] ?? 0) + 1;
+    }
+  }
+  return (categoriasCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
+      .take(limit)
+      .toList();
+});
+
 class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   @override
   // TEMPORAL: reemplazar cuerpo por await dio.get('/actividades') y eliminar import de activities_fake.dart.

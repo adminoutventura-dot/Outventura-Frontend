@@ -6,7 +6,6 @@ import 'package:outventura/features/outventura/presentation/widgets/stat_card.da
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/pages/activities_page.dart';
@@ -39,31 +38,13 @@ class HomeClientePage extends ConsumerWidget {
     final rawDate = DateFormat.yMMMMEEEEd(locale).format(today);
     final dateStr = rawDate[0].toUpperCase() + rawDate.substring(1);
 
-    final List<Booking> misReservas = (ref.watch(reservationsProvider).value ?? [])
-        .where((Booking r) => r.userId == usuario.id)
-        .toList();
-    final List<Request> misSolicitudes = (ref.watch(requestsProvider).value ?? [])
-        .where((Request s) => s.userId == usuario.id)
-        .toList();
-    final int solicitudesPendientes = misSolicitudes
-        .where((Request s) => s.status == RequestStatus.pendiente)
-        .length;
-    final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
-    
-    // Actividades recientes (últimas 5)
-    final actividadesRecientes = actividades.take(5).toList();
-    
-    // Categorías más populares
-    final categoriasCount = <Category, int>{};
-    for (final act in actividades) {
-      for (final cat in act.categories) {
-        categoriasCount[cat] = (categoriasCount[cat] ?? 0) + 1;
-      }
-    }
-
-    // Ordenar categorías por número de actividades y convertir a lista.
-    final categoriasPopulares = categoriasCount.entries.toList();
-    categoriasPopulares.sort((categoria1, categoria2) => categoria2.value.compareTo(categoria1.value));
+    final List<Booking> misReservas = ref.watch(userReservationsProvider(usuario.id));
+    final List<Request> misSolicitudes = ref.watch(userRequestsProvider(usuario.id));
+    final int solicitudesPendientes = ref.watch(userPendingRequestsCountProvider(usuario.id));
+    // Últimas 5 actividades para el carrusel
+    final actividadesRecientes = ref.watch(recentActivitiesProvider(5));
+    // Top 4 categorías ordenadas por número de actividades
+    final categoriasPopulares = ref.watch(popularCategoriesProvider(4));
 
     return Scaffold(
       backgroundColor: cs.surface,

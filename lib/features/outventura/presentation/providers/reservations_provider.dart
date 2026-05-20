@@ -66,6 +66,13 @@ final filteredReservationsProvider = Provider.family<AsyncValue<List<Booking>>, 
   });
 });
 
+// Reservas pertenecientes a un usuario concreto.
+final userReservationsProvider = Provider.family<List<Booking>, int>((ref, userId) {
+  return (ref.watch(reservationsProvider).value ?? [])
+      .where((r) => r.userId == userId)
+      .toList();
+});
+
 // --- Notifier ---
 class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
   @override

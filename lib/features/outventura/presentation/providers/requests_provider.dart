@@ -63,6 +63,20 @@ final filteredRequestsProvider = Provider.family<AsyncValue<List<Request>>, ({St
   });
 });
 
+// Solicitudes pertenecientes a un usuario concreto.
+final userRequestsProvider = Provider.family<List<Request>, int>((ref, userId) {
+  return (ref.watch(requestsProvider).value ?? [])
+      .where((s) => s.userId == userId)
+      .toList();
+});
+
+// Número de solicitudes pendientes de un usuario.
+final userPendingRequestsCountProvider = Provider.family<int, int>((ref, userId) {
+  return ref.watch(userRequestsProvider(userId))
+      .where((s) => s.status == RequestStatus.pendiente)
+      .length;
+});
+
 class RequestsNotifier extends AsyncNotifier<List<Request>> {
   @override
   // TEMPORAL: reemplazar cuerpo por await dio.get('/solicitudes') y eliminar import de requests_fake.dart.

@@ -98,14 +98,21 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
         ? ref.watch(reservationByIdProvider(_controller.idReserva!))
         : null;
 
-    // Si la solicitud tenía una reserva asociada pero ya no existe (fue eliminada)
-    if (_controller.idReserva != null && reservaAsociada == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(s.reservationNotFound)),
-      );
-      setState(() {
-        _controller.idReserva = null;
-        _controller.materialesSolicitados.clear();
+    // Detecta si la reserva fue eliminada externamente y limpia el estado.
+    if (_controller.idReserva != null) {
+      ref.listen(reservationByIdProvider(_controller.idReserva!), (prev, next) {
+        if (prev != null && next == null && mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(s.reservationNotFound)),
+            );
+            setState(() {
+              _controller.idReserva = null;
+              _controller.materialesSolicitados.clear();
+            });
+          });
+        }
       });
     }
 
