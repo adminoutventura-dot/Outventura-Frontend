@@ -14,6 +14,7 @@ import 'package:outventura/features/outventura/presentation/providers/reservatio
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
+import 'package:outventura/features/outventura/presentation/controllers/calendar_page_controller.dart';
 import 'package:outventura/app/theme/app_text_styles.dart';
 import 'package:outventura/core/widgets/evento_tile.dart';
 
@@ -31,38 +32,7 @@ class CalendarPage extends ConsumerStatefulWidget {
 class _CalendarPageState extends ConsumerState<CalendarPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-
-  // Devuelve todos los eventos (reservas y solicitudes) que ocurren en el día.
-  List<Object> _eventosDelDia(
-    DateTime day,
-    List<Booking> misReservas,
-    List<Request> misSolicitudes,
-    List<Activity> actividades,
-  ) {
-    final normalized = DateTime(day.year, day.month, day.day);
-    final List<Object> result = [];
-
-    for (final r in misReservas) {
-      final start = DateTime(r.startDate.year, r.startDate.month, r.startDate.day);
-      final end = DateTime(r.endDate.year, r.endDate.month, r.endDate.day);
-      if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
-        result.add(r);
-      }
-    }
-
-    for (final s in misSolicitudes) {
-      final act = actividades.where((e) => e.id == s.activityId).firstOrNull;
-      if (act != null) {
-        final start = DateTime(act.initDate.year, act.initDate.month, act.initDate.day);
-        final end = DateTime(act.endDate.year, act.endDate.month, act.endDate.day);
-        if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
-          result.add(s);
-        }
-      }
-    }
-
-    return result;
-  }
+  final _controller = CalendarPageController();
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +56,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
         .toList();
 
     final eventosSeleccionados = _selectedDay != null
-        ? _eventosDelDia(_selectedDay!, misReservas, misSolicitudes, actividades)
+        ? _controller.eventosDelDia(_selectedDay!, misReservas, misSolicitudes, actividades)
         : <Object>[];
 
     return Scaffold(
@@ -121,7 +91,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               onPageChanged: (focusedDay) {
                 _focusedDay = focusedDay;
               },
-              eventLoader: (day) => _eventosDelDia(day, misReservas, misSolicitudes, actividades),
+              eventLoader: (day) => _controller.eventosDelDia(day, misReservas, misSolicitudes, actividades),
               locale: Localizations.localeOf(context).toString(),
               startingDayOfWeek: StartingDayOfWeek.monday,
 
