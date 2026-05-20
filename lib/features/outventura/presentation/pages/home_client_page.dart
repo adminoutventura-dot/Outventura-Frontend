@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:outventura/app/theme/app_gradients.dart';
-import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/widgets/evento_tile.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';

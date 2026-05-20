@@ -2,13 +2,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:outventura/app/theme/app_gradients.dart';
-import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/evento_tile.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
-import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/pages/request_detail_page.dart';
@@ -25,6 +22,7 @@ import 'package:outventura/features/outventura/presentation/widgets/legend_item.
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/weekly_bar_chart.dart';
 import 'package:outventura/features/outventura/presentation/widgets/home_app_bar_delegate.dart';
+import 'package:outventura/features/outventura/presentation/models/weekly_data.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
 class HomeAdminPage extends ConsumerWidget {
@@ -73,11 +71,11 @@ class HomeAdminPage extends ConsumerWidget {
         )
         .fold(0.0, (sum, r) => sum + r.totalPrice);
 
-    final weeklyData = _getWeeklyData(
-      reservas,
-      solicitudes,
-      actividades,
-      today,
+    final weeklyData = WeeklyData.calculate(
+      reservas: reservas,
+      solicitudes: solicitudes,
+      actividades: actividades,
+      today: today,
     );
 
     final rawDate = DateFormat.yMMMMEEEEd(locale).format(today);
@@ -118,16 +116,17 @@ class HomeAdminPage extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // // KPI CARDS //
                   const SizedBox(height: 20),
+                  // INFORMACIÓN PRINCIPAL EN EL HEADER
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Ingresos totales
                         Expanded(
                           child: StatCard(
-                            value: '${ingresosTotales.toStringAsFixed(0)} �',
+                            value: '${ingresosTotales.toStringAsFixed(0)} €',
                             label: s.revenue,
                             foregroundColor: cs.primary,
                           ),
@@ -135,6 +134,8 @@ class HomeAdminPage extends ConsumerWidget {
                         _HeaderDivider(
                           color: cs.onSurfaceVariant.withValues(alpha: 0.20),
                         ),
+
+                        // Total de usuarios
                         Expanded(
                           child: StatCard(
                             value: '${usuarios.length}',
@@ -145,6 +146,8 @@ class HomeAdminPage extends ConsumerWidget {
                         _HeaderDivider(
                           color: cs.onSurfaceVariant.withValues(alpha: 0.20),
                         ),
+
+                        // Total de reservas
                         Expanded(
                           child: StatCard(
                             value: '${reservas.length}',
@@ -155,6 +158,8 @@ class HomeAdminPage extends ConsumerWidget {
                         _HeaderDivider(
                           color: cs.onSurfaceVariant.withValues(alpha: 0.20),
                         ),
+
+                        // Total de solicitudes
                         Expanded(
                           child: StatCard(
                             value: '${solicitudes.length}',
@@ -168,7 +173,7 @@ class HomeAdminPage extends ConsumerWidget {
                     ),
                   ),
 
-                  // // QUICK ACTIONS //
+                  // ACTIONS 
                   const SizedBox(height: 28),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -185,6 +190,7 @@ class HomeAdminPage extends ConsumerWidget {
                       spacing: 8,
                       runSpacing: 4,
                       children: [
+                        // Usuarios
                         SecondaryButton(
                           label: s.usersTitle,
                           onPressed: () => Navigator.of(context).push(
@@ -193,6 +199,8 @@ class HomeAdminPage extends ConsumerWidget {
                             ),
                           ),
                         ),
+
+                        // Reservas
                         SecondaryButton(
                           label: s.reservationsTitle,
                           onPressed: () => Navigator.of(context).push(
@@ -204,6 +212,8 @@ class HomeAdminPage extends ConsumerWidget {
                             ),
                           ),
                         ),
+
+                        // Solicitudes
                         SecondaryButton(
                           label: s.requestsTitle,
                           onPressed: () => Navigator.of(context).push(
@@ -219,7 +229,7 @@ class HomeAdminPage extends ConsumerWidget {
                     ),
                   ),
 
-                  // // GR�FICO SEMANAL //
+                  // GRÁFICO SEMANAL
                   const SizedBox(height: 28),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -248,26 +258,18 @@ class HomeAdminPage extends ConsumerWidget {
                         ],
                       ),
                       child: WeeklyBarChart(
-                        reservasData: weeklyData.$1,
-                        solicitudesData: weeklyData.$2,
+                        reservasData: weeklyData.reservasData,
+                        solicitudesData: weeklyData.solicitudesData,
                         cs: cs,
                         tt: tt,
-                        dayLabels: [
-                          s.mon,
-                          s.tue,
-                          s.wed,
-                          s.thu,
-                          s.fri,
-                          s.sat,
-                          s.sun,
-                        ],
+                        dayLabels: [ s.mon, s.tue, s.wed, s.thu, s.fri, s.sat, s.sun],
                         reservasLabel: s.reservationsTitle,
                         solicitudesLabel: s.requestsTitle,
                       ),
                     ),
                   ),
 
-                  // // PIE CHART //
+                  // Texto: estado actual de solicitudes
                   const SizedBox(height: 28),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -276,6 +278,8 @@ class HomeAdminPage extends ConsumerWidget {
                       style: tt.labelLarge?.copyWith(color: cs.onSurface),
                     ),
                   ),
+
+                  // Gráfico de pastel con número de solicitudes por estado
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Container(
@@ -294,6 +298,7 @@ class HomeAdminPage extends ConsumerWidget {
                           ),
                         ],
                       ),
+                      // Si no hay solicitudes, muestra un mensaje centrado. 
                       child: solicitudes.isEmpty
                           ? Center(
                               child: Padding(
@@ -308,6 +313,7 @@ class HomeAdminPage extends ConsumerWidget {
                             )
                           : Row(
                               children: [
+                                // Gráfico de pastel con segmentos para cada estado de solicitud.
                                 SizedBox(
                                   width: 120,
                                   height: 120,
@@ -316,92 +322,38 @@ class HomeAdminPage extends ConsumerWidget {
                                       sectionsSpace: 2,
                                       centerSpaceRadius: 24,
                                       sections: [
-                                        if (pendientes > 0)
-                                          PieChartSectionData(
-                                            value: pendientes.toDouble(),
-                                            color: cs.tertiary,
-                                            radius: 28,
-                                            showTitle: false,
-                                          ),
-                                        if (confirmadas > 0)
-                                          PieChartSectionData(
-                                            value: confirmadas.toDouble(),
-                                            color: cs.primary,
-                                            radius: 28,
-                                            showTitle: false,
-                                          ),
-                                        if (enCurso > 0)
-                                          PieChartSectionData(
-                                            value: enCurso.toDouble(),
-                                            color: cs.secondary,
-                                            radius: 28,
-                                            showTitle: false,
-                                          ),
-                                        if (finalizadas > 0)
-                                          PieChartSectionData(
-                                            value: finalizadas.toDouble(),
-                                            color: cs.onSurfaceVariant,
-                                            radius: 28,
-                                            showTitle: false,
-                                          ),
-                                        if (canceladas > 0)
-                                          PieChartSectionData(
-                                            value: canceladas.toDouble(),
-                                            color: cs.error,
-                                            radius: 28,
-                                            showTitle: false,
-                                          ),
+                                        if (pendientes > 0) 
+                                          PieChartSectionData(value: pendientes.toDouble(), color: cs.tertiary, radius: 28, showTitle: false),
+                                        if (confirmadas > 0) 
+                                          PieChartSectionData(value: confirmadas.toDouble(), color: cs.primary, radius: 28, showTitle: false),
+                                        if (enCurso > 0) 
+                                          PieChartSectionData(value: enCurso.toDouble(), color: cs.secondary, radius: 28, showTitle: false),
+                                        if (finalizadas > 0) 
+                                          PieChartSectionData(value: finalizadas.toDouble(), color: cs.onSurfaceVariant, radius: 28, showTitle: false),
+                                        if (canceladas > 0) 
+                                          PieChartSectionData(value: canceladas.toDouble(), color: cs.error, radius: 28, showTitle: false),
                                       ],
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 20),
+                                // Leyenda con número de solicitudes por estado.
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      if (pendientes > 0)
-                                        LegendItem(
-                                          color: cs.tertiary,
-                                          label: s.pending,
-                                          value: pendientes,
-                                          tt: tt,
-                                          cs: cs,
-                                        ),
-                                      if (confirmadas > 0)
-                                        LegendItem(
-                                          color: cs.primary,
-                                          label: s.confirmed,
-                                          value: confirmadas,
-                                          tt: tt,
-                                          cs: cs,
-                                        ),
-                                      if (enCurso > 0)
-                                        LegendItem(
-                                          color: cs.secondary,
-                                          label: s.inProgress,
-                                          value: enCurso,
-                                          tt: tt,
-                                          cs: cs,
-                                        ),
-                                      if (finalizadas > 0)
-                                        LegendItem(
-                                          color: cs.onSurfaceVariant,
-                                          label: s.finished,
-                                          value: finalizadas,
-                                          tt: tt,
-                                          cs: cs,
-                                        ),
-                                      if (canceladas > 0)
-                                        LegendItem(
-                                          color: cs.error,
-                                          label: s.cancelled,
-                                          value: canceladas,
-                                          tt: tt,
-                                          cs: cs,
-                                        ),
+                                      if (pendientes > 0) 
+                                        LegendItem(color: cs.tertiary, label: s.pending, value: pendientes, tt: tt, cs: cs),
+                                      if (confirmadas > 0) 
+                                        LegendItem(color: cs.primary, label: s.confirmed, value: confirmadas, tt: tt, cs: cs),
+                                      if (enCurso > 0) 
+                                        LegendItem(color: cs.secondary, label: s.inProgress, value: enCurso, tt: tt, cs: cs),
+                                      if (finalizadas > 0) 
+                                        LegendItem(color: cs.onSurfaceVariant, label: s.finished, value: finalizadas, tt: tt, cs: cs),
+                                      if (canceladas > 0) 
+                                        LegendItem(color: cs.error, label: s.cancelled, value: canceladas, tt: tt, cs: cs),
                                     ],
                                   ),
                                 ),
@@ -410,7 +362,7 @@ class HomeAdminPage extends ConsumerWidget {
                     ),
                   ),
 
-                  // // ACTIVIDAD RECIENTE //
+                  // ACTIVIDAD RECIENTE 
                   if (solicitudes
                           .where((r) => r.status == RequestStatus.pendiente)
                           .isNotEmpty ||
@@ -430,10 +382,8 @@ class HomeAdminPage extends ConsumerWidget {
                       ),
                     ),
 
-                    for (final r
-                        in solicitudes
-                            .where((r) => r.status == RequestStatus.pendiente)
-                            .take(2))
+                    // Muestra hasta 2 solicitudes pendientes y 2 reservas activas más recientes y un botón para ver todas.
+                    for (final r in solicitudes.where((r) => r.status == RequestStatus.pendiente).take(2))
                       EventoTile(
                         titulo: s.requestEvent(r.id),
                         subtitulo: ref.watch(activityByIdProvider(r.activityId))?.title ?? s.unknown,
@@ -444,14 +394,9 @@ class HomeAdminPage extends ConsumerWidget {
                           ),
                         ),
                       ),
-                    for (final r
-                        in reservas
-                            .where(
-                              (r) =>
-                                  r.status == BookingStatus.confirmada ||
-                                  r.status == BookingStatus.enCurso,
-                            )
-                            .take(2))
+
+                    // Recorre las reservas confirmadas o en curso, muestra las 2 más recientes y un botón para ver todas.
+                    for (final r in reservas.where( (r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso).take(2))
                       EventoTile(
                         titulo: s.reservationEvent(r.id),
                         subtitulo: r.activityId != null
@@ -473,41 +418,9 @@ class HomeAdminPage extends ConsumerWidget {
       ),
     );
   }
-
-  (List<double>, List<double>) _getWeeklyData(
-    List<Booking> reservas,
-    List<Request> solicitudes,
-    List<Activity> actividades,
-    DateTime today,
-  ) {
-    final monday = today.subtract(Duration(days: today.weekday - 1));
-    final reservasData = List.generate(7, (i) {
-      final day = DateTime(monday.year, monday.month, monday.day + i);
-      final dayEnd = day.add(const Duration(days: 1));
-      return reservas
-          .where((r) => r.startDate.isBefore(dayEnd) && r.endDate.isAfter(day))
-          .length
-          .toDouble();
-    });
-    final solicitudesData = List.generate(7, (i) {
-      final day = DateTime(monday.year, monday.month, monday.day + i);
-      final dayEnd = day.add(const Duration(days: 1));
-      return solicitudes
-          .where((s) {
-            final act = actividades
-                .where((a) => a.id == s.activityId)
-                .firstOrNull;
-            if (act == null) return false;
-            return act.initDate.isBefore(dayEnd) && act.endDate.isAfter(day);
-          })
-          .length
-          .toDouble();
-    });
-    return (reservasData, solicitudesData);
-  }
 }
 
-////////////
+// Divisor vertical para separar las StatCards en el header.
 class _HeaderDivider extends StatelessWidget {
   final Color? color;
 
