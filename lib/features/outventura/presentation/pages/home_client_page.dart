@@ -34,12 +34,9 @@ class HomeClientePage extends ConsumerWidget {
     final rawDate = DateFormat.yMMMMEEEEd(locale).format(today);
     final dateStr = rawDate[0].toUpperCase() + rawDate.substring(1);
 
-    // Si usuario.id es nulo, pasa un 0 de forma segura.
-    final int safeId = usuario.id ?? 0;
-
-    final List<Booking> misReservas = ref.watch(userReservationsProvider(safeId));
-    final List<Request> misSolicitudes = ref.watch(userRequestsProvider(safeId));
-    final int solicitudesPendientes = ref.watch(userPendingRequestsCountProvider(safeId));
+    final List<Booking> misReservas = ref.watch(userReservationsProvider(usuario.id!));
+    final List<Request> misSolicitudes = ref.watch(userRequestsProvider(usuario.id!));
+    final int solicitudesPendientes = ref.watch(userPendingRequestsCountProvider(usuario.id!));
 
     // Últimas 5 actividades para el carrusel
     final actividadesRecientes = ref.watch(recentActivitiesProvider(5));
