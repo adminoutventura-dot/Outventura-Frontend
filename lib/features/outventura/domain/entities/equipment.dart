@@ -97,7 +97,7 @@ class Equipment {
     'price_per_day': pricePerDay,
     'damage_fee': damageFee,
     'status': status.code,
-    // Las categorías se asignan por separado: POST /equipment/:id/category/:catId
+    'categoryCodes': categories.map((Category c) => c.code).toList(),
   };
 
   // Crea un nuevo material a partir del actual, permitiendo modificar algunos campos.

@@ -36,7 +36,6 @@ class Activity {
   final String? startEndPoint;
   final List<Category> categories;
   final int? guideId;
-  // TODO: Campos solo en front: imageAsset, materialsPerParticipant.
   final String? imageAsset;
   final ActivityStatus status;
   final double price;
@@ -82,7 +81,7 @@ class Activity {
       startEndPoint: map['start_end_point'] as String?,
       categories: parsedCategories,
       guideId: map['guideId'] as int?,
-      imageAsset: map['imageAsset'] as String?,
+      imageAsset: map['image_asset'] as String?,
       status: map['status'] != null
           ? ActivityStatus.fromString(map['status'] as String)
           : ActivityStatus.disponible,
@@ -96,7 +95,6 @@ class Activity {
   }
 
   // Convierte la actividad a un mapa para enviar al backend.
-  // Los campos solo del front (imageAsset, materialsPerParticipant) se omiten.
   Map<String, dynamic> toMap() => {
     'title': title,
     'description': description,
@@ -105,10 +103,14 @@ class Activity {
     'difficulty': difficulty,
     'max_participants': maxParticipants,
     'start_end_point': startEndPoint,
+    'image_asset': imageAsset,
     'guideId': guideId,
     'status': status.code,
     'price': price,
-    // Las categorías se asignan por separado: POST /activity/:id/category/:catId
+    'categoryCodes': categories.map((Category c) => c.code).toList(),
+    'materialRequirements': materialsPerParticipant.entries
+        .map((e) => {'equipmentId': e.key, 'quantity': e.value})
+        .toList(),
   };
 
   // Crea una nueva actividad a partir de la actual, permitiendo modificar algunos campos.
