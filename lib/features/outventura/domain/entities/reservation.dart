@@ -35,14 +35,20 @@ enum BookingStatus {
 class BookingLine {
   final int equipmentId;
   final int quantity;
+  final double priceAtMoment;
 
-  const BookingLine({required this.equipmentId, required this.quantity});
+  const BookingLine({
+    required this.equipmentId,
+    required this.quantity,
+    this.priceAtMoment = 0,
+  });
 
   // Crea una línea de reserva a partir de un mapa (del backend al frontend).
   factory BookingLine.fromMap(Map<String, dynamic> map) {
     return BookingLine(
       equipmentId: (map['equipmentId'] ?? map['id_equipment']) as int,
       quantity: (map['quantity'] as num).toInt(),
+      priceAtMoment: (map['price_at_moment'] as num?)?.toDouble() ?? 0,
     );
   }
 
@@ -50,12 +56,14 @@ class BookingLine {
   Map<String, dynamic> toMap() => {
     'equipmentId': equipmentId,
     'quantity': quantity,
+    'price_at_moment': priceAtMoment,
   };
 
-  BookingLine copyWith({int? equipmentId, int? quantity}) {
+  BookingLine copyWith({int? equipmentId, int? quantity, double? priceAtMoment}) {
     return BookingLine(
       equipmentId: equipmentId ?? this.equipmentId,
       quantity: quantity ?? this.quantity,
+      priceAtMoment: priceAtMoment ?? this.priceAtMoment,
     );
   }
 }
@@ -69,6 +77,7 @@ class Booking {
   final DateTime startDate;
   final DateTime endDate;
   final BookingStatus status;
+  final double totalPrice;
   final double damageFee;
   final Map<int, int> damagedItems;
 
@@ -80,6 +89,7 @@ class Booking {
     required this.startDate,
     required this.endDate,
     required this.status,
+    this.totalPrice = 0,
     this.damageFee = 0,
     this.damagedItems = const {},
   });
@@ -121,8 +131,9 @@ class Booking {
       startDate: startDate,
       endDate: endDate,
       status: BookingStatus.fromString(statusCode),
-      damageFee: (map['damageFee'] as num?)?.toDouble() ?? 0,
-      damagedItems: (map['damagedItems'] as Map<String, dynamic>?)?.map(
+      totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
+      damageFee: (map['damage_fee'] as num?)?.toDouble() ?? 0,
+      damagedItems: (map['damaged_items'] as Map<String, dynamic>?)?.map(
             (k, v) => MapEntry(int.parse(k), (v as num).toInt()),
           ) ??
           {},
@@ -132,12 +143,10 @@ class Booking {
   // Convierte la reserva a un mapa para enviar al backend.
   Map<String, dynamic> toMap() => {
     'userId': userId,
-    'activityId': activityId,
-    'startDate': startDate.toIso8601String(),
-    'endDate': endDate.toIso8601String(),
+    'status': status.code,
     'lines': lines.map((l) => l.toMap()).toList(),
-    'damageFee': damageFee,
-    'damagedItems': damagedItems.map((k, v) => MapEntry(k.toString(), v)),
+    'damage_fee': damageFee,
+    'damaged_items': damagedItems.map((k, v) => MapEntry(k.toString(), v)),
   };
 
   // Crea una copia de la reserva con algunos campos modificados (inmutable).
@@ -149,6 +158,7 @@ class Booking {
     DateTime? startDate,
     DateTime? endDate,
     BookingStatus? status,
+    double? totalPrice,
     double? damageFee,
     Map<int, int>? damagedItems,
   }) {
@@ -160,6 +170,7 @@ class Booking {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       status: status ?? this.status,
+      totalPrice: totalPrice ?? this.totalPrice,
       damageFee: damageFee ?? this.damageFee,
       damagedItems: damagedItems ?? this.damagedItems,
     );

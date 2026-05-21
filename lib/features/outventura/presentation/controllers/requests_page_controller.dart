@@ -108,7 +108,7 @@ class RequestsPageController {
     if (!context.mounted) {
       return;
     }
-    if (result.reservationId != null && solicitud.reservationId == null) {
+    if (result.bookingId != null && solicitud.bookingId == null) {
       final s = AppLocalizations.of(context)!;
       showSuccessSnackBar(context, s.materialReservationCreated);
     }

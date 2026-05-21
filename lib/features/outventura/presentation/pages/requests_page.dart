@@ -97,7 +97,7 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
 
                 // Muestra un snackbar de éxito. 
                 // Si la solicitud se ha convertido automáticamente en reserva, muestra un mensaje diferente.
-                final String mensaje = nueva.reservationId != null
+                final String mensaje = nueva.bookingId != null
                     ? s.requestCreatedWithReservation
                     : s.requestCreated;
 

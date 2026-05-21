@@ -38,9 +38,9 @@ class RequestFormController {
     idActividad = solicitud.activityId;
     participantesCtrl.text = '${solicitud.participantCount}';
     estado = solicitud.status;
-    idExperto = solicitud.expertId;
+    idExperto = solicitud.guideId;
     idUsuario = solicitud.userId;
-    idReserva = solicitud.reservationId;
+    idReserva = solicitud.bookingId;
     materialesSolicitados = Map<int, int>.from(solicitud.requestedMaterials);
   }
 
@@ -77,9 +77,9 @@ class RequestFormController {
       activityId: idActividad!,
       participantCount: numeroParticipantes,
       status: estado,
-      expertId: idExperto,
+      guideId: idExperto,
       userId: idUsuario,
-      reservationId: idReserva,
+      bookingId: idReserva,
       requestedMaterials: Map<int, int>.from(materialesSolicitados),
       totalPrice: precio,
     );
@@ -194,7 +194,7 @@ class RequestFormController {
   // Sincroniza la reserva existente con los datos actuales de la solicitud.
   Booking? sincronizarReserva(Request solicitud, List<Booking> reservas) {
     // Obtiene el ID de la reserva asociada a la solicitud.
-    final int? idRes = solicitud.reservationId;
+    final int? idRes = solicitud.bookingId;
     if (idRes == null) {
       return null;
     }

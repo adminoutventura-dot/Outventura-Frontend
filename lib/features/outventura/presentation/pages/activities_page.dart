@@ -220,7 +220,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
 
                           // Muestra un snackbar de éxito. 
                           // El mensaje varía si la solicitud tiene una reserva asociada o no.
-                          final String mensaje = solicitud.reservationId != null
+                          final String mensaje = solicitud.bookingId != null
                               ? s.requestCreatedWithReservation
                               : s.requestCreated;
                           showSuccessSnackBar(context, mensaje);

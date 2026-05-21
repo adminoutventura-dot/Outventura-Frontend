@@ -165,9 +165,9 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
           final Booking? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
 
           // Si hay una reserva actualizada o creada, y la solicitud tiene un ID de reserva asociado
-          if (reservaActualizada != null && solicitud.reservationId != null) {
+          if (reservaActualizada != null && solicitud.bookingId != null) {
             // Buscar la reserva original en la lista de reservas usando el ID de reserva de la solicitud
-            final Booking? original = _controller.buscarReserva(reservasActuales, solicitud.reservationId!);
+            final Booking? original = _controller.buscarReserva(reservasActuales, solicitud.bookingId!);
             // Si se encuentra la reserva original, actualizarla en el provider
             if (original != null) {
               ref.read(reservationsProvider.notifier).actualizar(original, reservaActualizada);

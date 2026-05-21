@@ -147,7 +147,7 @@ class RequestCard extends StatelessWidget {
 
                     // Experto
                     Text(
-                      solicitud.expertId != null ? s.assignedExpert : s.noExpert,
+                      solicitud.guideId != null ? s.assignedExpert : s.noExpert,
                       style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
 

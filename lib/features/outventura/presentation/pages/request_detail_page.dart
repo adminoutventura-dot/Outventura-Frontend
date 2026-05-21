@@ -22,11 +22,11 @@ class RequestDetailPage extends ConsumerWidget {
     final String? nombreUsuario = solicitud.userId != null
         ? ref.watch(userNameProvider(solicitud.userId!))
         : null;
-    final String? nombreExperto = solicitud.expertId != null
-        ? ref.watch(userNameProvider(solicitud.expertId!))
+    final String? nombreExperto = solicitud.guideId != null
+        ? ref.watch(userNameProvider(solicitud.guideId!))
         : null;
-    final reserva = solicitud.reservationId != null
-        ? ref.watch(reservationByIdProvider(solicitud.reservationId!))
+    final reserva = solicitud.bookingId != null
+        ? ref.watch(reservationByIdProvider(solicitud.bookingId!))
         : null;
 
     final Color accentColor = switch (solicitud.status) {

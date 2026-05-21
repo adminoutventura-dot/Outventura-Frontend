@@ -6,25 +6,25 @@ enum RequestStatus {
   finalizada,
   cancelada;
 
-  String get label {
+  String get code {
     switch (this) {
       case RequestStatus.pendiente:
-        return 'Pendiente';
+        return 'PENDING';
       case RequestStatus.confirmada:
-        return 'Confirmada';
+        return 'CONFIRMED';
       case RequestStatus.enCurso:
-        return 'En curso';
+        return 'IN_PROGRESS';
       case RequestStatus.finalizada:
-        return 'Finalizada';
+        return 'FINISHED';
       case RequestStatus.cancelada:
-        return 'Cancelada';
+        return 'CANCELLED';
     }
   }
 
   // Crea un estado a partir del valor en texto que devuelve el backend.
   static RequestStatus fromString(String value) {
     for (RequestStatus status in RequestStatus.values) {
-      if (status.label.toLowerCase() == value.toLowerCase()) {
+      if (status.code == value) {
         return status;
       }
     }
@@ -32,19 +32,16 @@ enum RequestStatus {
   }
 }
 
-// TODO: El backend no tiene modelo de Solicitud; alinear campos cuando exista.
 // Entidad de solicitud.
 class Request {
   final int id;
   final int activityId;
   final int participantCount;
   final RequestStatus status;
-  final int? expertId;
+  final int? guideId;
   final int? userId;
-  final int? reservationId;
-  // Materiales solicitados finales: {idEquipamiento: cantidad}.
+  final int? bookingId;
   final Map<int, int> requestedMaterials;
-  // Precio total calculado (excursión + materiales).
   final double totalPrice;
 
   const Request({
@@ -52,9 +49,9 @@ class Request {
     required this.activityId,
     required this.participantCount,
     required this.status,
-    this.expertId,
+    this.guideId,
     this.userId,
-    this.reservationId,
+    this.bookingId,
     this.requestedMaterials = const {},
     this.totalPrice = 0,
   });
@@ -62,45 +59,42 @@ class Request {
   // Crea una Solicitud a partir del JSON que devuelve el backend.
   factory Request.fromMap(Map<String, dynamic> map) {
     return Request(
-      id: map['id'] as int,
+      id: map['id_request'] as int,
       activityId: map['activityId'] as int,
-      participantCount: map['participantCount'] as int,
+      participantCount: (map['participant_count'] as num).toInt(),
       status: RequestStatus.fromString(map['status'] as String),
-      expertId: map['expertId'] as int?,
+      guideId: map['guideId'] as int?,
       userId: map['userId'] as int?,
-      reservationId: map['reservationId'] as int?,
+      bookingId: map['bookingId'] as int?,
       requestedMaterials:
-          // El backend devuelve los materiales solicitados como un mapa de strings a números, por ejemplo: {"1": 2, "3": 5}.
-          (map['requestedMaterials'] as Map<String, dynamic>?)?.map(
+          (map['requested_materials'] as Map<String, dynamic>?)?.map(
             (String key, dynamic value) =>
                 MapEntry(int.parse(key), (value as num).toInt()),
           ) ??
           const {},
-      totalPrice: (map['totalPrice'] as num?)?.toDouble() ?? 0,
+      totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
     );
   }
 
-  // Convierte la solicitud a un mapa. El backend no tiene modelo de Solicitud aún.
   Map<String, dynamic> toMap() => {
     'activityId': activityId,
-    'participantCount': participantCount,
-    'status': status.label,
-    'expertId': expertId,
+    'participant_count': participantCount,
+    'status': status.code,
+    'guideId': guideId,
     'userId': userId,
-    'reservationId': reservationId,
-    'requestedMaterials':
+    'bookingId': bookingId,
+    'requested_materials':
         requestedMaterials.map((k, v) => MapEntry(k.toString(), v)),
-    'totalPrice': totalPrice,
+    'total_price': totalPrice,
   };
 
-  // Crea una nueva solicitud a partir de la actual, permitiendo modificar algunos campos.
   Request copyWith({
     int? activityId,
     int? participantCount,
     RequestStatus? status,
-    int? expertId,
+    int? guideId,
     int? userId,
-    int? reservationId,
+    int? bookingId,
     Map<int, int>? requestedMaterials,
     double? totalPrice,
   }) {
@@ -109,9 +103,9 @@ class Request {
       activityId: activityId ?? this.activityId,
       participantCount: participantCount ?? this.participantCount,
       status: status ?? this.status,
-      expertId: expertId ?? this.expertId,
+      guideId: guideId ?? this.guideId,
       userId: userId ?? this.userId,
-      reservationId: reservationId ?? this.reservationId,
+      bookingId: bookingId ?? this.bookingId,
       requestedMaterials: requestedMaterials ?? this.requestedMaterials,
       totalPrice: totalPrice ?? this.totalPrice,
     );
