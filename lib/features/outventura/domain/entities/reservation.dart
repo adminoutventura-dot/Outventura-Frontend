@@ -74,8 +74,6 @@ class Booking {
   final int userId;
   final List<BookingLine> lines;
   final int? activityId;
-  final DateTime startDate;
-  final DateTime endDate;
   final BookingStatus status;
   final double totalPrice;
   final double damageFee;
@@ -86,8 +84,6 @@ class Booking {
     required this.userId,
     required this.lines,
     this.activityId,
-    required this.startDate,
-    required this.endDate,
     required this.status,
     this.totalPrice = 0,
     this.damageFee = 0,
@@ -107,17 +103,6 @@ class Booking {
             ? (linesRaw.first as Map<String, dynamic>)['activityId'] as int?
             : null);
 
-    // Las fechas vienen de la actividad vinculada; si no existen, se usa created_at como fallback.
-    final DateTime fallback = map['created_at'] != null
-        ? DateTime.parse(map['created_at'] as String)
-        : DateTime.now();
-    final DateTime startDate = map['startDate'] != null
-        ? DateTime.parse(map['startDate'] as String)
-        : fallback;
-    final DateTime endDate = map['endDate'] != null
-        ? DateTime.parse(map['endDate'] as String)
-        : fallback;
-
     final dynamic statusRaw = map['status'];
     final String statusCode = statusRaw is String
         ? statusRaw
@@ -128,8 +113,6 @@ class Booking {
       userId: (map['userId'] ?? map['id_user']) as int,
       lines: lines,
       activityId: activityId,
-      startDate: startDate,
-      endDate: endDate,
       status: BookingStatus.fromString(statusCode),
       totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
       damageFee: (map['damage_fee'] as num?)?.toDouble() ?? 0,
@@ -155,8 +138,6 @@ class Booking {
     int? userId,
     List<BookingLine>? lines,
     int? activityId,
-    DateTime? startDate,
-    DateTime? endDate,
     BookingStatus? status,
     double? totalPrice,
     double? damageFee,
@@ -167,8 +148,6 @@ class Booking {
       userId: userId ?? this.userId,
       lines: lines ?? this.lines,
       activityId: activityId ?? this.activityId,
-      startDate: startDate ?? this.startDate,
-      endDate: endDate ?? this.endDate,
       status: status ?? this.status,
       totalPrice: totalPrice ?? this.totalPrice,
       damageFee: damageFee ?? this.damageFee,

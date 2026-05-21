@@ -23,10 +23,12 @@ class WeeklyData {
     final reservasData = List.generate(7, (i) {
       final day = DateTime(monday.year, monday.month, monday.day + i);
       final dayEnd = day.add(const Duration(days: 1));
-      return reservas
-          .where((r) => r.startDate.isBefore(dayEnd) && r.endDate.isAfter(day))
-          .length
-          .toDouble();
+      // Para reservas, usa las fechas de la Activity asociada
+      return reservas.where((r) {
+        final act = actividades.where((a) => a.id == r.activityId).firstOrNull;
+        if (act == null) return false;
+        return act.initDate.isBefore(dayEnd) && act.endDate.isAfter(day);
+      }).length.toDouble();
     });
     final solicitudesData = List.generate(7, (i) {
       final day = DateTime(monday.year, monday.month, monday.day + i);

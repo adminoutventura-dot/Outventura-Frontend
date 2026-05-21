@@ -149,6 +149,8 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
 
                         nombreUsuario: ref.watch(userNameProvider(res.userId)),
                         nombreActividad: ref.watch(activityNameProvider(res.activityId)),
+                        activityStartDate: res.activityId != null ? ref.watch(activityByIdProvider(res.activityId!))?.initDate : null,
+                        activityEndDate: res.activityId != null ? ref.watch(activityByIdProvider(res.activityId!))?.endDate : null,
 
                         // Si el usuario no puede gestionar reservas y la reserva no está pendiente, no se permite editar.
                         onEditar: (!widget.puedeGestionar && res.status != BookingStatus.pendiente)
@@ -159,6 +161,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                             MaterialPageRoute(
                               builder: (BuildContext _) => ReservationFormPage(
                                 reserva: res,
+                                initialActivity: res.activityId != null ? ref.read(activityByIdProvider(res.activityId!)) : null,
                                 initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
                               ),
                             ),

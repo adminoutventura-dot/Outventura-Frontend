@@ -538,7 +538,12 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                   // Navega a la página de edición de reserva, pasando la reserva asociada
                   final Booking? actualizada = await Navigator.of(context).push<Booking>(
                     MaterialPageRoute(
-                      builder: (_) => ReservationFormPage(reserva: reservaAsociada),
+                      builder: (_) => ReservationFormPage(
+                        reserva: reservaAsociada,
+                        initialActivity: reservaAsociada.activityId != null 
+                            ? ref.read(activityByIdProvider(reservaAsociada.activityId!)) 
+                            : null,
+                      ),
                     ),
                   );
                   // Si se devuelve una reserva actualizada, actualízala en el provider

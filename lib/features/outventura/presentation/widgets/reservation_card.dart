@@ -13,6 +13,8 @@ class ReservationCard extends StatelessWidget {
   final List<LineaDisplayInfo> lineas;
   final String nombreUsuario;
   final String? nombreActividad;
+  final DateTime? activityStartDate;
+  final DateTime? activityEndDate;
 
   final VoidCallback? onEditar;
   final VoidCallback? onAprobar;
@@ -27,6 +29,8 @@ class ReservationCard extends StatelessWidget {
     required this.lineas,
     required this.nombreUsuario,
     this.nombreActividad,
+    this.activityStartDate,
+    this.activityEndDate,
     this.onEditar,
     this.onAprobar,
     this.onRechazar,
@@ -140,31 +144,32 @@ class ReservationCard extends StatelessWidget {
                               const SizedBox(height: 8),
 
                               // Fechas y horas
+                              if (activityStartDate != null && activityEndDate != null)
                               Wrap(
                                 spacing: 10,
                                 runSpacing: 4,
                                 children: [
-                                  // Fechas de la reserva
+                                  // Fechas de la actividad
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(Icons.calendar_today_outlined, size: 13, color: cs.onSurfaceVariant),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${FormateadorFecha.short(reserva.startDate)} – ${FormateadorFecha.short(reserva.endDate)}',
+                                        '${FormateadorFecha.short(activityStartDate!)} – ${FormateadorFecha.short(activityEndDate!)}',
                                         style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                                       ),
                                     ],
                                   ),
 
-                                  // Horario de la reserva
+                                  // Horario de la actividad
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(Icons.schedule_outlined, size: 13, color: cs.onSurfaceVariant),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${FormateadorFecha.timeOnly(reserva.startDate)} – ${FormateadorFecha.timeOnly(reserva.endDate)}',
+                                        '${FormateadorFecha.timeOnly(activityStartDate!)} – ${FormateadorFecha.timeOnly(activityEndDate!)}',
                                         style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                                       ),
                                     ],

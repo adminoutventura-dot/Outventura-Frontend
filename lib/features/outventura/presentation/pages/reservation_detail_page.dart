@@ -31,8 +31,8 @@ class ReservationDetailPage extends ConsumerWidget {
     // calcularPrecioReserva gestiona el mínimo de 1 día internamente.
     final double totalAlquiler = calcularPrecioReserva(
       lineas: reserva.lines,
-      fechaDesde: reserva.startDate,
-      fechaHasta: reserva.endDate,
+      fechaDesde: actividad?.initDate ?? DateTime.now(),
+      fechaHasta: actividad?.endDate ?? DateTime.now(),
       equipamientos: equipamientos,
     );
 
@@ -63,23 +63,25 @@ class ReservationDetailPage extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Participantes
-                      Expanded(
-                        child: DetailStatItem(
-                          label: s.start,
-                          value: FormateadorFecha.short(reserva.startDate),
+                      if (actividad != null) ...[
+                        Expanded(
+                          child: DetailStatItem(
+                            label: s.start,
+                            value: FormateadorFecha.short(actividad.initDate),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(width: 1, height: 36, color: cs.outlineVariant),
-                      const SizedBox(width: 12),
+                        const SizedBox(width: 12),
+                        Container(width: 1, height: 36, color: cs.outlineVariant),
+                        const SizedBox(width: 12),
 
-                      // Fin (fecha de devolución)
-                      Expanded(
-                        child: DetailStatItem(
-                          label: s.end,
-                          value: FormateadorFecha.short(reserva.endDate),
+                        // Fin (fecha de devolución)
+                        Expanded(
+                          child: DetailStatItem(
+                            label: s.end,
+                            value: FormateadorFecha.short(actividad.endDate),
+                          ),
                         ),
-                      ),
+                      ],
 
                       // Cantidad de material reservado (solo si es > 0)
                       if (reserva.lines.isNotEmpty) ...[
@@ -105,14 +107,15 @@ class ReservationDetailPage extends ConsumerWidget {
                       DetailRow(Icons.person_outline, s.user, nombreUsuario),
 
                       // Actividad asociada a la reserva (si existe)
-                      if (actividad != null)
+                      if (actividad != null) ...[
                         DetailRow(Icons.hiking_outlined, s.actividad, '${actividad.startPoint} → ${actividad.endPoint}'),
                       
-                      // Fecha de inicio (fecha de recogida del material)
-                      DetailRow(Icons.calendar_today_outlined, s.start, FormateadorFecha.withTime(reserva.startDate)),
+                        // Fecha de inicio (fecha de recogida del material)
+                        DetailRow(Icons.calendar_today_outlined, s.start, FormateadorFecha.withTime(actividad.initDate)),
                       
-                      // Fecha de fin (fecha de devolución del material)
-                      DetailRow(Icons.event_outlined, s.end, FormateadorFecha.withTime(reserva.endDate)),
+                        // Fecha de fin (fecha de devolución del material)
+                        DetailRow(Icons.event_outlined, s.end, FormateadorFecha.withTime(actividad.endDate)),
+                      ],
                     ],
                   ),
 

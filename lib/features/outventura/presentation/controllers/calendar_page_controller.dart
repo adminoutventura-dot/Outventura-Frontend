@@ -14,10 +14,14 @@ class CalendarPageController {
     final List<Object> result = [];
 
     for (final r in misReservas) {
-      final start = DateTime(r.startDate.year, r.startDate.month, r.startDate.day);
-      final end = DateTime(r.endDate.year, r.endDate.month, r.endDate.day);
-      if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
-        result.add(r);
+      // Las fechas de la reserva vienen de la Activity asociada
+      final act = actividades.where((e) => e.id == r.activityId).firstOrNull;
+      if (act != null) {
+        final start = DateTime(act.initDate.year, act.initDate.month, act.initDate.day);
+        final end = DateTime(act.endDate.year, act.endDate.month, act.endDate.day);
+        if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
+          result.add(r);
+        }
       }
     }
 

@@ -56,9 +56,12 @@ final adminDailyStatsProvider = Provider<AdminDailyStats>((ref) {
     actividadesHoy: actividades
         .where((a) => a.initDate.isBefore(todayEnd) && a.endDate.isAfter(todayStart))
         .length,
-    reservasHoy: reservas
-        .where((r) => r.startDate.isBefore(todayEnd) && r.endDate.isAfter(todayStart))
-        .length,
+    // Para reservas, usa las fechas de la Activity asociada
+    reservasHoy: reservas.where((r) {
+      final act = actividades.where((a) => a.id == r.activityId).firstOrNull;
+      if (act == null) return false;
+      return act.initDate.isBefore(todayEnd) && act.endDate.isAfter(todayStart);
+    }).length,
   );
 });
 

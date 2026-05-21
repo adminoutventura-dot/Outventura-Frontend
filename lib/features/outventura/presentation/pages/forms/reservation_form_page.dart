@@ -25,6 +25,7 @@ import 'package:outventura/core/widgets/bottom_price_bar.dart';
 
 class ReservationFormPage extends ConsumerStatefulWidget {
   final Booking? reserva;
+  final Activity? initialActivity;
   final int? initialIdUsuario;
   final int? initialIdActividad;
   final int? initialIdEquipamiento;
@@ -33,6 +34,7 @@ class ReservationFormPage extends ConsumerStatefulWidget {
   const ReservationFormPage({
     super.key,
     this.reserva,
+    this.initialActivity,
     this.initialIdUsuario,
     this.initialIdActividad,
     this.initialIdEquipamiento,
@@ -54,7 +56,11 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
 
     if (widget.reserva != null) {
       // MODO EDICIÓN: carga todos los campos de la reserva existente.
-      _controller.cargarReserva(widget.reserva!);
+      _controller.cargarReserva(
+        widget.reserva!,
+        activityStart: widget.initialActivity?.initDate,
+        activityEnd: widget.initialActivity?.endDate,
+      );
       // Sobreescribe el usuario si el formulario se abrió desde el perfil de un cliente.
       if (widget.initialIdUsuario != null) {
         _controller.idUsuario = widget.initialIdUsuario;

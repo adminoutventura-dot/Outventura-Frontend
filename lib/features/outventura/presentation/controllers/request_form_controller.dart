@@ -163,17 +163,11 @@ class RequestFormController {
       return null;
     }
 
-    final Activity? actividad = buscarActividadSeleccionada(actividades);
-    final DateTime inicio = actividad?.initDate ?? DateTime.now();
-    final DateTime fin = actividad?.endDate ?? inicio.add(const Duration(days: 1));
-
     final Booking reserva = Booking(
       id: GeneradorId.idEntero(),
       userId: idUsuario!,
       lines: lineas,
       activityId: idActividad,
-      startDate: inicio,
-      endDate: fin,
       status: BookingStatus.pendiente,
     );
 

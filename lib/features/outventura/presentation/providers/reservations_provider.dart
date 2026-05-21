@@ -36,11 +36,20 @@ final filteredReservationsProvider = Provider.family<AsyncValue<List<Booking>>, 
     if (params.estado != null) {
       base = base.where((Booking r) => r.status == params.estado).toList();
     }
+    // Filtra por fecha usando las fechas de la Activity asociada
     if (params.fechaDesde != null) {
-      base = base.where((Booking r) => !r.endDate.isBefore(params.fechaDesde!)).toList();
+      base = base.where((Booking r) {
+        final Activity? act = actividades.where((a) => a.id == r.activityId).firstOrNull;
+        if (act == null) return true; // Si no tiene actividad, no filtramos
+        return !act.endDate.isBefore(params.fechaDesde!);
+      }).toList();
     }
     if (params.fechaHasta != null) {
-      base = base.where((Booking r) => !r.startDate.isAfter(params.fechaHasta!)).toList();
+      base = base.where((Booking r) {
+        final Activity? act = actividades.where((a) => a.id == r.activityId).firstOrNull;
+        if (act == null) return true;
+        return !act.initDate.isAfter(params.fechaHasta!);
+      }).toList();
     }
 
     // Si no hay query, devuelve la lista base sin filtrar

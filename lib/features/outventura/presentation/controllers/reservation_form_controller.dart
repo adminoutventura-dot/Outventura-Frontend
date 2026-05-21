@@ -5,10 +5,6 @@ import 'package:outventura/features/outventura/domain/entities/reservation.dart'
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
 import 'package:outventura/features/outventura/services/pricing_service.dart';
 
-// Combina una fecha y una hora en un DateTime.
-DateTime _combinar(DateTime fecha, TimeOfDay hora) =>
-    DateTime(fecha.year, fecha.month, fecha.day, hora.hour, hora.minute);
-
 class ReservationFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -58,16 +54,21 @@ class ReservationFormController {
     return cantidadesDaniadas[idEquipamiento] ?? 0;
   }
 
-  void cargarReserva(Booking reserva) {
+  void cargarReserva(Booking reserva, {DateTime? activityStart, DateTime? activityEnd}) {
     editando = true;
     seleccionado = reserva;
     idUsuario = reserva.userId;
     lineas = List.from(reserva.lines);
     idActividad = reserva.activityId;
-    fechaDesde = reserva.startDate;
-    fechaHasta = reserva.endDate;
-    horaInicio = TimeOfDay(hour: reserva.startDate.hour, minute: reserva.startDate.minute);
-    horaFin = TimeOfDay(hour: reserva.endDate.hour, minute: reserva.endDate.minute);
+    // Las fechas vienen de la Activity asociada
+    fechaDesde = activityStart ?? DateTime.now();
+    fechaHasta = activityEnd ?? DateTime.now();
+    horaInicio = activityStart != null 
+        ? TimeOfDay(hour: activityStart.hour, minute: activityStart.minute)
+        : const TimeOfDay(hour: 9, minute: 0);
+    horaFin = activityEnd != null
+        ? TimeOfDay(hour: activityEnd.hour, minute: activityEnd.minute)
+        : const TimeOfDay(hour: 17, minute: 0);
     cantidadesDaniadas = Map.from(reserva.damagedItems);
     estado = reserva.status;
   }
@@ -160,8 +161,6 @@ class ReservationFormController {
       userId: idUsuario!,
       lines: List.unmodifiable(lineas),
       activityId: idActividad,
-      startDate: _combinar(fechaDesde, horaInicio),
-      endDate: _combinar(fechaHasta, horaFin),
       status: estado,
       damageFee: totalCargoDanios(equipamientos),
       damagedItems: Map.from(cantidadesDaniadas),
