@@ -46,7 +46,7 @@ class BookingLine {
   // Crea una línea de reserva a partir de un mapa (del backend al frontend).
   factory BookingLine.fromMap(Map<String, dynamic> map) {
     return BookingLine(
-      equipmentId: (map['equipmentId'] ?? map['id_equipment']) as int,
+      equipmentId: map['equipmentId'] as int,
       quantity: (map['quantity'] as num).toInt(),
       priceAtMoment: (map['price_at_moment'] as num?)?.toDouble() ?? 0,
     );
@@ -103,23 +103,28 @@ class Booking {
             ? (linesRaw.first as Map<String, dynamic>)['activityId'] as int?
             : null);
 
-    final dynamic statusRaw = map['status'];
-    final String statusCode = statusRaw is String
-        ? statusRaw
-        : (statusRaw is Map<String, dynamic> ? statusRaw['code'] as String? ?? '' : '');
+    // El backend devuelve status siempre como string (enum de PostgreSQL).
+    final String statusCode = map['status'] as String? ?? '';
+
+    // El backend devuelve siempre user: { id_user, name, email }
+    final int userId = (map['user'] as Map<String, dynamic>)['id_user'] as int;
+
+    // damaged_items llega como [{ equipmentId, quantity }] desde el backend.
+    final rawDamaged = map['damaged_items'] as List<dynamic>? ?? [];
+    final Map<int, int> damagedItems = {
+      for (final e in rawDamaged)
+        (e['equipmentId'] as int): (e['quantity'] as int),
+    };
 
     return Booking(
-      id: (map['id_booking'] ?? map['id']) as int,
-      userId: (map['userId'] ?? map['id_user']) as int,
+      id: map['id_booking'] as int,
+      userId: userId,
       lines: lines,
       activityId: activityId,
       status: BookingStatus.fromString(statusCode),
       totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
       damageFee: (map['damage_fee'] as num?)?.toDouble() ?? 0,
-      damagedItems: (map['damaged_items'] as Map<String, dynamic>?)?.map(
-            (k, v) => MapEntry(int.parse(k), (v as num).toInt()),
-          ) ??
-          {},
+      damagedItems: damagedItems,
     );
   }
 
@@ -128,8 +133,11 @@ class Booking {
     'userId': userId,
     'status': status.code,
     'lines': lines.map((l) => l.toMap()).toList(),
+    if (activityId != null) 'activityId': activityId,
     'damage_fee': damageFee,
-    'damaged_items': damagedItems.map((k, v) => MapEntry(k.toString(), v)),
+    'damagedItems': damagedItems.entries
+        .map((e) => {'equipmentId': e.key, 'quantity': e.value})
+        .toList(),
   };
 
   // Crea una copia de la reserva con algunos campos modificados (inmutable).

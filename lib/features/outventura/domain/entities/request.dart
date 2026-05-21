@@ -66,12 +66,11 @@ class Request {
       guideId: map['guideId'] as int?,
       userId: map['userId'] as int?,
       bookingId: map['bookingId'] as int?,
-      requestedMaterials:
-          (map['requested_materials'] as Map<String, dynamic>?)?.map(
-            (String key, dynamic value) =>
-                MapEntry(int.parse(key), (value as num).toInt()),
-          ) ??
-          const {},
+      // requested_materials llega como [{ equipmentId, quantity }] desde el backend.
+      requestedMaterials: {
+        for (final e in (map['requested_materials'] as List<dynamic>? ?? []))
+          (e['equipmentId'] as int): (e['quantity'] as int),
+      },
       totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
     );
   }
@@ -83,8 +82,9 @@ class Request {
     'guideId': guideId,
     'userId': userId,
     'bookingId': bookingId,
-    'requested_materials':
-        requestedMaterials.map((k, v) => MapEntry(k.toString(), v)),
+    'requested_materials': requestedMaterials.entries
+        .map((e) => {'equipmentId': e.key, 'quantity': e.value})
+        .toList(),
     'total_price': totalPrice,
   };
 

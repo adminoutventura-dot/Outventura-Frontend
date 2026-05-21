@@ -28,17 +28,14 @@ enum Category {
     return Category.montana;
   }
 
-  // Devuelve una categoría a partir de un valor dinámico que puede ser un String o un Map con un campo 'code'.
+  // Crea una categoría a partir del objeto que devuelve el backend: { id_category, code, description }.
   static Category? fromDynamic(dynamic value) {
-    if (value is String) {
-      return fromString(value);
+    // Extrae el campo 'code' del objeto y lo convierte a String.
+    final String? code = (value as Map<String, dynamic>)['code'] as String?;
+    if (code != null) {
+      return fromString(code);
+    } else {
+      return null;
     }
-    if (value is Map<String, dynamic>) {
-      final String? code = value['code'] as String?;
-      if (code != null) {
-        return fromString(code);
-      }
-    }
-    return null;
   }
 }

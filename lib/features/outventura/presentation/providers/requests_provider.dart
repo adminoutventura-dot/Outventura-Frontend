@@ -1,29 +1,27 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/network/api_delay.dart';
 import 'package:outventura/core/network/dio_client.dart';
-import 'package:outventura/features/outventura/data/fakes/requests_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 
-// Expone una lista de solicitudes. Simula llamadas al backend.
+// Lista completa de solicitudes de inscripción a actividades. GET /request.
 final AsyncNotifierProvider<RequestsNotifier, List<Request>> requestsProvider =
     AsyncNotifierProvider<RequestsNotifier, List<Request>>(RequestsNotifier.new);
 
-// TEMPORAL: el filtro se moverá al backend → GET /api/solicitudes?q=...&idUsuario=... Eliminar este provider.
-// Filtra solicitudes por ruta de actividad, estado y rango de fechas. Simula búsqueda en backend.
-// params es un record con cinco campos: query, idUsuario, estado, fechaDesde y fechaHasta
+// Filtra solicitudes en el frontend por usuario, estado, rango de fechas y texto libre.
+// Las fechas se comparan contra la Activity asociada a la solicitud.
+// El filtrado es local mientras no haya query params en el backend.
 final filteredRequestsProvider = Provider.family<AsyncValue<List<Request>>, ({String query, int? idUsuario, RequestStatus? estado, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
 
-  // Observa el estado asíncrono de todas las solicitudes (notifica si cambia y recalcula la lista)
+  // Se re-ejecuta automáticamente cuando cambia la lista de solicitudes
   final AsyncValue<List<Request>> asyncTodas = ref.watch(requestsProvider);
 
-  // Obtiene la lista de actividades para resolver la ruta
+  // Necesita actividades para filtrar por fechas y buscar por ruta
   final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
 
-  // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodas.whenData((List<Request> todas) {
-    // Si hay idUsuario, filtra previamente por ese usuario
+    // Pre-filtro opcional por usuario concreto (vista de cliente)
     List<Request> base;
     if (params.idUsuario != null) {
       base = todas.where((Request s) => s.userId == params.idUsuario).toList();
@@ -33,6 +31,10 @@ final filteredRequestsProvider = Provider.family<AsyncValue<List<Request>>, ({St
     if (params.estado != null) {
       base = base.where((Request s) => s.status == params.estado).toList();
     }
+    // Filtra por el rango de fechas de la actividad asociada.
+    // Si la actividad ya terminó antes del fechaDesde, se excluye.
+    // Si la actividad empieza después del fechaHasta, se excluye.
+    // Si no se encuentra la actividad, la solicitud se excluye también.
     if (params.fechaDesde != null || params.fechaHasta != null) {
       base = base.where((Request s) {
         final Activity? exc = actividades.where((Activity e) => e.id == s.activityId).firstOrNull;
@@ -47,10 +49,8 @@ final filteredRequestsProvider = Provider.family<AsyncValue<List<Request>>, ({St
     if (params.query.isEmpty) {
       return base;
     }
-
     final String q = params.query.toLowerCase();
-    
-    // Filtra por la ruta de la actividad asociada a la solicitud
+    // Busca por la ruta de la actividad asociada (punto de inicio + punto de fin)
     return base.where((Request s) {
       // Busca la actividad asociada a la solicitud (null si no existe)
       // firstOrNull devuelve el primer elemento de una lista que cumpla la condición, o null si no hay ninguno.
@@ -63,14 +63,14 @@ final filteredRequestsProvider = Provider.family<AsyncValue<List<Request>>, ({St
   });
 });
 
-// Solicitudes pertenecientes a un usuario concreto.
+// Solicitudes de un usuario concreto (para la vista del cliente).
 final userRequestsProvider = Provider.family<List<Request>, int>((ref, userId) {
   return (ref.watch(requestsProvider).value ?? [])
       .where((s) => s.userId == userId)
       .toList();
 });
 
-// Número de solicitudes pendientes de un usuario.
+// Número de solicitudes pendientes de un usuario (para badges y contadores).
 final userPendingRequestsCountProvider = Provider.family<int, int>((ref, userId) {
   return ref.watch(userRequestsProvider(userId))
       .where((s) => s.status == RequestStatus.pendiente)
@@ -79,88 +79,67 @@ final userPendingRequestsCountProvider = Provider.family<int, int>((ref, userId)
 
 class RequestsNotifier extends AsyncNotifier<List<Request>> {
   @override
-  // TEMPORAL: reemplazar cuerpo por await dio.get('/solicitudes') y eliminar import de requests_fake.dart.
+  // Carga todas las solicitudes desde el backend al inicializar.
   Future<List<Request>> build() async {
     try {
-      // Simula GET /api/solicitudes
-      await Future.delayed(ApiDelay.carga);
-      return [...requestsFake];
-    } catch (e) {
+      final dio = ref.read(dioProvider);
+      final response = await dio.get('/request');
+      final List<dynamic> data = response.data as List<dynamic>;
+      return data.map((e) => Request.fromMap(e as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.post('/solicitudes', data: solicitud.toJson()).
-  // Simula POST /api/solicitudes
+  // POST /request - crea la solicitud. Recarga la lista para obtener el ID generado.
   Future<void> agregar(Request solicitud) async {
     try {
-      await Future.delayed(ApiDelay.accion);
-      // Saca la lista actual o una vacía si es nula
-      final List<Request> listaActual = [...(state.value ?? [])];
-
-      // Agrega la nueva solicitud a la lista
-      listaActual.add(solicitud);
-
-      // Actualiza el estado con la nueva lista
-      state = AsyncData(listaActual);
-    } catch (e) {
+      final dio = ref.read(dioProvider);
+      await dio.post('/request', data: solicitud.toMap());
+      ref.invalidateSelf();
+    } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.put('/solicitudes/${viejo.id}', data: nuevo.toJson()).
-  // Simula PUT /api/solicitudes/:id
+  // PATCH /request/:id - actualiza la solicitud en el backend y en la lista local.
   Future<void> actualizar(Request viejo, Request nuevo) async {
     try {
-      await Future.delayed(ApiDelay.accion);
-      // Saca la lista actual o una vacía si es nula
+      final dio = ref.read(dioProvider);
+      await dio.patch('/request/${viejo.id}', data: nuevo.toMap());
       final List<Request> listaActual = [...(state.value ?? [])];
-      // Busca el índice de la solicitud a actualizar
       final int index = listaActual.indexWhere((Request s) => s.id == viejo.id);
       if (index != -1) {
-        // Reemplaza la solicitud en la posición encontrada
         listaActual[index] = nuevo;
       }
-      // Actualiza el estado con la lista modificada
       state = AsyncData(listaActual);
-    } catch (e) {
+    } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.delete('/solicitudes/${solicitud.id}').
-  // Simula DELETE /api/solicitudes/:id
+  // DELETE /request/:id - elimina la solicitud del backend y de la lista local.
   Future<void> eliminar(Request solicitud) async {
     try {
-      await Future.delayed(ApiDelay.accion);
-      // Saca la lista actual o una vacía si es nula
+      final dio = ref.read(dioProvider);
+      await dio.delete('/request/${solicitud.id}');
       final List<Request> listaActual = [...(state.value ?? [])];
-      // Elimina la solicitud con el ID coincidente
       listaActual.removeWhere((Request s) => s.id == solicitud.id);
-      // Actualiza el estado con la lista sin la solicitud eliminada
       state = AsyncData(listaActual);
-    } catch (e) {
+    } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.patch('/solicitudes/${solicitud.id}/aceptar').
-  // Simula PATCH /api/solicitudes/:id/aceptar
+  // Cambia el estado a CONFIRMED (el admin acepta la solicitud).
   Future<void> aceptar(Request solicitud) async {
-    await Future.delayed(ApiDelay.accion);
-    // Crea una copia de la solicitud con estado confirmada
     final Request aceptada = solicitud.copyWith(status: RequestStatus.confirmada);
-    // Delega la actualización al método actualizar
     await actualizar(solicitud, aceptada);
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.patch('/solicitudes/${solicitud.id}/rechazar').
-  // Simula PATCH /api/solicitudes/:id/rechazar
+  // Cambia el estado a CANCELLED (el admin rechaza la solicitud).
   Future<void> rechazar(Request solicitud) async {
-    await Future.delayed(ApiDelay.accion);
-    // Crea una copia de la solicitud con estado cancelada
     final Request rechazada = solicitud.copyWith(status: RequestStatus.cancelada);
-    // Delega la actualización al método actualizar
     await actualizar(solicitud, rechazada);
   }
 }

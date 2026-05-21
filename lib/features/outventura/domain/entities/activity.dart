@@ -64,16 +64,15 @@ class Activity {
 
   // Crea una Activity a partir del JSON que devuelve el backend.
   factory Activity.fromMap(Map<String, dynamic> map) {
-    final dynamic categoriesRaw = map['categories'];
-    final List<Category> parsedCategories = (categoriesRaw is List)
-        ? categoriesRaw
-            .map((dynamic e) => Category.fromDynamic(e))
-            .whereType<Category>()
-            .toList()
-        : <Category>[];
+    // El backend devuelve categories como array de objetos completos.
+    final List<Category> parsedCategories = (map['categories'] as List<dynamic>)
+        // mapea cada elemento a Category usando fromDynamic, que maneja tanto String como Map.
+        .map((e) => Category.fromDynamic(e))
+        .whereType<Category>()
+        .toList();
 
     return Activity(
-      id: (map['id_activity'] ?? map['id']) as int,
+      id: map['id_activity'] as int,
       title: map['title'] as String,
       description: map['description'] as String?,
       initDate: DateTime.parse(map['init_date'] as String),
@@ -88,12 +87,11 @@ class Activity {
           ? ActivityStatus.fromString(map['status'] as String)
           : ActivityStatus.disponible,
       price: (map['price'] as num?)?.toDouble() ?? 0,
-      materialsPerParticipant:
-          (map['materialsPerParticipant'] as Map<String, dynamic>?)?.map(
-            (String key, dynamic value) =>
-                MapEntry(int.parse(key), (value as num).toInt()),
-          ) ??
-          const {},
+      // El backend devuelve [{ equipmentId, quantity }], lo convierte a Map<equipmentId, quantity>.
+      materialsPerParticipant: {
+        for (final e in (map['materialRequirements'] as List<dynamic>? ?? []))
+          (e['equipmentId'] as int): (e['quantity'] as int),
+      },
     );
   }
 

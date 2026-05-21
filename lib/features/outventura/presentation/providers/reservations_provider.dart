@@ -1,32 +1,31 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/network/api_delay.dart';
 import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
-import 'package:outventura/features/outventura/data/fakes/reservations_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/services/resolvers.dart';
 
-// Expone una lista de reservas. Simula llamadas al backend.
+// Lista completa de reservas. GET /booking.
 final AsyncNotifierProvider<ReservationsNotifier, List<Booking>> reservationsProvider =
     AsyncNotifierProvider<ReservationsNotifier, List<Booking>>(ReservationsNotifier.new);
 
-// TEMPORAL: el filtro se moverá al backend → GET /api/reservas?q=...&idUsuario=... Eliminar este provider.
-// Filtra reservas por nombre de usuario, actividad, estado y rango de fechas. Simula búsqueda en backend.
+// Filtra reservas en el frontend por usuario, estado, rango de fechas y texto libre.
+// Las fechas se comparan contra la Activity asociada (las reservas no tienen fechas propias).
+// El filtrado es local mientras no haya query params en el backend.
 final filteredReservationsProvider = Provider.family<AsyncValue<List<Booking>>, ({String query, int? idUsuario, BookingStatus? estado, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
 
   // Observa el estado asíncrono de todas las reservas (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Booking>> asyncTodas = ref.watch(reservationsProvider);
 
-  // Obtiene las listas de usuarios y actividades para resolver nombres
+  // Necesita usuarios y actividades para resolver nombres en la búsqueda por texto
   final List<User> usuarios = ref.watch(usuariosProvider).value ?? [];
   final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
 
-  // Aplica el filtro solo cuando los datos están disponibles
   return asyncTodas.whenData((List<Booking> todas) {
-    // Si hay idUsuario, filtra previamente por ese usuario
+    // Pre-filtro opcional por usuario concreto (perfil de cliente)
     List<Booking> base;
     if (params.idUsuario != null) {
       base = todas.where((Booking r) => r.userId == params.idUsuario).toList();
@@ -36,14 +35,16 @@ final filteredReservationsProvider = Provider.family<AsyncValue<List<Booking>>, 
     if (params.estado != null) {
       base = base.where((Booking r) => r.status == params.estado).toList();
     }
-    // Filtra por fecha usando las fechas de la Activity asociada
+    // Las fechas de una reserva son las de la Activity asociada.
+    // Una reserva entra en el rango si su actividad no terminó antes del fechaDesde.
     if (params.fechaDesde != null) {
       base = base.where((Booking r) {
         final Activity? act = actividades.where((a) => a.id == r.activityId).firstOrNull;
-        if (act == null) return true; // Si no tiene actividad, no filtramos
+        if (act == null) return true; // Sin actividad asociada, no filtramos
         return !act.endDate.isBefore(params.fechaDesde!);
       }).toList();
     }
+    // Una reserva entra en el rango si su actividad no empieza después del fechaHasta.
     if (params.fechaHasta != null) {
       base = base.where((Booking r) {
         final Activity? act = actividades.where((a) => a.id == r.activityId).firstOrNull;
@@ -52,16 +53,16 @@ final filteredReservationsProvider = Provider.family<AsyncValue<List<Booking>>, 
       }).toList();
     }
 
-    // Si no hay query, devuelve la lista base sin filtrar
     if (params.query.isEmpty) {
       return base;
     }
-    
     final String q = params.query.toLowerCase();
-    // Filtra por nombre de usuario o nombre de actividad
+    // Busca por nombre de usuario o nombre de la actividad asociada
     return base.where((Booking r) {
       final String nombreU = resolverNombreUsuario(r.userId, usuarios).toLowerCase();
       final String nombreAct = (resolverNombreActividad(r.activityId, actividades) ?? '').toLowerCase();
+
+      // La reserva entra si el texto de búsqueda coincide con el nombre del usuario o con el nombre de la actividad asociada
 
       // Si el nombre de usuario o el nombre de excursión contiene la query, se incluye la reserva
       if (nombreU.contains(q)) {
@@ -75,115 +76,88 @@ final filteredReservationsProvider = Provider.family<AsyncValue<List<Booking>>, 
   });
 });
 
-// Reservas pertenecientes a un usuario concreto.
+// Reservas de un usuario concreto (para la vista del cliente).
 final userReservationsProvider = Provider.family<List<Booking>, int>((ref, userId) {
   return (ref.watch(reservationsProvider).value ?? [])
       .where((r) => r.userId == userId)
       .toList();
 });
 
-// --- Notifier ---
 class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
   @override
-  // TEMPORAL: reemplazar cuerpo por await dio.get('/reservas') y eliminar import de reservations_fake.dart.
+  // Carga todas las reservas desde el backend al inicializar.
   Future<List<Booking>> build() async {
     try {
-      // Simula GET /api/reservas
-      await Future.delayed(ApiDelay.carga);
-      return [...reservationsFake];
-    } catch (e) {
+      final dio = ref.read(dioProvider);
+      final response = await dio.get('/booking');
+      final List<dynamic> data = response.data as List<dynamic>;
+      return data.map((e) => Booking.fromMap(e as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
-  // TEMPORAL: reemplazar por await dio.post('/booking', data: reserva.toMap()); ref.invalidateSelf() para recargar la lista.
-  // Simula POST /booking
+  // POST /booking - crea la reserva con sus líneas. Recarga la lista para obtener el ID.
   Future<void> agregar(Booking reserva) async {
     try {
-      await Future.delayed(ApiDelay.accion);
-      // Saca la lista actual o una vacía si es nula
-      final List<Booking> listaActual = [...(state.value ?? [])];
-      // Agrega la nueva reserva a la lista
-      listaActual.add(reserva);
-      // Actualiza el estado con la nueva lista
-      state = AsyncData(listaActual);
-    } catch (e) {
+      final dio = ref.read(dioProvider);
+      await dio.post('/booking', data: reserva.toMap());
+      ref.invalidateSelf();
+    } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.put('/reservas/${viejo.id}', data: nuevo.toJson()).
-  // Simula PUT /api/reservas/:id
+  // PATCH /booking/:id - actualiza la reserva en el backend y en la lista local.
   Future<void> actualizar(Booking viejo, Booking nuevo) async {
     try {
-      await Future.delayed(ApiDelay.accion);
-      // Saca la lista actual o una vacía si es nula
+      final dio = ref.read(dioProvider);
+      await dio.patch('/booking/${viejo.id}', data: nuevo.toMap());
       final List<Booking> listaActual = [...(state.value ?? [])];
-      // Busca el índice de la reserva a actualizar
       final int index = listaActual.indexWhere((Booking r) => r.id == viejo.id);
       if (index != -1) {
-        // Reemplaza la reserva en la posición encontrada
         listaActual[index] = nuevo;
       }
-      // Actualiza el estado con la lista modificada
       state = AsyncData(listaActual);
-    } catch (e) {
+    } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.delete('/reservas/${reserva.id}').
-  // Simula DELETE /api/reservas/:id
+  // DELETE /booking/:id - elimina la reserva del backend y de la lista local.
   Future<void> eliminar(Booking reserva) async {
     try {
-      await Future.delayed(ApiDelay.accion);
-      // Saca la lista actual o una vacía si es nula
+      final dio = ref.read(dioProvider);
+      await dio.delete('/booking/${reserva.id}');
       final List<Booking> listaActual = [...(state.value ?? [])];
-      // Elimina la reserva con el ID coincidente
       listaActual.removeWhere((Booking r) => r.id == reserva.id);
-      // Actualiza el estado con la lista sin la reserva eliminada
       state = AsyncData(listaActual);
-    } catch (e) {
+    } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.patch('/reservas/${reserva.id}/aprobar').
-  // Simula PATCH /api/reservas/:id/aprobar
+  // Cambia el estado de la reserva a CONFIRMED (el admin aprueba).
   Future<void> aprobar(Booking reserva) async {
-    await Future.delayed(ApiDelay.accion);
-    // Crea una copia de la reserva con estado confirmada
     final Booking aprobada = reserva.copyWith(status: BookingStatus.confirmada);
-    // Delega la actualización al método actualizar
     await actualizar(reserva, aprobada);
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.patch('/reservas/${reserva.id}/rechazar').
-  // Simula PATCH /api/reservas/:id/rechazar
+  // Cambia el estado a CANCELLED (el admin rechaza antes de confirmar).
   Future<void> rechazar(Booking reserva) async {
-    await Future.delayed(ApiDelay.accion);
-    // Crea una copia de la reserva con estado cancelada
     final Booking rechazada = reserva.copyWith(status: BookingStatus.cancelada);
-    // Delega la actualización al método actualizar
     await actualizar(reserva, rechazada);
   }
 
-  // TEMPORAL: reemplazar cuerpo por await dio.patch('/reservas/${reserva.id}/cancelar').
-  // Simula PATCH /api/reservas/:id/cancelar
+  // Cambia el estado a CANCELLED (el propio cliente cancela).
   Future<void> cancelar(Booking reserva) async {
-    await Future.delayed(ApiDelay.accion);
-    // Crea una copia de la reserva con estado cancelada
     final Booking cancelada = reserva.copyWith(status: BookingStatus.cancelada);
-    // Delega la actualización al método actualizar
     await actualizar(reserva, cancelada);
   }
 
-  // Simula PATCH /api/reservas/:id/devolver
+  // Cambia el estado a FINISHED al registrar la devolución del material.
   Future<void> registrarDevolucion(Booking reserva) async {
-    await Future.delayed(ApiDelay.accion);
-    // Crea una copia de la reserva con estado devuelta
     final Booking devuelta = reserva.copyWith(status: BookingStatus.finalizada);
-    // Delega la actualización al método actualizar
     await actualizar(reserva, devuelta);
   }
 }

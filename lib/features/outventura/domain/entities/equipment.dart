@@ -60,16 +60,12 @@ class Equipment {
 
   // Crea un Material a partir del JSON que devuelve el backend.
   factory Equipment.fromMap(Map<String, dynamic> map) {
-    // Guarda el valor de 'categories' sin importar su formato.
-    final dynamic categoriesRaw = map['categories'];
-
-    // Comprueba si el campo 'categories' es una lista, y si lo es, mapea cada elemento a CategoriaActividad.
-    final List<Category> parsedCategories = (categoriesRaw is List)
-        ? categoriesRaw
-            .map((dynamic e) => Category.fromDynamic(e))
-            .whereType<Category>()
-            .toList()
-        : <Category>[];
+    // El backend devuelve categories como array de objetos completos.
+    final List<Category> parsedCategories = (map['categories'] as List<dynamic>)
+        // mapea cada elemento a Category usando fromDynamic, que maneja tanto String como Map.
+        .map((e) => Category.fromDynamic(e))
+        .whereType<Category>()
+        .toList();
 
     // El backend envía el estado como string del enum (ej. 'AVAILABLE').
     final String? statusValue = map['status'] as String?;
@@ -78,7 +74,7 @@ class Equipment {
     final int units = ((map['units'] ?? 0) as num).toInt();
 
     return Equipment(
-      id: (map['id_equipment'] ?? map['id']) as int,
+      id: map['id_equipment'] as int,
       title: map['title'] as String,
       description: map['description'] as String?,
       categories: parsedCategories,
