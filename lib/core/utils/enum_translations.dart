@@ -6,7 +6,7 @@ import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
-// TODO: Comentar
+// Función para traducir los estados que comparten las Reservas y las Solicitudes.
 String _estadoComunLabel(String name, AppLocalizations s) {
   switch (name) {
     case 'pendiente':  
@@ -24,14 +24,17 @@ String _estadoComunLabel(String name, AppLocalizations s) {
   }
 }
 
+// Traducciones para los estados de una Solicitud.
 extension EstadoSolicitudL10n on RequestStatus {
   String localizedLabel(AppLocalizations s) => _estadoComunLabel(name, s);
 }
 
+// Traducciones para los estados de una Reserva.
 extension EstadoReservaL10n on BookingStatus {
   String localizedLabel(AppLocalizations s) => _estadoComunLabel(name, s);
 }
 
+// Traducciones para la disponibilidad de las Actividades.
 extension ActivityStatusL10n on ActivityStatus {
   String localizedLabel(AppLocalizations s) {
     switch (this) {
@@ -43,6 +46,7 @@ extension ActivityStatusL10n on ActivityStatus {
   }
 }
 
+// Traducciones para el estado del Material/Equipamiento.
 extension EstadoEquipamientoL10n on EquipmentStatus {
   String localizedLabel(AppLocalizations s) {
     switch (this) {
@@ -58,6 +62,7 @@ extension EstadoEquipamientoL10n on EquipmentStatus {
   }
 }
 
+// Traducciones para los tipos de Categorías.
 extension CategoriaActividadL10n on Category {
   String localizedLabel(AppLocalizations s) {
     switch (this) {
@@ -73,6 +78,7 @@ extension CategoriaActividadL10n on Category {
   }
 }
 
+// Traducciones para los Roles de los usuarios en la app.
 extension TipoRolL10n on UserRole {
   String localizedLabel(AppLocalizations s) {
     switch (this) {

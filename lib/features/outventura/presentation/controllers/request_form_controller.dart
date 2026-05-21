@@ -205,7 +205,7 @@ class RequestFormController {
   }
 
   // Crea una reserva a partir de los datos actuales. Devuelve null si hay error de validación.
-  Booking? crearReserva(List<Activity> actividades) {
+  Booking? crearEditarReserva(List<Activity> actividades) {
     final Booking? reserva = construirReserva(actividades);
     return reserva;
   }
@@ -280,7 +280,7 @@ class RequestFormController {
 
   // Crea una reserva a partir de los datos actuales del formulario.
   // Si hay un error de validación, muestra un snackbar y devuelve null.
-  Future<Booking?> crearReservaDesdeSolicitud({
+  Future<Booking?> crearEditarReservaDesdeSolicitud({
     required BuildContext context,
     required WidgetRef ref,
   }) async {
@@ -290,7 +290,7 @@ class RequestFormController {
       return null;
     }
     final List<Activity> actividades = ref.read(activitiesProvider).value ?? [];
-    final Booking? reserva = crearReserva(actividades);
+    final Booking? reserva = crearEditarReserva(actividades);
     if (reserva == null) {
       return null;
     }

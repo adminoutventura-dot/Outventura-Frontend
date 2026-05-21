@@ -49,7 +49,6 @@ class HomeAppBarDelegate extends SliverPersistentHeaderDelegate {
       old.greeting != greeting ||
       old.dateStr != dateStr ||
       old.statSlots.length != statSlots.length;
-
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     final cs = Theme.of(context).colorScheme;
@@ -59,7 +58,6 @@ class HomeAppBarDelegate extends SliverPersistentHeaderDelegate {
     return ClipPath(
       clipper: AppBarClipper(),
       child: Material(
-        // El header tiene una elevación solo cuando está colapsado para proyectar sombra sobre el contenido.
         elevation: overlapsContent ? 4 : 0,
         color: Colors.transparent,
         child: Container(
@@ -69,88 +67,87 @@ class HomeAppBarDelegate extends SliverPersistentHeaderDelegate {
               // Círculos decorativos de fondo
               Positioned(top: -40, right: -40, child: _circle(180, cs.onPrimary.withAlpha(18))),
               Positioned(top: 20, right: 90, child: _circle(80, cs.onPrimary.withAlpha(12))),
-              Padding(
-                padding: EdgeInsets.only(top: topPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Toolbar (siempre visible al colapsar)
-                    SizedBox(
-                      height: kToolbarHeight,
-                      child: Row(
-                        children: [
-                          // Botón de menú para abrir el drawer.
-                          Builder(
-                            builder: (ctx) => IconButton(
-                              icon: const Icon(Icons.menu),
-                              color: cs.onPrimary,
-                              onPressed: () => Scaffold.of(ctx).openDrawer(),
-                            ),
-                          ),
-                          // Título del header
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: tt.titleMedium?.copyWith(color: cs.onPrimary),
-                            ),
-                          ),
-                        ],
+              
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // AppBar principal (siempre visible, incluso cuando el header está colapsado)
+                  PreferredSize(
+                    preferredSize: Size.fromHeight(kToolbarHeight + topPadding),
+                    child: AppBar(
+                      // Forzamos a que el AppBar maneje el espacio de la barra de estado automáticamente
+                      primary: true, 
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      // Quita cualquier centrado automático de Android/iOS
+                      centerTitle: false, 
+                      leading: Builder(
+                        builder: (ctx) => IconButton(
+                          icon: const Icon(Icons.menu),
+                          color: cs.onPrimary,
+                          onPressed: () => Scaffold.of(ctx).openDrawer(),
+                        ),
+                      ),
+                      title: Text(
+                        title,
+                        style: tt.headlineSmall?.copyWith(
+                          color: cs.surface,
+                          shadows: [Shadow(color: cs.onSurface.withAlpha(100), blurRadius: 8)],
+                        ),
                       ),
                     ),
-                    // Contenido colapsable: saludo + fecha + stat cards
-                    SizedBox(
-                      // .clamp() para que el valor sea entre 0 y kBottomHeight.
-                      height: (maxExtent - shrinkOffset - topPadding - kToolbarHeight).clamp(0.0, kBottomHeight),
-                      child: OverflowBox(
-                        minHeight: 0,
-                        maxHeight: kBottomHeight,
-                        alignment: Alignment.topLeft,
-                        child: Opacity(
-                          opacity: (1 - progress * 2).clamp(0.0, 1.0),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Saludo personalizado
-                                Text(
-                                  greeting,
-                                  style: tt.titleLarge?.copyWith(color: cs.onPrimary),
+                  ),
+
+                  // Contenido colapsable (Con pequeño margen superior para compensar)
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: (maxExtent - shrinkOffset - topPadding - kToolbarHeight - 10).clamp(0.0, kBottomHeight),
+                    child: OverflowBox(
+                      minHeight: 0,
+                      maxHeight: kBottomHeight,
+                      alignment: Alignment.topLeft,
+                      child: Opacity(
+                        opacity: (1 - progress * 2).clamp(0.0, 1.0),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                greeting,
+                                style: tt.titleLarge?.copyWith(color: cs.onPrimary),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                dateStr,
+                                style: tt.bodyMedium?.copyWith(
+                                  color: cs.onPrimary.withValues(alpha: 0.78),
                                 ),
-                                const SizedBox(height: 2),
-                                // Fecha actual
-                                Text(
-                                  dateStr,
-                                  style: tt.bodyMedium?.copyWith(
-                                    color: cs.onPrimary.withValues(alpha: 0.78),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                // Fila de stat cards
-                                Row(
-                                  children: [
-                                    for (int i = 0; i < statSlots.length; i++) ...[
-                                      if (i > 0) _divider(cs),
-                                      Expanded(
-                                        child: StatCard(
-                                          value: statSlots[i].value,
-                                          label: statSlots[i].label,
-                                          foregroundColor: cs.onPrimary,
-                                        ),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  for (int i = 0; i < statSlots.length; i++) ...[
+                                    if (i > 0) _divider(cs),
+                                    Expanded(
+                                      child: StatCard(
+                                        value: statSlots[i].value,
+                                        label: statSlots[i].label,
+                                        foregroundColor: cs.onPrimary,
                                       ),
-                                    ],
+                                    ),
                                   ],
-                                ),
-                                const SizedBox(height: 10),
-                              ],
-                            ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),

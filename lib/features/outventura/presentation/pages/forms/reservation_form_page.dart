@@ -141,7 +141,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
             return;
           }
           // Construir el objeto Booking a partir del estado del formulario.
-          final Booking? reserva = _controller.crearReserva(equipamientos);
+          final Booking? reserva = _controller.crearEditarReserva(equipamientos);
           if (reserva == null) return;
           // Devolver la reserva creada/editada a la pantalla anterior.
           Navigator.of(context).pop(reserva);

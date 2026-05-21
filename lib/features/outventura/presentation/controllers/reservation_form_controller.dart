@@ -145,8 +145,7 @@ class ReservationFormController {
     });
   }
 
-  // TODO: CrearEditarreserva
-  Booking? crearReserva(List<Equipment> equipamientos) {
+  Booking? crearEditarReserva(List<Equipment> equipamientos) {
     if (!validar()) {
       return null;
     }

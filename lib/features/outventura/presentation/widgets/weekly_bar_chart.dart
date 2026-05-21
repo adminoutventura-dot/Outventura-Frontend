@@ -104,8 +104,13 @@ class WeeklyBarChart extends StatelessWidget {
                 final s = solicitudesData[i];
 
                 // El día de hoy usa colores más saturados.
-                // TODO: QUE ES ESTO?
-                final isToday = i == todayIndex;
+                bool isToday;
+                if (i == todayIndex) {
+                  isToday = true;
+                } else {
+                  isToday = false;
+                }
+
                 final reservaColor = isToday ? cs.tertiary : cs.onTertiary;
                 final solicitudColor = isToday ? cs.primary : cs.primaryContainer;
 

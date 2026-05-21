@@ -48,7 +48,6 @@ class HomeClientePage extends ConsumerWidget {
       drawer: const AppDrawer(),
       body: CustomScrollView(
         slivers: [
-          // TODO: Texto de header igual al de otras paginas
           // -- HEADER COLAPSABLE --
           SliverPersistentHeader(
             pinned: true,

@@ -144,7 +144,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
         onPressed: () async {
           // Validar formulario
           if (_controller.idReserva == null && _controller.tieneMateriales) {
-            final Booking? reserva = await _controller.crearReservaDesdeSolicitud(
+            final Booking? reserva = await _controller.crearEditarReservaDesdeSolicitud(
               context: context,
               ref: ref,
             );

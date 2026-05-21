@@ -48,7 +48,6 @@ class HomeAdminPage extends ConsumerWidget {
       drawer: const AppDrawer(),
       body: CustomScrollView(
         slivers: [
-          // TODO: Estilo de titulo que sea igual a las otras paginas
           // -- HEADER COLAPSABLE --
           SliverPersistentHeader(
             pinned: true,
