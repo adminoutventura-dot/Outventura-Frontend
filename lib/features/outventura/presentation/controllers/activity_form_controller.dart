@@ -93,13 +93,13 @@ class ActivityFormController {
     final String puntoFin = puntoFinController.text.trim();
     return Activity(
       id: seleccionado?.id,
-      title: [puntoInicio, puntoFin].where((e) => e.isNotEmpty).join(' - '),
       description: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
       initDate: fechaInicio.copyWith(hour: horaInicio.hour, minute: horaInicio.minute, second: 0),
       endDate: fechaFin.copyWith(hour: horaFin.hour, minute: horaFin.minute, second: 0),
       difficulty: seleccionado?.difficulty ?? 1,
       maxParticipants: int.tryParse(participantesController.text) ?? 1,
-      startEndPoint: [puntoInicio, puntoFin].where((e) => e.isNotEmpty).join(' - '),
+      startPoint: puntoInicio,
+      endPoint: puntoFin,
       categories: List<Category>.from(categorias),
       imageAsset: imagenAsset,
       status: estado,

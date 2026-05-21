@@ -27,13 +27,13 @@ enum ActivityStatus {
 // Entidad de actividad.
 class Activity {
   final int? id;
-  final String title;
   final String? description;
   final DateTime initDate;
   final DateTime endDate;
   final int difficulty;
   final int maxParticipants;
-  final String? startEndPoint;
+  final String startPoint;
+  final String endPoint;
   final List<Category> categories;
   final int? guideId;
   final String? imageAsset;
@@ -43,13 +43,13 @@ class Activity {
 
   const Activity({
     this.id,
-    required this.title,
     this.description,
     required this.initDate,
     required this.endDate,
     required this.difficulty,
     required this.maxParticipants,
-    this.startEndPoint,
+    required this.startPoint,
+    required this.endPoint,
     required this.categories,
     this.guideId,
     this.imageAsset,
@@ -57,9 +57,6 @@ class Activity {
     this.price = 0,
     this.materialsPerParticipant = const {},
   });
-
-  String get startPoint => _splitStartEnd()[0];
-  String get endPoint => _splitStartEnd()[1];
 
   // Crea una Activity a partir del JSON que devuelve el backend.
   factory Activity.fromMap(Map<String, dynamic> map) {
@@ -72,13 +69,13 @@ class Activity {
 
     return Activity(
       id: map['id_activity'] as int,
-      title: map['title'] as String,
       description: map['description'] as String?,
       initDate: DateTime.parse(map['init_date'] as String),
       endDate: DateTime.parse(map['end_date'] as String),
       difficulty: (map['difficulty'] as num).toInt(),
       maxParticipants: (map['max_participants'] as num).toInt(),
-      startEndPoint: map['start_end_point'] as String?,
+      startPoint: map['start_point'] as String? ?? '',
+      endPoint: map['end_point'] as String? ?? '',
       categories: parsedCategories,
       guideId: map['guideId'] as int?,
       imageAsset: map['image_asset'] as String?,
@@ -96,13 +93,13 @@ class Activity {
 
   // Convierte la actividad a un mapa para enviar al backend.
   Map<String, dynamic> toMap() => {
-    'title': title,
     'description': description,
     'init_date': initDate.toIso8601String(),
     'end_date': endDate.toIso8601String(),
     'difficulty': difficulty,
     'max_participants': maxParticipants,
-    'start_end_point': startEndPoint,
+    'start_point': startPoint,
+    'end_point': endPoint,
     'image_asset': imageAsset,
     'guideId': guideId,
     'status': status.code,
@@ -115,13 +112,13 @@ class Activity {
 
   // Crea una nueva actividad a partir de la actual, permitiendo modificar algunos campos.
   Activity copyWith({
-    String? title,
     String? description,
     DateTime? initDate,
     DateTime? endDate,
     int? difficulty,
     int? maxParticipants,
-    String? startEndPoint,
+    String? startPoint,
+    String? endPoint,
     List<Category>? categories,
     int? guideId,
     String? imageAsset,
@@ -131,13 +128,13 @@ class Activity {
   }) {
     return Activity(
       id: id,
-      title: title ?? this.title,
       description: description ?? this.description,
       initDate: initDate ?? this.initDate,
       endDate: endDate ?? this.endDate,
       difficulty: difficulty ?? this.difficulty,
       maxParticipants: maxParticipants ?? this.maxParticipants,
-      startEndPoint: startEndPoint ?? this.startEndPoint,
+      startPoint: startPoint ?? this.startPoint,
+      endPoint: endPoint ?? this.endPoint,
       categories: categories ?? this.categories,
       guideId: guideId ?? this.guideId,
       imageAsset: imageAsset ?? this.imageAsset,
@@ -147,21 +144,4 @@ class Activity {
     );
   }
 
-  // TODO: El backend debería devolver startPoint y endPoint por separado, pero de mientras extraerlos de startEndPoint con varios formatos posibles.
-  // Divide el campo `startEndPoint` en punto de inicio y punto de fin, intentando varios formatos.
-  List<String> _splitStartEnd() {
-    final String? raw = startEndPoint;
-    if (raw == null || raw.trim().isEmpty) {
-      return <String>[title, ''];
-    }
-    final List<String> arrowSplit = raw.split('→');
-    if (arrowSplit.length == 2) {
-      return <String>[arrowSplit[0].trim(), arrowSplit[1].trim()];
-    }
-    final List<String> dashSplit = raw.split(' - ');
-    if (dashSplit.length == 2) {
-      return <String>[dashSplit[0].trim(), dashSplit[1].trim()];
-    }
-    return <String>[raw.trim(), ''];
-  }
 }

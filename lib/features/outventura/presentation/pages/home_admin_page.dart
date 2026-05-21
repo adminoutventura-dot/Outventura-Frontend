@@ -48,7 +48,7 @@ class HomeAdminPage extends ConsumerWidget {
       drawer: const AppDrawer(),
       body: CustomScrollView(
         slivers: [
-          // TODO: Extilo de titulo que sea igual a las otras paginas
+          // TODO: Estilo de titulo que sea igual a las otras paginas
           // -- HEADER COLAPSABLE --
           SliverPersistentHeader(
             pinned: true,
@@ -294,7 +294,7 @@ class HomeAdminPage extends ConsumerWidget {
                           padding: const EdgeInsets.only(left: 16, right: 16),
                           child: EventoTile(
                             titulo: s.requestEvent,
-                            subtitulo: ref.watch(activityByIdProvider(r.activityId))?.title ?? s.unknown,
+                            subtitulo: ref.watch(activityNameProvider(r.activityId)) ?? s.unknown,
                             color: cs.primary,
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
@@ -310,9 +310,7 @@ class HomeAdminPage extends ConsumerWidget {
                           padding: const EdgeInsets.only(left: 16, right: 16),
                           child: EventoTile(
                             titulo: s.reservationEvent,
-                            subtitulo: r.activityId != null
-                                ? ref.watch(activityByIdProvider(r.activityId!))?.title ?? s.unknown
-                                : s.unknown,
+                            subtitulo: ref.watch(activityNameProvider(r.activityId)) ?? s.unknown,
                             color: cs.tertiary,
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(

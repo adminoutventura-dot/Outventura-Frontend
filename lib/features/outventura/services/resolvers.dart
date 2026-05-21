@@ -3,7 +3,7 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
 // --- Funciones de resolución ---
-// TODO: REVISAR SI SE PUEDE AÑADIR ALGO MÁS AQUÍ DE LA APP PARA OPTIMIZAR
+
 // Resuelve el nombre completo de un usuario por su ID.
 String resolverNombreUsuario(int id, List<User> usuarios) {
   final int index = usuarios.indexWhere((User u) => u.id == id);

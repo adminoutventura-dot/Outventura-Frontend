@@ -178,7 +178,7 @@ class HomeClientePage extends ConsumerWidget {
                           padding: const EdgeInsets.only(left: 16, right: 16),
                           child: EventoTile(
                             titulo: s.requestEvent,
-                            subtitulo: ref.watch(activityByIdProvider(sol.activityId))?.title ?? s.unknown,
+                            subtitulo: ref.watch(activityNameProvider(sol.activityId)) ?? s.unknown,
                             color: cs.primary,
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => RequestDetailPage(solicitud: sol)),
@@ -193,9 +193,7 @@ class HomeClientePage extends ConsumerWidget {
                           padding: const EdgeInsets.only(left: 16, right: 16),
                           child: EventoTile(
                             titulo: s.reservationEvent,
-                            subtitulo: res.activityId != null
-                                ? ref.watch(activityByIdProvider(res.activityId!))?.title ?? s.unknown
-                                : s.unknown,
+                            subtitulo: ref.watch(activityNameProvider(res.activityId)) ?? s.unknown,
                             color: cs.tertiary,
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => ReservationDetailPage(reserva: res)),
