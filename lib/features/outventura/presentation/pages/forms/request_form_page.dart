@@ -145,15 +145,17 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
         totalLabel: s.total,
         price: s.priceEur(totalPrice.toStringAsFixed(2)),
         actionLabel: isEdit ? s.save : s.create,
-        onPressed: () {
+        onPressed: () async {
           // Validar formulario
           if (_controller.idReserva == null && _controller.tieneMateriales) {
-            final Booking? reserva = _controller.crearReservaDesdeSolicitud(
+            final Booking? reserva = await _controller.crearReservaDesdeSolicitud(
               context: context,
               ref: ref,
             );
             if (reserva == null) return;
           }
+
+          if (!context.mounted) return;
 
           // Crear o actualizar solicitud
           final Request? solicitud = _controller.crearEditarSolicitud(actividades, equipamientos);

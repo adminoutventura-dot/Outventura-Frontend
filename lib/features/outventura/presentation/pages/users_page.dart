@@ -79,17 +79,16 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           final User nuevo = result['usuario'] as User;
           final Map<String, dynamic>? guiaData = result['guia'] as Map<String, dynamic>?;
           // Agrega el nuevo usuario al estado global.
-          ref.read(usuariosProvider.notifier).agregar(nuevo);
+          final User creado = await ref.read(usuariosProvider.notifier).agregar(nuevo);
           // Si tiene datos de guía, crea el registro de guía.
           if (guiaData != null) {
             final Guide guia = Guide(
-              id: 0,
-              userId: nuevo.id,
+              userId: creado.id!,
               specialty: Category.fromString(guiaData['specialty'] as String),
               credentials: guiaData['credentials'] as String,
-              user: nuevo,
+              user: creado,
             );
-            ref.read(guidesProvider.notifier).agregar(guia);
+            await ref.read(guidesProvider.notifier).agregar(guia);
           }
           if (!context.mounted) {
             return;
@@ -145,7 +144,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                       // Busca la guía vinculada a este usuario si existe.
                       final Guide? guiaActual = ref
                           .read(guidesProvider.notifier)
-                          .porUsuario(usuarios[index].id);
+                          .porUsuario(usuarios[index].id!);
                       // Navega al formulario de edición pasando el usuario actual.
                       final Map<String, dynamic>? result =
                           await Navigator.push<Map<String, dynamic>>(
@@ -171,8 +170,8 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                       // Actualiza o crea el registro de guía.
                       if (guiaData != null) {
                         final Guide nuevaGuia = Guide(
-                          id: guiaActual?.id ?? 0,
-                          userId: actualizado.id,
+                          id: guiaActual?.id,
+                          userId: actualizado.id!,
                           specialty: Category.fromString(guiaData['specialty'] as String),
                           credentials: guiaData['credentials'] as String,
                           user: actualizado,

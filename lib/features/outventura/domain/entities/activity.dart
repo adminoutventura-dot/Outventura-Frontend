@@ -26,7 +26,7 @@ enum ActivityStatus {
 
 // Entidad de actividad.
 class Activity {
-  final int id;
+  final int? id;
   final String title;
   final String? description;
   final DateTime initDate;
@@ -42,7 +42,7 @@ class Activity {
   final Map<int, int> materialsPerParticipant;
 
   const Activity({
-    required this.id,
+    this.id,
     required this.title,
     this.description,
     required this.initDate,

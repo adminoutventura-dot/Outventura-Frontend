@@ -91,12 +91,14 @@ class RequestsNotifier extends AsyncNotifier<List<Request>> {
     }
   }
 
-  // POST /request - crea la solicitud. Recarga la lista para obtener el ID generado.
-  Future<void> agregar(Request solicitud) async {
+  // POST /request - crea la solicitud. Devuelve la solicitud con el ID asignado por el backend.
+  Future<Request> agregar(Request solicitud) async {
     try {
       final dio = ref.read(dioProvider);
-      await dio.post('/request', data: solicitud.toMap());
+      final response = await dio.post('/request', data: solicitud.toMap());
+      final Request created = Request.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
+      return created;
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -104,6 +106,9 @@ class RequestsNotifier extends AsyncNotifier<List<Request>> {
 
   // PATCH /request/:id - actualiza la solicitud en el backend y en la lista local.
   Future<void> actualizar(Request viejo, Request nuevo) async {
+    if (viejo.id == null) {
+      throw StateError('Request has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.patch('/request/${viejo.id}', data: nuevo.toMap());
@@ -120,6 +125,9 @@ class RequestsNotifier extends AsyncNotifier<List<Request>> {
 
   // DELETE /request/:id - elimina la solicitud del backend y de la lista local.
   Future<void> eliminar(Request solicitud) async {
+    if (solicitud.id == null) {
+      throw StateError('Request has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.delete('/request/${solicitud.id}');

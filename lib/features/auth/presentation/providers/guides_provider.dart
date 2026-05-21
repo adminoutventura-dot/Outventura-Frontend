@@ -20,12 +20,14 @@ class GuidesNotifier extends AsyncNotifier<List<Guide>> {
     }
   }
 
-  // POST /guide - crea el guía y recarga la lista para obtener el ID generado.
-  Future<void> agregar(Guide guide) async {
+  // POST /guide - crea el guía. Devuelve el guía con el ID asignado por el backend.
+  Future<Guide> agregar(Guide guide) async {
     try {
       final dio = ref.read(dioProvider);
-      await dio.post('/guide', data: guide.toMap());
+      final response = await dio.post('/guide', data: guide.toMap());
+      final Guide created = Guide.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
+      return created;
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -33,6 +35,9 @@ class GuidesNotifier extends AsyncNotifier<List<Guide>> {
 
   // PATCH /guide/:id - actualiza el guía en el backend y en la lista local.
   Future<void> actualizar(Guide viejo, Guide nuevo) async {
+    if (viejo.id == null) {
+      throw StateError('Guide has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.patch('/guide/${viejo.id}', data: nuevo.toMap());
@@ -49,6 +54,9 @@ class GuidesNotifier extends AsyncNotifier<List<Guide>> {
 
   // DELETE /guide/:id - elimina el guía del backend y de la lista local.
   Future<void> eliminar(Guide eliminado) async {
+    if (eliminado.id == null) {
+      throw StateError('Guide has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.delete('/guide/${eliminado.id}');

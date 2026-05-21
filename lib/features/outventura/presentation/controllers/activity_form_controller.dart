@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
-import 'package:outventura/core/utils/id_generator.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
@@ -93,7 +92,7 @@ class ActivityFormController {
     final String puntoInicio = puntoInicioController.text.trim();
     final String puntoFin = puntoFinController.text.trim();
     return Activity(
-      id: seleccionado?.id ?? GeneradorId.idEntero(),
+      id: seleccionado?.id,
       title: [puntoInicio, puntoFin].where((e) => e.isNotEmpty).join(' - '),
       description: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
       initDate: fechaInicio.copyWith(hour: horaInicio.hour, minute: horaInicio.minute, second: 0),

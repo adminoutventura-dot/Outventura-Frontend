@@ -293,7 +293,7 @@ class HomeAdminPage extends ConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 16, right: 16),
                           child: EventoTile(
-                            titulo: s.requestEvent(r.id),
+                            titulo: s.requestEvent,
                             subtitulo: ref.watch(activityByIdProvider(r.activityId))?.title ?? s.unknown,
                             color: cs.primary,
                             onTap: () => Navigator.of(context).push(
@@ -309,7 +309,7 @@ class HomeAdminPage extends ConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 16, right: 16),
                           child: EventoTile(
-                            titulo: s.reservationEvent(r.id),
+                            titulo: s.reservationEvent,
                             subtitulo: r.activityId != null
                                 ? ref.watch(activityByIdProvider(r.activityId!))?.title ?? s.unknown
                                 : s.unknown,

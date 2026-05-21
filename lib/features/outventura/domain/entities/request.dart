@@ -34,7 +34,7 @@ enum RequestStatus {
 
 // Entidad de solicitud.
 class Request {
-  final int id;
+  final int? id;
   final int activityId;
   final int participantCount;
   final RequestStatus status;
@@ -45,7 +45,7 @@ class Request {
   final double totalPrice;
 
   const Request({
-    required this.id,
+    this.id,
     required this.activityId,
     required this.participantCount,
     required this.status,

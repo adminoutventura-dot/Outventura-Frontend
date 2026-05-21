@@ -116,7 +116,7 @@ class ReservationCard extends StatelessWidget {
                                 children: [
                                   // ID de reserva 
                                   Text(
-                                    'RESERVA #${reserva.id}',
+                                    'RESERVA',
                                     style: tt.labelSmall?.copyWith(
                                       color: statusColor,
                                       fontWeight: FontWeight.w700,

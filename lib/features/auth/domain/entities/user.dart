@@ -1,7 +1,7 @@
 import 'role.dart';
 
 class User {
-  final int id;
+  final int? id;
   final String name;
   final String surname;
   final String email;
@@ -11,7 +11,7 @@ class User {
   final bool active;
 
   const User({
-    required this.id,
+    this.id,
     required this.name,
     required this.surname,
     required this.email,

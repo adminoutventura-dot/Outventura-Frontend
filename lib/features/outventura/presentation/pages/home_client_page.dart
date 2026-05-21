@@ -34,9 +34,9 @@ class HomeClientePage extends ConsumerWidget {
     final rawDate = DateFormat.yMMMMEEEEd(locale).format(today);
     final dateStr = rawDate[0].toUpperCase() + rawDate.substring(1);
 
-    final List<Booking> misReservas = ref.watch(userReservationsProvider(usuario.id));
-    final List<Request> misSolicitudes = ref.watch(userRequestsProvider(usuario.id));
-    final int solicitudesPendientes = ref.watch(userPendingRequestsCountProvider(usuario.id));
+    final List<Booking> misReservas = ref.watch(userReservationsProvider(usuario.id!));
+    final List<Request> misSolicitudes = ref.watch(userRequestsProvider(usuario.id!));
+    final int solicitudesPendientes = ref.watch(userPendingRequestsCountProvider(usuario.id!));
     // Últimas 5 actividades para el carrusel
     final actividadesRecientes = ref.watch(recentActivitiesProvider(5));
 
@@ -177,7 +177,7 @@ class HomeClientePage extends ConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 16, right: 16),
                           child: EventoTile(
-                            titulo: s.requestEvent(sol.id),
+                            titulo: s.requestEvent,
                             subtitulo: ref.watch(activityByIdProvider(sol.activityId))?.title ?? s.unknown,
                             color: cs.primary,
                             onTap: () => Navigator.of(context).push(
@@ -192,7 +192,7 @@ class HomeClientePage extends ConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 16, right: 16),
                           child: EventoTile(
-                            titulo: s.reservationEvent(res.id),
+                            titulo: s.reservationEvent,
                             subtitulo: res.activityId != null
                                 ? ref.watch(activityByIdProvider(res.activityId!))?.title ?? s.unknown
                                 : s.unknown,

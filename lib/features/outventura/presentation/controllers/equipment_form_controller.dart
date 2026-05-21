@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/utils/id_generator.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 
@@ -59,9 +58,8 @@ class EquipmentFormController {
       return null;
     }
     
-    final int id = seleccionado?.id ?? GeneradorId.idEntero();
     return Equipment(
-      id: id,
+      id: seleccionado?.id,
       title: nombreController.text.trim(),
       description: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
       categories: List<Category>.from(categorias),

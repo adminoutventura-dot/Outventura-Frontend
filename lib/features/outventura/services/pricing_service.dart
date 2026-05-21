@@ -33,10 +33,10 @@ double calcularPrecioSolicitud({
   // .clamp(1, 999) - Asegura que el número de días sea al menos 1 y no más de 999.
   final int dias = actividad.endDate.difference(actividad.initDate).inDays.clamp(1, 999);
   
-  // Guarda los equipamientos en un mapa para acceso rápido por ID (idEquipamiento → Equipamiento).
+  // Guarda los equipamientos en un mapa para acceso rápido por ID (idEquipamiento -> Equipamiento).
   final Map<int, Equipment> equipPorId = {};
   for (final Equipment e in equipamientos) {
-    equipPorId[e.id] = e;
+    equipPorId[e.id!] = e;
   }
 
   // Suma el costo de alquiler de cada material solicitado: precioAlquilerDiario × cantidad × días.
@@ -76,7 +76,7 @@ double calcularPrecioReserva({
   required List<Equipment> equipamientos,
 }) {
   final int dias = fechaHasta.difference(fechaDesde).inDays.clamp(1, 999);
-  final Map<int, Equipment> equipPorId = {for (final Equipment e in equipamientos) e.id: e};
+  final Map<int, Equipment> equipPorId = {for (final Equipment e in equipamientos) e.id!: e};
   double total = 0;
   for (final BookingLine linea in lineas) {
     final Equipment? equip = equipPorId[linea.equipmentId];

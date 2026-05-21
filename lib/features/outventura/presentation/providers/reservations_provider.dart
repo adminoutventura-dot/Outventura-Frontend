@@ -97,12 +97,14 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
     }
   }
 
-  // POST /booking - crea la reserva con sus líneas. Recarga la lista para obtener el ID.
-  Future<void> agregar(Booking reserva) async {
+  // POST /booking - crea la reserva con sus líneas. Devuelve la reserva con el ID asignado por el backend.
+  Future<Booking> agregar(Booking reserva) async {
     try {
       final dio = ref.read(dioProvider);
-      await dio.post('/booking', data: reserva.toMap());
+      final response = await dio.post('/booking', data: reserva.toMap());
+      final Booking created = Booking.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
+      return created;
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -110,6 +112,9 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
 
   // PATCH /booking/:id - actualiza la reserva en el backend y en la lista local.
   Future<void> actualizar(Booking viejo, Booking nuevo) async {
+    if (viejo.id == null) {
+      throw StateError('Booking has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.patch('/booking/${viejo.id}', data: nuevo.toMap());
@@ -126,6 +131,9 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
 
   // DELETE /booking/:id - elimina la reserva del backend y de la lista local.
   Future<void> eliminar(Booking reserva) async {
+    if (reserva.id == null) {
+      throw StateError('Booking has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.delete('/booking/${reserva.id}');

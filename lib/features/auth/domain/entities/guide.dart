@@ -2,14 +2,14 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
 class Guide {
-  final int id;
+  final int? id;
   final int userId;
   final Category specialty;
   final String credentials;
   final User? user;
 
   const Guide({
-    required this.id,
+    this.id,
     required this.userId,
     required this.specialty,
     required this.credentials,

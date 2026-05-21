@@ -769,14 +769,14 @@ abstract class AppLocalizations {
   /// No description provided for @reservationEvent.
   ///
   /// In es, this message translates to:
-  /// **'Reserva #{id}'**
-  String reservationEvent(int id);
+  /// **'Reserva'**
+  String get reservationEvent;
 
   /// No description provided for @requestEvent.
   ///
   /// In es, this message translates to:
-  /// **'Solicitud #{id}'**
-  String requestEvent(int id);
+  /// **'Solicitud'**
+  String get requestEvent;
 
   /// No description provided for @noEventsToday.
   ///
@@ -835,8 +835,8 @@ abstract class AppLocalizations {
   /// No description provided for @reservationDetail.
   ///
   /// In es, this message translates to:
-  /// **'Reserva #{id}'**
-  String reservationDetail(int id);
+  /// **'Reserva'**
+  String get reservationDetail;
 
   /// No description provided for @generalInfo.
   ///
@@ -901,8 +901,8 @@ abstract class AppLocalizations {
   /// No description provided for @requestDetail.
   ///
   /// In es, this message translates to:
-  /// **'Solicitud #{id}'**
-  String requestDetail(int id);
+  /// **'Solicitud'**
+  String get requestDetail;
 
   /// No description provided for @assignedExpert.
   ///
@@ -1135,8 +1135,8 @@ abstract class AppLocalizations {
   /// No description provided for @editReservation.
   ///
   /// In es, this message translates to:
-  /// **'Editar reserva #{id}'**
-  String editReservation(int id);
+  /// **'Editar reserva'**
+  String get editReservation;
 
   /// No description provided for @newReservation.
   ///
@@ -1393,8 +1393,8 @@ abstract class AppLocalizations {
   /// No description provided for @approveReservationConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Confirmar la reserva #{id}?'**
-  String approveReservationConfirm(int id);
+  /// **'¿Confirmar la reserva?'**
+  String get approveReservationConfirm;
 
   /// No description provided for @approve.
   ///
@@ -1417,8 +1417,8 @@ abstract class AppLocalizations {
   /// No description provided for @rejectReservationConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Rechazar la reserva #{id}?'**
-  String rejectReservationConfirm(int id);
+  /// **'¿Rechazar la reserva?'**
+  String get rejectReservationConfirm;
 
   /// No description provided for @reject.
   ///
@@ -1441,8 +1441,8 @@ abstract class AppLocalizations {
   /// No description provided for @cancelReservationConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Cancelar la reserva #{id}?'**
-  String cancelReservationConfirm(int id);
+  /// **'¿Cancelar la reserva?'**
+  String get cancelReservationConfirm;
 
   /// No description provided for @registerReturn.
   ///
@@ -1453,8 +1453,8 @@ abstract class AppLocalizations {
   /// No description provided for @registerReturnConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Confirmar la devolución de la reserva #{id}? Podrás registrar los daños desde el formulario.'**
-  String registerReturnConfirm(int id);
+  /// **'¿Confirmar la devolución de la reserva? Podrás registrar los daños desde el formulario.'**
+  String get registerReturnConfirm;
 
   /// No description provided for @returnRegistered.
   ///
@@ -1531,8 +1531,8 @@ abstract class AppLocalizations {
   /// No description provided for @acceptRequestConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Aceptar la solicitud #{id}?\nSe generará una actividad automáticamente.'**
-  String acceptRequestConfirm(int id);
+  /// **'¿Aceptar la solicitud?\nSe generará una actividad automáticamente.'**
+  String get acceptRequestConfirm;
 
   /// No description provided for @requestAccepted.
   ///
@@ -1555,8 +1555,8 @@ abstract class AppLocalizations {
   /// No description provided for @rejectRequestConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Rechazar la solicitud #{id}?'**
-  String rejectRequestConfirm(int id);
+  /// **'¿Rechazar la solicitud?'**
+  String get rejectRequestConfirm;
 
   /// No description provided for @requestRejected.
   ///

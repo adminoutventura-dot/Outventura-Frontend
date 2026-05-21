@@ -43,7 +43,7 @@ class RequestDetailPage extends ConsumerWidget {
         slivers: [
           // Header 
           DetailSliverHeader(
-            title: s.requestDetail(solicitud.id),
+            title: s.requestDetail,
             subtitle: solicitud.status.localizedLabel(s),
             color: accentColor,
           ),

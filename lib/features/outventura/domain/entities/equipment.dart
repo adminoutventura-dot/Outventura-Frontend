@@ -34,7 +34,7 @@ enum EquipmentStatus {
 
 // Entidad de material.
 class Equipment {
-  final int id;
+  final int? id;
   final String title;
   final String? description;
   final List<Category> categories;
@@ -46,7 +46,7 @@ class Equipment {
   final String? imageAsset;
 
   const Equipment({
-    required this.id,
+    this.id,
     required this.title,
     this.description,
     required this.categories,

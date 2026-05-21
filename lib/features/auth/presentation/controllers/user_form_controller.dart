@@ -57,7 +57,7 @@ class UserFormController {
   // Construye un Usuario a partir de los datos del formulario.
   User construirUsuario() {
     return User(
-      id: seleccionado?.id ?? DateTime.now().millisecondsSinceEpoch,
+      id: seleccionado?.id,
       name: nombre.text.trim(),
       surname: apellidos.text.trim(),
       email: email.text.trim(),

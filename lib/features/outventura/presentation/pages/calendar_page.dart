@@ -248,7 +248,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                       final evento = eventosSeleccionados[index];
                       if (evento is Booking) {
                         return EventoTile(
-                          titulo: s.reservationEvent(evento.id),
+                          titulo: s.reservationEvent,
                           subtitulo: evento.status.localizedLabel(s),
                           color: colorReserva,
                           onTap: () => Navigator.of(context).push(MaterialPageRoute(
@@ -257,7 +257,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                         );
                       } else if (evento is Request) {
                         return EventoTile(
-                          titulo: s.requestEvent(evento.id),
+                          titulo: s.requestEvent,
                           subtitulo: evento.status.localizedLabel(s),
                           color: colorSolicitud,
                           onTap: () => Navigator.of(context).push(MaterialPageRoute(

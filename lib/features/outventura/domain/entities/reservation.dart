@@ -70,7 +70,7 @@ class BookingLine {
 
 // Entidad de reserva.
 class Booking {
-  final int id;
+  final int? id;
   final int userId;
   final List<BookingLine> lines;
   final int? activityId;
@@ -80,7 +80,7 @@ class Booking {
   final Map<int, int> damagedItems;
 
   const Booking({
-    required this.id,
+    this.id,
     required this.userId,
     required this.lines,
     this.activityId,

@@ -69,7 +69,7 @@ class RequestsPageController {
     final bool confirm = await showConfirmDialog(
       context: context,
       title: s.acceptRequest,
-      content: s.acceptRequestConfirm(solicitud.id),
+      content: s.acceptRequestConfirm,
       confirmLabel: s.accept,
       isDanger: false,
     );
@@ -124,7 +124,7 @@ class RequestsPageController {
     final bool confirm = await showConfirmDialog(
       context: context,
       title: s.rejectRequest,
-      content: s.rejectRequestConfirm(solicitud.id),
+      content: s.rejectRequestConfirm,
       confirmLabel: s.reject,
     );
     if (!confirm) {

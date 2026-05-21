@@ -2,7 +2,7 @@ import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 
-/// Datos de reservas y solicitudes para una semana.
+// Datos de reservas y solicitudes para una semana.
 class WeeklyData {
   final List<double> reservasData;
   final List<double> solicitudesData;

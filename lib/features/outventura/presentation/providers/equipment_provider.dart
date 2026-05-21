@@ -47,12 +47,14 @@ class EquipmentNotifier extends AsyncNotifier<List<Equipment>> {
     }
   }
 
-  // POST /equipment - crea el equipamiento. Recarga la lista para obtener el ID generado.
-  Future<void> agregar(Equipment equipamiento) async {
+  // POST /equipment - crea el equipamiento. Devuelve el equipamiento con el ID asignado por el backend.
+  Future<Equipment> agregar(Equipment equipamiento) async {
     try {
       final dio = ref.read(dioProvider);
-      await dio.post('/equipment', data: equipamiento.toMap());
+      final response = await dio.post('/equipment', data: equipamiento.toMap());
+      final Equipment created = Equipment.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
+      return created;
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -60,6 +62,9 @@ class EquipmentNotifier extends AsyncNotifier<List<Equipment>> {
 
   // PATCH /equipment/:id - actualiza el equipamiento en el backend y en la lista local.
   Future<void> actualizar(Equipment viejo, Equipment nuevo) async {
+    if (viejo.id == null) {
+      throw StateError('Equipment has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.patch('/equipment/${viejo.id}', data: nuevo.toMap());
@@ -76,6 +81,9 @@ class EquipmentNotifier extends AsyncNotifier<List<Equipment>> {
 
   // DELETE /equipment/:id - elimina el equipamiento del backend y de la lista local.
   Future<void> eliminar(Equipment equipamiento) async {
+    if (equipamiento.id == null) {
+      throw StateError('Equipment has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.delete('/equipment/${equipamiento.id}');

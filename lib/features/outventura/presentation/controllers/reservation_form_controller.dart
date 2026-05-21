@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/utils/id_generator.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
@@ -146,6 +145,7 @@ class ReservationFormController {
     });
   }
 
+  // TODO: CrearEditarreserva
   Booking? crearReserva(List<Equipment> equipamientos) {
     if (!validar()) {
       return null;
@@ -154,10 +154,8 @@ class ReservationFormController {
       return null;
     }
 
-    final int id = seleccionado?.id ?? GeneradorId.idEntero();
-
     return Booking(
-      id: id,
+      id: seleccionado?.id,
       userId: idUsuario!,
       lines: List.unmodifiable(lineas),
       activityId: idActividad,

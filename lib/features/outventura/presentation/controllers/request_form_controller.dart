@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/utils/id_generator.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
@@ -68,12 +67,10 @@ class RequestFormController {
       return null;
     }
 
-    // TEMPORAL: idEntero() se elimina cuando el backend asigne IDs reales. precio vendrá del backend.
-    final int id = seleccionado?.id ?? GeneradorId.idEntero();
     final double precio = calcularPrecioTotal(actividades, equipamientos);
 
     return Request(
-      id: id,
+      id: seleccionado?.id,
       activityId: idActividad!,
       participantCount: numeroParticipantes,
       status: estado,
@@ -150,29 +147,23 @@ class RequestFormController {
     materialesSolicitados = recalculado;
   }
 
-  // TEMPORAL: el backend creará la reserva y devolverá el ID real. Eliminar GeneradorId.idEntero() de aquí.
-  // Construye una reserva a partir de la solicitud actual.
+  // Construye una reserva a partir de la solicitud actual. El backend asignará el ID real.
   Booking? construirReserva(List<Activity> actividades) {
     if (idUsuario == null) {
       return null;
     }
 
-    // Crea las líneas de reserva a partir de los materiales solicitados.
     final List<BookingLine> lineas = lineasDesdeMateriales();
     if (lineas.isEmpty) {
       return null;
     }
 
-    final Booking reserva = Booking(
-      id: GeneradorId.idEntero(),
+    return Booking(
       userId: idUsuario!,
       lines: lineas,
       activityId: idActividad,
       status: BookingStatus.pendiente,
     );
-
-    idReserva = reserva.id;
-    return reserva;
   }
 
   // Busca una reserva por su ID en una lista de reservas.
@@ -289,10 +280,10 @@ class RequestFormController {
 
   // Crea una reserva a partir de los datos actuales del formulario.
   // Si hay un error de validación, muestra un snackbar y devuelve null.
-  Booking? crearReservaDesdeSolicitud({
+  Future<Booking?> crearReservaDesdeSolicitud({
     required BuildContext context,
     required WidgetRef ref,
-  }) {
+  }) async {
     final String? error = mensajeErrorReserva(context);
     if (error != null) {
       showErrorSnackBar(context, error);
@@ -300,9 +291,11 @@ class RequestFormController {
     }
     final List<Activity> actividades = ref.read(activitiesProvider).value ?? [];
     final Booking? reserva = crearReserva(actividades);
-    if (reserva != null) {
-      ref.read(reservationsProvider.notifier).agregar(reserva);
+    if (reserva == null) {
+      return null;
     }
-    return reserva;
+    final Booking creada = await ref.read(reservationsProvider.notifier).agregar(reserva);
+    idReserva = creada.id;
+    return creada;
   }
 }

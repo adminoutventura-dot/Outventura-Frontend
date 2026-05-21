@@ -131,7 +131,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
       extendBodyBehindAppBar: true,
       extendBody: true,
       backgroundColor: cs.surface,
-      appBar: CustomAppBarForm(title: isEdit ? s.editReservation(widget.reserva!.id) : s.newReservation),
+      appBar: CustomAppBarForm(title: isEdit ? s.editReservation : s.newReservation),
       bottomNavigationBar: BottomPriceBar(
         totalLabel: s.total,
         price: s.priceEur(totalPrice.toStringAsFixed(2)),

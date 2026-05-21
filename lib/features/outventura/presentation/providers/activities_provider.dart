@@ -76,12 +76,14 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     }
   }
 
-  // POST /activity - crea la actividad. Recarga la lista para obtener el ID generado.
-  Future<void> agregar(Activity actividad) async {
+  // POST /activity - crea la actividad. Devuelve la actividad con el ID asignado por el backend.
+  Future<Activity> agregar(Activity actividad) async {
     try {
       final dio = ref.read(dioProvider);
-      await dio.post('/activity', data: actividad.toMap());
+      final response = await dio.post('/activity', data: actividad.toMap());
+      final Activity created = Activity.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
+      return created;
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -89,6 +91,10 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
 
   // PATCH /activity/:id - actualiza la actividad en el backend y en la lista local.
   Future<void> actualizar(Activity viejo, Activity nuevo) async {
+    if (viejo.id == null) {
+      throw StateError('Activity has no id');
+    }
+    
     try {
       final dio = ref.read(dioProvider);
       await dio.patch('/activity/${viejo.id}', data: nuevo.toMap());
@@ -105,6 +111,9 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
 
   // DELETE /activity/:id - elimina la actividad del backend y de la lista local.
   Future<void> eliminar(Activity actividad) async {
+    if (actividad.id == null) {
+      throw StateError('Activity has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.delete('/activity/${actividad.id}');

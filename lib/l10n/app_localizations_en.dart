@@ -358,14 +358,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String reservationEvent(int id) {
-    return 'Reservation #$id';
-  }
+  String get reservationEvent => 'Reservation';
 
   @override
-  String requestEvent(int id) {
-    return 'Request #$id';
-  }
+  String get requestEvent => 'Request';
 
   @override
   String get noEventsToday => 'No events today';
@@ -397,9 +393,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userDeleted => 'User deleted successfully.';
 
   @override
-  String reservationDetail(int id) {
-    return 'Reservation #$id';
-  }
+  String get reservationDetail => 'Reservation';
 
   @override
   String get generalInfo => 'General information';
@@ -438,9 +432,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String requestDetail(int id) {
-    return 'Request #$id';
-  }
+  String get requestDetail => 'Request';
 
   @override
   String get assignedExpert => 'Assigned expert';
@@ -561,9 +553,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activeUser => 'Active user';
 
   @override
-  String editReservation(int id) {
-    return 'Edit reservation #$id';
-  }
+  String get editReservation => 'Edit reservation';
 
   @override
   String get newReservation => 'New reservation';
@@ -711,9 +701,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get approveReservation => 'Approve reservation';
 
   @override
-  String approveReservationConfirm(int id) {
-    return 'Confirm reservation #$id?';
-  }
+  String get approveReservationConfirm => 'Confirm reservation?';
 
   @override
   String get approve => 'Approve';
@@ -725,9 +713,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rejectReservation => 'Reject reservation';
 
   @override
-  String rejectReservationConfirm(int id) {
-    return 'Reject reservation #$id?';
-  }
+  String get rejectReservationConfirm => 'Reject reservation?';
 
   @override
   String get reject => 'Reject';
@@ -739,17 +725,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancelReservation => 'Cancel reservation';
 
   @override
-  String cancelReservationConfirm(int id) {
-    return 'Cancel reservation #$id?';
-  }
+  String get cancelReservationConfirm => 'Cancel reservation?';
 
   @override
   String get registerReturn => 'Register return';
 
   @override
-  String registerReturnConfirm(int id) {
-    return 'Confirm the return of reservation #$id? You can register damages from the form.';
-  }
+  String get registerReturnConfirm =>
+      'Confirm the return of reservation? You can register damages from the form.';
 
   @override
   String get returnRegistered => 'Return registered.';
@@ -790,9 +773,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get acceptRequest => 'Accept request';
 
   @override
-  String acceptRequestConfirm(int id) {
-    return 'Accept request #$id?\nAn activity will be generated automatically.';
-  }
+  String get acceptRequestConfirm =>
+      'Accept request?\nAn activity will be generated automatically.';
 
   @override
   String get requestAccepted => 'Request accepted. Activity generated.';
@@ -805,9 +787,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rejectRequest => 'Reject request';
 
   @override
-  String rejectRequestConfirm(int id) {
-    return 'Reject request #$id?';
-  }
+  String get rejectRequestConfirm => 'Reject request?';
 
   @override
   String get requestRejected => 'Request rejected.';

@@ -49,13 +49,14 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
     }
   }
 
-  // POST /user - crea un nuevo usuario. Recarga la lista completa desde el backend.
-  Future<void> agregar(User usuario) async {
+  // POST /user - crea un nuevo usuario. Devuelve el usuario con el ID asignado por el backend.
+  Future<User> agregar(User usuario) async {
     try {
       final dio = ref.read(dioProvider);
-      await dio.post('/user', data: usuario.toMap());
-      // Fuerza recarga para obtener el ID generado por el servidor
-      ref.invalidateSelf(); 
+      final response = await dio.post('/user', data: usuario.toMap());
+      final User created = User.fromMap(response.data as Map<String, dynamic>);
+      ref.invalidateSelf();
+      return created;
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -63,6 +64,9 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
 
   // PATCH /user/:id - actualiza un usuario. Actualiza el item en local sin recargar la lista.
   Future<void> actualizar(User viejo, User nuevo) async {
+    if (viejo.id == null) {
+      throw StateError('User has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.patch('/user/${viejo.id}', data: nuevo.toMap());
@@ -81,6 +85,9 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
 
   // DELETE /user/:id - elimina un usuario. Lo quita de la lista local inmediatamente.
   Future<void> eliminar(User eliminado) async {
+    if (eliminado.id == null) {
+      throw StateError('User has no id');
+    }
     try {
       final dio = ref.read(dioProvider);
       await dio.delete('/user/${eliminado.id}');

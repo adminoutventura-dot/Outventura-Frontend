@@ -48,7 +48,7 @@ class ReservationDetailPage extends ConsumerWidget {
       body: CustomScrollView(
         slivers: [
           DetailSliverHeader(
-            title: s.reservationDetail(reserva.id),
+            title: s.reservationDetail,
             subtitle: reserva.status.localizedLabel(s),
             color: accentColor,
           ),

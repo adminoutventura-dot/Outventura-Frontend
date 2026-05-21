@@ -14,7 +14,7 @@ Future<void> mostrarDialogoAprobacion(
   final bool ok = await showConfirmDialog(
     context: context,
     title: s.approveReservation,
-    content: s.approveReservationConfirm(r.id),
+    content: s.approveReservationConfirm,
     confirmLabel: s.approve,
     isDanger: false,
   );
@@ -33,7 +33,7 @@ Future<void> mostrarDialogoRechazo(
   final bool ok = await showConfirmDialog(
     context: context,
     title: s.rejectReservation,
-    content: s.rejectReservationConfirm(r.id),
+    content: s.rejectReservationConfirm,
     confirmLabel: s.reject,
   );
   if (!context.mounted || !ok) return;
@@ -51,7 +51,7 @@ Future<void> mostrarDialogoCancelacion(
   final bool ok = await showConfirmDialog(
     context: context,
     title: s.cancelReservation,
-    content: s.cancelReservationConfirm(r.id),
+    content: s.cancelReservationConfirm,
     confirmLabel: s.cancelReservation,
   );
   if (!context.mounted || !ok) return;
@@ -68,7 +68,7 @@ Future<void> mostrarDialogoDevolucion(
   final bool ok = await showConfirmDialog(
     context: context,
     title: s.registerReturn,
-    content: s.registerReturnConfirm(r.id),
+    content: s.registerReturnConfirm,
     confirmLabel: s.confirm,
     isDanger: false,
   );
