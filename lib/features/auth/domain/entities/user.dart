@@ -23,17 +23,13 @@ class User {
 
   // Crea un Usuario a partir del JSON del backend.
   factory User.fromMap(Map<String, dynamic> map) {
-    // 'role' siempre llega como { code: "ADMIN" } desde todos los endpoints.
-    //  castea el objeto role a un mapa Dart y extrae el campo 'code' como String.
-    final String roleText = (map['role'] as Map<String, dynamic>)['code'] as String? ?? 'GUEST';
     return User(
-      id: map['id_user'] as int?,
+      id: map['id_user'] ?? 0 as int?,
       name: map['name'] as String,
-      // El login solo devuelve {id, name, email, role}; surname/phone/photo son opcionales.
       surname: map['surname'] as String? ?? '',
       email: map['email'] as String,
       phone: map['phone']?.toString(),
-      role: UserRole.fromString(roleText),
+      role: UserRole.fromString(map['role'] as String? ?? 'GUEST'),
       photo: map['photo'] as String?,
       active: map['status'] as bool? ?? true,
     );
