@@ -27,7 +27,7 @@ class User {
     //  castea el objeto role a un mapa Dart y extrae el campo 'code' como String.
     final String roleText = (map['role'] as Map<String, dynamic>)['code'] as String? ?? 'GUEST';
     return User(
-      id: map['id_user'] as int,
+      id: map['id_user'] as int?,
       name: map['name'] as String,
       // El login solo devuelve {id, name, email, role}; surname/phone/photo son opcionales.
       surname: map['surname'] as String? ?? '',

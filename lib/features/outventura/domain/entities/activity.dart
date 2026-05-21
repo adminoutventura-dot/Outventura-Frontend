@@ -68,7 +68,7 @@ class Activity {
         .toList();
 
     return Activity(
-      id: map['id_activity'] as int,
+      id: map['id_activity'] as int?,
       description: map['description'] as String?,
       initDate: DateTime.parse(map['init_date'] as String),
       endDate: DateTime.parse(map['end_date'] as String),

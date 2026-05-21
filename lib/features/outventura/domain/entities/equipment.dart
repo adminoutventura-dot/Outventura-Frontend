@@ -74,7 +74,7 @@ class Equipment {
     final int units = ((map['units'] ?? 0) as num).toInt();
 
     return Equipment(
-      id: map['id_equipment'] as int,
+      id: map['id_equipment'] as int?,
       title: map['title'] as String,
       description: map['description'] as String?,
       categories: parsedCategories,

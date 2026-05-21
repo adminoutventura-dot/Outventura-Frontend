@@ -117,7 +117,7 @@ class Booking {
     };
 
     return Booking(
-      id: map['id_booking'] as int,
+      id: map['id_booking'] as int?,
       userId: userId,
       lines: lines,
       activityId: activityId,

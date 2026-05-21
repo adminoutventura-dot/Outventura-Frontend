@@ -59,7 +59,7 @@ class Request {
   // Crea una Solicitud a partir del JSON que devuelve el backend.
   factory Request.fromMap(Map<String, dynamic> map) {
     return Request(
-      id: map['id_request'] as int,
+      id: map['id_request'] as int?,
       activityId: map['activityId'] as int,
       participantCount: (map['participant_count'] as num).toInt(),
       status: RequestStatus.fromString(map['status'] as String),

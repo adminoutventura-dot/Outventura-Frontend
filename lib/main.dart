@@ -17,6 +17,7 @@ import 'package:outventura/features/preferences/data/models/preferences.dart';
 // TODO: Arreglar botones de usuarios reservas y solicitudes que se pasa abajo.
 // TODO: Añadir el subir fotos.
 // TODO: Añadir borde a logo
+// TODO: GO_ROUTE
 
 void main() async {
   final WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();

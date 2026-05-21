@@ -18,7 +18,7 @@ class Guide {
 
   factory Guide.fromMap(Map<String, dynamic> map) {
     return Guide(
-      id: (map['id_guide'] ?? map['id']) as int,
+      id: map['id_guide'] as int?,
       userId: map['userId'] as int,
       specialty: Category.fromString(map['specialty'] as String),
       credentials: map['credentials'] as String,
