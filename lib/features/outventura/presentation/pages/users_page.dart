@@ -3,8 +3,11 @@ import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/features/auth/domain/entities/guide.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
+import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/presentation/controllers/users_page_controller.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/user_form_page.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
@@ -65,16 +68,29 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       floatingActionButton: AddFab(
         onPressed: () async {
           // Navega al formulario de creación de usuario.
-          final User? nuevo = await Navigator.push<User>(
+          final Map<String, dynamic>? result = await Navigator.push<Map<String, dynamic>>(
             context,
             MaterialPageRoute(builder: (_) => const UserFormPage()),
           );
           // Si el usuario cancela la creación, no hace nada.
-          if (nuevo == null) {
+          if (result == null) {
             return;
           }
+          final User nuevo = result['usuario'] as User;
+          final Map<String, dynamic>? guiaData = result['guia'] as Map<String, dynamic>?;
           // Agrega el nuevo usuario al estado global.
           ref.read(usuariosProvider.notifier).agregar(nuevo);
+          // Si tiene datos de guía, crea el registro de guía.
+          if (guiaData != null) {
+            final Guide guia = Guide(
+              id: 0,
+              userId: nuevo.id,
+              specialty: Category.fromString(guiaData['specialty'] as String),
+              credentials: guiaData['credentials'] as String,
+              user: nuevo,
+            );
+            ref.read(guidesProvider.notifier).agregar(guia);
+          }
           if (!context.mounted) {
             return;
           }
@@ -126,19 +142,54 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                   return UserCard(
                     usuario: usuarios[index],
                     onEditar: () async {
+                      // Busca la guía vinculada a este usuario si existe.
+                      final Guide? guiaActual = ref
+                          .read(guidesProvider.notifier)
+                          .porUsuario(usuarios[index].id);
                       // Navega al formulario de edición pasando el usuario actual.
-                      final User? actualizado = await Navigator.push<User>(
+                      final Map<String, dynamic>? result =
+                          await Navigator.push<Map<String, dynamic>>(
                         context,
                         MaterialPageRoute(
-                          builder: (BuildContext _) => UserFormPage(usuario: usuarios[index]),
+                          builder: (BuildContext _) => UserFormPage(
+                            usuario: usuarios[index],
+                            guia: guiaActual,
+                          ),
                         ),
                       );
                       // Si el usuario canceló la edición, no hace nada.
-                      if (actualizado == null) {
+                      if (result == null) {
                         return;
                       }
+                      final User actualizado = result['usuario'] as User;
+                      final Map<String, dynamic>? guiaData =
+                          result['guia'] as Map<String, dynamic>?;
                       // Actualiza el usuario en el estado global.
-                      ref.read(usuariosProvider.notifier).actualizar(usuarios[index], actualizado);
+                      ref
+                          .read(usuariosProvider.notifier)
+                          .actualizar(usuarios[index], actualizado);
+                      // Actualiza o crea el registro de guía.
+                      if (guiaData != null) {
+                        final Guide nuevaGuia = Guide(
+                          id: guiaActual?.id ?? 0,
+                          userId: actualizado.id,
+                          specialty: Category.fromString(guiaData['specialty'] as String),
+                          credentials: guiaData['credentials'] as String,
+                          user: actualizado,
+                        );
+                        if (guiaActual != null) {
+                          ref
+                              .read(guidesProvider.notifier)
+                              .actualizar(guiaActual, nuevaGuia);
+                        } else {
+                          ref.read(guidesProvider.notifier).agregar(nuevaGuia);
+                        }
+                      } else if (guiaActual != null) {
+                        // El rol ya no es trabajador, elimina la guía.
+                        ref
+                            .read(guidesProvider.notifier)
+                            .eliminar(guiaActual);
+                      }
                       if (!context.mounted) {
                         return;
                       }

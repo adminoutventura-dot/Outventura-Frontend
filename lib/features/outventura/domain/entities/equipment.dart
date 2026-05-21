@@ -11,13 +11,13 @@ enum EquipmentStatus {
   String get code {
     switch (this) {
       case EquipmentStatus.disponible:
-        return 'disponible';
+        return 'AVAILABLE';
       case EquipmentStatus.agotado:
-        return 'agotado';
+        return 'OUT_OF_STOCK';
       case EquipmentStatus.mantenimiento:
-        return 'mantenimiento';
+        return 'MAINTENANCE';
       case EquipmentStatus.fueraDeServicio:
-        return 'fueraDeServicio';
+        return 'OUT_OF_SERVICE';
     }
   }
 
@@ -39,7 +39,6 @@ class Equipment {
   final String? description;
   final List<Category> categories;
   final int units;
-  // TODO: `totalUnits`, `damageFee` e `imageAsset` son solo del front.
   final int totalUnits;
   final EquipmentStatus status;
   final double pricePerDay;
@@ -72,15 +71,11 @@ class Equipment {
             .toList()
         : <Category>[];
 
-    // Guarda el valor de 'status' sin importar su formato.
-    final dynamic statusRaw = map['status'];
-    // Comprueba si el campo 'status' es un String o un Map, y si es un Map, extrae el 'code'.
-    final String? statusValue = statusRaw is String
-        ? statusRaw
-        : (statusRaw is Map<String, dynamic> ? statusRaw['code'] as String? : null);
+    // El backend envía el estado como string del enum (ej. 'AVAILABLE').
+    final String? statusValue = map['status'] as String?;
 
-    // Guarda el valor de 'units' del backend.
-    final int units = (map['units'] ?? 0) as int;
+    // El número de unidades totales coincide con el campo `units` del backend.
+    final int units = ((map['units'] ?? 0) as num).toInt();
 
     return Equipment(
       id: (map['id_equipment'] ?? map['id']) as int,
@@ -88,22 +83,24 @@ class Equipment {
       description: map['description'] as String?,
       categories: parsedCategories,
       units: units,
-      totalUnits: (map['stockTotal'] as int?) ?? units,
-      status: EquipmentStatus.fromString(statusValue ?? 'disponible'),
+      totalUnits: ((map['total_units'] ?? map['units'] ?? 0) as num).toInt(),
+      status: EquipmentStatus.fromString(statusValue ?? 'AVAILABLE'),
       pricePerDay: (map['price_per_day'] as num?)?.toDouble() ?? 0,
-      damageFee: (map['damageFee'] as num?)?.toDouble() ?? 0,
+      damageFee: (map['damage_fee'] as num?)?.toDouble() ?? 0,
       imageAsset: map['imageAsset'] as String?,
     );
   }
 
   // Convierte el material a un mapa para enviar al backend.
-  // Los campos solo del front (totalUnits, damageFee, imageAsset) se omiten.
-  // TODO: el backend espera 'statusId' (int); necesita mapearse desde code cuando el back exista.
+  // Los campos solo del front (totalUnits, imageAsset) se omiten.
   Map<String, dynamic> toMap() => {
     'title': title,
     'description': description,
     'units': units,
+    'total_units': totalUnits,
     'price_per_day': pricePerDay,
+    'damage_fee': damageFee,
+    'status': status.code,
     // Las categorías se asignan por separado: POST /equipment/:id/category/:catId
   };
 

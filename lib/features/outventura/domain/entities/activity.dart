@@ -1,18 +1,16 @@
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
-// TODO: El backend no define el estado de actividad; alinear cuando exista.
 // Estados posibles de una actividad.
 enum ActivityStatus {
   disponible,
   noDisponible;
 
-  // Devuelve el nombre legible del estado.
   String get code {
     switch (this) {
       case ActivityStatus.disponible:
-        return 'disponible';
+        return 'AVAILABLE';
       case ActivityStatus.noDisponible:
-        return 'noDisponible';
+        return 'NOT_AVAILABLE';
     }
   }
 
@@ -37,7 +35,8 @@ class Activity {
   final int maxParticipants;
   final String? startEndPoint;
   final List<Category> categories;
-  // TODO: Campos solo en front: imageAsset, status, price, materialsPerParticipant.
+  final int? guideId;
+  // TODO: Campos solo en front: imageAsset, materialsPerParticipant.
   final String? imageAsset;
   final ActivityStatus status;
   final double price;
@@ -53,6 +52,7 @@ class Activity {
     required this.maxParticipants,
     this.startEndPoint,
     required this.categories,
+    this.guideId,
     this.imageAsset,
     this.status = ActivityStatus.disponible,
     this.price = 0,
@@ -82,6 +82,7 @@ class Activity {
       maxParticipants: (map['max_participants'] as num).toInt(),
       startEndPoint: map['start_end_point'] as String?,
       categories: parsedCategories,
+      guideId: map['guideId'] as int?,
       imageAsset: map['imageAsset'] as String?,
       status: map['status'] != null
           ? ActivityStatus.fromString(map['status'] as String)
@@ -97,7 +98,7 @@ class Activity {
   }
 
   // Convierte la actividad a un mapa para enviar al backend.
-  // Los campos solo del front (imageAsset, status, price, materialsPerParticipant) se omiten.
+  // Los campos solo del front (imageAsset, materialsPerParticipant) se omiten.
   Map<String, dynamic> toMap() => {
     'title': title,
     'description': description,
@@ -106,6 +107,9 @@ class Activity {
     'difficulty': difficulty,
     'max_participants': maxParticipants,
     'start_end_point': startEndPoint,
+    'guideId': guideId,
+    'status': status.code,
+    'price': price,
     // Las categorías se asignan por separado: POST /activity/:id/category/:catId
   };
 
@@ -119,6 +123,7 @@ class Activity {
     int? maxParticipants,
     String? startEndPoint,
     List<Category>? categories,
+    int? guideId,
     String? imageAsset,
     ActivityStatus? status,
     double? price,
@@ -134,6 +139,7 @@ class Activity {
       maxParticipants: maxParticipants ?? this.maxParticipants,
       startEndPoint: startEndPoint ?? this.startEndPoint,
       categories: categories ?? this.categories,
+      guideId: guideId ?? this.guideId,
       imageAsset: imageAsset ?? this.imageAsset,
       status: status ?? this.status,
       price: price ?? this.price,
