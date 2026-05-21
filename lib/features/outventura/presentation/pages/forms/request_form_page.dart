@@ -4,6 +4,7 @@ import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_bar_forms.dart';
 import 'package:outventura/core/widgets/bottom_price_bar.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
@@ -120,15 +121,10 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
     final bool modoCliente = widget.initialIdUsuario != null;
 
-    // Lista de usuarios
-    List<User> usuariosDisponibles = ref.watch(usuariosProvider).value ?? [];
-    // Si es modo cliente
-    if (modoCliente) {
-      // Filtra la lista de usuarios para que solo contenga al cliente específico
-      usuariosDisponibles = usuariosDisponibles
-          .where((User u) => u.id == widget.initialIdUsuario)
-          .toList();
-    }
+    // En modo cliente usa el usuario actual directamente; en modo admin carga la lista completa.
+    final List<User> usuariosDisponibles = modoCliente
+        ? [if (ref.watch(currentUserProvider) case final u?) u]
+        : ref.watch(usuariosProvider).value ?? [];
 
     final Activity? actividadSeleccionada = _controller.buscarActividadSeleccionada(actividades);
 

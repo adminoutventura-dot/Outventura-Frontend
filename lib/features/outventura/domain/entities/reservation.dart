@@ -1,4 +1,6 @@
 // Estados posibles de una reserva.
+// TODO: REVISAR EL TIPO DE DATOS QUE MANDA DEL BACK AL FRONT PARA QUE NO HAGA FALTA PARSEARLO
+// TODO: El cliente no se le pasa automaticamente al crear ua solicitu siendo clietne.
 enum BookingStatus {
   pendiente,
   confirmada,
@@ -47,8 +49,8 @@ class BookingLine {
   factory BookingLine.fromMap(Map<String, dynamic> map) {
     return BookingLine(
       equipmentId: map['equipmentId'] as int,
-      quantity: (map['quantity'] as num).toInt(),
-      priceAtMoment: (map['price_at_moment'] as num?)?.toDouble() ?? 0,
+      quantity: num.parse(map['quantity'].toString()).toInt(),
+      priceAtMoment: map['price_at_moment'] != null ? num.parse(map['price_at_moment'].toString()).toDouble() : 0,
     );
   }
 
@@ -113,7 +115,7 @@ class Booking {
     final rawDamaged = map['damaged_items'] as List<dynamic>? ?? [];
     final Map<int, int> damagedItems = {
       for (final e in rawDamaged)
-        (e['equipmentId'] as int): (e['quantity'] as int),
+        num.parse(e['equipmentId'].toString()).toInt(): num.parse(e['quantity'].toString()).toInt(),
     };
 
     return Booking(
@@ -122,8 +124,8 @@ class Booking {
       lines: lines,
       activityId: activityId,
       status: BookingStatus.fromString(statusCode),
-      totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
-      damageFee: (map['damage_fee'] as num?)?.toDouble() ?? 0,
+      totalPrice: map['total_price'] != null ? num.parse(map['total_price'].toString()).toDouble() : 0,
+      damageFee: map['damage_fee'] != null ? num.parse(map['damage_fee'].toString()).toDouble() : 0,
       damagedItems: damagedItems,
     );
   }

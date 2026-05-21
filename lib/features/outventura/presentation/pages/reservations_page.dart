@@ -80,7 +80,10 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                 final Booking? nueva = await Navigator.of(context)
                     .push<Booking>(
                       MaterialPageRoute(
-                        builder: (_) => const ReservationFormPage(),
+                      // En modo cliente, se pasa el ID del usuario actual para que el formulario lo tenga preseleccionado y no pueda elegir otro usuario. En modo gestión, se deja null para que pueda elegir cualquier usuario.
+                        builder: (_) => ReservationFormPage(
+                        initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+                      ),
                       ),
                     );
 

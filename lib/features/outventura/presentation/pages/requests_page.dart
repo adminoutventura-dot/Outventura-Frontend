@@ -80,7 +80,10 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                 final Request? nueva = await Navigator.of(context)
                     .push<Request>(
                       MaterialPageRoute(
-                        builder: (_) => const SolicitudFormPage(),
+                        // En modo cliente, se pasa el ID del usuario actual para que el formulario lo tenga preseleccionado y no pueda elegir otro usuario. En modo gestión, se deja null para que pueda elegir cualquier usuario.
+                        builder: (_) => SolicitudFormPage(
+                        initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+                      ),
                       ),
                     );
 

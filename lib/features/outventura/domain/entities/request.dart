@@ -61,7 +61,7 @@ class Request {
     return Request(
       id: map['id_request'] as int?,
       activityId: map['activityId'] as int,
-      participantCount: (map['participant_count'] as num).toInt(),
+      participantCount: num.parse(map['participant_count'].toString()).toInt(),
       status: RequestStatus.fromString(map['status'] as String),
       guideId: map['guideId'] as int?,
       userId: map['userId'] as int?,
@@ -69,9 +69,9 @@ class Request {
       // requested_materials llega como [{ equipmentId, quantity }] desde el backend.
       requestedMaterials: {
         for (final e in (map['requested_materials'] as List<dynamic>? ?? []))
-          (e['equipmentId'] as int): (e['quantity'] as int),
+          num.parse(e['equipmentId'].toString()).toInt(): num.parse(e['quantity'].toString()).toInt(),
       },
-      totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
+      totalPrice: map['total_price'] != null ? num.parse(map['total_price'].toString()).toDouble() : 0,
     );
   }
 
@@ -79,9 +79,9 @@ class Request {
     'activityId': activityId,
     'participant_count': participantCount,
     'status': status.code,
-    'guideId': guideId,
+    if (guideId != null) 'guideId': guideId,
     'userId': userId,
-    'bookingId': bookingId,
+    if (bookingId != null) 'bookingId': bookingId,
     'requested_materials': requestedMaterials.entries
         .map((e) => {'equipmentId': e.key, 'quantity': e.value})
         .toList(),

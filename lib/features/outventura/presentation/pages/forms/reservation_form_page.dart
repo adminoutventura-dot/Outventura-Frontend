@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_bar_forms.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
@@ -113,13 +114,10 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     final double totalPrice = _controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos);
 
     // Lista de usuarios disponibles para el dropdown.
-    // En modo cliente se filtra para mostrar solo el usuario fijado.
-    List<User> usuariosDisponibles = ref.read(usuariosProvider).value ?? [];
-    if (modoCliente && idUsuarioFijado != null) {
-      usuariosDisponibles = usuariosDisponibles
-          .where((User u) => u.id == idUsuarioFijado)
-          .toList();
-    }
+    // En modo cliente usa el usuario actual directamente; en modo admin carga la lista completa.
+    final List<User> usuariosDisponibles = modoCliente
+        ? [if (ref.watch(currentUserProvider) case final u?) u]
+        : ref.watch(usuariosProvider).value ?? [];
 
     // --- CÁLCULO DE ALTURAS PARA EL TRASPASO DE BARS ---
     final double topPadding = MediaQuery.of(context).padding.top + kToolbarHeight;

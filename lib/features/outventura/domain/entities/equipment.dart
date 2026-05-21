@@ -71,7 +71,7 @@ class Equipment {
     final String? statusValue = map['status'] as String?;
 
     // El número de unidades totales coincide con el campo `units` del backend.
-    final int units = ((map['units'] ?? 0) as num).toInt();
+    final int units = num.parse((map['units'] ?? 0).toString()).toInt();
 
     return Equipment(
       id: map['id_equipment'] as int?,
@@ -79,10 +79,10 @@ class Equipment {
       description: map['description'] as String?,
       categories: parsedCategories,
       units: units,
-      totalUnits: ((map['total_units'] ?? map['units'] ?? 0) as num).toInt(),
+      totalUnits: num.parse((map['total_units'] ?? map['units'] ?? 0).toString()).toInt(),
       status: EquipmentStatus.fromString(statusValue ?? 'AVAILABLE'),
-      pricePerDay: (map['price_per_day'] as num?)?.toDouble() ?? 0,
-      damageFee: (map['damage_fee'] as num?)?.toDouble() ?? 0,
+      pricePerDay: map['price_per_day'] != null ? num.parse(map['price_per_day'].toString()).toDouble() : 0,
+      damageFee: map['damage_fee'] != null ? num.parse(map['damage_fee'].toString()).toDouble() : 0,
       imageAsset: map['imageAsset'] as String?,
     );
   }

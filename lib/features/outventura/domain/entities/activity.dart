@@ -1,5 +1,5 @@
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-
+// TODO: as num necesario?
 // Estados posibles de una actividad.
 enum ActivityStatus {
   disponible,
@@ -72,8 +72,8 @@ class Activity {
       description: map['description'] as String?,
       initDate: DateTime.parse(map['init_date'] as String),
       endDate: DateTime.parse(map['end_date'] as String),
-      difficulty: (map['difficulty'] as num).toInt(),
-      maxParticipants: (map['max_participants'] as num).toInt(),
+      difficulty: num.parse(map['difficulty'].toString()).toInt(),
+      maxParticipants: num.parse(map['max_participants'].toString()).toInt(),
       startPoint: map['start_point'] as String? ?? '',
       endPoint: map['end_point'] as String? ?? '',
       categories: parsedCategories,
@@ -82,7 +82,7 @@ class Activity {
       status: map['status'] != null
           ? ActivityStatus.fromString(map['status'] as String)
           : ActivityStatus.disponible,
-      price: (map['price'] as num?)?.toDouble() ?? 0,
+      price: map['price'] != null ? num.parse(map['price'].toString()).toDouble() : 0,
       // El backend devuelve [{ equipmentId, quantity }], lo convierte a Map<equipmentId, quantity>.
       materialsPerParticipant: {
         for (final e in (map['materialRequirements'] as List<dynamic>? ?? []))
@@ -100,8 +100,8 @@ class Activity {
     'max_participants': maxParticipants,
     'start_point': startPoint,
     'end_point': endPoint,
-    'image_asset': imageAsset,
-    'guideId': guideId,
+    if (imageAsset != null) 'image_asset': imageAsset,
+    if (guideId != null) 'guideId': guideId,
     'status': status.code,
     'price': price,
     'categoryCodes': categories.map((Category c) => c.code).toList(),
