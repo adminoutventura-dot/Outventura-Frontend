@@ -7,16 +7,21 @@ import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
+import 'package:outventura/features/auth/domain/entities/guide.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/controllers/user_form_controller.dart';
 
+// TODO: Revisar
 class UserFormPage extends StatefulWidget {
   // Si se pasa un usuario, el formulario actúa en modo edición y precarga sus datos.
   final User? usuario;
+  // Si el usuario es guía, se precargan sus datos de guía.
+  final Guide? guia;
 
-  const UserFormPage({super.key, this.usuario});
+  const UserFormPage({super.key, this.usuario, this.guia});
 
   @override
   State<UserFormPage> createState() => _UserFormPageState();
@@ -33,7 +38,11 @@ class _UserFormPageState extends State<UserFormPage> {
     _loginController = LoginController();
     // Si se pasa un usuario existente, carga sus datos en el controlador (modo edición).
     if (widget.usuario != null) {
-      _controller.cargarUsuario(widget.usuario!);
+      _controller.cargarUsuario(
+        widget.usuario!,
+        especialidadGuia: widget.guia?.specialty,
+        credencialesGuia: widget.guia?.credentials,
+      );
     }
   }
 
@@ -44,13 +53,32 @@ class _UserFormPageState extends State<UserFormPage> {
     super.dispose();
   }
 
+  bool get _esGuia =>
+      _controller.rol == UserRole.admin ||
+      _controller.rol == UserRole.superadmin;
+
   // Valida el formulario y, si es correcto, construye el usuario y lo devuelve.
   void _submit() {
     if (!_controller.validar()) {
       return;
     }
     final User usuario = _controller.construirUsuario();
-    Navigator.of(context).pop(usuario);
+    final String? password =
+        _controller.editando ? null : _loginController.passwordController.text;
+    Map<String, dynamic>? guiaData;
+    if (_esGuia &&
+        _controller.especialidad != null &&
+        _controller.credenciales.text.trim().isNotEmpty) {
+      guiaData = {
+        'specialty': _controller.especialidad!.code,
+        'credentials': _controller.credenciales.text.trim(),
+      };
+    }
+    Navigator.of(context).pop(<String, dynamic>{
+      'usuario': usuario,
+      'password': password,
+      'guia': guiaData,
+    });
   }
 
   @override
@@ -169,6 +197,10 @@ class _UserFormPageState extends State<UserFormPage> {
               ),
               const SizedBox(height: 20),
 
+              // Sección datos de guía (solo para trabajadores)
+              if (_esGuia) ..._buildGuideSection(cs, tt),
+
+
               // Estado activo
               Row(
                 children: [
@@ -207,5 +239,35 @@ class _UserFormPageState extends State<UserFormPage> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildGuideSection(ColorScheme cs, TextTheme tt) {
+    final AppLocalizations s = AppLocalizations.of(context)!;
+    return [
+      Text(
+        'DADES DE GUIA',
+        style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+      ),
+      const SizedBox(height: 8),
+      AppChipWrap(
+        children: Category.values.map((Category cat) {
+          final bool sel = _controller.especialidad == cat;
+          return AppChoiceChip(
+            label: cat.localizedLabel(s),
+            seleccionado: sel,
+            onSelected: (_) => setState(() => _controller.especialidad = cat),
+          );
+        }).toList(),
+      ),
+      const SizedBox(height: 14),
+      CustomInputField(
+        controller: _controller.credenciales,
+        labelText: 'Credencials',
+        prefixIcon: Icons.verified_outlined,
+        validator: (String? v) =>
+            (v == null || v.trim().isEmpty) ? 'Camp obligatori' : null,
+      ),
+      const SizedBox(height: 20),
+    ];
   }
 }

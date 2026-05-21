@@ -6,24 +6,24 @@ enum BookingStatus {
   finalizada,
   cancelada;
 
-  String get label {
+  String get code {
     switch (this) {
       case BookingStatus.pendiente:
-        return 'Pendiente';
+        return 'PENDING';
       case BookingStatus.confirmada:
-        return 'Confirmada';
+        return 'CONFIRMED';
       case BookingStatus.enCurso:
-        return 'En curso';
+        return 'IN_PROGRESS';
       case BookingStatus.finalizada:
-        return 'Finalizada';
+        return 'FINISHED';
       case BookingStatus.cancelada:
-        return 'Cancelada';
+        return 'CANCELLED';
     }
   }
 
   static BookingStatus fromString(String value) {
     for (BookingStatus status in BookingStatus.values) {
-      if (status.label.toLowerCase() == value.toLowerCase()) {
+      if (status.code == value) {
         return status;
       }
     }

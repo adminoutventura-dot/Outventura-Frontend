@@ -8,11 +8,11 @@ enum Category {
   String get code {
     switch (this) {
       case Category.acuatico:
-        return 'ACUATICO';
+        return 'AQUATIC';
       case Category.nieve:
-        return 'NIEVE';
+        return 'SNOW';
       case Category.montana:
-        return 'MONTANA';
+        return 'MOUNTAIN';
       case Category.camping:
         return 'CAMPING';
     }
