@@ -3,6 +3,7 @@ import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
@@ -47,11 +48,11 @@ class ReservationCard extends StatelessWidget {
 
     // Color del badge y los acentos visuales según el estado de la reserva.
     final Color statusColor = switch (reserva.status) {
-      BookingStatus.pendiente => cs.tertiary,
-      BookingStatus.confirmada => cs.primary,
-      BookingStatus.enCurso => cs.secondary,
-      BookingStatus.finalizada => cs.onSurfaceVariant,
-      BookingStatus.cancelada => cs.error,
+      WorkflowStatus.pendiente => cs.tertiary,
+      WorkflowStatus.confirmada => cs.primary,
+      WorkflowStatus.enCurso => cs.secondary,
+      WorkflowStatus.finalizada => cs.onSurfaceVariant,
+      WorkflowStatus.cancelada => cs.error,
     };
 
     // Lista de imágenes de los equipamientos de las líneas (excluye las líneas sin imagen (string)).

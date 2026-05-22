@@ -60,11 +60,10 @@ class Activity {
 
   // Crea una Activity a partir del JSON que devuelve el backend.
   factory Activity.fromMap(Map<String, dynamic> map) {
-    // El backend devuelve categories como array de objetos completos.
-    final List<Category> parsedCategories = (map['categories'] as List<dynamic>)
-        // mapea cada elemento a Category usando fromDynamic, que maneja tanto String como Map.
-        .map((e) => Category.fromDynamic(e))
-        .whereType<Category>()
+    // El backend devuelve categories como array de objetos: [{ id_category, code, description }].
+    final List<Category> parsedCategories = (map['categories'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>()
+        .map(Category.fromMap)
         .toList();
 
     return Activity(

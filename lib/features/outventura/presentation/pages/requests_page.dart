@@ -6,6 +6,7 @@ import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/controllers/requests_page_controller.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
@@ -180,13 +181,13 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                             : nombreUsuario,
                         onGestionar:
                             widget.puedeGestionar &&
-                                soli.status == RequestStatus.pendiente
+                                soli.status == WorkflowStatus.pendiente
                             ? () => _controller.aceptar( solicitud: soli, context: context, ref: ref)
                             : null,
-                        onCancelar: soli.status == RequestStatus.pendiente
+                        onCancelar: soli.status == WorkflowStatus.pendiente
                             ? () => _controller.rechazar( solicitud: soli, context: context, ref: ref)
                             : null,
-                        onEditar: (!widget.puedeGestionar && soli.status != RequestStatus.pendiente)
+                        onEditar: (!widget.puedeGestionar && soli.status != WorkflowStatus.pendiente)
                             ? null
                             : () => _controller.editar(
                                 solicitud: soli,

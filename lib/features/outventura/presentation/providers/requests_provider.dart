@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 
 // Lista completa de solicitudes de inscripción a actividades. GET /request.
@@ -12,7 +13,7 @@ final AsyncNotifierProvider<RequestsNotifier, List<Request>> requestsProvider =
 // Filtra solicitudes en el frontend por usuario, estado, rango de fechas y texto libre.
 // Las fechas se comparan contra la Activity asociada a la solicitud.
 // El filtrado es local mientras no haya query params en el backend.
-final filteredRequestsProvider = Provider.family<AsyncValue<List<Request>>, ({String query, int? idUsuario, RequestStatus? estado, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
+final filteredRequestsProvider = Provider.family<AsyncValue<List<Request>>, ({String query, int? idUsuario, WorkflowStatus? estado, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
 
   // Se re-ejecuta automáticamente cuando cambia la lista de solicitudes
   final AsyncValue<List<Request>> asyncTodas = ref.watch(requestsProvider);
@@ -73,7 +74,7 @@ final userRequestsProvider = Provider.family<List<Request>, int>((ref, userId) {
 // Número de solicitudes pendientes de un usuario (para badges y contadores).
 final userPendingRequestsCountProvider = Provider.family<int, int>((ref, userId) {
   return ref.watch(userRequestsProvider(userId))
-      .where((s) => s.status == RequestStatus.pendiente)
+      .where((s) => s.status == WorkflowStatus.pendiente)
       .length;
 });
 
@@ -141,13 +142,13 @@ class RequestsNotifier extends AsyncNotifier<List<Request>> {
 
   // Cambia el estado a CONFIRMED (el admin acepta la solicitud).
   Future<void> aceptar(Request solicitud) async {
-    final Request aceptada = solicitud.copyWith(status: RequestStatus.confirmada);
+    final Request aceptada = solicitud.copyWith(status: WorkflowStatus.confirmada);
     await actualizar(solicitud, aceptada);
   }
 
   // Cambia el estado a CANCELLED (el admin rechaza la solicitud).
   Future<void> rechazar(Request solicitud) async {
-    final Request rechazada = solicitud.copyWith(status: RequestStatus.cancelada);
+    final Request rechazada = solicitud.copyWith(status: WorkflowStatus.cancelada);
     await actualizar(solicitud, rechazada);
   }
 }

@@ -16,6 +16,7 @@ import 'package:outventura/features/outventura/domain/entities/reservation.dart'
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/controllers/request_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
@@ -412,7 +413,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               const SizedBox(height: 8),
               // Chips de estado
               AppChipWrap(
-                children: RequestStatus.values.map((RequestStatus est) {
+                children: WorkflowStatus.values.map((WorkflowStatus est) {
                   final bool seleccionado = _controller.estado == est;
                   return AppChoiceChip(
                     label: est.localizedLabel(s),

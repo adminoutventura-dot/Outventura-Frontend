@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
+
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 
 class UserFormController {
@@ -12,7 +13,7 @@ class UserFormController {
   final TextEditingController telefono = TextEditingController();
   final TextEditingController credenciales = TextEditingController();
 
-  Category? especialidad;
+  List<Category> categoriasGuia = [];
 
   UserRole rol = UserRole.usuario;
   bool activo = true;
@@ -26,7 +27,7 @@ class UserFormController {
   }
 
   // Cargar los datos
-  void cargarUsuario(User usuario, {Category? especialidadGuia, String? credencialesGuia}) {
+  void cargarUsuario(User usuario, {List<Category>? categoriasGuia, String? credencialesGuia}) {
     editando = true;
     seleccionado = usuario;
     nombre.text = usuario.name;
@@ -36,7 +37,7 @@ class UserFormController {
     rol = usuario.role;
     activo = usuario.active;
     foto = usuario.photo;
-    especialidad = especialidadGuia;
+    this.categoriasGuia = categoriasGuia ?? [];
     credenciales.text = credencialesGuia ?? '';
   }
 
@@ -49,7 +50,7 @@ class UserFormController {
     email.clear();
     telefono.clear();
     credenciales.clear();
-    especialidad = null;
+    categoriasGuia = [];
     rol = UserRole.usuario;
     activo = true;
   }

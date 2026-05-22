@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
-import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
@@ -25,11 +24,11 @@ class UserCard extends StatelessWidget {
     final s = AppLocalizations.of(context)!;
 
     // Colores según el rol
-    final Color roleColor = switch (usuario.role) {
-      UserRole.superadmin => cs.error,
-      UserRole.admin      => cs.tertiary,
-      UserRole.usuario    => cs.primary,
-      UserRole _          => cs.onSurfaceVariant,
+    final Color roleColor = switch (usuario.role.code) {
+      'SUPER' => cs.error,
+      'ADMIN' => cs.tertiary,
+      'USER'  => cs.primary,
+      _       => cs.onSurfaceVariant,
     };
 
     return Container(

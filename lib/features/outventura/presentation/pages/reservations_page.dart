@@ -6,6 +6,7 @@ import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/reservations_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
@@ -156,7 +157,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         activityEndDate: res.activityId != null ? ref.watch(activityByIdProvider(res.activityId!))?.endDate : null,
 
                         // Si el usuario no puede gestionar reservas y la reserva no está pendiente, no se permite editar.
-                        onEditar: (!widget.puedeGestionar && res.status != BookingStatus.pendiente)
+                        onEditar: (!widget.puedeGestionar && res.status != WorkflowStatus.pendiente)
                             ? null
                             : () async {
                           // Navega a la página de formulario de reserva para editar la reserva.
@@ -185,21 +186,21 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         },
 
                         // Si es gestor y la reserva está pendiente - puede aprobarla.
-                        onAprobar: widget.puedeGestionar && res.status == BookingStatus.pendiente
+                        onAprobar: widget.puedeGestionar && res.status == WorkflowStatus.pendiente
                             ? () => mostrarDialogoAprobacion(context, res, () => notifier.aprobar(res))
                             : null,
                         // Si es gestor y la reserva está pendiente - puede rechazarla.
-                        onRechazar: widget.puedeGestionar && res.status == BookingStatus.pendiente
+                        onRechazar: widget.puedeGestionar && res.status == WorkflowStatus.pendiente
                             ? () => mostrarDialogoRechazo(context, res, () => notifier.rechazar(res))
                             : null,
                         // Si es gestor y la reserva está en curso . puede registrar la devolución.
-                        onRegistrarDevolucion: widget.puedeGestionar && res.status == BookingStatus.enCurso
+                        onRegistrarDevolucion: widget.puedeGestionar && res.status == WorkflowStatus.enCurso
                             ? () => mostrarDialogoDevolucion(context, res, () => notifier.registrarDevolucion(res))
                             : null,
                         // Si es gestor y la reserva está confirmada - puede cancelarla.
                         // Si es cliente y la reserva está pendiente o confirmada - puede cancelarla.
-                        onCancelar: (widget.puedeGestionar && res.status == BookingStatus.confirmada) ||
-                                    (!widget.puedeGestionar && (res.status == BookingStatus.pendiente || res.status == BookingStatus.confirmada))
+                        onCancelar: (widget.puedeGestionar && res.status == WorkflowStatus.confirmada) ||
+                                    (!widget.puedeGestionar && (res.status == WorkflowStatus.pendiente || res.status == WorkflowStatus.confirmada))
                             ? () => mostrarDialogoCancelacion(context, res, () => notifier.cancelar(res))
                             : null,
                         onVerDetalle: () => Navigator.of(context).push(

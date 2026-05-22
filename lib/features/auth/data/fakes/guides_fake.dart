@@ -7,15 +7,15 @@ final List<Guide> guidesFake = [
   Guide(
     id: 1,
     userId: 1,
-    specialty: Category.montana,
     credentials: 'Llicència federativa núm. 0001',
+    categories: [Category.montana, Category.camping],
     user: usersFake[0],
   ),
   Guide(
     id: 2,
     userId: 2,
-    specialty: Category.acuatico,
     credentials: 'Llicència federativa núm. 1234',
+    categories: [Category.acuatico],
     user: usersFake[1],
   ),
 ];

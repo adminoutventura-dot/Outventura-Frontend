@@ -5,6 +5,7 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/services/resolvers.dart';
 
@@ -15,7 +16,7 @@ final AsyncNotifierProvider<ReservationsNotifier, List<Booking>> reservationsPro
 // Filtra reservas en el frontend por usuario, estado, rango de fechas y texto libre.
 // Las fechas se comparan contra la Activity asociada (las reservas no tienen fechas propias).
 // El filtrado es local mientras no haya query params en el backend.
-final filteredReservationsProvider = Provider.family<AsyncValue<List<Booking>>, ({String query, int? idUsuario, BookingStatus? estado, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
+final filteredReservationsProvider = Provider.family<AsyncValue<List<Booking>>, ({String query, int? idUsuario, WorkflowStatus? estado, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
 
   // Observa el estado asíncrono de todas las reservas (notifica si cambia y recalcula la lista)
   final AsyncValue<List<Booking>> asyncTodas = ref.watch(reservationsProvider);
@@ -147,25 +148,25 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
 
   // Cambia el estado de la reserva a CONFIRMED (el admin aprueba).
   Future<void> aprobar(Booking reserva) async {
-    final Booking aprobada = reserva.copyWith(status: BookingStatus.confirmada);
+    final Booking aprobada = reserva.copyWith(status: WorkflowStatus.confirmada);
     await actualizar(reserva, aprobada);
   }
 
   // Cambia el estado a CANCELLED (el admin rechaza antes de confirmar).
   Future<void> rechazar(Booking reserva) async {
-    final Booking rechazada = reserva.copyWith(status: BookingStatus.cancelada);
+    final Booking rechazada = reserva.copyWith(status: WorkflowStatus.cancelada);
     await actualizar(reserva, rechazada);
   }
 
   // Cambia el estado a CANCELLED (el propio cliente cancela).
   Future<void> cancelar(Booking reserva) async {
-    final Booking cancelada = reserva.copyWith(status: BookingStatus.cancelada);
+    final Booking cancelada = reserva.copyWith(status: WorkflowStatus.cancelada);
     await actualizar(reserva, cancelada);
   }
 
   // Cambia el estado a FINISHED al registrar la devolución del material.
   Future<void> registrarDevolucion(Booking reserva) async {
-    final Booking devuelta = reserva.copyWith(status: BookingStatus.finalizada);
+    final Booking devuelta = reserva.copyWith(status: WorkflowStatus.finalizada);
     await actualizar(reserva, devuelta);
   }
 }

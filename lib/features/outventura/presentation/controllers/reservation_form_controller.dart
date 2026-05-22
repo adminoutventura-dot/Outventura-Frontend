@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
 import 'package:outventura/features/outventura/services/pricing_service.dart';
 
@@ -13,7 +14,7 @@ class ReservationFormController {
   DateTime fechaHasta = DateTime.now();
   TimeOfDay horaInicio = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay horaFin = const TimeOfDay(hour: 17, minute: 0);
-  BookingStatus estado = BookingStatus.pendiente;
+  WorkflowStatus estado = WorkflowStatus.pendiente;
 
   // Líneas de la reserva (material + cantidad).
   List<BookingLine> lineas = [];

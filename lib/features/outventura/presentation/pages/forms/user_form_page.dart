@@ -40,7 +40,7 @@ class _UserFormPageState extends State<UserFormPage> {
     if (widget.usuario != null) {
       _controller.cargarUsuario(
         widget.usuario!,
-        especialidadGuia: widget.guia?.specialty,
+        categoriasGuia: widget.guia?.categories,
         credencialesGuia: widget.guia?.credentials,
       );
     }
@@ -67,11 +67,10 @@ class _UserFormPageState extends State<UserFormPage> {
         _controller.editando ? null : _loginController.passwordController.text;
     Map<String, dynamic>? guiaData;
     if (_esGuia &&
-        _controller.especialidad != null &&
         _controller.credenciales.text.trim().isNotEmpty) {
       guiaData = {
-        'specialty': _controller.especialidad!.code,
         'credentials': _controller.credenciales.text.trim(),
+        'categoryCodes': _controller.categoriasGuia.map((Category c) => c.code).toList(),
       };
     }
     Navigator.of(context).pop(<String, dynamic>{
@@ -251,11 +250,17 @@ class _UserFormPageState extends State<UserFormPage> {
       const SizedBox(height: 8),
       AppChipWrap(
         children: Category.values.map((Category cat) {
-          final bool sel = _controller.especialidad == cat;
-          return AppChoiceChip(
+          final bool sel = _controller.categoriasGuia.contains(cat);
+          return AppFilterChip(
             label: cat.localizedLabel(s),
             seleccionado: sel,
-            onSelected: (_) => setState(() => _controller.especialidad = cat),
+            onSelected: (_) => setState(() {
+              if (sel) {
+                _controller.categoriasGuia.remove(cat);
+              } else {
+                _controller.categoriasGuia.add(cat);
+              }
+            }),
           );
         }).toList(),
       ),

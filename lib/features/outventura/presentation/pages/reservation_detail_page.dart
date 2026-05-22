@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/services/pricing_service.dart';
 import 'package:outventura/core/widgets/detail_section.dart';
@@ -37,11 +38,11 @@ class ReservationDetailPage extends ConsumerWidget {
     );
 
     final Color accentColor = switch (reserva.status) {
-      BookingStatus.pendiente => cs.tertiary,
-      BookingStatus.confirmada => cs.primary,
-      BookingStatus.enCurso => cs.secondary,
-      BookingStatus.finalizada => cs.secondary.withValues(alpha: 0.35),
-      BookingStatus.cancelada => cs.error,
+      WorkflowStatus.pendiente => cs.tertiary,
+      WorkflowStatus.confirmada => cs.primary,
+      WorkflowStatus.enCurso => cs.secondary,
+      WorkflowStatus.finalizada => cs.secondary.withValues(alpha: 0.35),
+      WorkflowStatus.cancelada => cs.error,
     };
 
     return Scaffold(

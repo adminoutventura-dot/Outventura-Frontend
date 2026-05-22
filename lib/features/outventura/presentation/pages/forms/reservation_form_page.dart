@@ -16,6 +16,7 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/controllers/reservation_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
@@ -105,10 +106,6 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     // modoCliente = true cuando el formulario se abre desde el perfil de un cliente concreto.
     // En ese caso el dropdown de usuario queda deshabilitado.
     final bool modoCliente = widget.initialIdUsuario != null;
-    
-    // ID del usuario que se usará: el pasado como parámetro (modo cliente).
-    // En modo admin es null y se elige del dropdown.
-    final int? idUsuarioFijado = widget.initialIdUsuario;
 
     // Precio total = alquiler de materiales + cargo por daños si los hay.
     final double totalPrice = _controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos);
@@ -276,7 +273,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 const SizedBox(height: 8),
                 // Chips de estado
                 AppChipWrap(
-                  children: BookingStatus.values.map((BookingStatus e) {
+                  children: WorkflowStatus.values.map((WorkflowStatus e) {
                     final bool seleccionado = _controller.estado == e;
                     return AppChoiceChip(
                       label: e.localizedLabel(s),

@@ -4,8 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:outventura/core/widgets/evento_tile.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
-import 'package:outventura/features/outventura/domain/entities/request.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/pages/request_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservation_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
@@ -15,6 +14,7 @@ import 'package:outventura/features/outventura/presentation/providers/requests_p
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
+import 'package:outventura/features/outventura/presentation/widgets/home_shared_widgets.dart';
 import 'package:outventura/features/outventura/presentation/widgets/legend_item.dart';
 import 'package:outventura/features/outventura/presentation/widgets/weekly_bar_chart.dart';
 import 'package:outventura/features/outventura/presentation/widgets/home_app_bar_delegate.dart';
@@ -90,9 +90,8 @@ class HomeAdminPage extends ConsumerWidget {
                         children: [
                           // Usuarios
                           Expanded(
-                            child: _QuickActionButton(
+                            child: HomeQuickActionButton(
                               label: s.usersTitle,
-                              textColor: cs.onSurfaceVariant,
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => const UsersPage(),
@@ -109,9 +108,8 @@ class HomeAdminPage extends ConsumerWidget {
                     
                           // Reservas
                           Expanded(
-                            child: _QuickActionButton(
+                            child: HomeQuickActionButton(
                               label: s.reservationsTitle,
-                              textColor: cs.onSurfaceVariant,
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => const ReservationsPage(
@@ -131,9 +129,8 @@ class HomeAdminPage extends ConsumerWidget {
                     
                           // Solicitudes
                           Expanded(
-                            child: _QuickActionButton(
+                            child: HomeQuickActionButton(
                               label: s.requestsTitle,
-                              textColor: cs.onSurfaceVariant,
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => const RequestsPage(
@@ -276,8 +273,8 @@ class HomeAdminPage extends ConsumerWidget {
                     ),
 
                     // ACTIVIDAD RECIENTE 
-                    if (solicitudes.where((r) => r.status == RequestStatus.pendiente).isNotEmpty ||
-                        reservas.where((r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso).isNotEmpty) ...[
+                    if (solicitudes.where((r) => r.status == WorkflowStatus.pendiente).isNotEmpty ||
+                        reservas.where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso).isNotEmpty) ...[
                       const SizedBox(height: 28),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -288,7 +285,7 @@ class HomeAdminPage extends ConsumerWidget {
                       ),
 
                       // Muestra hasta 2 solicitudes pendientes y 2 reservas activas más recientes.
-                      for (final r in solicitudes.where((r) => r.status == RequestStatus.pendiente).take(2))
+                      for (final r in solicitudes.where((r) => r.status == WorkflowStatus.pendiente).take(2))
                         Padding(
                           padding: const EdgeInsets.only(left: 16, right: 16),
                           child: EventoTile(
@@ -304,7 +301,7 @@ class HomeAdminPage extends ConsumerWidget {
                         ),
 
                       // Recorre las reservas confirmadas o en curso, muestra las 2 más recientes.
-                      for (final r in reservas.where( (r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso).take(2))
+                      for (final r in reservas.where( (r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso).take(2))
                         Padding(
                           padding: const EdgeInsets.only(left: 16, right: 16),
                           child: EventoTile(
@@ -325,41 +322,6 @@ class HomeAdminPage extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-
-// TODO: Crear componentes a parte para home admin y cliente
-// Componente para los botones del menú de lado a lado
-class _QuickActionButton extends StatelessWidget {
-  final String label;
-  final Color textColor;
-  final VoidCallback onTap;
-
-  const _QuickActionButton({
-    required this.label,
-    required this.textColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.only(top: 30, bottom: 25),
-          alignment: Alignment.center,
-          child: Text(
-            label.toUpperCase(),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(color: textColor),
-          ),
-        ),
       ),
     );
   }

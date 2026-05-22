@@ -4,15 +4,15 @@ import 'package:outventura/features/outventura/domain/entities/activity_category
 class Guide {
   final int? id;
   final int userId;
-  final Category specialty;
   final String credentials;
+  final List<Category> categories;
   final User? user;
 
   const Guide({
     this.id,
     required this.userId,
-    required this.specialty,
     required this.credentials,
+    this.categories = const [],
     this.user,
   });
 
@@ -20,8 +20,11 @@ class Guide {
     return Guide(
       id: map['id_guide'] as int?,
       userId: map['userId'] as int,
-      specialty: Category.fromString(map['specialty'] as String),
       credentials: map['credentials'] as String,
+      categories: (map['categories'] as List<dynamic>? ?? [])
+          .cast<Map<String, dynamic>>()
+          .map(Category.fromMap)
+          .toList(),
       user: map['user'] != null
           ? User.fromMap(map['user'] as Map<String, dynamic>)
           : null,
@@ -30,22 +33,22 @@ class Guide {
 
   Map<String, dynamic> toMap() => {
     'userId': userId,
-    'specialty': specialty.code,
     'credentials': credentials,
+    'categoryCodes': categories.map((Category c) => c.code).toList(),
   };
 
   Guide copyWith({
     int? id,
     int? userId,
-    Category? specialty,
     String? credentials,
+    List<Category>? categories,
     User? user,
   }) {
     return Guide(
       id: id ?? this.id,
       userId: userId ?? this.userId,
-      specialty: specialty ?? this.specialty,
       credentials: credentials ?? this.credentials,
+      categories: categories ?? this.categories,
       user: user ?? this.user,
     );
   }

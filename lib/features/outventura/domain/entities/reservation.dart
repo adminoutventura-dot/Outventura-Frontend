@@ -1,37 +1,4 @@
-// Estados posibles de una reserva.
-// TODO: REVISAR EL TIPO DE DATOS QUE MANDA DEL BACK AL FRONT PARA QUE NO HAGA FALTA PARSEARLO
-// TODO: El cliente no se le pasa automaticamente al crear ua solicitu siendo clietne.
-enum BookingStatus {
-  pendiente,
-  confirmada,
-  enCurso,
-  finalizada,
-  cancelada;
-
-  String get code {
-    switch (this) {
-      case BookingStatus.pendiente:
-        return 'PENDING';
-      case BookingStatus.confirmada:
-        return 'CONFIRMED';
-      case BookingStatus.enCurso:
-        return 'IN_PROGRESS';
-      case BookingStatus.finalizada:
-        return 'FINISHED';
-      case BookingStatus.cancelada:
-        return 'CANCELLED';
-    }
-  }
-
-  static BookingStatus fromString(String value) {
-    for (BookingStatus status in BookingStatus.values) {
-      if (status.code == value) {
-        return status;
-      }
-    }
-    return BookingStatus.pendiente;
-  }
-}
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 
 // Una línea de reserva (un material y su cantidad).
 class BookingLine {
@@ -76,7 +43,7 @@ class Booking {
   final int userId;
   final List<BookingLine> lines;
   final int? activityId;
-  final BookingStatus status;
+  final WorkflowStatus status;
   final double totalPrice;
   final double damageFee;
   final Map<int, int> damagedItems;
@@ -123,7 +90,7 @@ class Booking {
       userId: userId,
       lines: lines,
       activityId: activityId,
-      status: BookingStatus.fromString(statusCode),
+      status: WorkflowStatus.fromCode(statusCode),
       totalPrice: map['total_price'] != null ? num.parse(map['total_price'].toString()).toDouble() : 0,
       damageFee: map['damage_fee'] != null ? num.parse(map['damage_fee'].toString()).toDouble() : 0,
       damagedItems: damagedItems,
@@ -148,7 +115,7 @@ class Booking {
     int? userId,
     List<BookingLine>? lines,
     int? activityId,
-    BookingStatus? status,
+    WorkflowStatus? status,
     double? totalPrice,
     double? damageFee,
     Map<int, int>? damagedItems,

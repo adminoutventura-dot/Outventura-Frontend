@@ -1,43 +1,26 @@
-enum UserRole {
-  superadmin,
-  admin,
-  usuario,
-  invitado;
+class UserRole {
+  final String code;
 
-  // Devuelve el nombre legible del rol.
-  String get nombre {
-    switch (this) {
-      case UserRole.superadmin:
-        return 'Superadmin';
-      case UserRole.admin:
-        return 'Admin';
-      case UserRole.usuario:
-        return 'Usuario';
-      case UserRole.invitado:
-        return 'Invitado';
-    }
+  const UserRole({required this.code});
+
+  static const UserRole superadmin = UserRole(code: 'SUPER');
+  static const UserRole admin      = UserRole(code: 'ADMIN');
+  static const UserRole usuario    = UserRole(code: 'USER');
+  static const UserRole invitado   = UserRole(code: 'GUEST');
+
+  static const List<UserRole> values = [superadmin, admin, usuario, invitado];
+
+  // Crea un rol a partir del código que devuelve el backend (e.g. 'ADMIN').
+  static UserRole fromCode(String code) {
+    return values.firstWhere((r) => r.code == code, orElse: () => invitado);
   }
 
-  String get code {
-    switch (this) {
-      case UserRole.superadmin:
-        return 'SUPER';
-      case UserRole.admin:
-        return 'ADMIN';
-      case UserRole.usuario:
-        return 'USER';
-      case UserRole.invitado:
-        return 'GUEST';
-    }
-  }
+  @override
+  bool operator ==(Object other) => other is UserRole && other.code == code;
 
-  // Crea un rol a partir del valor en texto que devuelve el backend.
-  static UserRole fromString(String value) {
-    for (UserRole rol in UserRole.values) {
-      if (rol.code == value) {
-        return rol;
-      }
-    }
-    return UserRole.invitado;
-  }
+  @override
+  int get hashCode => code.hashCode;
+
+  @override
+  String toString() => 'UserRole($code)';
 }

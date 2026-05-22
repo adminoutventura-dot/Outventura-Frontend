@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservation_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -46,13 +47,13 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     final misReservas = (widget.esAdmin
             ? reservas
             : reservas.where((r) => r.userId == widget.usuario.id))
-        .where((r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso)
+        .where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso)
         .toList();
 
     final misSolicitudes = (widget.esAdmin
             ? solicitudes
             : solicitudes.where((s) => s.userId == widget.usuario.id))
-        .where((s) => s.status == RequestStatus.confirmada || s.status == RequestStatus.enCurso)
+        .where((s) => s.status == WorkflowStatus.confirmada || s.status == WorkflowStatus.enCurso)
         .toList();
 
     final eventosSeleccionados = _selectedDay != null

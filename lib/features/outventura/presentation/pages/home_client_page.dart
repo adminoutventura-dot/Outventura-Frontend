@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:outventura/core/widgets/evento_tile.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/requests_page.dart';
@@ -15,6 +15,7 @@ import 'package:outventura/features/outventura/presentation/providers/requests_p
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/home_app_bar_delegate.dart';
+import 'package:outventura/features/outventura/presentation/widgets/home_shared_widgets.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
@@ -89,9 +90,8 @@ class HomeClientePage extends ConsumerWidget {
                         children: [
                           // Mis Reservas
                           Expanded(
-                            child: _QuickActionButton(
+                            child: HomeQuickActionButton(
                               label: s.myReservationsBtn,
-                              textColor: cs.onSurfaceVariant,
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => const ReservationsPage(
@@ -111,9 +111,8 @@ class HomeClientePage extends ConsumerWidget {
                     
                           // Mis Solicitudes
                           Expanded(
-                            child: _QuickActionButton(
+                            child: HomeQuickActionButton(
                               label: s.myRequestsBtn,
-                              textColor: cs.onSurfaceVariant,
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => const RequestsPage(
@@ -149,11 +148,7 @@ class HomeClientePage extends ConsumerWidget {
                           itemCount: actividadesRecientes.length,
                           itemBuilder: (context, index) {
                             final actividad = actividadesRecientes[index];
-                            return _ActivityCarouselCard(
-                              actividad: actividad,
-                              cs: cs,
-                              tt: tt,
-                            );
+                            return ActivityCarouselCard(actividad: actividad);
                           },
                         ),
                       ),
@@ -161,8 +156,8 @@ class HomeClientePage extends ConsumerWidget {
                     ],
 
                     // MIS ACTIVIDADES RECIENTES (reservas activas + solicitudes pendientes)
-                    if (misReservas.where((r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso).isNotEmpty ||
-                        misSolicitudes.where((s) => s.status == RequestStatus.pendiente || s.status == RequestStatus.confirmada).isNotEmpty) ...[
+                    if (misReservas.where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso).isNotEmpty ||
+                        misSolicitudes.where((s) => s.status == WorkflowStatus.pendiente || s.status == WorkflowStatus.confirmada).isNotEmpty) ...[
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                         child: Text(
@@ -172,7 +167,7 @@ class HomeClientePage extends ConsumerWidget {
                       ),
                       // Solicitudes pendientes o confirmadas
                       for (final sol in misSolicitudes
-                          .where((s) => s.status == RequestStatus.pendiente || s.status == RequestStatus.confirmada)
+                          .where((s) => s.status == WorkflowStatus.pendiente || s.status == WorkflowStatus.confirmada)
                           .take(2))
                         Padding(
                           padding: const EdgeInsets.only(left: 16, right: 16),
@@ -187,7 +182,7 @@ class HomeClientePage extends ConsumerWidget {
                         ),
                       // Reservas confirmadas o en curso
                       for (final res in misReservas
-                          .where((r) => r.status == BookingStatus.confirmada || r.status == BookingStatus.enCurso)
+                          .where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso)
                           .take(2))
                         Padding(
                           padding: const EdgeInsets.only(left: 16, right: 16),
@@ -207,173 +202,6 @@ class HomeClientePage extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// CARD DE ACTIVIDAD PARA CARRUSEL
-class _ActivityCarouselCard extends StatelessWidget {
-  final Activity actividad;
-  final ColorScheme cs;
-  final TextTheme tt;
-
-  const _ActivityCarouselCard({
-    required this.actividad,
-    required this.cs,
-    required this.tt,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 280,
-      margin: const EdgeInsets.only(right: 16),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: cs.onSurface.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.hardEdge,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // IMAGEN
-          Container(
-            height: 120,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  cs.primaryContainer,
-                  cs.primaryContainer.withValues(alpha: 0.7),
-                ],
-              ),
-            ),
-            child: actividad.imageAsset != null
-                ? Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.asset(
-                        actividad.imageAsset!,
-                        fit: BoxFit.cover,
-                      ),
-                      // Degradado overlay
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withValues(alpha: 0.4),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : Center(
-                    child: Icon(
-                      Icons.landscape,
-                      size: 48,
-                      color: cs.onPrimaryContainer.withValues(alpha: 0.5),
-                    ),
-                  ),
-          ),
-
-          // CONTENIDO
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${actividad.startPoint} → ${actividad.endPoint}',
-                    style: tt.labelMedium?.copyWith(
-                      color: cs.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.group_outlined,
-                        size: 14,
-                        color: cs.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${actividad.maxParticipants} plazas',
-                        style: tt.labelSmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                      const Spacer(),
-                      if (actividad.price > 0)
-                        Text(
-                          '${actividad.price.toStringAsFixed(0)}€',
-                          style: tt.labelSmall?.copyWith(
-                            color: cs.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Componente para los botones del menú de lado a lado
-class _QuickActionButton extends StatelessWidget {
-  final String label;
-  final Color textColor;
-  final VoidCallback onTap;
-
-  const _QuickActionButton({
-    required this.label,
-    required this.textColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.only(top: 30, bottom: 25),
-          alignment: Alignment.center,
-          child: Text(
-            label.toUpperCase(),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ),
       ),
     );
   }

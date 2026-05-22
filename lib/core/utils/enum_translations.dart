@@ -2,36 +2,20 @@ import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
-import 'package:outventura/features/outventura/domain/entities/request.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
-// Función para traducir los estados que comparten las Reservas y las Solicitudes.
-String _estadoComunLabel(String name, AppLocalizations s) {
-  switch (name) {
-    case 'pendiente':  
-      return s.statusPending;
-    case 'confirmada': 
-      return s.statusConfirmed;
-    case 'enCurso':    
-      return s.statusInProgress;
-    case 'finalizada': 
-      return s.statusFinished;
-    case 'cancelada':  
-      return s.statusCancelled;
-    default:          
-      return 'Unknown estado: $name';
+// Traducciones para los estados de Solicitudes y Reservas (WorkflowStatus unificado).
+extension WorkflowStatusL10n on WorkflowStatus {
+  String localizedLabel(AppLocalizations s) {
+    switch (this) {
+      case WorkflowStatus.pendiente:  return s.statusPending;
+      case WorkflowStatus.confirmada: return s.statusConfirmed;
+      case WorkflowStatus.enCurso:    return s.statusInProgress;
+      case WorkflowStatus.finalizada: return s.statusFinished;
+      case WorkflowStatus.cancelada:  return s.statusCancelled;
+    }
   }
-}
-
-// Traducciones para los estados de una Solicitud.
-extension EstadoSolicitudL10n on RequestStatus {
-  String localizedLabel(AppLocalizations s) => _estadoComunLabel(name, s);
-}
-
-// Traducciones para los estados de una Reserva.
-extension EstadoReservaL10n on BookingStatus {
-  String localizedLabel(AppLocalizations s) => _estadoComunLabel(name, s);
 }
 
 // Traducciones para la disponibilidad de las Actividades.
@@ -65,15 +49,17 @@ extension EstadoEquipamientoL10n on EquipmentStatus {
 // Traducciones para los tipos de Categorías.
 extension CategoriaActividadL10n on Category {
   String localizedLabel(AppLocalizations s) {
-    switch (this) {
-      case Category.acuatico:
+    switch (code) {
+      case 'AQUATIC':
         return s.categoryAquatic;
-      case Category.nieve:
+      case 'SNOW':
         return s.categorySnow;
-      case Category.montana:
+      case 'MOUNTAIN':
         return s.categoryMountain;
-      case Category.camping:
+      case 'CAMPING':
         return s.categoryCamping;
+      default:
+        return code;
     }
   }
 }
@@ -81,15 +67,11 @@ extension CategoriaActividadL10n on Category {
 // Traducciones para los Roles de los usuarios en la app.
 extension TipoRolL10n on UserRole {
   String localizedLabel(AppLocalizations s) {
-    switch (this) {
-      case UserRole.superadmin:
-        return s.roleSuperadmin;
-      case UserRole.admin:
-        return s.roleAdmin;
-      case UserRole.usuario:
-        return s.roleUser;
-      case UserRole.invitado:
-        return s.roleGuest;
+    switch (code) {
+      case 'SUPER': return s.roleSuperadmin;
+      case 'ADMIN': return s.roleAdmin;
+      case 'USER':  return s.roleUser;
+      default:      return s.roleGuest;
     }
   }
 }

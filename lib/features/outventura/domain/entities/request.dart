@@ -1,43 +1,11 @@
-// Estados posibles de una solicitud.
-enum RequestStatus {
-  pendiente,
-  confirmada,
-  enCurso,
-  finalizada,
-  cancelada;
-
-  String get code {
-    switch (this) {
-      case RequestStatus.pendiente:
-        return 'PENDING';
-      case RequestStatus.confirmada:
-        return 'CONFIRMED';
-      case RequestStatus.enCurso:
-        return 'IN_PROGRESS';
-      case RequestStatus.finalizada:
-        return 'FINISHED';
-      case RequestStatus.cancelada:
-        return 'CANCELLED';
-    }
-  }
-
-  // Crea un estado a partir del valor en texto que devuelve el backend.
-  static RequestStatus fromString(String value) {
-    for (RequestStatus status in RequestStatus.values) {
-      if (status.code == value) {
-        return status;
-      }
-    }
-    return RequestStatus.pendiente;
-  }
-}
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 
 // Entidad de solicitud.
 class Request {
   final int? id;
   final int activityId;
   final int participantCount;
-  final RequestStatus status;
+  final WorkflowStatus status;
   final int? guideId;
   final int? userId;
   final int? bookingId;
@@ -62,7 +30,7 @@ class Request {
       id: map['id_request'] as int?,
       activityId: map['activityId'] as int,
       participantCount: num.parse(map['participant_count'].toString()).toInt(),
-      status: RequestStatus.fromString(map['status'] as String),
+      status: WorkflowStatus.fromCode(map['status'] as String),
       guideId: map['guideId'] as int?,
       userId: map['userId'] as int?,
       bookingId: map['bookingId'] as int?,
@@ -91,7 +59,7 @@ class Request {
   Request copyWith({
     int? activityId,
     int? participantCount,
-    RequestStatus? status,
+    WorkflowStatus? status,
     int? guideId,
     int? userId,
     int? bookingId,

@@ -84,8 +84,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           if (guiaData != null) {
             final Guide guia = Guide(
               userId: creado.id!,
-              specialty: Category.fromString(guiaData['specialty'] as String),
               credentials: guiaData['credentials'] as String,
+              categories: (guiaData['categoryCodes'] as List<String>)
+                  .map(Category.fromCode)
+                  .toList(),
               user: creado,
             );
             await ref.read(guidesProvider.notifier).agregar(guia);
@@ -172,8 +174,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                         final Guide nuevaGuia = Guide(
                           id: guiaActual?.id,
                           userId: actualizado.id!,
-                          specialty: Category.fromString(guiaData['specialty'] as String),
                           credentials: guiaData['credentials'] as String,
+                          categories: (guiaData['categoryCodes'] as List<String>)
+                              .map(Category.fromCode)
+                              .toList(),
                           user: actualizado,
                         );
                         if (guiaActual != null) {

@@ -24,12 +24,12 @@ class User {
   // Crea un Usuario a partir del JSON del backend.
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      id: map['id_user'] ?? 0 as int?,
+      id: map['id_user'] as int? ?? 0,
       name: map['name'] as String,
       surname: map['surname'] as String? ?? '',
       email: map['email'] as String,
       phone: map['phone']?.toString(),
-      role: UserRole.fromString(map['role'] as String? ?? 'GUEST'),
+      role: UserRole.fromCode(map['role'] as String? ?? 'GUEST'),
       photo: map['photo'] as String?,
       active: map['status'] as bool? ?? true,
     );

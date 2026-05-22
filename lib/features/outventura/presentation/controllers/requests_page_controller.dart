@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -11,14 +12,14 @@ import 'package:outventura/core/utils/enum_translations.dart';
 
 class RequestsPageController {
   // --- Filtros ---
-  RequestStatus? estadoFiltro;
+  WorkflowStatus? estadoFiltro;
   DateTime? fechaDesde;
   DateTime? fechaHasta;
 
   bool get hayFiltros => estadoFiltro != null || fechaDesde != null || fechaHasta != null;
 
   void mostrarFiltros(BuildContext context, StateSetter setState) {
-    RequestStatus? estadoTemp = estadoFiltro;
+    WorkflowStatus? estadoTemp = estadoFiltro;
     DateTime? desdeTemp = fechaDesde;
     DateTime? hastaTemp = fechaHasta;
     final s = AppLocalizations.of(context)!;
@@ -27,8 +28,8 @@ class RequestsPageController {
       grupos: [
         FilterGrupo(
           titulo: s.statusFilter,
-          chips: RequestStatus.values
-              .map((RequestStatus e) => FilterChipSpec(
+          chips: WorkflowStatus.values
+              .map((WorkflowStatus e) => FilterChipSpec(
                     label: e.localizedLabel(s),
                     seleccionado: estadoTemp == e,
                     onToggle: () => setModal(() => estadoTemp = estadoTemp == e ? null : e),

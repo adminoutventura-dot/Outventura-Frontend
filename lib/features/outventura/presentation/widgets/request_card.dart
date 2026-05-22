@@ -5,6 +5,7 @@ import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
@@ -36,11 +37,11 @@ class RequestCard extends StatelessWidget {
 
     // Color del badge y los acentos visuales según el estado de la solicitud.
     final Color statusColor = switch (solicitud.status) {
-      RequestStatus.pendiente => cs.tertiary,
-      RequestStatus.confirmada => cs.primary,
-      RequestStatus.enCurso => cs.secondary,
-      RequestStatus.finalizada => cs.onSurfaceVariant,
-      RequestStatus.cancelada => cs.error,
+      WorkflowStatus.pendiente => cs.tertiary,
+      WorkflowStatus.confirmada => cs.primary,
+      WorkflowStatus.enCurso => cs.secondary,
+      WorkflowStatus.finalizada => cs.onSurfaceVariant,
+      WorkflowStatus.cancelada => cs.error,
     };
 
     // Imagen de la actividad asociada (null si no tiene, se muestra un icono genérico).

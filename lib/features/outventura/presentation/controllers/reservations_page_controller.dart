@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
 class ReservationsPageController {
-  BookingStatus? estadoFiltro;
+  WorkflowStatus? estadoFiltro;
   DateTime? fechaDesde;
   DateTime? fechaHasta;
 
   bool get hayFiltros => estadoFiltro != null || fechaDesde != null || fechaHasta != null;
 
   void mostrarFiltros(BuildContext context, StateSetter setState) {
-    BookingStatus? estadoTemp = estadoFiltro;
+    WorkflowStatus? estadoTemp = estadoFiltro;
     DateTime? desdeTemp = fechaDesde;
     DateTime? hastaTemp = fechaHasta;
 
@@ -20,8 +20,8 @@ class ReservationsPageController {
       grupos: [
         FilterGrupo(
           titulo: AppLocalizations.of(context)!.statusFilter,
-          chips: BookingStatus.values
-              .map((BookingStatus e) => FilterChipSpec(
+          chips: WorkflowStatus.values
+              .map((WorkflowStatus e) => FilterChipSpec(
                     label: e.localizedLabel(AppLocalizations.of(context)!),
                     seleccionado: estadoTemp == e,
                     onToggle: () => setModal(() => estadoTemp = estadoTemp == e ? null : e),

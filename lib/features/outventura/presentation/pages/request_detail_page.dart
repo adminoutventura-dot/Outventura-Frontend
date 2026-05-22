@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/core/widgets/detail_sliver_header.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
@@ -30,11 +31,11 @@ class RequestDetailPage extends ConsumerWidget {
         : null;
 
     final Color accentColor = switch (solicitud.status) {
-      RequestStatus.confirmada => cs.primary,
-      RequestStatus.pendiente => cs.tertiary,
-      RequestStatus.enCurso => cs.secondary,
-      RequestStatus.finalizada => cs.secondary.withValues(alpha: 0.35),
-      RequestStatus.cancelada => cs.error,
+      WorkflowStatus.confirmada => cs.primary,
+      WorkflowStatus.pendiente => cs.tertiary,
+      WorkflowStatus.enCurso => cs.secondary,
+      WorkflowStatus.finalizada => cs.secondary.withValues(alpha: 0.35),
+      WorkflowStatus.cancelada => cs.error,
     };
 
     return Scaffold(

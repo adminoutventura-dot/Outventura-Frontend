@@ -7,6 +7,7 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/services/pricing_service.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
@@ -16,7 +17,7 @@ class RequestFormController {
 
   int? idActividad;
   int get numeroParticipantes => int.tryParse(participantesCtrl.text) ?? 1;
-  RequestStatus estado = RequestStatus.pendiente;
+  WorkflowStatus estado = WorkflowStatus.pendiente;
   int? idExperto;
   int? idUsuario;
   int? idReserva;
@@ -162,7 +163,7 @@ class RequestFormController {
       userId: idUsuario!,
       lines: lineas,
       activityId: idActividad,
-      status: BookingStatus.pendiente,
+      status: WorkflowStatus.pendiente,
     );
   }
 
@@ -267,7 +268,7 @@ class RequestFormController {
     seleccionado = null;
     idActividad = null;
     participantesCtrl.clear();
-    estado = RequestStatus.pendiente;
+    estado = WorkflowStatus.pendiente;
     idExperto = null;
     idUsuario = null;
     idReserva = null;

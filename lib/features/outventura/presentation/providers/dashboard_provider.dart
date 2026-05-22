@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/models/weekly_data.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
@@ -37,11 +37,11 @@ class AdminDailyStats {
 final adminRequestsStatsProvider = Provider<AdminRequestsStats>((ref) {
   final solicitudes = ref.watch(requestsProvider).value ?? [];
   return AdminRequestsStats(
-    pendientes: solicitudes.where((r) => r.status == RequestStatus.pendiente).length,
-    enCurso: solicitudes.where((r) => r.status == RequestStatus.enCurso).length,
-    confirmadas: solicitudes.where((r) => r.status == RequestStatus.confirmada).length,
-    finalizadas: solicitudes.where((r) => r.status == RequestStatus.finalizada).length,
-    canceladas: solicitudes.where((r) => r.status == RequestStatus.cancelada).length,
+    pendientes: solicitudes.where((r) => r.status == WorkflowStatus.pendiente).length,
+    enCurso: solicitudes.where((r) => r.status == WorkflowStatus.enCurso).length,
+    confirmadas: solicitudes.where((r) => r.status == WorkflowStatus.confirmada).length,
+    finalizadas: solicitudes.where((r) => r.status == WorkflowStatus.finalizada).length,
+    canceladas: solicitudes.where((r) => r.status == WorkflowStatus.cancelada).length,
   );
 });
 
@@ -69,7 +69,7 @@ final adminDailyStatsProvider = Provider<AdminDailyStats>((ref) {
 final adminRevenueProvider = Provider<double>((ref) {
   final solicitudes = ref.watch(requestsProvider).value ?? [];
   return solicitudes
-      .where((r) => r.status == RequestStatus.confirmada || r.status == RequestStatus.finalizada)
+      .where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.finalizada)
       .fold(0.0, (sum, r) => sum + r.totalPrice);
 });
 
