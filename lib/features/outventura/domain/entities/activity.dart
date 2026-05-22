@@ -1,5 +1,5 @@
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
-// TODO: as num necesario?
+
 // Estados posibles de una actividad.
 enum ActivityStatus {
   disponible,

@@ -15,6 +15,7 @@ class RequestModel extends Request {
     super.totalPrice,
   });
 
+  // TODO: as num necesario? 
   factory RequestModel.fromMap(Map<String, dynamic> map) {
     return RequestModel(
       id: map['id_request'] as int?,
