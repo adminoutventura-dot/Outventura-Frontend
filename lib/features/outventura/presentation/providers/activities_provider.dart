@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
+import 'package:outventura/features/outventura/data/models/activity_model.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
@@ -70,7 +71,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/activity');
       final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((e) => Activity.fromMap(e as Map<String, dynamic>)).toList();
+      return data.map((e) => ActivityModel.fromMap(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -81,7 +82,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.post('/activity', data: actividad.toMap());
-      final Activity created = Activity.fromMap(response.data as Map<String, dynamic>);
+      final Activity created = ActivityModel.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
       return created;
     } on DioException catch (e) {

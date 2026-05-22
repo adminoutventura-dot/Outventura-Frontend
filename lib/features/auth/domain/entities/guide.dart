@@ -16,21 +16,6 @@ class Guide {
     this.user,
   });
 
-  factory Guide.fromMap(Map<String, dynamic> map) {
-    return Guide(
-      id: map['id_guide'] as int?,
-      userId: map['userId'] as int,
-      credentials: map['credentials'] as String,
-      categories: (map['categories'] as List<dynamic>? ?? [])
-          .cast<Map<String, dynamic>>()
-          .map(Category.fromMap)
-          .toList(),
-      user: map['user'] != null
-          ? User.fromMap(map['user'] as Map<String, dynamic>)
-          : null,
-    );
-  }
-
   Map<String, dynamic> toMap() => {
     'userId': userId,
     'credentials': credentials,

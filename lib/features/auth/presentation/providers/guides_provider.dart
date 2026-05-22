@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
+import 'package:outventura/features/auth/data/models/guide_model.dart';
 import 'package:outventura/features/auth/domain/entities/guide.dart';
 
 // Lista completa de guías. GET /guide.
@@ -14,7 +15,7 @@ class GuidesNotifier extends AsyncNotifier<List<Guide>> {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/guide');
       final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((e) => Guide.fromMap(e as Map<String, dynamic>)).toList();
+      return data.map((e) => GuideModel.fromMap(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -25,7 +26,7 @@ class GuidesNotifier extends AsyncNotifier<List<Guide>> {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.post('/guide', data: guide.toMap());
-      final Guide created = Guide.fromMap(response.data as Map<String, dynamic>);
+      final Guide created = GuideModel.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
       return created;
     } on DioException catch (e) {

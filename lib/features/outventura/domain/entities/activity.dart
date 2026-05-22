@@ -58,38 +58,6 @@ class Activity {
     this.materialsPerParticipant = const {},
   });
 
-  // Crea una Activity a partir del JSON que devuelve el backend.
-  factory Activity.fromMap(Map<String, dynamic> map) {
-    // El backend devuelve categories como array de objetos: [{ id_category, code, description }].
-    final List<Category> parsedCategories = (map['categories'] as List<dynamic>? ?? [])
-        .cast<Map<String, dynamic>>()
-        .map(Category.fromMap)
-        .toList();
-
-    return Activity(
-      id: map['id_activity'] as int?,
-      description: map['description'] as String?,
-      initDate: DateTime.parse(map['init_date'] as String),
-      endDate: DateTime.parse(map['end_date'] as String),
-      difficulty: map['difficulty'] as int? ?? 0,
-      maxParticipants: map['max_participants'] as int? ?? 0,
-      startPoint: map['start_point'] as String? ?? '',
-      endPoint: map['end_point'] as String? ?? '',
-      categories: parsedCategories,
-      guideId: map['guideId'] as int?,
-      imageAsset: map['image_asset'] as String?,
-      status: map['status'] != null
-          ? ActivityStatus.fromString(map['status'] as String)
-          : ActivityStatus.disponible,
-      price: (map['price'] as num?)?.toDouble() ?? 0,
-      // El backend devuelve [{ equipmentId, quantity }], lo convierte a Map<equipmentId, quantity>.
-      materialsPerParticipant: {
-        for (final e in (map['materialRequirements'] as List<dynamic>? ?? []))
-          (e['equipmentId'] as int): (e['quantity'] as int),
-      },
-    );
-  }
-
   // Convierte la actividad a un mapa para enviar al backend.
   Map<String, dynamic> toMap() => {
     'description': description,

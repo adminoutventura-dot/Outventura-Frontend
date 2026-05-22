@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
+import 'package:outventura/features/outventura/data/models/request_model.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
@@ -86,7 +87,7 @@ class RequestsNotifier extends AsyncNotifier<List<Request>> {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/request');
       final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((e) => Request.fromMap(e as Map<String, dynamic>)).toList();
+      return data.map((e) => RequestModel.fromMap(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -97,7 +98,7 @@ class RequestsNotifier extends AsyncNotifier<List<Request>> {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.post('/request', data: solicitud.toMap());
-      final Request created = Request.fromMap(response.data as Map<String, dynamic>);
+      final Request created = RequestModel.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
       return created;
     } on DioException catch (e) {

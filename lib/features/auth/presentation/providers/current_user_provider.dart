@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
+import 'package:outventura/features/auth/data/models/user_model.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 
 // Almacena el usuario actualmente logueado (null si no hay sesión).
@@ -18,7 +19,7 @@ final FutureProvider<void> sessionRestorerProvider = FutureProvider<void>(
       try {
         final dio = ref.read(dioProvider);
         final response = await dio.get('/auth/profile');
-        final User usuario = User.fromMap(response.data as Map<String, dynamic>);
+        final User usuario = UserModel.fromMap(response.data as Map<String, dynamic>);
         ref.read(currentUserProvider.notifier).setUsuario(usuario);
       } on DioException catch (e) {
         // Token inválido o expirado: limpiar y dejar al usuario sin sesión
@@ -46,7 +47,7 @@ class CurrentUserNotifier extends Notifier<User?> {
       });
       final data = response.data as Map<String, dynamic>;
       await saveAuthToken(data['access_token'] as String);
-      state = User.fromMap(data['user'] as Map<String, dynamic>);
+      state = UserModel.fromMap(data['user'] as Map<String, dynamic>);
       return state;
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) throw Exception('Credenciales incorrectas');

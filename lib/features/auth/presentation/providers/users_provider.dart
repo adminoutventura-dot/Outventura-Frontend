@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
+import 'package:outventura/features/auth/data/models/user_model.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 
@@ -43,7 +44,7 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/user');
       final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((e) => User.fromMap(e as Map<String, dynamic>)).toList();
+      return data.map((e) => UserModel.fromMap(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -54,7 +55,7 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.post('/user', data: usuario.toMap());
-      final User created = User.fromMap(response.data as Map<String, dynamic>);
+      final User created = UserModel.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
       return created;
     } on DioException catch (e) {

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
+import 'package:outventura/features/outventura/data/models/equipment_model.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 
@@ -41,7 +42,7 @@ class EquipmentNotifier extends AsyncNotifier<List<Equipment>> {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/equipment');
       final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((e) => Equipment.fromMap(e as Map<String, dynamic>)).toList();
+      return data.map((e) => EquipmentModel.fromMap(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -52,7 +53,7 @@ class EquipmentNotifier extends AsyncNotifier<List<Equipment>> {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.post('/equipment', data: equipamiento.toMap());
-      final Equipment created = Equipment.fromMap(response.data as Map<String, dynamic>);
+      final Equipment created = EquipmentModel.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
       return created;
     } on DioException catch (e) {

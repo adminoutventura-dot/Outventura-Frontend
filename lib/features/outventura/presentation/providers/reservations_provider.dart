@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
+import 'package:outventura/features/outventura/data/models/reservation_model.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
@@ -92,7 +93,7 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/booking');
       final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((e) => Booking.fromMap(e as Map<String, dynamic>)).toList();
+      return data.map((e) => BookingModel.fromMap(e as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -103,7 +104,7 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.post('/booking', data: reserva.toMap());
-      final Booking created = Booking.fromMap(response.data as Map<String, dynamic>);
+      final Booking created = BookingModel.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
       return created;
     } on DioException catch (e) {

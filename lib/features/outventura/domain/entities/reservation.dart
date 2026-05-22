@@ -12,15 +12,6 @@ class BookingLine {
     this.priceAtMoment = 0,
   });
 
-  // Crea una línea de reserva a partir de un mapa (del backend al frontend).
-  factory BookingLine.fromMap(Map<String, dynamic> map) {
-    return BookingLine(
-      equipmentId: map['equipmentId'] as int? ?? 0,
-      quantity: map['quantity'] as int? ?? 0,
-      priceAtMoment: (map['price_at_moment'] as num?)?.toDouble() ?? 0,
-    );
-  }
-
   // Convierte la línea a un mapa para enviar al backend.
   Map<String, dynamic> toMap() => {
     'equipmentId': equipmentId,
@@ -58,45 +49,6 @@ class Booking {
     this.damageFee = 0,
     this.damagedItems = const {},
   });
-
-  // Convierte un JSON (mapa) del backend en una instancia de Booking
-  factory Booking.fromMap(Map<String, dynamic> map) {
-    final linesRaw = map['lines'] as List? ?? [];
-    final lines = linesRaw
-        .map((e) => BookingLine.fromMap(e as Map<String, dynamic>))
-        .toList();
-
-    // El activityId puede venir directamente o de la primera línea que lo tenga.
-    final int? activityId = map['activityId'] as int? ??
-        (linesRaw.isNotEmpty
-            ? (linesRaw.first as Map<String, dynamic>)['activityId'] as int?
-            : null);
-
-    // El backend devuelve status siempre como string (enum de PostgreSQL).
-    final String statusCode = map['status'] as String? ?? '';
-
-    // El backend devuelve siempre user: { id_user, name, email }
-    final userMap = map['user'] as Map<String, dynamic>?;
-    final int userId = userMap?['id_user'] as int? ?? 0;
-
-    // damaged_items llega como [{ equipmentId, quantity }] desde el backend.
-    final rawDamaged = map['damaged_items'] as List<dynamic>? ?? [];
-    final Map<int, int> damagedItems = {
-      for (final e in rawDamaged)
-        e['equipmentId'] as int: e['quantity'] as int,
-    };
-
-    return Booking(
-      id: map['id_booking'] as int?,
-      userId: userId,
-      lines: lines,
-      activityId: activityId,
-      status: WorkflowStatus.fromCode(statusCode),
-      totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
-      damageFee: (map['damage_fee'] as num?)?.toDouble() ?? 0,
-      damagedItems: damagedItems,
-    );
-  }
 
   // Convierte la reserva a un mapa para enviar al backend.
   Map<String, dynamic> toMap() => {

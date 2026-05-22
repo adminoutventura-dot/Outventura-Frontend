@@ -26,23 +26,6 @@ class Category {
     );
   }
 
-  // Crea una Category a partir del objeto completo que devuelve el backend.
-  // Usado para Activity.categories y Equipment.categories (relación M:N).
-  // Formato esperado: { id_category: int, code: String, description: String? }
-  factory Category.fromMap(Map<String, dynamic> map) {
-    final String code = map['code'] as String;
-    // Si es una constante conocida, la devuelve para mantener igualdad por referencia.
-    final Category? conocida = values.cast<Category?>().firstWhere(
-      (Category? c) => c?.code == code,
-      orElse: () => null,
-    );
-    return conocida ?? Category(
-      id: map['id_category'] as int?,
-      code: code,
-      description: map['description'] as String?,
-    );
-  }
-
   @override
   bool operator ==(Object other) => other is Category && other.code == code;
 

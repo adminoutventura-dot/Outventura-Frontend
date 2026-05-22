@@ -58,34 +58,6 @@ class Equipment {
     this.imageAsset,
   });
 
-  // Crea un Material a partir del JSON que devuelve el backend.
-  factory Equipment.fromMap(Map<String, dynamic> map) {
-    // El backend devuelve categories como array de objetos: [{ id_category, code, description }].
-    final List<Category> parsedCategories = (map['categories'] as List<dynamic>? ?? [])
-        .cast<Map<String, dynamic>>()
-        .map(Category.fromMap)
-        .toList();
-
-    // El backend envía el estado como string del enum (ej. 'AVAILABLE').
-    final String? statusValue = map['status'] as String?;
-
-    // El número de unidades totales coincide con el campo `units` del backend.
-    final int units = num.parse((map['units'] ?? 0).toString()).toInt();
-
-    return Equipment(
-      id: map['id_equipment'] as int?,
-      title: map['title'] as String,
-      description: map['description'] as String?,
-      categories: parsedCategories,
-      units: units,
-      totalUnits: num.parse((map['total_units'] ?? map['units'] ?? 0).toString()).toInt(),
-      status: EquipmentStatus.fromString(statusValue ?? 'AVAILABLE'),
-      pricePerDay: map['price_per_day'] != null ? num.parse(map['price_per_day'].toString()).toDouble() : 0,
-      damageFee: map['damage_fee'] != null ? num.parse(map['damage_fee'].toString()).toDouble() : 0,
-      imageAsset: map['imageAsset'] as String?,
-    );
-  }
-
   // Convierte el material a un mapa para enviar al backend.
   // Los campos solo del front (totalUnits, imageAsset) se omiten.
   Map<String, dynamic> toMap() => {
