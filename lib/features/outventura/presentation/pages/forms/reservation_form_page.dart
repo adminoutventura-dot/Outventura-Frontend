@@ -139,7 +139,11 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
           }
           // Construir el objeto Booking a partir del estado del formulario.
           final Booking? reserva = _controller.crearEditarReserva(equipamientos);
-          if (reserva == null) return;
+          // TODO: HARDCODEADO
+          if (reserva == null) {
+            showErrorSnackBar(context, "s.fillRequiredFields");
+            return;
+          }
           // Devolver la reserva creada/editada a la pantalla anterior.
           Navigator.of(context).pop(reserva);
         },
@@ -170,10 +174,8 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                   if (modoCliente) return;
                   setState(() => _controller.idUsuario = v);
                 },
-                validator: (int? v) {
-                  if (v == null) {
-                    return s.selectUser;
-                  }
+                validator: modoCliente ? null : (int? v) {
+                  if (v == null) return s.selectUser;
                   return null;
                 },
               ),
@@ -191,10 +193,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 enabled: !modoCliente,
                 onChanged: (int? v) =>
                     setState(() => _controller.idActividad = v),
-                validator: (int? v) {
-                  if (v == null) return s.selectActividad;
-                  return null;
-                },
+                validator: null,
               ),
               const SizedBox(height: 20),
 

@@ -59,7 +59,6 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
       appBar: CustomAppBar(
         title: s.actividadesTitle,
         actions: [
-          // Botón de filtros.
           Badge(
             isLabelVisible: _controller.hayFiltros,
             alignment: const AlignmentDirectional(0.5, -0.5),
@@ -77,7 +76,6 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
       floatingActionButton: widget.puedeGestionar
           ? Padding(
               padding: const EdgeInsets.only(bottom: 100.0),
-              // Boton add
               child: AddFab(
                 onPressed: () async {
                   final Activity? nueva = await Navigator.of(context)
@@ -125,8 +123,6 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
               itemCount: lista.isEmpty ? 1 : lista.length,
               separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (BuildContext context, int index) {
-
-                // Si la lista está vacía, se muestra un mensaje en vez de una card.
                 if (lista.isEmpty) {
                   return Center(
                     child: Text(
@@ -136,71 +132,49 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                   );
                 }
                 final Activity actividad = lista[index];
-
-                // Card de actividad 
                 return ActivityCard(
                   actividad: actividad,
-                  // Editar solo si puede gestionar
                   onEditar: widget.puedeGestionar
-                      ? () async { 
+                      ? () async {
                           final Activity? actualizada =
-                              // Navega al formulario de edición pasando la actividad actual como argumento. 
-                              // El formulario devuelve la actividad actualizada (o null si se canceló).
                               await Navigator.of(context).push<Activity>(
                                 MaterialPageRoute(
                                   builder: (BuildContext _) =>
                                       ActivityFormPage(actividad: actividad),
                                 ),
                               );
-                          
                           if (actualizada == null) {
                             return;
                           }
-
-                          // Actualiza la actividad en el provider.
                           ref.read(activitiesProvider.notifier).actualizar(actividad, actualizada);
-
                           if (!context.mounted) {
                             return;
                           }
-
-                          // Muestra un snackbar de éxito.
                           showSuccessSnackBar(context, s.actividadActualizada);
                         }
                       : null,
-
-                  // Eliminar solo si puede gestionar
                   onEliminar: widget.puedeGestionar
                       ? () async {
-                        // Muestra un diálogo de confirmación antes de eliminar.
                           final bool confirm = await showConfirmDialog(
                             context: context,
                             title: s.deleteActividad,
-                            content: s.deleteActividadConfirm('${actividad.startPoint} → ${actividad.endPoint}'),
+                            content:
+                                s.deleteActividadConfirm('${actividad.startPoint} → ${actividad.endPoint}'),
                           );
-
-                          // Si el usuario confirma, elimina la actividad del provider.
                           if (confirm) {
                             ref.read(activitiesProvider.notifier).eliminar(actividad);
                           }
                         }
                       : null,
-
-                  // Solicitar solo si puede solicitar
                   onSolicitar: widget.puedeSolicitar
                       ? () async {
-                        // Obtiene el usuario actual. Si no hay usuario (no debería pasar), no hace nada.
                           final usuario = ref.read(currentUserProvider);
                           if (usuario == null) {
-                            showErrorSnackBar(context, s.error('Usuario no autenticado'));
                             return;
                           }
 
-                          //
                           final Request? solicitud =
-                          // Navega al formulario de solicitud pasando la actividad e ID de usuario como argumentos.
                               await Navigator.of(context).push<Request>(
-                                // El formulario devuelve la solicitud creada (o null si se canceló).
                                 MaterialPageRoute(
                                   builder: (_) => SolicitudFormPage(
                                     initialIdActividad: actividad.id,
@@ -212,14 +186,10 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                           if (solicitud == null) {
                             return;
                           }
-                          // Agrega la solicitud al provider.
                           ref.read(requestsProvider.notifier).agregar(solicitud);
                           if (!context.mounted) {
                             return;
                           }
-
-                          // Muestra un snackbar de éxito. 
-                          // El mensaje varía si la solicitud tiene una reserva asociada o no.
                           final String mensaje = solicitud.bookingId != null
                               ? s.requestCreatedWithReservation
                               : s.requestCreated;

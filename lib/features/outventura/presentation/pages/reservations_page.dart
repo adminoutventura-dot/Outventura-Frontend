@@ -156,7 +156,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         activityStartDate: res.activityId != null ? ref.watch(activityByIdProvider(res.activityId!))?.initDate : null,
                         activityEndDate: res.activityId != null ? ref.watch(activityByIdProvider(res.activityId!))?.endDate : null,
 
-                        // Si el usuario no puede gestionar reservas y la reserva no está pendiente, no se permite editar.
+                        // Si el usuario no puede gestionar reservas, solo puede editar si está pendiente.
                         onEditar: (!widget.puedeGestionar && res.status != WorkflowStatus.pendiente)
                             ? null
                             : () async {

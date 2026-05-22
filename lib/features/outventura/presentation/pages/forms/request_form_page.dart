@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar_forms.dart';
 import 'package:outventura/core/widgets/bottom_price_bar.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
@@ -156,7 +157,11 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
           // Crear o actualizar solicitud
           final Request? solicitud = _controller.crearEditarSolicitud(actividades, equipamientos);
-          if (solicitud == null) return;
+          if (solicitud == null) {
+            // TODO: HARDCODEADO, mejorar mensaje de error según validación que falle
+            showErrorSnackBar(context, "s.fillRequiredFields");
+            return;
+          }
 
           // Lista de reservas
           final List<Booking> reservasActuales = ref.read(reservationsProvider).value ?? [];

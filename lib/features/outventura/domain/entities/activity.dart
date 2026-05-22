@@ -71,8 +71,8 @@ class Activity {
       description: map['description'] as String?,
       initDate: DateTime.parse(map['init_date'] as String),
       endDate: DateTime.parse(map['end_date'] as String),
-      difficulty: num.parse(map['difficulty'].toString()).toInt(),
-      maxParticipants: num.parse(map['max_participants'].toString()).toInt(),
+      difficulty: map['difficulty'] as int? ?? 0,
+      maxParticipants: map['max_participants'] as int? ?? 0,
       startPoint: map['start_point'] as String? ?? '',
       endPoint: map['end_point'] as String? ?? '',
       categories: parsedCategories,
@@ -81,7 +81,7 @@ class Activity {
       status: map['status'] != null
           ? ActivityStatus.fromString(map['status'] as String)
           : ActivityStatus.disponible,
-      price: map['price'] != null ? num.parse(map['price'].toString()).toDouble() : 0,
+      price: (map['price'] as num?)?.toDouble() ?? 0,
       // El backend devuelve [{ equipmentId, quantity }], lo convierte a Map<equipmentId, quantity>.
       materialsPerParticipant: {
         for (final e in (map['materialRequirements'] as List<dynamic>? ?? []))

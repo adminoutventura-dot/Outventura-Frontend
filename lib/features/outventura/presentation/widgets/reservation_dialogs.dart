@@ -8,7 +8,7 @@ import 'package:outventura/l10n/app_localizations.dart';
 Future<void> mostrarDialogoAprobacion(
   BuildContext context,
   Booking r,
-  VoidCallback onConfirm,
+  Future<void> Function() onConfirm,
 ) async {
   final s = AppLocalizations.of(context)!;
   final bool ok = await showConfirmDialog(
@@ -19,15 +19,21 @@ Future<void> mostrarDialogoAprobacion(
     isDanger: false,
   );
   if (!context.mounted || !ok) return;
-  onConfirm();
-  showSuccessSnackBar(context, s.reservationApproved);
+  try {
+    await onConfirm();
+    if (!context.mounted) return;
+    showSuccessSnackBar(context, s.reservationApproved);
+  } catch (e) {
+    if (!context.mounted) return;
+    showErrorSnackBar(context, e.toString());
+  }
 }
 
 // Muestra el diálogo de confirmación para rechazar una reserva.
 Future<void> mostrarDialogoRechazo(
   BuildContext context,
   Booking r,
-  VoidCallback onConfirm,
+  Future<void> Function() onConfirm,
 ) async {
   final s = AppLocalizations.of(context)!;
   final bool ok = await showConfirmDialog(
@@ -37,15 +43,21 @@ Future<void> mostrarDialogoRechazo(
     confirmLabel: s.reject,
   );
   if (!context.mounted || !ok) return;
-  onConfirm();
-  showSuccessSnackBar(context, s.reservationRejected);
+  try {
+    await onConfirm();
+    if (!context.mounted) return;
+    showSuccessSnackBar(context, s.reservationRejected);
+  } catch (e) {
+    if (!context.mounted) return;
+    showErrorSnackBar(context, e.toString());
+  }
 }
 
 // Muestra el diálogo de confirmación para cancelar una reserva.
 Future<void> mostrarDialogoCancelacion(
   BuildContext context,
   Booking r,
-  VoidCallback onConfirm,
+  Future<void> Function() onConfirm,
 ) async {
   final s = AppLocalizations.of(context)!;
   final bool ok = await showConfirmDialog(
@@ -55,14 +67,19 @@ Future<void> mostrarDialogoCancelacion(
     confirmLabel: s.cancelReservation,
   );
   if (!context.mounted || !ok) return;
-  onConfirm();
+  try {
+    await onConfirm();
+  } catch (e) {
+    if (!context.mounted) return;
+    showErrorSnackBar(context, e.toString());
+  }
 }
 
 // Muestra el diálogo para registrar la devolución de una reserva.
 Future<void> mostrarDialogoDevolucion(
   BuildContext context,
   Booking r,
-  VoidCallback onConfirm,
+  Future<void> Function() onConfirm,
 ) async {
   final s = AppLocalizations.of(context)!;
   final bool ok = await showConfirmDialog(
@@ -73,6 +90,12 @@ Future<void> mostrarDialogoDevolucion(
     isDanger: false,
   );
   if (!context.mounted || !ok) return;
-  onConfirm();
-  showSuccessSnackBar(context, s.returnRegistered);
+  try {
+    await onConfirm();
+    if (!context.mounted) return;
+    showSuccessSnackBar(context, s.returnRegistered);
+  } catch (e) {
+    if (!context.mounted) return;
+    showErrorSnackBar(context, e.toString());
+  }
 }

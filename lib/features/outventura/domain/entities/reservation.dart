@@ -15,9 +15,9 @@ class BookingLine {
   // Crea una línea de reserva a partir de un mapa (del backend al frontend).
   factory BookingLine.fromMap(Map<String, dynamic> map) {
     return BookingLine(
-      equipmentId: map['equipmentId'] as int,
-      quantity: num.parse(map['quantity'].toString()).toInt(),
-      priceAtMoment: map['price_at_moment'] != null ? num.parse(map['price_at_moment'].toString()).toDouble() : 0,
+      equipmentId: map['equipmentId'] as int? ?? 0,
+      quantity: map['quantity'] as int? ?? 0,
+      priceAtMoment: (map['price_at_moment'] as num?)?.toDouble() ?? 0,
     );
   }
 
@@ -76,13 +76,14 @@ class Booking {
     final String statusCode = map['status'] as String? ?? '';
 
     // El backend devuelve siempre user: { id_user, name, email }
-    final int userId = (map['user'] as Map<String, dynamic>)['id_user'] as int;
+    final userMap = map['user'] as Map<String, dynamic>?;
+    final int userId = userMap?['id_user'] as int? ?? 0;
 
     // damaged_items llega como [{ equipmentId, quantity }] desde el backend.
     final rawDamaged = map['damaged_items'] as List<dynamic>? ?? [];
     final Map<int, int> damagedItems = {
       for (final e in rawDamaged)
-        num.parse(e['equipmentId'].toString()).toInt(): num.parse(e['quantity'].toString()).toInt(),
+        e['equipmentId'] as int: e['quantity'] as int,
     };
 
     return Booking(
@@ -91,8 +92,8 @@ class Booking {
       lines: lines,
       activityId: activityId,
       status: WorkflowStatus.fromCode(statusCode),
-      totalPrice: map['total_price'] != null ? num.parse(map['total_price'].toString()).toDouble() : 0,
-      damageFee: map['damage_fee'] != null ? num.parse(map['damage_fee'].toString()).toDouble() : 0,
+      totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
+      damageFee: (map['damage_fee'] as num?)?.toDouble() ?? 0,
       damagedItems: damagedItems,
     );
   }

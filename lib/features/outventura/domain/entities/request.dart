@@ -28,18 +28,18 @@ class Request {
   factory Request.fromMap(Map<String, dynamic> map) {
     return Request(
       id: map['id_request'] as int?,
-      activityId: map['activityId'] as int,
-      participantCount: num.parse(map['participant_count'].toString()).toInt(),
-      status: WorkflowStatus.fromCode(map['status'] as String),
+      activityId: map['activityId'] as int? ?? 0,
+      participantCount: map['participant_count'] as int? ?? 0,
+      status: WorkflowStatus.fromCode(map['status'] as String? ?? ''),
       guideId: map['guideId'] as int?,
       userId: map['userId'] as int?,
       bookingId: map['bookingId'] as int?,
       // requested_materials llega como [{ equipmentId, quantity }] desde el backend.
       requestedMaterials: {
         for (final e in (map['requested_materials'] as List<dynamic>? ?? []))
-          num.parse(e['equipmentId'].toString()).toInt(): num.parse(e['quantity'].toString()).toInt(),
+          e['equipmentId'] as int: e['quantity'] as int,
       },
-      totalPrice: map['total_price'] != null ? num.parse(map['total_price'].toString()).toDouble() : 0,
+      totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
     );
   }
 

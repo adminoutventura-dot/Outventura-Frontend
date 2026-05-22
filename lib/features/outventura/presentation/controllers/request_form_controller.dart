@@ -67,6 +67,9 @@ class RequestFormController {
     if (!validar()) {
       return null;
     }
+    if (idActividad == null) {
+      return null;
+    }
 
     final double precio = calcularPrecioTotal(actividades, equipamientos);
 
