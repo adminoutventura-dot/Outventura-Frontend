@@ -123,10 +123,14 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
     final bool modoCliente = widget.initialIdUsuario != null;
 
+    // TODO: Revisar
     // En modo cliente usa el usuario actual directamente; en modo admin carga la lista completa.
-    final List<User> usuariosDisponibles = modoCliente
-        ? [if (ref.watch(currentUserProvider) case final u?) u]
-        : ref.watch(usuariosProvider).value ?? [];
+    final List<User> usuariosDisponibles = !modoCliente
+      ? ref.watch(usuariosProvider).value ?? []
+      : switch (ref.watch(currentUserProvider)) {
+          final User u => [u],
+          null => [],
+        };
 
     final Activity? actividadSeleccionada = _controller.buscarActividadSeleccionada(actividades);
 

@@ -110,10 +110,14 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     // Precio total = alquiler de materiales + cargo por daños si los hay.
     final double totalPrice = _controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos);
 
+    // TODO: REVISAR
     // Lista de usuarios disponibles para el dropdown.
     // En modo cliente usa el usuario actual directamente; en modo admin carga la lista completa.
     final List<User> usuariosDisponibles = modoCliente
-        ? [if (ref.watch(currentUserProvider) case final u?) u]
+        ? switch (ref.watch(currentUserProvider)) {
+            final User u => [u],
+            null => [],
+          }
         : ref.watch(usuariosProvider).value ?? [];
 
     // --- CÁLCULO DE ALTURAS PARA EL TRASPASO DE BARS ---
