@@ -81,41 +81,41 @@ class CardsDemo extends StatelessWidget {
           ),
 
           // RESERVA CARD
-          const SizedBox(height: 24),
-          Text('ReservaCard – Pendiente con acciones', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
-          const SizedBox(height: 8),
-          ReservationCard(
-            reserva: reservationsFake[0],
-            nombreUsuario: '${usersFake[2].name} ${usersFake[2].surname}',
-            nombreActividad: () {
-              final Activity? ex = activitiesFake.where((Activity e) => e.id == reservationsFake[0].activityId).firstOrNull;
-              return ex != null ? '${ex.startPoint} → ${ex.endPoint}' : null;
-            }(),
-            activityStartDate: activitiesFake.where((Activity e) => e.id == reservationsFake[0].activityId).firstOrNull?.initDate,
-            activityEndDate: activitiesFake.where((Activity e) => e.id == reservationsFake[0].activityId).firstOrNull?.endDate,
-            lineas: reservationsFake[0].lines.map((BookingLine l) {
-              final Equipment eq = equipmentFake.firstWhere((Equipment e) => e.id == l.equipmentId, orElse: () => equipmentFake.first);
-              return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.quantity);
-            }).toList(),
-            onAprobar: () {},
-            onRechazar: () {},
-          ),
+          // const SizedBox(height: 24),
+          // Text('ReservaCard – Pendiente con acciones', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          // const SizedBox(height: 8),
+          // ReservationCard(
+          //   reserva: reservationsFake[0],
+          //   nombreUsuario: '${usersFake[2].name} ${usersFake[2].surname}',
+          //   nombreActividad: () {
+          //     final Activity? ex = activitiesFake.where((Activity e) => e.id == reservationsFake[0].activityId).firstOrNull;
+          //     return ex != null ? '${ex.startPoint} → ${ex.endPoint}' : null;
+          //   }(),
+          //   activityStartDate: activitiesFake.where((Activity e) => e.id == reservationsFake[0].activityId).firstOrNull?.initDate,
+          //   activityEndDate: activitiesFake.where((Activity e) => e.id == reservationsFake[0].activityId).firstOrNull?.endDate,
+          //   lineas: reservationsFake[0].lines.map((BookingLine l) {
+          //     final Equipment eq = equipmentFake.firstWhere((Equipment e) => e.id == l.equipmentId, orElse: () => equipmentFake.first);
+          //     return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.quantity);
+          //   }).toList(),
+          //   onAprobar: () {},
+          //   onRechazar: () {},
+          // ),
 
-          const SizedBox(height: 16),
-          Text('ReservaCard – Confirmada', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
-          const SizedBox(height: 8),
-          ReservationCard(
-            reserva: reservationsFake[1],
-            nombreUsuario: '${usersFake[2].name} ${usersFake[2].surname}',
-            activityStartDate: activitiesFake.where((Activity e) => e.id == reservationsFake[1].activityId).firstOrNull?.initDate,
-            activityEndDate: activitiesFake.where((Activity e) => e.id == reservationsFake[1].activityId).firstOrNull?.endDate,
-            lineas: reservationsFake[1].lines.map((BookingLine l) {
-              final Equipment eq = equipmentFake.firstWhere((Equipment e) => e.id == l.equipmentId, orElse: () => equipmentFake.first);
-              return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.quantity);
-            }).toList(),
-            onRegistrarDevolucion: () {},
-            onCancelar: () {},
-          ),
+          // const SizedBox(height: 16),
+          // Text('ReservaCard – Confirmada', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          // const SizedBox(height: 8),
+          // ReservationCard(
+          //   reserva: reservationsFake[1],
+          //   nombreUsuario: '${usersFake[2].name} ${usersFake[2].surname}',
+          //   activityStartDate: activitiesFake.where((Activity e) => e.id == reservationsFake[1].activityId).firstOrNull?.initDate,
+          //   activityEndDate: activitiesFake.where((Activity e) => e.id == reservationsFake[1].activityId).firstOrNull?.endDate,
+          //   lineas: reservationsFake[1].lines.map((BookingLine l) {
+          //     final Equipment eq = equipmentFake.firstWhere((Equipment e) => e.id == l.equipmentId, orElse: () => equipmentFake.first);
+          //     return (nombre: eq.title, imagen: eq.imageAsset, cantidad: l.quantity);
+          //   }).toList(),
+          //   onRegistrarDevolucion: () {},
+          //   onCancelar: () {},
+          // ),
 
           // RESERVATION LINE CARD
           const SizedBox(height: 24),

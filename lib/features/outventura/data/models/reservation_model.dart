@@ -26,6 +26,8 @@ class BookingModel extends Booking {
     required super.lines,
     super.activityId,
     required super.status,
+    required super.startDate,
+    required super.endDate,
     super.totalPrice,
     super.damageFee,
     super.damagedItems,
@@ -53,12 +55,21 @@ class BookingModel extends Booking {
         e['equipmentId'] as int: e['quantity'] as int,
     };
 
+    // Si por algún motivo llegan nulas, se pone DateTime.now() como medida de seguridad.
+    final String? startDateRaw = map['start_date'] as String?;
+    final String? endDateRaw = map['end_date'] as String?;
+    
+    final DateTime parsedStartDate = startDateRaw != null ? DateTime.parse(startDateRaw) : DateTime.now();
+    final DateTime parsedEndDate = endDateRaw != null ? DateTime.parse(endDateRaw) : DateTime.now();
+
     return BookingModel(
       id: map['id_booking'] as int?,
       userId: userId,
       lines: lines,
       activityId: activityId,
       status: WorkflowStatus.fromCode(statusCode),
+      startDate: parsedStartDate,
+      endDate: parsedEndDate,
       totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
       damageFee: (map['damage_fee'] as num?)?.toDouble() ?? 0,
       damagedItems: damagedItems,

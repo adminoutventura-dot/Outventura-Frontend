@@ -61,14 +61,10 @@ class ReservationFormController {
     lineas = List.from(reserva.lines);
     idActividad = reserva.activityId;
     // Las fechas vienen de la Activity asociada
-    fechaDesde = activityStart ?? DateTime.now();
-    fechaHasta = activityEnd ?? DateTime.now();
-    horaInicio = activityStart != null 
-        ? TimeOfDay(hour: activityStart.hour, minute: activityStart.minute)
-        : const TimeOfDay(hour: 9, minute: 0);
-    horaFin = activityEnd != null
-        ? TimeOfDay(hour: activityEnd.hour, minute: activityEnd.minute)
-        : const TimeOfDay(hour: 17, minute: 0);
+    fechaDesde = reserva.startDate;
+    fechaHasta = reserva.endDate;
+    horaInicio = TimeOfDay(hour: reserva.startDate.hour, minute: reserva.startDate.minute);
+    horaFin = TimeOfDay(hour: reserva.endDate.hour, minute: reserva.endDate.minute);
     cantidadesDaniadas = Map.from(reserva.damagedItems);
     estado = reserva.status;
   }
@@ -154,6 +150,24 @@ class ReservationFormController {
       return null;
     }
 
+    // Fusionar fechaDesde con horaInicio
+    final DateTime fechaInicioReal = DateTime(
+      fechaDesde.year,
+      fechaDesde.month,
+      fechaDesde.day,
+      horaInicio.hour,
+      horaInicio.minute,
+    );
+
+    // Fusionar fechaHasta con horaFin
+    final DateTime fechaFinReal = DateTime(
+      fechaHasta.year,
+      fechaHasta.month,
+      fechaHasta.day,
+      horaFin.hour,
+      horaFin.minute,
+    );
+
     return Booking(
       id: seleccionado?.id,
       userId: idUsuario!,
@@ -162,6 +176,8 @@ class ReservationFormController {
       status: estado,
       damageFee: totalCargoDanios(equipamientos),
       damagedItems: Map.from(cantidadesDaniadas),
+      startDate: fechaInicioReal,
+      endDate: fechaFinReal,
     );
   }
 

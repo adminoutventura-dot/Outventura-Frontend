@@ -34,30 +34,27 @@ final filteredReservationsProvider = Provider.family<AsyncValue<List<Booking>>, 
     } else {
       base = todas;
     }
+
+    // Filtro opcional por estado de la reserva
     if (params.estado != null) {
       base = base.where((Booking r) => r.status == params.estado).toList();
     }
-    // Las fechas de una reserva son las de la Activity asociada.
-    // Una reserva entra en el rango si su actividad no terminó antes del fechaDesde.
+
+    // Rango de fecha desde
     if (params.fechaDesde != null) {
-      base = base.where((Booking r) {
-        final Activity? act = actividades.where((a) => a.id == r.activityId).firstOrNull;
-        if (act == null) return true; // Sin actividad asociada, no filtramos
-        return !act.endDate.isBefore(params.fechaDesde!);
-      }).toList();
-    }
-    // Una reserva entra en el rango si su actividad no empieza después del fechaHasta.
-    if (params.fechaHasta != null) {
-      base = base.where((Booking r) {
-        final Activity? act = actividades.where((a) => a.id == r.activityId).firstOrNull;
-        if (act == null) return true;
-        return !act.initDate.isAfter(params.fechaHasta!);
-      }).toList();
+      base = base.where((Booking r) => !r.endDate.isBefore(params.fechaDesde!)).toList();
     }
 
+    // Rango de fecha hasta
+    if (params.fechaHasta != null) {
+      base = base.where((Booking r) => !r.startDate.isAfter(params.fechaHasta!)).toList();
+    }
+
+    // Filtro por texo libre en el nombre de usuario o nombre de la actividad asociada.
     if (params.query.isEmpty) {
       return base;
     }
+    
     final String q = params.query.toLowerCase();
     // Busca por nombre de usuario o nombre de la actividad asociada
     return base.where((Booking r) {
@@ -90,10 +87,18 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
   // Carga todas las reservas desde el backend al inicializar.
   Future<List<Booking>> build() async {
     try {
+      // Lee el token de autenticación del usuario actual para incluirlo en la cabecera Authorization.
       final dio = ref.read(dioProvider);
+
+      // Llama al endpoint GET /booking para obtener la lista completa de reservas.
       final response = await dio.get('/booking');
+
+      // Convierte la respuesta JSON en una lista de BookingModel.
       final List<dynamic> data = response.data as List<dynamic>;
+
+      // Mapea cada elemento del JSON a un BookingModel y devuelve la lista de reservas.
       return data.map((e) => BookingModel.fromMap(e as Map<String, dynamic>)).toList();
+
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -103,10 +108,19 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
   Future<Booking> agregar(Booking reserva) async {
     try {
       final dio = ref.read(dioProvider);
+
+      // Llama al endpoint POST /booking para crear la reserva en el backend.
       final response = await dio.post('/booking', data: reserva.toMap());
+
+      // Convierte la respuesta JSON en un BookingModel con el ID asignado.
       final Booking created = BookingModel.fromMap(response.data as Map<String, dynamic>);
+
+      // Agrega la nueva reserva a la lista local (estado global) sin necesidad de recargar toda la lista.
       ref.invalidateSelf();
+
+      // Devuelve la reserva creada con el ID asignado por el backend.
       return created;
+
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -119,13 +133,27 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
     }
     try {
       final dio = ref.read(dioProvider);
-      await dio.patch('/booking/${viejo.id}', data: nuevo.toMap());
+      
+      // Envia la reserva actualizada al backend para que la guarde y reenvie la versión actualizada (con el precio total calculado).
+      final response = await dio.patch('/booking/${viejo.id}', data: nuevo.toMap());
+      
+      // Convierte la respuesta JSON en un BookingModel actualizado (con el precio total calculado por el backend).
+      final Booking reservaServidor = BookingModel.fromMap(response.data as Map<String, dynamic>);
+      
+      // Crea una copia de la lista local de reservas para modificarla (inmutable).
       final List<Booking> listaActual = [...(state.value ?? [])];
+      
+      // Busca la posición de la reserva vieja
       final int index = listaActual.indexWhere((Booking r) => r.id == viejo.id);
+      
       if (index != -1) {
-        listaActual[index] = nuevo;
+        // Reemplaza la reserva vieja por la nueva (actualizada desde el servidor) en la lista local.
+        listaActual[index] = reservaServidor;
       }
+      
+      // Notifica a Riverpod el cambio de la lista local
       state = AsyncData(listaActual);
+      
     } on DioException catch (e) {
       throw parseDioError(e);
     }

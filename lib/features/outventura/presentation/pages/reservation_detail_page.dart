@@ -5,6 +5,7 @@ import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
+import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/services/pricing_service.dart';
 import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/core/widgets/detail_sliver_header.dart';
@@ -22,6 +23,13 @@ class ReservationDetailPage extends ConsumerWidget {
     final s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
 
+    final reservasAsync = ref.watch(reservationsProvider);
+    final Booking actual = reservasAsync.maybeWhen(
+      // .cast<Booking>(), transformas la colección de Dart en una lista genérica de reservas.
+      data: (lista) => lista.cast<Booking>().firstWhere((r) => r.id == reserva.id, orElse: () => reserva),
+      orElse: () => reserva,
+    );
+
     final String nombreUsuario = ref.watch(userNameProvider(reserva.userId));
     final actividad = reserva.activityId != null
         ? ref.watch(activityByIdProvider(reserva.activityId!))
@@ -31,9 +39,9 @@ class ReservationDetailPage extends ConsumerWidget {
     final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
     // calcularPrecioReserva gestiona el mínimo de 1 día internamente.
     final double totalAlquiler = calcularPrecioReserva(
-      lineas: reserva.lines,
-      fechaDesde: actividad?.initDate ?? DateTime.now(),
-      fechaHasta: actividad?.endDate ?? DateTime.now(),
+      lineas: actual.lines,
+      fechaDesde: actual.startDate, 
+      fechaHasta: actual.endDate,   
       equipamientos: equipamientos,
     );
 
@@ -68,7 +76,7 @@ class ReservationDetailPage extends ConsumerWidget {
                         Expanded(
                           child: DetailStatItem(
                             label: s.start,
-                            value: FormateadorFecha.short(actividad.initDate),
+                            value: FormateadorFecha.short(actual.startDate),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -112,10 +120,10 @@ class ReservationDetailPage extends ConsumerWidget {
                         DetailRow(Icons.hiking_outlined, s.actividad, '${actividad.startPoint} → ${actividad.endPoint}'),
                       
                         // Fecha de inicio (fecha de recogida del material)
-                        DetailRow(Icons.calendar_today_outlined, s.start, FormateadorFecha.withTime(actividad.initDate)),
+                        DetailRow(Icons.calendar_today_outlined, s.start, FormateadorFecha.withTime(actual.startDate)),
                       
                         // Fecha de fin (fecha de devolución del material)
-                        DetailRow(Icons.event_outlined, s.end, FormateadorFecha.withTime(actividad.endDate)),
+                        DetailRow(Icons.event_outlined, s.end, FormateadorFecha.withTime(actual.endDate)),
                       ],
                     ],
                   ),

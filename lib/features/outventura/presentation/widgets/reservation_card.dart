@@ -14,8 +14,6 @@ class ReservationCard extends StatelessWidget {
   final List<LineaDisplayInfo> lineas;
   final String nombreUsuario;
   final String? nombreActividad;
-  final DateTime? activityStartDate;
-  final DateTime? activityEndDate;
 
   final VoidCallback? onEditar;
   final VoidCallback? onAprobar;
@@ -30,8 +28,7 @@ class ReservationCard extends StatelessWidget {
     required this.lineas,
     required this.nombreUsuario,
     this.nombreActividad,
-    this.activityStartDate,
-    this.activityEndDate,
+    // CORREGIDO: Eliminados activityStartDate y activityEndDate de los parámetros
     this.onEditar,
     this.onAprobar,
     this.onRechazar,
@@ -144,33 +141,32 @@ class ReservationCard extends StatelessWidget {
 
                               const SizedBox(height: 8),
 
-                              // Fechas y horas
-                              if (activityStartDate != null && activityEndDate != null)
+                              // Fechas y horas leídas directamente desde la reserva
                               Wrap(
                                 spacing: 10,
                                 runSpacing: 4,
                                 children: [
-                                  // Fechas de la actividad
+                                  // Fechas de la reserva
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(Icons.calendar_today_outlined, size: 13, color: cs.onSurfaceVariant),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${FormateadorFecha.short(activityStartDate!)} – ${FormateadorFecha.short(activityEndDate!)}',
+                                        '${FormateadorFecha.short(reserva.startDate)} – ${FormateadorFecha.short(reserva.endDate)}',
                                         style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                                       ),
                                     ],
                                   ),
 
-                                  // Horario de la actividad
+                                  // Horario de la reserva
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(Icons.schedule_outlined, size: 13, color: cs.onSurfaceVariant),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${FormateadorFecha.timeOnly(activityStartDate!)} – ${FormateadorFecha.timeOnly(activityEndDate!)}',
+                                        '${FormateadorFecha.timeOnly(reserva.startDate)} – ${FormateadorFecha.timeOnly(reserva.endDate)}',
                                         style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                                       ),
                                     ],
@@ -205,7 +201,6 @@ class ReservationCard extends StatelessWidget {
 
                     // Separador
                     Divider(height: 1, thickness: 0.5, color: statusColor.withValues(alpha: 0.20)),
-
                     const SizedBox(height: 10),
 
                     // Líneas de equipamiento
@@ -326,12 +321,10 @@ class _ImageGrid extends StatelessWidget {
         // Muestra hasta 3 imágenes. 
         for (int i = 0; i < imagenes.length && i < 3; i++)
           Image.asset(imagenes[i], fit: BoxFit.cover),
-
         
         if (imagenes.length >= 4)
           // Si hay exactamente 4 imágenes, la última casilla muestra la cuarta imagen.
           Image.asset(imagenes[3], fit: BoxFit.cover)
-
         else if (imagenes.length == 3)
         // Si hay 3 imágenes, la última casilla muestra un badge con el número "3".
           ColoredBox(

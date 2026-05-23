@@ -35,6 +35,8 @@ class Booking {
   final List<BookingLine> lines;
   final int? activityId;
   final WorkflowStatus status;
+  final DateTime startDate;
+  final DateTime endDate;
   final double totalPrice;
   final double damageFee;
   final Map<int, int> damagedItems;
@@ -45,6 +47,8 @@ class Booking {
     required this.lines,
     this.activityId,
     required this.status,
+    required this.startDate, 
+    required this.endDate,
     this.totalPrice = 0,
     this.damageFee = 0,
     this.damagedItems = const {},
@@ -54,6 +58,9 @@ class Booking {
   Map<String, dynamic> toMap() => {
     'userId': userId,
     'status': status.code,
+    'start_date': startDate.toIso8601String(),
+    'end_date': endDate.toIso8601String(),
+    // 'total_price': Lo calcula en el backend.
     'lines': lines.map((l) => l.toMap()).toList(),
     if (activityId != null) 'activityId': activityId,
     'damage_fee': damageFee,
@@ -69,6 +76,8 @@ class Booking {
     List<BookingLine>? lines,
     int? activityId,
     WorkflowStatus? status,
+    DateTime? startDate, 
+    DateTime? endDate,
     double? totalPrice,
     double? damageFee,
     Map<int, int>? damagedItems,
@@ -79,6 +88,8 @@ class Booking {
       lines: lines ?? this.lines,
       activityId: activityId ?? this.activityId,
       status: status ?? this.status,
+      startDate: startDate ?? this.startDate, 
+      endDate: endDate ?? this.endDate,
       totalPrice: totalPrice ?? this.totalPrice,
       damageFee: damageFee ?? this.damageFee,
       damagedItems: damagedItems ?? this.damagedItems,

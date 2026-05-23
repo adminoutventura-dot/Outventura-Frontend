@@ -185,21 +185,26 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Excursión (siempre visible; editable si no es modo cliente)
-              AppDropdownField<Activity>(
-                value: _controller.idActividad,
-                items: ref.read(activitiesProvider).value ?? [],
-                itemValue: (e) => e.id,
-                itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
-                prefixIcon: Icons.hiking_outlined,
-                label: s.actividad,
-                hint: s.none,
-                enabled: !modoCliente,
-                onChanged: (int? v) =>
-                    setState(() => _controller.idActividad = v),
-                validator: null,
-              ),
-              const SizedBox(height: 20),
+              // Actividad
+              // Si no es cliente (aparce)
+              // Si es cliente o la actividad no es null (aparece)
+              if (!modoCliente || _controller.idActividad != null) ...[
+                // Excursión (editable si no es modo cliente)
+                AppDropdownField<Activity>(
+                  value: _controller.idActividad,
+                  items: ref.read(activitiesProvider).value ?? [],
+                  itemValue: (e) => e.id,
+                  itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
+                  prefixIcon: Icons.hiking_outlined,
+                  label: s.actividad,
+                  hint: s.none,
+                  enabled: !modoCliente,
+                  onChanged: (int? v) =>
+                      setState(() => _controller.idActividad = v),
+                  validator: null,
+                ),
+                const SizedBox(height: 20),
+              ],
 
               // Fechas
               Text(
@@ -388,7 +393,8 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
               const SizedBox(height: 16),
 
               // Botón de borrar (solo en modo edición)
-              if (isEdit) ...[
+              // TODO: Se deberia de borrar o cancelar?
+              if (isEdit && !modoCliente) ...[
                 const SizedBox(height: 20),
                 SecondaryButton(
                   label: s.deleteReservation,

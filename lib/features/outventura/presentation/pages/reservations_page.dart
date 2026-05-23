@@ -153,8 +153,6 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
 
                         nombreUsuario: ref.watch(userNameProvider(res.userId)),
                         nombreActividad: ref.watch(activityNameProvider(res.activityId)),
-                        activityStartDate: res.activityId != null ? ref.watch(activityByIdProvider(res.activityId!))?.initDate : null,
-                        activityEndDate: res.activityId != null ? ref.watch(activityByIdProvider(res.activityId!))?.endDate : null,
 
                         // Si el usuario no puede gestionar reservas, solo puede editar si está pendiente.
                         onEditar: (!widget.puedeGestionar && res.status != WorkflowStatus.pendiente)
@@ -174,15 +172,26 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                           if (resultado == null) {
                             return;
                           }
+                          try {
 
-                          // Actualiza la reserva en el estado global mediante el notifier.
-                          notifier.actualizar(res, resultado);
+                            // Actualiza la reserva en el estado global mediante el notifier.
+                            await notifier.actualizar(res, resultado);
 
-                          if (!context.mounted) {
-                            return;
+                            if (!context.mounted) {
+                              return;
+                            }
+
+                            showSuccessSnackBar(context, s.reservationUpdated);
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            // Si el servidor falla, mostramos el error real en rojo en lugar del mensaje de éxito
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error del servidor: $e'),
+                                backgroundColor: Theme.of(context).colorScheme.error,
+                              ),
+                            );
                           }
-
-                          showSuccessSnackBar(context, s.reservationUpdated);
                         },
 
                         // Si es gestor y la reserva está pendiente - puede aprobarla.

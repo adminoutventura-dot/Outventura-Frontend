@@ -162,11 +162,20 @@ class RequestFormController {
       return null;
     }
 
+    // Actividad asociada para extraer sus fechas exactas.
+    final Activity? actividad = actividades.where((a) => a.id == idActividad).firstOrNull;
+
+    // Si no encuentra la actividad (fallback de seguridad), pone la fecha actual.
+    final DateTime fechaInicio = actividad?.initDate ?? DateTime.now();
+    final DateTime fechaFin = actividad?.endDate ?? DateTime.now().add(const Duration(hours: 4));
+
     return Booking(
       userId: idUsuario!,
       lines: lineas,
       activityId: idActividad,
       status: WorkflowStatus.pendiente,
+      startDate: fechaInicio,
+      endDate: fechaFin,
     );
   }
 
