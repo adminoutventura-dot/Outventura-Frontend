@@ -59,10 +59,10 @@ class Equipment {
   });
 
   // Convierte el material a un mapa para enviar al backend.
-  // Los campos solo del front (totalUnits, imageAsset) se omiten.
   Map<String, dynamic> toMap() => {
     'title': title,
     'description': description,
+    'image_asset': imageAsset,
     'units': units,
     'total_units': totalUnits,
     'price_per_day': pricePerDay,

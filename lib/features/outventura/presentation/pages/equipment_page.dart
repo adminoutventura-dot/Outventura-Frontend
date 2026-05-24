@@ -91,11 +91,15 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                   if (nuevo == null) {
                     return;
                   }
-                  ref.read(equipmentProvider.notifier).agregar(nuevo);
-                  if (!context.mounted) {
-                    return;
+
+                  try {
+                    await ref.read(equipmentProvider.notifier).agregar(nuevo);
+                    if (!context.mounted) return;
+                    showSuccessSnackBar(context, s.materialCreated);
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    showErrorSnackBar(context, e.toString());
                   }
-                  showSuccessSnackBar(context, s.materialCreated);
                 },
               ),
             )
@@ -154,11 +158,15 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           if (actualizado == null) {
                             return;
                           }
-                          ref.read(equipmentProvider.notifier).actualizar(equipamiento, actualizado);
-                          if (!context.mounted) {
-                            return;
+
+                          try {
+                            await ref.read(equipmentProvider.notifier).actualizar(equipamiento, actualizado);
+                            if (!context.mounted) return;
+                            showSuccessSnackBar(context, s.materialUpdated);
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            showErrorSnackBar(context, e.toString());
                           }
-                          showSuccessSnackBar(context, s.materialUpdated);
                         }
                       : null,
                   onEliminar: widget.puedeGestionar
@@ -166,10 +174,21 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           final bool confirm = await showConfirmDialog(
                             context: context,
                             title: s.deleteEquipment,
-                            content: s.deleteEquipmentConfirm(equipamiento.title),
+                            content: '${s.deleteEquipmentConfirm(equipamiento.title)}\n\n'
+                                     '⚠️ ¡Atención! Al eliminar este material se borrarán permanentemente todo el historial de reservas asociado y sus requisitos en las actividades.',
                           );
+                          
                           if (confirm) {
-                            ref.read(equipmentProvider.notifier).eliminar(equipamiento);
+                            try {
+                              await ref.read(equipmentProvider.notifier).eliminar(equipamiento);
+                              // TODO: HARDCODEADO
+                              if (context.mounted) {
+                                showSuccessSnackBar(context, 'Material eliminado'); 
+                              }
+                            } catch (e) {
+                              if (!context.mounted) return;
+                              showErrorSnackBar(context, e.toString());
+                            }
                           }
                         }
                       : null,
@@ -194,11 +213,14 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             return;
                           }
 
-                          ref.read(reservationsProvider.notifier).agregar(reserva);
-                          if (!context.mounted) {
-                            return;
+                          try {
+                            await ref.read(reservationsProvider.notifier).agregar(reserva);
+                            if (!context.mounted) return;
+                            showSuccessSnackBar(context, s.reservationCreated);
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            showErrorSnackBar(context, e.toString());
                           }
-                          showSuccessSnackBar(context, s.reservationCreated);
                         }
                       : null,
                 );

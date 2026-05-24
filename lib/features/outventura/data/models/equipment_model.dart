@@ -2,7 +2,6 @@ import 'package:outventura/features/outventura/data/models/category_model.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 
-/// Modelo de equipamiento: extiende [Equipment] añadiendo la deserialización desde JSON del backend.
 class EquipmentModel extends Equipment {
   const EquipmentModel({
     super.id,
@@ -40,7 +39,7 @@ class EquipmentModel extends Equipment {
       damageFee: map['damage_fee'] != null
           ? num.parse(map['damage_fee'].toString()).toDouble()
           : 0,
-      imageAsset: map['imageAsset'] as String?,
+      imageAsset: map['image_asset'] as String?,
     );
   }
 }

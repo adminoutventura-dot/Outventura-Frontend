@@ -4,6 +4,7 @@ import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
+import 'dart:convert';
 
 class EquipmentCard extends StatefulWidget {
   final Equipment equipamiento;
@@ -184,8 +185,10 @@ class _EquipmentCardState extends State<EquipmentCard> {
             child: SizedBox(
               width: 110,
               height: double.infinity,
-              child: imagen != null
-                  ? Image.asset(imagen, fit: BoxFit.cover)
+              child: imagen != null && imagen.isNotEmpty
+                  ? (imagen.startsWith('assets/')
+                      ? Image.asset(imagen, fit: BoxFit.cover)
+                      : Image.memory(base64Decode(imagen), fit: BoxFit.cover)) // 👈 Aquí descodificamos
                   : DecoratedBox(
                       decoration: BoxDecoration(
                         color: cs.primaryContainer.withValues(alpha: 0.5),

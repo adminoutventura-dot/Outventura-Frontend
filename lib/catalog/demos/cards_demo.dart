@@ -6,11 +6,11 @@ import 'package:outventura/features/outventura/data/fakes/reservations_fake.dart
 import 'package:outventura/features/outventura/data/fakes/requests_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+// import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/widgets/equipment_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/activity_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
-import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
+// import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';

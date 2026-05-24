@@ -16,9 +16,6 @@ import 'package:outventura/features/preferences/data/models/preferences.dart';
 // TODO: Revisar si se divide entre entities y models (Recordatorio)
 // TODO: Añadir el subir fotos.
 // TODO: Añadir borde a logo
-// TODO: Añadir comprovaciones al crear, editar y demás
-// TODO: En reserva no es obligatorio seleccionar una actividad, de hecho que no aparezca esa opcion
-// TODO: EN RESERVAS QUE NO SEA DESPLEGABLE EL USUARO SI ES MODO CLIENTE, QUE SE LE ASIGNE DIRECTAMENTE EL USUARIO ACTUAL Y NO PUEDA CAMBIARLO Y QUE NO APAREZCA LA PARTE DE EXPERTO.
 
 void main() async {
   final WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();

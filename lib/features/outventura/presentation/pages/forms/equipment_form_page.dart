@@ -63,6 +63,11 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                   isAsset: true,  
                   size: 120,                
                   placeholder: Icons.inventory_2_outlined,
+                  onChanged: (String? nuevaRuta) {
+                    setState(() {
+                      _controller.imagenAsset = nuevaRuta;
+                    });
+                  },
                 ),
               ),
               const SizedBox(height: 20),
