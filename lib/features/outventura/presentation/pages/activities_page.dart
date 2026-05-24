@@ -85,11 +85,14 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                   if (nueva == null) {
                     return;
                   }
-                  ref.read(activitiesProvider.notifier).agregar(nueva);
-                  if (!context.mounted) {
-                    return;
+                  try {
+                    await ref.read(activitiesProvider.notifier).agregar(nueva);
+                    if (!context.mounted) return;
+                    showSuccessSnackBar(context, s.actividadCreada);
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    showErrorSnackBar(context, s.error(e.toString()));
                   }
-                  showSuccessSnackBar(context, s.actividadCreada);
                 },
               ),
             )
@@ -146,26 +149,38 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                           if (actualizada == null) {
                             return;
                           }
-                          ref.read(activitiesProvider.notifier).actualizar(actividad, actualizada);
-                          if (!context.mounted) {
-                            return;
+                          try {
+                            await ref.read(activitiesProvider.notifier).actualizar(actividad, actualizada);
+                            if (!context.mounted) return;
+                            showSuccessSnackBar(context, s.actividadActualizada);
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            showErrorSnackBar(context, s.error(e.toString()));
                           }
-                          showSuccessSnackBar(context, s.actividadActualizada);
                         }
                       : null,
                   onEliminar: widget.puedeGestionar
-                      ? () async {
-                          final bool confirm = await showConfirmDialog(
-                            context: context,
-                            title: s.deleteActividad,
-                            content:
-                                s.deleteActividadConfirm('${actividad.startPoint} → ${actividad.endPoint}'),
-                          );
-                          if (confirm) {
-                            ref.read(activitiesProvider.notifier).eliminar(actividad);
+                        ? () async {
+                            // Aviso alertando del borrado en cascada
+                            final bool confirm = await showConfirmDialog(
+                              context: context,
+                              title: s.deleteActividad,
+                              content: '${s.deleteActividadConfirm('${actividad.startPoint} → ${actividad.endPoint}')}\n\n'
+                                       '⚠️ ¡Atención! Al eliminar esta actividad se borrarán permanentemente todas las solicitudes asociadas a ella.',
+                            );
+                            
+                            if (confirm) {
+                              try {
+                                await ref.read(activitiesProvider.notifier).eliminar(actividad);
+                                if (!context.mounted) return;
+                                showSuccessSnackBar(context, 'Actividad eliminada con éxito');
+                              } catch (e) {
+                                if (!context.mounted) return;
+                                showErrorSnackBar(context, s.error(e.toString()));
+                              }
+                            }
                           }
-                        }
-                      : null,
+                        : null,
                   onSolicitar: widget.puedeSolicitar
                       ? () async {
                           final usuario = ref.read(currentUserProvider);
@@ -186,14 +201,17 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                           if (solicitud == null) {
                             return;
                           }
-                          ref.read(requestsProvider.notifier).agregar(solicitud);
-                          if (!context.mounted) {
-                            return;
+                          try {
+                            await ref.read(requestsProvider.notifier).agregar(solicitud);
+                            if (!context.mounted) return;
+                            final String mensaje = solicitud.bookingId != null
+                                ? s.requestCreatedWithReservation
+                                : s.requestCreated;
+                            showSuccessSnackBar(context, mensaje);
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            showErrorSnackBar(context, s.error(e.toString()));
                           }
-                          final String mensaje = solicitud.bookingId != null
-                              ? s.requestCreatedWithReservation
-                              : s.requestCreated;
-                          showSuccessSnackBar(context, mensaje);
                         }
                       : null,
                 );

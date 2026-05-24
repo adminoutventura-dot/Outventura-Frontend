@@ -35,7 +35,6 @@ class Activity {
   final String startPoint;
   final String endPoint;
   final List<Category> categories;
-  final int? guideId;
   final String? imageAsset;
   final ActivityStatus status;
   final double price;
@@ -51,7 +50,6 @@ class Activity {
     required this.startPoint,
     required this.endPoint,
     required this.categories,
-    this.guideId,
     this.imageAsset,
     this.status = ActivityStatus.disponible,
     this.price = 0,
@@ -68,7 +66,6 @@ class Activity {
     'start_point': startPoint,
     'end_point': endPoint,
     if (imageAsset != null) 'image_asset': imageAsset,
-    if (guideId != null) 'guideId': guideId,
     'status': status.code,
     'price': price,
     'categoryCodes': categories.map((Category c) => c.code).toList(),
@@ -87,7 +84,6 @@ class Activity {
     String? startPoint,
     String? endPoint,
     List<Category>? categories,
-    int? guideId,
     String? imageAsset,
     ActivityStatus? status,
     double? price,
@@ -103,12 +99,10 @@ class Activity {
       startPoint: startPoint ?? this.startPoint,
       endPoint: endPoint ?? this.endPoint,
       categories: categories ?? this.categories,
-      guideId: guideId ?? this.guideId,
       imageAsset: imageAsset ?? this.imageAsset,
       status: status ?? this.status,
       price: price ?? this.price,
       materialsPerParticipant: materialsPerParticipant ?? this.materialsPerParticipant,
     );
   }
-
 }

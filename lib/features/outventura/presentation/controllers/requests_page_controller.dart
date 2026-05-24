@@ -78,10 +78,15 @@ class RequestsPageController {
     if (!confirm) {
       return;
     }
-    ref.read(requestsProvider.notifier).aceptar(solicitud);
 
-    if (context.mounted) {
+    try {
+      await ref.read(requestsProvider.notifier).aceptar(solicitud);
+      
+      if (!context.mounted) return;
       showSuccessSnackBar(context, s.requestAccepted);
+    } catch (e) {
+      if (!context.mounted) return;
+      showErrorSnackBar(context, s.error(e.toString()));
     }
   }
 
@@ -92,6 +97,7 @@ class RequestsPageController {
     required WidgetRef ref,
     int? fixedIdUsuario,
   }) async {
+    final s = AppLocalizations.of(context)!;
     final Request? result = await Navigator.push<Request>(
       context,
       MaterialPageRoute(
@@ -105,13 +111,18 @@ class RequestsPageController {
     if (result == null) {
       return;
     }
-    ref.read(requestsProvider.notifier).actualizar(solicitud, result);
-    if (!context.mounted) {
-      return;
-    }
-    if (result.bookingId != null && solicitud.bookingId == null) {
-      final s = AppLocalizations.of(context)!;
-      showSuccessSnackBar(context, s.materialReservationCreated);
+    
+    try {
+      await ref.read(requestsProvider.notifier).actualizar(solicitud, result);
+      
+      if (!context.mounted) return;
+      if (result.bookingId != null && solicitud.bookingId == null) {
+        final s = AppLocalizations.of(context)!;
+        showSuccessSnackBar(context, s.materialReservationCreated);
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      showErrorSnackBar(context, s.error(e.toString()));
     }
   }
 
@@ -132,10 +143,14 @@ class RequestsPageController {
       return;
     }
 
-    ref.read(requestsProvider.notifier).rechazar(solicitud);
-
-    if (context.mounted) {
+    try {
+      await ref.read(requestsProvider.notifier).rechazar(solicitud);
+      
+      if (!context.mounted) return;
       showSuccessSnackBar(context, s.requestRejected);
+    } catch (e) {
+      if (!context.mounted) return;
+      showErrorSnackBar(context, s.error(e.toString()));
     }
   }
 }

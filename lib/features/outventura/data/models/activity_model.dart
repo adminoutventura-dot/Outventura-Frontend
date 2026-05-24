@@ -14,7 +14,6 @@ class ActivityModel extends Activity {
     required super.startPoint,
     required super.endPoint,
     required super.categories,
-    super.guideId,
     super.imageAsset,
     super.status,
     super.price,
@@ -37,7 +36,6 @@ class ActivityModel extends Activity {
       startPoint: map['start_point'] as String? ?? '',
       endPoint: map['end_point'] as String? ?? '',
       categories: parsedCategories,
-      guideId: map['guideId'] as int?,
       imageAsset: map['image_asset'] as String?,
       status: map['status'] != null
           ? ActivityStatus.fromString(map['status'] as String)

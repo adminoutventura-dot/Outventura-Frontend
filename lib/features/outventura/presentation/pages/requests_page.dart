@@ -92,20 +92,26 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                   return;
                 }
 
-                // Si se ha creado una nueva solicitud, la agrega al provider de solicitudes.
-                ref.read(requestsProvider.notifier).agregar(nueva);
+                try {
+                  // Si se ha creado una nueva solicitud, la agrega al provider de solicitudes.
+                  await ref.read(requestsProvider.notifier).agregar(nueva);
 
-                if (!context.mounted) {
-                  return;
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  // Muestra un snackbar de éxito. 
+                  // Si la solicitud se ha convertido automáticamente en reserva, muestra un mensaje diferente.
+                  final String mensaje = nueva.bookingId != null
+                      ? s.requestCreatedWithReservation
+                      : s.requestCreated;
+
+                  showSuccessSnackBar(context, mensaje);
+
+                } catch (e) {
+                  if (!context.mounted) return;
+                  showErrorSnackBar(context, s.error(e.toString()));
                 }
-
-                // Muestra un snackbar de éxito. 
-                // Si la solicitud se ha convertido automáticamente en reserva, muestra un mensaje diferente.
-                final String mensaje = nueva.bookingId != null
-                    ? s.requestCreatedWithReservation
-                    : s.requestCreated;
-
-                showSuccessSnackBar(context, mensaje);
               },
             )
           : null,

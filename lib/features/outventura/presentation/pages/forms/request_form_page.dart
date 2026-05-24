@@ -171,19 +171,26 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
           final List<Booking> reservasActuales = ref.read(reservationsProvider).value ?? [];
           // Reserva actualizada o creada a partir de la solicitud
           final Booking? reservaActualizada = _controller.sincronizarReservaConSolicitud(solicitud, reservasActuales);
-
-          // Si hay una reserva actualizada o creada, y la solicitud tiene un ID de reserva asociado
-          if (reservaActualizada != null && solicitud.bookingId != null) {
-            // Buscar la reserva original en la lista de reservas usando el ID de reserva de la solicitud
-            final Booking? original = _controller.buscarReserva(reservasActuales, solicitud.bookingId!);
-            // Si se encuentra la reserva original, actualizarla en el provider
-            if (original != null) {
-              ref.read(reservationsProvider.notifier).actualizar(original, reservaActualizada);
+          
+          try {
+            // Si hay una reserva actualizada o creada, y la solicitud tiene un ID de reserva asociado
+            if (reservaActualizada != null && solicitud.bookingId != null) {
+              // Buscar la reserva original en la lista de reservas usando el ID de reserva de la solicitud
+              final Booking? original = _controller.buscarReserva(reservasActuales, solicitud.bookingId!);
+              // Si se encuentra la reserva original, actualizarla en el provider
+              if (original != null) {
+                await ref.read(reservationsProvider.notifier).actualizar(original, reservaActualizada);
+              }
             }
-          }
 
-          // Devolver la solicitud creada o editada a la pantalla anterior
-          Navigator.of(context).pop(solicitud);
+            if (!context.mounted) return;
+
+            // Devolver la solicitud creada o editada a la pantalla anterior
+            Navigator.of(context).pop(solicitud);
+          } catch (e) {
+            if (!context.mounted) return;
+            showErrorSnackBar(context, s.error(e.toString()));
+          }
         },
       ),
 
@@ -555,8 +562,16 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                     ),
                   );
                   // Si se devuelve una reserva actualizada, actualízala en el provider
-                  if (actualizada != null) {
-                    ref.read(reservationsProvider.notifier).actualizar(reservaAsociada, actualizada);
+                  if (actualizada == null) return;
+
+                  try {
+                    await ref.read(reservationsProvider.notifier).actualizar(reservaAsociada, actualizada);
+                    
+                    if (!context.mounted) return;
+                    showSuccessSnackBar(context, s.actividadActualizada);
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    showErrorSnackBar(context, s.error(e.toString()));
                   }
                 },
               ),

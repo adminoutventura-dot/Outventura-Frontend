@@ -297,6 +297,7 @@ class RequestFormController {
     required BuildContext context,
     required WidgetRef ref,
   }) async {
+    final s = AppLocalizations.of(context)!;
     final String? error = mensajeErrorReserva(context);
     if (error != null) {
       showErrorSnackBar(context, error);
@@ -307,8 +308,16 @@ class RequestFormController {
     if (reserva == null) {
       return null;
     }
-    final Booking creada = await ref.read(reservationsProvider.notifier).agregar(reserva);
-    idReserva = creada.id;
-    return creada;
+
+    try {
+      final Booking creada = await ref.read(reservationsProvider.notifier).agregar(reserva);
+      idReserva = creada.id;
+      return creada;
+      
+    } catch (e) {
+      if (!context.mounted) return null;
+      showErrorSnackBar(context, s.error(e.toString())); 
+      return null; 
+    }
   }
 }

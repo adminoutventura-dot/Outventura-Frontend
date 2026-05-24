@@ -95,16 +95,29 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     if (viejo.id == null) {
       throw StateError('Activity has no id');
     }
-    
     try {
       final dio = ref.read(dioProvider);
-      await dio.patch('/activity/${viejo.id}', data: nuevo.toMap());
+      
+      // Envia la actividad actualizada al backend para que la guarde y reenvie la versión actualizada.
+      final response = await dio.patch('/activity/${viejo.id}', data: nuevo.toMap());
+      
+      // Convierte la respuesta JSON en un ActivityModel actualizado.
+      final Activity actividadServidor = ActivityModel.fromMap(response.data as Map<String, dynamic>);
+      
+      // Crea una copia de la lista local de actividades para modificarla (inmutable).
       final List<Activity> listaActual = [...(state.value ?? [])];
+      
+      // Busca la posición de la actividad vieja
       final int index = listaActual.indexWhere((Activity e) => e.id == viejo.id);
+      
       if (index != -1) {
-        listaActual[index] = nuevo;
+        // Reemplaza la actividad vieja por la nueva (actualizada desde el servidor) en la lista local.
+        listaActual[index] = actividadServidor;
       }
+      
+      // Notifica a Riverpod el cambio de la lista local
       state = AsyncData(listaActual);
+      
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -121,6 +134,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       final List<Activity> listaActual = [...(state.value ?? [])];
       listaActual.removeWhere((Activity a) => a.id == actividad.id);
       state = AsyncData(listaActual);
+      
     } on DioException catch (e) {
       throw parseDioError(e);
     }
