@@ -1,6 +1,11 @@
-// Categoría de actividad. Entidad que refleja la tabla category del backend.
-// Se usan constantes estáticas para los valores conocidos, y la clase admite
-// cualquier categoría futura que devuelva el backend sin cambios en el front.
+// Por simplicidad en el desarrollo del frontend, las categorías 
+// se gestionan de forma ESTÁTICA y LOCAL mediante el array 'values' y sus constantes.
+//
+// Aunque el backend (NestJS + PostgreSQL) tiene las categorías dinámicas y protegidas,
+// el móvil las ignora para evitar sobrecarga de peticiones de red.
+//
+// Si se añade una nueva categoría en la base de datos, se debe picar aquí a mano
+
 class Category {
   final int? id;
   final String code;
@@ -25,13 +30,23 @@ class Category {
       orElse: () => Category(code: code),
     );
   }
-
+  
+  // Cambia el comportamiento del operador '==' para esta clase.
+  // En lugar de comparar si están en el mismo sitio de la memoria RAM,
+  // compara si el contenido de su texto ('code') es exactamente el mismo.
   @override
-  bool operator ==(Object other) => other is Category && other.code == code;
+  bool operator ==(Object other) => 
+      other is Category && other.code == code;
 
+  // Genera un identificador numérico único para el objeto basado en su 'code'.
+  // Es obligatorio reescribirlo al cambiar el operador '==' para que 
+  // las colecciones como Sets (filtros) y Maps funcionen sin duplicados.
   @override
   int get hashCode => code.hashCode;
 
+  // Personaliza cómo se muestra el objeto al hacer un 'print()' en la consola.
+  // En vez de imprimir 'Instance of Category', imprimirá 'Category(MOUNTAIN)',
+  // haciendo que la depuración de errores sea más fácil.
   @override
   String toString() => 'Category($code)';
 }
