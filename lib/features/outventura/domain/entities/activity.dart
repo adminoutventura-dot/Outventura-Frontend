@@ -1,4 +1,4 @@
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 // Estados posibles de una actividad.
 enum ActivityStatus {

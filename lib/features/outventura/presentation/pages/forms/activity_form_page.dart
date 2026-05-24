@@ -9,7 +9,7 @@ import 'package:outventura/core/widgets/app_date_selector.dart';
 import 'package:outventura/core/widgets/app_time_selector.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/presentation/controllers/activity_form_controller.dart';
 

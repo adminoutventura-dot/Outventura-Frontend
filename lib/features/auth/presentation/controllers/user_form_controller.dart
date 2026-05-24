@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 class UserFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();

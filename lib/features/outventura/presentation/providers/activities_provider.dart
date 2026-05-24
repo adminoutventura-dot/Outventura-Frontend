@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/outventura/data/models/activity_model.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
 // Lista completa de actividades. GET /activity.

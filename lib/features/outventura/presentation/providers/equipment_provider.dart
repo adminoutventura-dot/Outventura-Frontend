@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/outventura/data/models/equipment_model.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 
 // Lista completa de equipamientos del catálogo. GET /equipment.

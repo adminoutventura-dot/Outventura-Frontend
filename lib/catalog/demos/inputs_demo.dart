@@ -13,7 +13,7 @@ import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/auth/data/fakes/users_fake.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/data/fakes/activities_fake.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 class InputsDemo extends StatefulWidget {
   const InputsDemo({super.key});

@@ -7,7 +7,7 @@ import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/l10n/app_localizations.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/presentation/controllers/equipment_form_controller.dart';
 

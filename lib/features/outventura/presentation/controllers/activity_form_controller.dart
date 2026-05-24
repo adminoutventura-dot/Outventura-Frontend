@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
 class ActivityFormController {

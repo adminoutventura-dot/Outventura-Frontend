@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/app/theme/app_gradients.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 

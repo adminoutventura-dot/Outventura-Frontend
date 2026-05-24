@@ -1,5 +1,5 @@
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 // Fake activity catalog data.
 final List<Activity> activitiesFake = [

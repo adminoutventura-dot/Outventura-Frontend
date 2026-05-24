@@ -1,5 +1,5 @@
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 // Materiales de prueba del catálogo, con distintas categorías y estados.
 final List<Equipment> equipmentFake = [

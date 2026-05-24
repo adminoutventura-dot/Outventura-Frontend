@@ -1,4 +1,4 @@
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 /// Modelo de categoría: extiende [Category] añadiendo la deserialización desde JSON del backend.
 /// El JSON esperado es: { id_category: int, code: String, description: String? }

@@ -1,5 +1,5 @@
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 class Guide {
   final int? id;

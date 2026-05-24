@@ -1,4 +1,4 @@
-import 'activity_category.dart';
+import 'category.dart';
 
 // Estados posibles de un material.
 enum EquipmentStatus {

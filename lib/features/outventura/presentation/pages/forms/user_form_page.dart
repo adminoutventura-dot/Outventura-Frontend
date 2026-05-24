@@ -10,7 +10,7 @@ import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/domain/entities/guide.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/controllers/user_form_controller.dart';
 

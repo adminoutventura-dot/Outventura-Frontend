@@ -1,5 +1,5 @@
 import 'package:outventura/features/outventura/data/models/category_model.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 
 /// Modelo de equipamiento: extiende [Equipment] añadiendo la deserialización desde JSON del backend.

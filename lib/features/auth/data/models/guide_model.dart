@@ -1,7 +1,7 @@
 import 'package:outventura/features/auth/data/models/user_model.dart';
 import 'package:outventura/features/auth/domain/entities/guide.dart';
 import 'package:outventura/features/outventura/data/models/category_model.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 /// Modelo de guía: extiende [Guide] añadiendo la deserialización desde JSON del backend.
 class GuideModel extends Guide {

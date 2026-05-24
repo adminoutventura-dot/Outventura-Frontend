@@ -1,6 +1,6 @@
 import 'package:outventura/features/auth/domain/entities/guide.dart';
 import 'package:outventura/features/auth/data/fakes/users_fake.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 // Guías de prueba vinculados a usuarios admin existentes.
 final List<Guide> guidesFake = [

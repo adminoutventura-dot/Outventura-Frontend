@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 
 class EquipmentFormController {

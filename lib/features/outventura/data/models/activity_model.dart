@@ -1,6 +1,6 @@
 import 'package:outventura/features/outventura/data/models/category_model.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
-import 'package:outventura/features/outventura/domain/entities/activity_category.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 /// Modelo de actividad: extiende [Activity] añadiendo la deserialización desde JSON del backend.
 class ActivityModel extends Activity {
