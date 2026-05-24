@@ -61,6 +61,11 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                 imageUrl: _controller.imagenAsset,
                 isAsset: true,
                 placeholder: Icons.hiking_outlined,
+                onChanged: (String? nuevaRuta) {
+                  setState(() {
+                    _controller.imagenAsset = nuevaRuta;
+                  });
+                },
               ),
               const SizedBox(height: 20),
 

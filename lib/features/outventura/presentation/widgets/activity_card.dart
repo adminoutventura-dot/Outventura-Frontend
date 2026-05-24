@@ -7,6 +7,7 @@ import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
+import 'dart:convert';
 
 class ActivityCard extends StatelessWidget {
   final Activity actividad;
@@ -54,7 +55,17 @@ class ActivityCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(imagenResuelta, fit: BoxFit.cover),
+                  imagenResuelta.startsWith('assets/')
+                      ? Image.asset(imagenResuelta, fit: BoxFit.cover)
+                      : Image.memory(
+                          base64Decode(imagenResuelta),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                            color: cs.primaryContainer,
+                            child: Icon(Icons.broken_image, color: cs.primary),
+                          ),
+                        ),
                   // Overlay degradado más fuerte en la zona de abajo
                   DecoratedBox(
                     decoration: BoxDecoration(
