@@ -16,6 +16,10 @@ import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 
+// TODO: No se puede crear usuario aun (peticion incorrecta).
+// TODO: El rol de guia no tiene nombre de guia
+// TODO: Solo el guia tiene que tener categorias, no el usuario o admin.
+
 class UsersPage extends ConsumerStatefulWidget {
   const UsersPage({super.key});
 
@@ -78,24 +82,32 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           }
           final User nuevo = result['usuario'] as User;
           final Map<String, dynamic>? guiaData = result['guia'] as Map<String, dynamic>?;
-          // Agrega el nuevo usuario al estado global.
-          final User creado = await ref.read(usuariosProvider.notifier).agregar(nuevo);
-          // Si tiene datos de guía, crea el registro de guía.
-          if (guiaData != null) {
-            final Guide guia = Guide(
-              userId: creado.id!,
-              credentials: guiaData['credentials'] as String,
-              categories: (guiaData['categoryCodes'] as List<String>)
-                  .map(Category.fromCode)
-                  .toList(),
-              user: creado,
-            );
-            await ref.read(guidesProvider.notifier).agregar(guia);
+
+          try {
+            // Agrega el nuevo usuario al estado global.
+            final User creado = await ref.read(usuariosProvider.notifier).agregar(nuevo);
+
+            // Si tiene datos de guía, crea el registro de guía.
+            if (guiaData != null) {
+              final Guide guia = Guide(
+                userId: creado.id!,
+                credentials: guiaData['credentials'] as String,
+                categories: (guiaData['categoryCodes'] as List<String>)
+                    .map(Category.fromCode)
+                    .toList(),
+                user: creado,
+              );
+              await ref.read(guidesProvider.notifier).agregar(guia);
+            }
+            if (!context.mounted) {
+              return;
+            }
+            showSuccessSnackBar(context, s.userCreated);
+
+          } catch (e) {
+            if (!context.mounted) return;
+            showErrorSnackBar(context, e.toString()); 
           }
-          if (!context.mounted) {
-            return;
-          }
-          showSuccessSnackBar(context, s.userCreated);
         },
         icon: Icons.person_add_outlined,
       ),
@@ -143,10 +155,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                   return UserCard(
                     usuario: usuarios[index],
                     onEditar: () async {
+
                       // Busca la guía vinculada a este usuario si existe.
-                      final Guide? guiaActual = ref
-                          .read(guidesProvider.notifier)
-                          .porUsuario(usuarios[index].id!);
+                      final Guide? guiaActual = ref.read(guidesProvider.notifier).porUsuario(usuarios[index].id!);
+
                       // Navega al formulario de edición pasando el usuario actual.
                       final Map<String, dynamic>? result =
                           await Navigator.push<Map<String, dynamic>>(
@@ -158,46 +170,57 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                           ),
                         ),
                       );
+
                       // Si el usuario canceló la edición, no hace nada.
                       if (result == null) {
                         return;
                       }
+
                       final User actualizado = result['usuario'] as User;
-                      final Map<String, dynamic>? guiaData =
-                          result['guia'] as Map<String, dynamic>?;
-                      // Actualiza el usuario en el estado global.
-                      ref
-                          .read(usuariosProvider.notifier)
-                          .actualizar(usuarios[index], actualizado);
-                      // Actualiza o crea el registro de guía.
-                      if (guiaData != null) {
-                        final Guide nuevaGuia = Guide(
-                          id: guiaActual?.id,
-                          userId: actualizado.id!,
-                          credentials: guiaData['credentials'] as String,
-                          categories: (guiaData['categoryCodes'] as List<String>)
-                              .map(Category.fromCode)
-                              .toList(),
-                          user: actualizado,
+                      final Map<String, dynamic>? guiaData = result['guia'] as Map<String, dynamic>?;
+                      final String? passwordNueva = result['password'] as String?;
+                      
+                      try {
+                        // Actualiza el usuario en el estado global.
+                        await ref.read(usuariosProvider.notifier).actualizar(
+                          usuarios[index], 
+                          actualizado,
+                          password: passwordNueva, 
                         );
-                        if (guiaActual != null) {
-                          ref
-                              .read(guidesProvider.notifier)
-                              .actualizar(guiaActual, nuevaGuia);
-                        } else {
-                          ref.read(guidesProvider.notifier).agregar(nuevaGuia);
+
+                        // Actualiza o crea el registro de guía.
+                        if (guiaData != null) {
+                          final Guide nuevaGuia = Guide(
+                            id: guiaActual?.id,
+                            userId: actualizado.id!,
+                            credentials: guiaData['credentials'] as String,
+                            categories: (guiaData['categoryCodes'] as List<String>).map(Category.fromCode).toList(),
+                            user: actualizado,
+                          );
+
+                          if (guiaActual != null) {
+                            await ref.read(guidesProvider.notifier).actualizar(guiaActual, nuevaGuia);
+                          } else {
+                            await ref.read(guidesProvider.notifier).agregar(nuevaGuia);
+                          }
+
+                        } else if (guiaActual != null) {
+                          // El rol ya no es trabajador, elimina la guía.
+                          await ref.read(guidesProvider.notifier).eliminar(guiaActual);
                         }
-                      } else if (guiaActual != null) {
-                        // El rol ya no es trabajador, elimina la guía.
-                        ref
-                            .read(guidesProvider.notifier)
-                            .eliminar(guiaActual);
+
+                        if (!context.mounted) {
+                          return;
+                        }
+
+                        showSuccessSnackBar(context, s.userUpdated);
+
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        showErrorSnackBar(context, e.toString()); 
                       }
-                      if (!context.mounted) {
-                        return;
-                      }
-                      showSuccessSnackBar(context, s.userUpdated);
                     },
+                    
                     onEliminar: () async {
                       // Muestra un diálogo de confirmación antes de eliminar.
                       final bool confirmar = await showConfirmDialog(
@@ -206,11 +229,19 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                         content: s.deleteUserConfirm('${usuarios[index].name} ${usuarios[index].surname}'),
                         confirmLabel: s.deleteUser,
                       );
-                      // Si el usuario no confirmó, no hace nada.
-                      if (!confirmar || !context.mounted) return;
-                      // Elimina el usuario del estado global.
-                      ref.read(usuariosProvider.notifier).eliminar(usuarios[index]);
-                      showSuccessSnackBar(context, s.userDeleted);
+
+                      try {
+                        // Si el usuario no confirmó, no hace nada.
+                        if (!confirmar || !context.mounted) return;
+                        // Elimina el usuario del estado global.
+                        await ref.read(usuariosProvider.notifier).eliminar(usuarios[index]);
+
+                        if (!context.mounted) return;
+                        showSuccessSnackBar(context, s.userDeleted);
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        showErrorSnackBar(context, e.toString()); // 👈 Atrapamos el error
+                      }
                     },
                   );
                 },

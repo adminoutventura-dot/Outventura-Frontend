@@ -64,13 +64,22 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
   }
 
   // PATCH /user/:id - actualiza un usuario. Actualiza el item en local sin recargar la lista.
-  Future<void> actualizar(User viejo, User nuevo) async {
+  Future<void> actualizar(User viejo, User nuevo, {String? password}) async { 
     if (viejo.id == null) {
       throw StateError('User has no id');
     }
     try {
       final dio = ref.read(dioProvider);
-      await dio.patch('/user/${viejo.id}', data: nuevo.toMap());
+
+      // Prepara los datos con la contraseña si existe
+      final Map<String, dynamic> datosAEnviar = nuevo.toMap();
+      if (password != null && password.isNotEmpty) {
+        datosAEnviar['password'] = password;
+      }
+
+      // Envia el paquete modificado
+      await dio.patch('/user/${viejo.id}', data: datosAEnviar);
+      
       final List<User> listaActual = [...(state.value ?? [])];
       for (int i = 0; i < listaActual.length; i++) {
         if (listaActual[i].id == viejo.id) {

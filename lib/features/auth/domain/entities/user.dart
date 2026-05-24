@@ -53,12 +53,24 @@ class User {
   }
 
   // Convierte el usuario a un mapa para enviar al backend.
-  Map<String, dynamic> toMap() => {
-    'name': name,
-    'surname': surname,
-    'email': email,
-    'phone': phone,
-    'photo': photo,
-    'status': active,
-  };
+  Map<String, dynamic> toMap() {
+    // Convierte el código string de UserRole al ID numérico que espera PostgreSQL
+    final int idDelRol = switch (role.code) {
+      'SUPER' => 1,
+      'ADMIN' => 2,
+      'GUIDE' => 3,
+      'USER' => 4,
+      _ => 4, // Por defecto asigna rol de usuario normal
+    };
+
+    return {
+      'name': name,
+      'surname': surname,
+      'email': email,
+      'phone': phone,
+      'photo': photo,
+      'status': active,
+      'roleId': idDelRol,
+    };
+  }
 }

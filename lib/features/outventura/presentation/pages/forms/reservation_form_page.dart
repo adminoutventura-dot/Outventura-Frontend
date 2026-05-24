@@ -402,7 +402,8 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                     final bool confirmar = await showConfirmDialog(
                       context: context,
                       title: s.deleteReservation,
-                      content: s.deleteReservationConfirm,
+                      content: '${s.deleteReservationConfirm}\n\n'
+                              '⚠️ ¡Atención! Al eliminar esta reserva se borrarán permanentemente todas sus líneas de materiales asociadas y se desvinculará la solicitud de guía asignada.',
                       confirmLabel: s.deleteReservation,
                     );
                     if (confirmar && context.mounted) {

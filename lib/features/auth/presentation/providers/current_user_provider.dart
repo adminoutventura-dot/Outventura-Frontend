@@ -76,6 +76,31 @@ class CurrentUserNotifier extends Notifier<User?> {
     }
   }
 
+  // PATCH /user/:id - actualiza el perfil del usuario. Si se cambia la foto, se actualizará al instante en el Drawer.
+  Future<void> actualizarPerfil(User usuarioEditado, {String? nuevaPassword}) async {
+    if (state == null || state!.id == null) return;
+
+    try {
+      final dio = ref.read(dioProvider);
+      
+      // Prepara los datos
+      final Map<String, dynamic> datosAEnviar = usuarioEditado.toMap();
+      if (nuevaPassword != null && nuevaPassword.isNotEmpty) {
+        datosAEnviar['password'] = nuevaPassword;
+      }
+
+      // Envia el parche a NestJS
+      final response = await dio.patch('/user/${state!.id}', data: datosAEnviar);
+      
+      // Actualiza el estado actual con la respuesta de NestJS
+      // Así el Drawer cambiará la foto.
+      state = UserModel.fromMap(response.data as Map<String, dynamic>);
+      
+    } on DioException catch (e) {
+      throw parseDioError(e);
+    }
+  }
+
   // Borra el token y pone el estado a null - redirige al login.
   Future<void> cerrarSesion() async {
     await clearAuthToken();

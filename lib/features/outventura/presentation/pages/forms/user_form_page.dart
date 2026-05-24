@@ -53,9 +53,7 @@ class _UserFormPageState extends State<UserFormPage> {
     super.dispose();
   }
 
-  bool get _esGuia =>
-      _controller.rol == UserRole.admin ||
-      _controller.rol == UserRole.superadmin;
+  bool get _esGuia => _controller.rol == UserRole.guia || _controller.rol == UserRole.admin || _controller.rol == UserRole.superadmin;
 
   // Valida el formulario y, si es correcto, construye el usuario y lo devuelve.
   void _submit() {
@@ -87,6 +85,7 @@ class _UserFormPageState extends State<UserFormPage> {
     final TextTheme tt = Theme.of(context).textTheme;
     // Se pone a true dentro de cargarUsuario().
     final bool isEdit = _controller.editando;
+    
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -110,6 +109,11 @@ class _UserFormPageState extends State<UserFormPage> {
                   isAsset: true,
                   isCircular: true,
                   placeholder: Icons.person_outline,
+                  onChanged: (String? nuevaRuta) {
+                    setState(() {
+                      _controller.foto = nuevaRuta;
+                    });
+                  },
                 ),
               ),
               const SizedBox(height: 20),

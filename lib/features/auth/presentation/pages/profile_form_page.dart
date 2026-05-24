@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
+import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
@@ -38,7 +39,16 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
     if (!_controller.validar()) {
       return;
     }
-    Navigator.of(context).pop();
+    final User usuarioActualizado = _controller.construirUsuario();
+    
+    final String? nuevaPassword = _loginController.passwordController.text.isNotEmpty 
+        ? _loginController.passwordController.text 
+        : null;
+
+    Navigator.of(context).pop(<String, dynamic>{
+      'usuario': usuarioActualizado,
+      'password': nuevaPassword,
+    });
   }
 
   @override
@@ -63,15 +73,16 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
 
               // Avatar
               Center(
-                child: CircleAvatar(
-                  radius: 44,
-                  backgroundColor: cs.primaryContainer,
-                  backgroundImage: widget.usuario.photo != null
-                      ? NetworkImage(widget.usuario.photo!)
-                      : null,
-                  child: widget.usuario.photo == null
-                      ? Icon(Icons.person_outline, size: 44, color: cs.onPrimaryContainer)
-                      : null,
+                child: AppImagePickerField(
+                  imageUrl: _controller.foto,
+                  isAsset: true,
+                  isCircular: true,
+                  placeholder: Icons.person_outline,
+                  onChanged: (String? nuevaRuta) {
+                    setState(() {
+                      _controller.foto = nuevaRuta;
+                    });
+                  },
                 ),
               ),
               const SizedBox(height: 28),

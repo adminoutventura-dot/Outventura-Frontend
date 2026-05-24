@@ -4,11 +4,12 @@ class UserRole {
   const UserRole({required this.code});
 
   static const UserRole superadmin = UserRole(code: 'SUPER');
-  static const UserRole admin      = UserRole(code: 'ADMIN');
-  static const UserRole usuario    = UserRole(code: 'USER');
-  static const UserRole invitado   = UserRole(code: 'GUEST');
+  static const UserRole admin = UserRole(code: 'ADMIN');
+  static const UserRole guia = UserRole(code: 'GUIDE');
+  static const UserRole usuario = UserRole(code: 'USER');
+  static const UserRole invitado = UserRole(code: 'GUEST');
 
-  static const List<UserRole> values = [superadmin, admin, usuario, invitado];
+  static const List<UserRole> values = [superadmin, admin, guia, usuario, invitado];
 
   // Crea un rol a partir del código que devuelve el backend (e.g. 'ADMIN').
   static UserRole fromCode(String code) {

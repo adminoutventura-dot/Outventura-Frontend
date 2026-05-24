@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/app/theme/app_text_styles.dart';
 import 'package:outventura/catalog/pages/catalog_page.dart';
@@ -37,7 +40,19 @@ class AppDrawer extends ConsumerWidget {
                 CircleAvatar(
                   radius: 32,
                   backgroundColor: cs.onTertiary.withValues(alpha: 0.2),
-                  child: Icon(Icons.person, size: 36, color: cs.onPrimary),
+                  backgroundImage: usuario?.photo != null && usuario!.photo!.isNotEmpty
+                      ? (usuario.photo!.startsWith('http')
+                          ? NetworkImage(usuario.photo!)
+                          : (usuario.photo!.startsWith('assets/')
+                              ? AssetImage(usuario.photo!)
+                              : MemoryImage(base64Decode(usuario.photo!)) as ImageProvider))
+                      : null,
+                  child: (usuario?.photo == null || usuario!.photo!.isEmpty)
+                      ? Text(
+                          usuario?.name[0].toUpperCase() ?? '?',
+                          style: AppTextStyles.headlineSmall.copyWith(color: cs.onPrimary, fontWeight: FontWeight.w700),
+                        )
+                      : null,
                 ),
                 const SizedBox(height: 12),
 
@@ -69,12 +84,42 @@ class AppDrawer extends ConsumerWidget {
                   title: Text(s.profile, style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  onTap: () {
+                  onTap: () async {
                     if (usuario == null) return;
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (_) => ProfileFormPage(usuario: usuario),
-                    ));
+
+                    final result = await Navigator.push<Map<String, dynamic>>(
+                      context, 
+                      MaterialPageRoute(
+                        builder: (_) => ProfileFormPage(usuario: usuario),
+                      )
+                    );
+
+
+                    if (result == null) {
+                      // Si el usuario vuelve atrás sin guardar, cierra el drawer de forma segura
+                      if (context.mounted) Navigator.pop(context);
+                      return;
+                    }
+
+                    final User usuarioEditado = result['usuario'] as User;
+                    final String? nuevaPassword = result['password'] as String?;
+
+                    try {
+                      await ref.read(currentUserProvider.notifier).actualizarPerfil(
+                        usuarioEditado, 
+                        nuevaPassword: nuevaPassword,
+                      );
+                      
+                      if (context.mounted) {
+                        showSuccessSnackBar(context, s.userUpdated);
+                        Navigator.pop(context);
+                      }
+                    } catch (e) {
+                      
+                      if (context.mounted) {
+                        showErrorSnackBar(context, e.toString());
+                      }
+                    }
                   },
                 ),
 

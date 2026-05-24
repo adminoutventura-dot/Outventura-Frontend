@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
@@ -59,8 +61,14 @@ class UserCard extends StatelessWidget {
                   ),
                   child: CircleAvatar(
                     backgroundColor: Colors.transparent,
-                    backgroundImage: usuario.photo != null ? NetworkImage(usuario.photo!) : null,
-                    child: usuario.photo == null
+                    backgroundImage: usuario.photo != null && usuario.photo!.isNotEmpty
+                        ? (usuario.photo!.startsWith('http')
+                            ? NetworkImage(usuario.photo!)
+                            : (usuario.photo!.startsWith('assets/')
+                                ? AssetImage(usuario.photo!)
+                                : MemoryImage(base64Decode(usuario.photo!)) as ImageProvider))
+                        : null,
+                    child: (usuario.photo == null || usuario.photo!.isEmpty)
                         ? Text(
                             usuario.name[0].toUpperCase(),
                             style: tt.headlineSmall?.copyWith(color: roleColor, fontWeight: FontWeight.w700),
