@@ -70,6 +70,7 @@ extension TipoRolL10n on UserRole {
     switch (code) {
       case 'SUPER': return s.roleSuperadmin;
       case 'ADMIN': return s.roleAdmin;
+      case 'GUIDE': return s.roleExpert;
       case 'USER':  return s.roleUser;
       default:      return s.roleGuest;
     }

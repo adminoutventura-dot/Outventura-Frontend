@@ -53,7 +53,7 @@ class _UserFormPageState extends State<UserFormPage> {
     super.dispose();
   }
 
-  bool get _esGuia => _controller.rol == UserRole.guia || _controller.rol == UserRole.admin || _controller.rol == UserRole.superadmin;
+  bool get _esGuia => _controller.rol == UserRole.guia;
 
   // Valida el formulario y, si es correcto, construye el usuario y lo devuelve.
   void _submit() {

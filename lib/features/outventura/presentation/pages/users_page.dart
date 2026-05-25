@@ -16,10 +16,6 @@ import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 
-// TODO: No se puede crear usuario aun (peticion incorrecta).
-// TODO: El rol de guia no tiene nombre de guia
-// TODO: Solo el guia tiene que tener categorias, no el usuario o admin.
-
 class UsersPage extends ConsumerStatefulWidget {
   const UsersPage({super.key});
 
