@@ -140,3 +140,21 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     }
   }
 }
+
+// Lista de actividades disponibles. GET /activity/available.
+final AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>> availableActivitiesProvider =
+    AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>>(AvailableActivitiesNotifier.new);
+
+class AvailableActivitiesNotifier extends AsyncNotifier<List<Activity>> {
+  @override
+  Future<List<Activity>> build() async {
+    try {
+      final dio = ref.read(dioProvider);
+      final response = await dio.get('/activity/available');
+      final List<dynamic> data = response.data as List<dynamic>;
+      return data.map((e) => ActivityModel.fromMap(e as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
+      throw parseDioError(e);
+    }
+  }
+}

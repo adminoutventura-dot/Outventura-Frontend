@@ -123,14 +123,16 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
 
     final bool modoCliente = widget.initialIdUsuario != null;
 
-    // TODO: Revisar
-    // En modo cliente usa el usuario actual directamente; en modo admin carga la lista completa.
+    // En modo admin carga clientes desde el backend; en modo cliente usa el usuario actual.
     final List<User> usuariosDisponibles = !modoCliente
-      ? ref.watch(usuariosProvider).value ?? []
+      ? ref.watch(clientesProvider).value ?? []
       : switch (ref.watch(currentUserProvider)) {
           final User u => [u],
           null => [],
         };
+
+    // Carga solo actividades disponibles desde el backend
+    final List<Activity> actividadesDisponibles = ref.watch(availableActivitiesProvider).value ?? [];
 
     final Activity? actividadSeleccionada = _controller.buscarActividadSeleccionada(actividades);
 
@@ -222,11 +224,10 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
             ),
 
             const SizedBox(height: 20),
-            // TODO: Solo muestra actividades disponibles?
-            // Dropdown de actividades
+            // Dropdown de actividades (solo disponibles, filtradas en backend)
             AppDropdownField<Activity>(
               value: _controller.idActividad,
-              items: actividades,
+              items: actividadesDisponibles,
               itemValue: (e) => e.id,
               itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
               prefixIcon: Icons.hiking_outlined,
@@ -237,7 +238,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               onChanged: (int? v) {
                 setState(() {
                   _controller.idActividad = v;
-                  _controller.recalcularMateriales(actividades);
+                  _controller.recalcularMateriales(actividadesDisponibles);
                 });
               },
             ),
