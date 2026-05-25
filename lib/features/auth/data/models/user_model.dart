@@ -21,7 +21,9 @@ class UserModel extends User {
       surname: map['surname'] as String? ?? '',
       email: map['email'] as String,
       phone: map['phone']?.toString(),
-      role: UserRole.fromCode(map['role'] as String? ?? 'GUEST'),
+      role: map['role'] != null
+          ? UserRole.fromMap(map['role'] as Map<String, dynamic>)
+          : UserRole.invitado,
       photo: map['photo'] as String?,
       active: map['status'] as bool? ?? true,
     );

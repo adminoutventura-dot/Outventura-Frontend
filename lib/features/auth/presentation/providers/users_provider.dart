@@ -51,10 +51,14 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
   }
 
   // POST /user - crea un nuevo usuario. Devuelve el usuario con el ID asignado por el backend.
-  Future<User> agregar(User usuario) async {
+  Future<User> agregar(User usuario, {String? password}) async {
     try {
       final dio = ref.read(dioProvider);
-      final response = await dio.post('/user', data: usuario.toMap());
+      final Map<String, dynamic> data = usuario.toMap();
+      if (password != null && password.isNotEmpty) {
+        data['password'] = password;
+      }
+      final response = await dio.post('/user', data: data);
       final User created = UserModel.fromMap(response.data as Map<String, dynamic>);
       ref.invalidateSelf();
       return created;

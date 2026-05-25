@@ -81,11 +81,12 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             return;
           }
           final User nuevo = result['usuario'] as User;
+          final String? password = result['password'] as String?;
           final Map<String, dynamic>? guiaData = result['guia'] as Map<String, dynamic>?;
 
           try {
             // Agrega el nuevo usuario al estado global.
-            final User creado = await ref.read(usuariosProvider.notifier).agregar(nuevo);
+            final User creado = await ref.read(usuariosProvider.notifier).agregar(nuevo, password: password);
 
             // Si tiene datos de guía, crea el registro de guía.
             if (guiaData != null) {

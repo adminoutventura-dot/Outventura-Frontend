@@ -1,7 +1,9 @@
 class UserRole {
+  final int? id;
   final String code;
+  final String? description;
 
-  const UserRole({required this.code});
+  const UserRole({this.id, required this.code, this.description});
 
   static const UserRole superadmin = UserRole(code: 'SUPER');
   static const UserRole admin = UserRole(code: 'ADMIN');
@@ -14,6 +16,16 @@ class UserRole {
   // Crea un rol a partir del código que devuelve el backend (e.g. 'ADMIN').
   static UserRole fromCode(String code) {
     return values.firstWhere((r) => r.code == code, orElse: () => invitado);
+  }
+
+  // Crea un rol a partir del objeto JSON del backend.
+  static UserRole fromMap(Map<String, dynamic> map) {
+    final code = map['code'] as String? ?? 'GUEST';
+    return UserRole(
+      id: map['id_role'] as int?,
+      code: code,
+      description: map['description'] as String?,
+    );
   }
 
   @override

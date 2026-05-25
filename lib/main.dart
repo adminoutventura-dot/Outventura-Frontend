@@ -13,8 +13,6 @@ import 'package:outventura/features/outventura/presentation/pages/main_scaffold.
 import 'package:outventura/features/preferences/controllers/preferences_controller.dart';
 import 'package:outventura/features/preferences/data/models/preferences.dart';
 
-// TODO: Revisar si se divide entre entities y models (Recordatorio)
-// TODO: Añadir el subir fotos.
 // TODO: Añadir borde a logo
 
 void main() async {
