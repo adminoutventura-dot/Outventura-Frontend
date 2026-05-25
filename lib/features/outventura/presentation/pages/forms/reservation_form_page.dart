@@ -110,15 +110,14 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     // Precio total = alquiler de materiales + cargo por daños si los hay.
     final double totalPrice = _controller.totalAlquiler(equipamientos) + _controller.totalCargoDanios(equipamientos);
 
-    // TODO: REVISAR
     // Lista de usuarios disponibles para el dropdown.
-    // En modo cliente usa el usuario actual directamente; en modo admin carga la lista completa.
+    // En modo cliente usa el usuario actual directamente; en modo admin carga solo clientes.
     final List<User> usuariosDisponibles = modoCliente
         ? switch (ref.watch(currentUserProvider)) {
             final User u => [u],
             null => [],
           }
-        : ref.watch(usuariosProvider).value ?? [];
+        : ref.watch(clientesProvider).value ?? [];
 
     // --- CÁLCULO DE ALTURAS PARA EL TRASPASO DE BARS ---
     final double topPadding = MediaQuery.of(context).padding.top + kToolbarHeight;
@@ -192,7 +191,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 // Excursión (editable si no es modo cliente)
                 AppDropdownField<Activity>(
                   value: _controller.idActividad,
-                  items: ref.read(activitiesProvider).value ?? [],
+                  items: ref.read(availableActivitiesProvider).value ?? [],
                   itemValue: (e) => e.id,
                   itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
                   prefixIcon: Icons.hiking_outlined,

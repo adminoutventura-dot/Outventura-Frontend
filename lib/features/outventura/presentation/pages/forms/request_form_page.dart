@@ -444,7 +444,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               // Dropdown de expertos
               AppDropdownField<User>(
                 value: _controller.idExperto,
-                items: ref.watch(usuariosProvider).value ?? [],
+                items: ref.watch(expertsProvider).value ?? [],
                 itemValue: (User user) => user.id,
                 itemLabel: (User user) => '${user.name} ${user.surname}',
                 prefixIcon: Icons.star_outline,

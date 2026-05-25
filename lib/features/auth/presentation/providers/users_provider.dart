@@ -131,3 +131,21 @@ class ClientsNotifier extends AsyncNotifier<List<User>> {
     }
   }
 }
+
+// Lista de usuarios expertos (rol GUIDE). GET /user/experts.
+final AsyncNotifierProvider<ExpertsNotifier, List<User>> expertsProvider =
+    AsyncNotifierProvider<ExpertsNotifier, List<User>>(ExpertsNotifier.new);
+
+class ExpertsNotifier extends AsyncNotifier<List<User>> {
+  @override
+  Future<List<User>> build() async {
+    try {
+      final dio = ref.read(dioProvider);
+      final response = await dio.get('/user/experts');
+      final List<dynamic> data = response.data as List<dynamic>;
+      return data.map((e) => UserModel.fromMap(e as Map<String, dynamic>)).toList();
+    } on DioException catch (e) {
+      throw parseDioError(e);
+    }
+  }
+}

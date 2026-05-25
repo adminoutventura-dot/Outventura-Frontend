@@ -65,14 +65,6 @@ final adminDailyStatsProvider = Provider<AdminDailyStats>((ref) {
   );
 });
 
-// Suma de ingresos de solicitudes confirmadas o finalizadas.
-final adminRevenueProvider = Provider<double>((ref) {
-  final solicitudes = ref.watch(requestsProvider).value ?? [];
-  return solicitudes
-      .where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.finalizada)
-      .fold(0.0, (sum, r) => sum + r.totalPrice);
-});
-
 // Datos de actividad por día para la semana actual.
 final weeklyStatsProvider = Provider<WeeklyData>((ref) {
   final reservas = ref.watch(reservationsProvider).value ?? [];

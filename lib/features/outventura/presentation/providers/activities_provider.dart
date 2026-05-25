@@ -49,20 +49,6 @@ final recentActivitiesProvider = Provider.family<List<Activity>, int>((ref, coun
   return (ref.watch(activitiesProvider).value ?? []).take(count).toList();
 });
 
-// Las [limit] categorías con más actividades asociadas, ordenadas de mayor a menor.
-final popularCategoriesProvider = Provider.family<List<MapEntry<Category, int>>, int>((ref, limit) {
-  final actividades = ref.watch(activitiesProvider).value ?? [];
-  final categoriasCount = <Category, int>{};
-  for (final act in actividades) {
-    for (final cat in act.categories) {
-      categoriasCount[cat] = (categoriasCount[cat] ?? 0) + 1;
-    }
-  }
-  return (categoriasCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
-      .take(limit)
-      .toList();
-});
-
 class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   @override
   // Carga todas las actividades desde el backend al inicializar.
