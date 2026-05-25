@@ -902,6 +902,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get navSubtitleActivities => 'Rutas y actividades de aventura';
 
   @override
+  String maxParticipantsExceeded(int max) {
+    return 'Máximo $max participantes permitidos';
+  }
+
+  @override
+  String insufficientStock(int id, int available) {
+    return 'Stock insuficiente para el equipamiento $id. Disponible: $available';
+  }
+
+  @override
   String get navSubtitleEquipment => 'Material y stock disponible';
 
   @override

@@ -316,6 +316,10 @@
   "@pricePerUnitDay": { "placeholders": { "price": { "type": "String" } } },
 
   "navSubtitleActivities": "Adventure routes and activities",
+  "maxParticipantsExceeded": "Maximum {max} participants allowed",
+  "@maxParticipantsExceeded": { "placeholders": { "max": { "type": "int" } } },
+  "insufficientStock": "Insufficient stock for equipment {id}. Available: {available}",
+  "@insufficientStock": { "placeholders": { "id": { "type": "int" }, "available": { "type": "int" } } },
   "navSubtitleEquipment": "Equipment and available stock",
   "navSubtitleUsers": "Clients and experts",
   "navSubtitleReservations": "Reservation management",

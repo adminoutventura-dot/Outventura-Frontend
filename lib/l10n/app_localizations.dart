@@ -1774,6 +1774,18 @@ abstract class AppLocalizations {
   /// **'Rutas y actividades de aventura'**
   String get navSubtitleActivities;
 
+  /// No description provided for @maxParticipantsExceeded.
+  ///
+  /// In es, this message translates to:
+  /// **'Máximo {max} participantes permitidos'**
+  String maxParticipantsExceeded(int max);
+
+  /// No description provided for @insufficientStock.
+  ///
+  /// In es, this message translates to:
+  /// **'Stock insuficiente para el equipamiento {id}. Disponible: {available}'**
+  String insufficientStock(int id, int available);
+
   /// No description provided for @navSubtitleEquipment.
   ///
   /// In es, this message translates to:

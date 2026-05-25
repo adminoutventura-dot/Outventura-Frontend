@@ -249,7 +249,20 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               controller: _controller.participantesCtrl,
               labelText: s.numberOfParticipants,
               keyboardType: TextInputType.number,
-              validator: ValidadoresFormulario.enteroMayorQueCero(s),
+              validator: (String? value) {
+                // Validar que sea un entero > 0
+                final validInt = ValidadoresFormulario.enteroMayorQueCero(s)(value);
+                if (validInt != null) return validInt;
+                
+                // Validar que no exceda el máximo de la actividad
+                if (actividadSeleccionada != null && value != null) {
+                  final int? participants = int.tryParse(value);
+                  if (participants != null && participants > actividadSeleccionada.maxParticipants) {
+                    return s.maxParticipantsExceeded(actividadSeleccionada.maxParticipants);
+                  }
+                }
+                return null;
+              },
               onChanged: (_) => setState(() => _controller.recalcularMateriales(actividades)),
             ),
 
@@ -346,7 +359,19 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                         // Boton más
                         IconButton(
                           icon: const Icon(Icons.add, size: 18),
-                          onPressed: () => setState(() => _controller.establecerCantidadMaterial(idEquipamiento, cantidad + 1)),
+                          onPressed: () {
+                            Equipment? eq;
+                            try {
+                              eq = equipamientos.firstWhere((e) => e.id == idEquipamiento);
+                            } catch (e) {
+                              // Equipment not found, allow increment
+                            }
+                            if (eq != null && cantidad >= eq.units) {
+                              showErrorSnackBar(context, s.insufficientStock(eq.units, idEquipamiento));
+                              return;
+                            }
+                            setState(() => _controller.establecerCantidadMaterial(idEquipamiento, cantidad + 1));
+                          },
                         ),
 
                         // Botón eliminar

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
@@ -11,18 +12,23 @@ import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
+import 'package:outventura/features/outventura/domain/entities/equipment.dart';
+import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/controllers/activity_form_controller.dart';
+import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
+import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
+import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
 
-class ActivityFormPage extends StatefulWidget {
+class ActivityFormPage extends ConsumerStatefulWidget {
   final Activity? actividad;
 
   const ActivityFormPage({super.key, this.actividad});
 
   @override
-  State<ActivityFormPage> createState() => _ActivityFormPageState();
+  ConsumerState<ActivityFormPage> createState() => _ActivityFormPageState();
 }
 
-class _ActivityFormPageState extends State<ActivityFormPage> {
+class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
   late final ActivityFormController _controller;
 
   @override
@@ -45,6 +51,7 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final AppLocalizations s = AppLocalizations.of(context)!;
+    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -229,6 +236,68 @@ class _ActivityFormPageState extends State<ActivityFormPage> {
                   );
                 }).toList(),
               ),
+              const SizedBox(height: 32),
+
+              // Materiales recomendados por participante
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    s.recommendedMaterial.toUpperCase(),
+                    style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  TertiaryButton(
+                    label: s.addLine,
+                    icon: Icons.add,
+                    onPressed: () async {
+                      final result = await mostrarDialogoLineaReserva(
+                        context: context,
+                        equipamientos: equipamientos,
+                        validateStock: false,
+                      );
+                      if (result == null) return;
+                      setState(() {
+                        _controller.materialesRecomendados[result.equipmentId] =
+                            (_controller.materialesRecomendados[result.equipmentId] ?? 0) + result.quantity;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              if (_controller.materialesRecomendados.isNotEmpty)
+                ..._controller.materialesRecomendados.entries.map((entry) {
+                  final int idEquip = entry.key;
+                  final int cantidad = entry.value;
+                  Equipment? equip;
+                  try {
+                    equip = equipamientos.firstWhere((e) => e.id == idEquip);
+                  } catch (_) {}
+                  if (equip == null) return const SizedBox.shrink();
+
+                  return ReservationLineCard(
+                    linea: BookingLine(equipmentId: idEquip, quantity: cantidad),
+                    equipamiento: equip,
+                    cantidadDaniada: 0,
+                    esCliente: true,
+                    onEdit: () async {
+                      final result = await mostrarDialogoLineaReserva(
+                        context: context,
+                        equipamientos: equipamientos,
+                        initialLinea: BookingLine(equipmentId: idEquip, quantity: cantidad),
+                        validateStock: false,
+                      );
+                      if (result == null) return;
+                      setState(() {
+                        _controller.materialesRecomendados.remove(idEquip);
+                        _controller.materialesRecomendados[result.equipmentId] = result.quantity;
+                      });
+                    },
+                    onDelete: () => setState(() => _controller.materialesRecomendados.remove(idEquip)),
+                  );
+                }),
+
               const SizedBox(height: 32),
 
               // Botón Guardar / Crear

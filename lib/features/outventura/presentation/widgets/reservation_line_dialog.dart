@@ -10,12 +10,14 @@ Future<BookingLine?> mostrarDialogoLineaReserva({
   required BuildContext context,
   required List<Equipment> equipamientos,
   BookingLine? initialLinea,
+  bool validateStock = true,
 }) {
   return showDialog<BookingLine>(
     context: context,
     builder: (BuildContext ctx) => _LineaReservaDialog(
       equipamientos: equipamientos,
       initialLinea: initialLinea,
+      validateStock: validateStock,
     ),
   );
 }
@@ -23,10 +25,12 @@ Future<BookingLine?> mostrarDialogoLineaReserva({
 class _LineaReservaDialog extends StatefulWidget {
   final List<Equipment> equipamientos;
   final BookingLine? initialLinea;
+  final bool validateStock;
 
   const _LineaReservaDialog({
     required this.equipamientos,
     required this.initialLinea,
+    this.validateStock = true,
   });
 
   @override
@@ -89,6 +93,21 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
               validator: (String? v) {
                 final int? n = int.tryParse(v ?? '');
                 if (n == null || n < 1) return s.invalidQuantity;
+                
+                // Validar contra el stock disponible del equipamiento seleccionado
+                if (widget.validateStock && _idEquipamiento != null) {
+                  Equipment? selectedEquipment;
+                  try {
+                    selectedEquipment = widget.equipamientos.firstWhere((e) => e.id == _idEquipamiento);
+                  } catch (e) {
+                    // Equipment not found
+                  }
+                  
+                  if (selectedEquipment != null && n > selectedEquipment.units) {
+                    return s.insufficientStock(selectedEquipment.units, _idEquipamiento!);
+                  }
+                }
+                
                 return null;
               },
             ),

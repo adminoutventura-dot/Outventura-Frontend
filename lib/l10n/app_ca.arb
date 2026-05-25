@@ -316,6 +316,10 @@
   "@pricePerUnitDay": { "placeholders": { "price": { "type": "String" } } },
 
   "navSubtitleActivities": "Rutes i activitats d'aventura",
+  "maxParticipantsExceeded": "Màxim {max} participants permesos",
+  "@maxParticipantsExceeded": { "placeholders": { "max": { "type": "int" } } },
+  "insufficientStock": "Estoc insuficient per a l'equipament {id}. Disponible: {available}",
+  "@insufficientStock": { "placeholders": { "id": { "type": "int" }, "available": { "type": "int" } } },
   "navSubtitleEquipment": "Material i estoc disponible",
   "navSubtitleUsers": "Clients i experts",
   "navSubtitleReservations": "Gestió de reserves",

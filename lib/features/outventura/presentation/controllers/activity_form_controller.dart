@@ -20,6 +20,7 @@ class ActivityFormController {
   List<Category> categorias = [];
   String? imagenAsset;
   bool editando = false;
+  Map<int, int> materialesRecomendados = {};
 
   Activity? seleccionado;
 
@@ -54,6 +55,7 @@ class ActivityFormController {
     categorias = List<Category>.from(actividad.categories);
     imagenAsset = actividad.imageAsset;
     precioController.text = actividad.price.toStringAsFixed(2);
+    materialesRecomendados = Map<int, int>.from(actividad.materialsPerParticipant);
   }
 
   // Limpiar todos los campos
@@ -104,7 +106,7 @@ class ActivityFormController {
       imageAsset: imagenAsset,
       status: estado,
       price: double.tryParse(precioController.text.replaceAll(',', '.')) ?? 0,
-      materialsPerParticipant: seleccionado?.materialsPerParticipant ?? {},
+      materialsPerParticipant: Map<int, int>.from(materialesRecomendados),
     );
   }
 
