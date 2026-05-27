@@ -69,7 +69,11 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       final dio = ref.read(dioProvider);
       final response = await dio.post('/activity', data: actividad.toMap());
       final Activity created = ActivityModel.fromMap(response.data as Map<String, dynamic>);
+      
       ref.invalidateSelf();
+      // Fuerza la recarga del dropdown
+      ref.invalidate(availableActivitiesProvider); 
+      
       return created;
     } on DioException catch (e) {
       throw parseDioError(e);
@@ -104,6 +108,9 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       // Notifica a Riverpod el cambio de la lista local
       state = AsyncData(listaActual);
       
+      // Fuerza la recarga del dropdown por si ha cambiado de estado
+      ref.invalidate(availableActivitiesProvider);
+      
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -120,6 +127,9 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       final List<Activity> listaActual = [...(state.value ?? [])];
       listaActual.removeWhere((Activity a) => a.id == actividad.id);
       state = AsyncData(listaActual);
+      
+      // Fuerza la recarga del dropdown
+      ref.invalidate(availableActivitiesProvider);
       
     } on DioException catch (e) {
       throw parseDioError(e);

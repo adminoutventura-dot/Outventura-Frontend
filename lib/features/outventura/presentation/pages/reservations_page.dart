@@ -2,20 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/reservations_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/request.dart'; // <-- IMPORTANTE
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
+import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservation_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_dialogs.dart';
+
+import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 
 class ReservationsPage extends ConsumerStatefulWidget {
   final bool puedeGestionar;
@@ -73,33 +78,23 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
           ),
         ],
       ),
-      // Solo muestra el FAB de añadir si el usuario tiene permiso para crear reservas (puedeCrear = true).
       floatingActionButton: widget.puedeCrear
           ? AddFab(
               onPressed: () async {
-                // Navega a la página de formulario de reserva. 
                 final Booking? nueva = await Navigator.of(context)
                     .push<Booking>(
                       MaterialPageRoute(
-                      // En modo cliente, se pasa el ID del usuario actual para que el formulario lo tenga preseleccionado y no pueda elegir otro usuario. En modo gestión, se deja null para que pueda elegir cualquier usuario.
                         builder: (_) => ReservationFormPage(
                         initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
                       ),
                       ),
                     );
 
-                // Si el resultado es null, el usuario canceló la creación y no se hace nada.
-                if (nueva == null) {
-                  return;
-                }
-                // Agrega la nueva reserva al estado global mediante el notifier.
-                notifier.agregar(nueva);
+                if (nueva == null) return;
+                await notifier.agregar(nueva);
+                ref.invalidate(equipmentProvider);
 
-                if (!context.mounted) {
-                  return;
-                }
-
-                // Muestra un snackbar de éxito.
+                if (!context.mounted) return;
                 showSuccessSnackBar(context, s.reservationCreated);
               },
             )
@@ -107,7 +102,6 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Barra de búsqueda
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
@@ -124,15 +118,12 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
             ),
           ),
 
-          // Lista de reservas filtradas
           Expanded(
             child: filtradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text(s.error(error.toString()))),
               data: (List<Booking> lista) => lista.isEmpty
-                // Si no hay reservas que mostrar, se muestra un mensaje.
                 ? Center(child: Text(s.noReservations, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)))
-                // Si hay reservas, se muestra la lista de tarjetas de reserva.
                 : ListView.separated(
                     padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
                     itemCount: lista.length,
@@ -140,11 +131,8 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                     itemBuilder: (_, int i) {
                       final Booking res = lista[i];
 
-                      // Para cada reserva, se construye una ReservationCard.
                       return ReservationCard(
                         reserva: res,
-                        // Para mostrar el nombre e imagen de cada material en la reserva, 
-                        // se mapean las líneas de reserva a una lista de objetos que contienen el nombre, imagen y cantidad de cada material.
                         lineas: res.lines.map((BookingLine linea) => (
                           nombre: ref.watch(equipmentNameProvider(linea.equipmentId)),
                           imagen: ref.watch(equipmentImageProvider(linea.equipmentId)),
@@ -154,11 +142,64 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         nombreUsuario: ref.watch(userNameProvider(res.userId)),
                         nombreActividad: ref.watch(activityNameProvider(res.activityId)),
 
-                        // Si el usuario no puede gestionar reservas, solo puede editar si está pendiente.
                         onEditar: (!widget.puedeGestionar && res.status != WorkflowStatus.pendiente)
                             ? null
                             : () async {
-                          // Navega a la página de formulario de reserva para editar la reserva.
+                          
+                          // REDIRECCIÓN A LA SOLICITUD ORIGINAL
+                          if (res.activityId != null) {
+                            final solicitudes = ref.read(requestsProvider).value ?? [];
+                            final solicitudAsociada = solicitudes.where((s) => s.bookingId == res.id).firstOrNull;
+
+                            if (solicitudAsociada != null) {
+                              
+                              // ABRE EL FORMULARIO Y ESPERA EL OBJETO REQUEST DE VUELTA
+                              final Request? resultadoSolicitud = await Navigator.of(context).push<Request>(
+                                MaterialPageRoute(
+                                  builder: (_) => SolicitudFormPage(
+                                    solicitud: solicitudAsociada,
+                                    initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+                                  ),
+                                ),
+                              );
+                              
+                              // SI EL USUARIO GUARDA, LO ENVIA AL BACKEND
+                              if (resultadoSolicitud != null && context.mounted) {
+                                try {
+                                  await ref.read(requestsProvider.notifier).actualizar(solicitudAsociada, resultadoSolicitud);
+                                  
+                                  // Invalida para que todo se repinte con los nuevos valores
+                                  ref.invalidate(reservationsProvider);
+                                  ref.invalidate(equipmentProvider);
+                                  
+                                  if (context.mounted) {
+                                    showSuccessSnackBar(context, "Sol·licitud actualitzada amb èxit");
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Error del servidor: $e'),
+                                        backgroundColor: cs.error,
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text("No s'ha trobat la sol·licitud original en memòria. Actualitza la llista."),
+                                  backgroundColor: cs.error,
+                                ),
+                              );
+                            }
+                            return; // Salie para no ejecutar la lógica de reserva normal
+                          }
+
+
+                          // FLUJO NORMAL: Si es una Reserva directa (sin actividad)
+
                           final Booking? resultado = await Navigator.of(context).push<Booking>(
                             MaterialPageRoute(
                               builder: (BuildContext _) => ReservationFormPage(
@@ -169,22 +210,15 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                             ),
                           );
 
-                          if (resultado == null) {
-                            return;
-                          }
+                          if (resultado == null) return;
                           try {
-
-                            // Actualiza la reserva en el estado global mediante el notifier.
                             await notifier.actualizar(res, resultado);
+                            ref.invalidate(equipmentProvider);
 
-                            if (!context.mounted) {
-                              return;
-                            }
-
+                            if (!context.mounted) return;
                             showSuccessSnackBar(context, s.reservationUpdated);
                           } catch (e) {
                             if (!context.mounted) return;
-                            // Si el servidor falla, mostramos el error real en rojo en lugar del mensaje de éxito
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Error del servidor: $e'),
@@ -194,23 +228,30 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                           }
                         },
 
-                        // Si es gestor y la reserva está pendiente - puede aprobarla.
                         onAprobar: widget.puedeGestionar && res.status == WorkflowStatus.pendiente
-                            ? () => mostrarDialogoAprobacion(context, res, () => notifier.aprobar(res))
+                            ? () => mostrarDialogoAprobacion(context, res, () async {
+                                  await notifier.aprobar(res);
+                                  ref.invalidate(equipmentProvider);
+                                })
                             : null,
-                        // Si es gestor y la reserva está pendiente - puede rechazarla.
                         onRechazar: widget.puedeGestionar && res.status == WorkflowStatus.pendiente
-                            ? () => mostrarDialogoRechazo(context, res, () => notifier.rechazar(res))
+                            ? () => mostrarDialogoRechazo(context, res, () async {
+                                  await notifier.rechazar(res);
+                                  ref.invalidate(equipmentProvider);
+                                })
                             : null,
-                        // Si es gestor y la reserva está en curso . puede registrar la devolución.
                         onRegistrarDevolucion: widget.puedeGestionar && res.status == WorkflowStatus.enCurso
-                            ? () => mostrarDialogoDevolucion(context, res, () => notifier.registrarDevolucion(res))
+                            ? () => mostrarDialogoDevolucion(context, res, () async {
+                                  await notifier.registrarDevolucion(res);
+                                  ref.invalidate(equipmentProvider);
+                                })
                             : null,
-                        // Si es gestor y la reserva está confirmada - puede cancelarla.
-                        // Si es cliente y la reserva está pendiente o confirmada - puede cancelarla.
                         onCancelar: (widget.puedeGestionar && res.status == WorkflowStatus.confirmada) ||
                                     (!widget.puedeGestionar && (res.status == WorkflowStatus.pendiente || res.status == WorkflowStatus.confirmada))
-                            ? () => mostrarDialogoCancelacion(context, res, () => notifier.cancelar(res))
+                            ? () => mostrarDialogoCancelacion(context, res, () async {
+                                  await notifier.cancelar(res);
+                                  ref.invalidate(equipmentProvider);
+                                })
                             : null,
                         onVerDetalle: () => Navigator.of(context).push(
                           MaterialPageRoute(

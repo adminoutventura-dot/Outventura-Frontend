@@ -28,7 +28,6 @@ class ReservationCard extends StatelessWidget {
     required this.lineas,
     required this.nombreUsuario,
     this.nombreActividad,
-    // CORREGIDO: Eliminados activityStartDate y activityEndDate de los parámetros
     this.onEditar,
     this.onAprobar,
     this.onRechazar,
@@ -54,6 +53,9 @@ class ReservationCard extends StatelessWidget {
 
     // Lista de imágenes de los equipamientos de las líneas (excluye las líneas sin imagen (string)).
     final List<String> imagenes = lineas.map((l) => l.imagen).whereType<String>().toList();
+
+    // Si tiene actividad vinculada, es una reserva que viene de Solicitud
+    final bool vinculadaASolicitud = reserva.activityId != null; 
 
     return Container(
       decoration: BoxDecoration(
@@ -109,12 +111,11 @@ class ReservationCard extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               // Fila 1: ID + usuario + badge
-                              // TODO: HARCODEADO
                               Row(
                                 children: [
                                   // ID de reserva 
                                   Text(
-                                    'RESERVA',
+                                    'RESERVA #${reserva.id ?? ""}',
                                     style: tt.labelSmall?.copyWith(
                                       color: statusColor,
                                       fontWeight: FontWeight.w700,
@@ -249,33 +250,36 @@ class ReservationCard extends StatelessWidget {
                         ],
                         const Spacer(),
 
-                        // Botones de acción, solo visibles si el callback no es null.
-                        // Cancelar reserva
-                        if (onCancelar != null) ...[
-                          ActionIcon(icon: Icons.cancel_outlined, color: cs.error, onTap: onCancelar!),
-                          const SizedBox(width: 5),
+                        // Solo se muestran si NO está vinculada a una solicitud
+                        if (!vinculadaASolicitud) ...[
+                          if (onCancelar != null) ...[
+                            ActionIcon(icon: Icons.cancel_outlined, color: cs.error, onTap: onCancelar!),
+                            const SizedBox(width: 5),
+                          ],
+                          if (onRechazar != null) ...[
+                            ActionIcon(icon: Icons.close_rounded, color: cs.error, onTap: onRechazar!),
+                            const SizedBox(width: 5),
+                          ],
+                          if (onAprobar != null) ...[
+                            ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onAprobar!),
+                            const SizedBox(width: 5),
+                          ],
+                          if (onRegistrarDevolucion != null) ...[
+                            ActionIcon(icon: Icons.assignment_return_outlined, color: cs.secondary, onTap: onRegistrarDevolucion!),
+                            const SizedBox(width: 5),
+                          ],
                         ],
-                        // Rechazar reserva pendiente
-                        if (onRechazar != null) ...[
-                          ActionIcon(icon: Icons.close_rounded, color: cs.error, onTap: onRechazar!),
-                          const SizedBox(width: 5),
-                        ],
-                        // Aprobar reserva pendiente
-                        if (onAprobar != null) ...[
-                          ActionIcon(icon: Icons.check_circle_outline, color: cs.primary, onTap: onAprobar!),
-                          const SizedBox(width: 5),
-                        ],
-                        // Registrar devolución de reserva en curso
-                        if (onRegistrarDevolucion != null) ...[
-                          ActionIcon(icon: Icons.assignment_return_outlined, color: cs.secondary, onTap: onRegistrarDevolucion!),
-                          const SizedBox(width: 5),
-                        ],
-                        // Editar reserva
+
+                        // BOTÓN DE EDICIÓN  (Aparece siempre que onEditar no sea nulo)
                         if (onEditar != null) ...[
-                          ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: onEditar!),
+                          ActionIcon(
+                            icon: vinculadaASolicitud ? Icons.assignment_outlined : Icons.edit_outlined, 
+                            color: vinculadaASolicitud ? cs.secondary : cs.tertiary, 
+                            onTap: onEditar!,
+                          ),
                           const SizedBox(width: 5),
                         ],
-                        // Ver detalle completo
+                        
                         if (onVerDetalle != null)
                           ActionIcon(icon: Icons.chevron_right_rounded, color: cs.onSurfaceVariant, onTap: onVerDetalle!),
                       ],
@@ -300,14 +304,12 @@ class _ImageGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Si no hay imágenes, mostrar un placeholder con icono genérico.
     if (imagenes.isEmpty) {
       return ColoredBox(
         color: cs.onPrimary.withValues(alpha: 0.20),
         child: Center(child: Icon(Icons.inventory_2_outlined, size: 26, color: cs.onPrimary.withValues(alpha: 0.6))),
       );
     }
-    // Si hay una sola imagen, mostrarla a tamaño completo sin grid.
     if (imagenes.length == 1) {
       return Image.asset(imagenes[0], fit: BoxFit.cover);
     }
@@ -318,21 +320,17 @@ class _ImageGrid extends StatelessWidget {
       mainAxisSpacing: 1.5,
       crossAxisSpacing: 1.5,
       children: [
-        // Muestra hasta 3 imágenes. 
         for (int i = 0; i < imagenes.length && i < 3; i++)
           Image.asset(imagenes[i], fit: BoxFit.cover),
         
         if (imagenes.length >= 4)
-          // Si hay exactamente 4 imágenes, la última casilla muestra la cuarta imagen.
           Image.asset(imagenes[3], fit: BoxFit.cover)
         else if (imagenes.length == 3)
-        // Si hay 3 imágenes, la última casilla muestra un badge con el número "3".
           ColoredBox(
             color: cs.onPrimary.withValues(alpha: 0.25),
             child: Center(child: Text('3', style: tt.labelSmall?.copyWith(color: cs.onPrimary))),
           ),
         if (imagenes.length > 4)
-          // Si hay más de 4 imágenes, la última casilla muestra un badge con el número de imágenes restantes.
           ColoredBox(
             color: cs.onPrimary.withValues(alpha: 0.40),
             child: Center(child: Text('+${imagenes.length - 3}', style: tt.labelSmall?.copyWith(color: cs.onPrimary))),

@@ -53,6 +53,7 @@ final dioProvider = Provider<Dio>((ref) {
 // Convierte cualquier error de red en una excepción legible.
 Exception parseDioError(Object error) {
   if (error is! DioException) return Exception(error.toString());
+  
   if (error.type == DioExceptionType.connectionError ||
       error.type == DioExceptionType.unknown) {
     return Exception('Sin conexión al servidor');
@@ -62,24 +63,38 @@ Exception parseDioError(Object error) {
       error.type == DioExceptionType.sendTimeout) {
     return Exception('El servidor tarda demasiado en responder');
   }
+
+  // Extrae el mensaje real que NestJS manda en el JSON
+  String? extraerMensajeNestJS() {
+    if (error.response?.data is Map && error.response?.data['message'] != null) {
+      final mensaje = error.response?.data['message'];
+      // NestJS a veces devuelve los errores de validación como una lista de strings
+      if (mensaje is List) {
+        return mensaje.join(' | ');
+      }
+      return mensaje.toString();
+    }
+    return null;
+  }
+
+  // Extrae el mensaje real (si lo hay)
+  final String? mensajeReal = extraerMensajeNestJS();
+
   switch (error.response?.statusCode) {
     case 400:
-      return Exception('Petición incorrecta');
+      // Si NestJS saca error, lo muestra. Si no, usa el genérico.
+      return Exception(mensajeReal ?? 'Petición incorrecta');
     case 403:
-      return Exception('Sin permisos para realizar esta acción');
+      return Exception(mensajeReal ?? 'Sin permisos para realizar esta acción');
     case 404:
-      return Exception('Recurso no encontrado');
+      return Exception(mensajeReal ?? 'Recurso no encontrado');
     case 409:
-      return Exception('El recurso ya existe');
+      return Exception(mensajeReal ?? 'El recurso ya existe');
     case 500:
       return Exception('Error interno del servidor');
     default:
-      // Intenta extraer el mensaje del servidor - fallback al código solo.
-      final String? msg = error.response?.data is Map
-          ? error.response?.data['message'] as String?
-          : null;
-      final String detail = msg != null
-          ? '${error.response?.statusCode}: $msg'
+      final String detail = mensajeReal != null
+          ? '${error.response?.statusCode}: $mensajeReal'
           : '${error.response?.statusCode ?? 'sin respuesta'}';
       return Exception('Error inesperado ($detail)');
   }

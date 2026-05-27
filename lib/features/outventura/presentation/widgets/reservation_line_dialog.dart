@@ -100,7 +100,7 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
                   try {
                     selectedEquipment = widget.equipamientos.firstWhere((e) => e.id == _idEquipamiento);
                   } catch (e) {
-                    // Equipment not found
+                    // TODO: Equipment not found
                   }
                   
                   if (selectedEquipment != null && n > selectedEquipment.units) {

@@ -234,7 +234,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
               label: s.actividad,
               hint: s.selectActividad,
               isRequired: true,
-              enabled: !modoCliente,
+              // Si no es edición o si es edición pero no es modo cliente, se puede cambiar la actividad.
+              enabled: !isEdit || !modoCliente,
               onChanged: (int? v) {
                 setState(() {
                   _controller.idActividad = v;
@@ -364,7 +365,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                             try {
                               eq = equipamientos.firstWhere((e) => e.id == idEquipamiento);
                             } catch (e) {
-                              // Equipment not found, allow increment
+                              // TODO: Equipment not found, allow increment
                             }
                             if (eq != null && cantidad >= eq.units) {
                               showErrorSnackBar(context, s.insufficientStock(eq.units, idEquipamiento));

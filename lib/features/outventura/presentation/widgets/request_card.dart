@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
@@ -74,9 +75,14 @@ class RequestCard extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                // Imagen de la actividad o icono genérico
+                // Manejo de Base64
                 child: imagen != null
-                    ? Image.asset(imagen, fit: BoxFit.cover)
+                    ? Image.memory(
+                        base64Decode(imagen.contains(',') ? imagen.split(',').last : imagen),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => Center(child: Icon(Icons.broken_image, color: cs.error)),
+                      )
+
                     : Container(
                         color: statusColor.withValues(alpha: 0.20),
                         child: Center(

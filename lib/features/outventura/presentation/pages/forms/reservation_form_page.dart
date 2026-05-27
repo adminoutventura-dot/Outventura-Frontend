@@ -102,6 +102,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
     // Se pone a true cuando se pasa una reserva existente para editar.
     final bool isEdit = widget.reserva != null;
     final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+    final List<Activity> actividadesDisponibles = ref.watch(availableActivitiesProvider).value ?? [];
     
     // modoCliente = true cuando el formulario se abre desde el perfil de un cliente concreto.
     // En ese caso el dropdown de usuario queda deshabilitado.
@@ -191,7 +192,7 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
                 // Excursión (editable si no es modo cliente)
                 AppDropdownField<Activity>(
                   value: _controller.idActividad,
-                  items: ref.read(availableActivitiesProvider).value ?? [],
+                  items: actividadesDisponibles,
                   itemValue: (e) => e.id,
                   itemLabel: (e) => '${e.startPoint} → ${e.endPoint}',
                   prefixIcon: Icons.hiking_outlined,

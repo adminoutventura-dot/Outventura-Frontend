@@ -6,6 +6,8 @@ import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart'; // <-- AÑADIDO
 
 // Lista completa de solicitudes de inscripción a actividades. GET /request.
 final AsyncNotifierProvider<RequestsNotifier, List<Request>> requestsProvider =
@@ -34,9 +36,6 @@ final filteredRequestsProvider = Provider.family<AsyncValue<List<Request>>, ({St
       base = base.where((Request s) => s.status == params.estado).toList();
     }
     // Filtra por el rango de fechas de la actividad asociada.
-    // Si la actividad ya terminó antes del fechaDesde, se excluye.
-    // Si la actividad empieza después del fechaHasta, se excluye.
-    // Si no se encuentra la actividad, la solicitud se excluye también.
     if (params.fechaDesde != null || params.fechaHasta != null) {
       base = base.where((Request s) {
         final Activity? exc = actividades.where((Activity e) => e.id == s.activityId).firstOrNull;
@@ -54,11 +53,7 @@ final filteredRequestsProvider = Provider.family<AsyncValue<List<Request>>, ({St
     final String q = params.query.toLowerCase();
     // Busca por la ruta de la actividad asociada (punto de inicio + punto de fin)
     return base.where((Request s) {
-      // Busca la actividad asociada a la solicitud (null si no existe)
-      // firstOrNull devuelve el primer elemento de una lista que cumpla la condición, o null si no hay ninguno.
       final Activity? exc = actividades.where((Activity e) => e.id == s.activityId).firstOrNull;
-
-      // Si no se encuentra la actividad, no se incluye la solicitud
       final String ruta = exc != null ? '${exc.startPoint} ${exc.endPoint}'.toLowerCase() : '';
       return ruta.contains(q);
     }).toList();
@@ -114,12 +109,27 @@ class RequestsNotifier extends AsyncNotifier<List<Request>> {
     try {
       final dio = ref.read(dioProvider);
       await dio.patch('/request/${viejo.id}', data: nuevo.toMap());
+      
       final List<Request> listaActual = [...(state.value ?? [])];
       final int index = listaActual.indexWhere((Request s) => s.id == viejo.id);
       if (index != -1) {
         listaActual[index] = nuevo;
       }
       state = AsyncData(listaActual);
+
+      // REGLA DE SINCRONIZACIÓN INVERSA
+      if (viejo.status != nuevo.status) {
+        
+        // Sincroniza la reserva asociada (Esto es lo que libera el stock en la Base de Datos)
+        if (nuevo.bookingId != null) {
+          await dio.patch('/booking/${nuevo.bookingId}', data: {'status': nuevo.status.code});
+          ref.invalidate(reservationsProvider);
+        }
+
+        // Ya puede refrescar el inventario físico porque el backend ya ha devuelto los materiales
+        ref.invalidate(equipmentProvider); 
+      }
+
     } on DioException catch (e) {
       throw parseDioError(e);
     }
