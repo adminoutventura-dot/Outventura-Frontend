@@ -55,22 +55,35 @@ class Booking {
   });
 
   // Convierte la reserva a un mapa para enviar al backend.
-  Map<String, dynamic> toMap() => {
-    'userId': userId,
-    'status': status.code,
-    'start_date': startDate.toIso8601String(),
-    'end_date': endDate.toIso8601String(),
-    // 'total_price': Lo calcula en el backend.
-    'lines': lines.map((l) => l.toMap()).toList(),
-    if (activityId != null) 'activityId': activityId,
-    'damage_fee': damageFee,
-    'damagedItems': damagedItems.entries
-        .map((e) => {'equipmentId': e.key, 'quantity': e.value})
-        .toList(),
-  };
+  Map<String, dynamic> toMap() {
+    // Mapeo temporal: Asignamos un ID numérico al estado para el backend.
+    // Ajusta estos números a los IDs reales que tengas en tu BD (ej: 1=PENDING, 2=CONFIRMED...)
+    int getStatusId() {
+      switch (status.code) {
+        case 'PENDING': return 1;
+        case 'CONFIRMED': return 2;
+        case 'IN_PROGRESS': return 3;
+        case 'FINISHED': return 4;
+        case 'CANCELLED': return 5;
+        default: return 1;
+      }
+    }
 
-  // Crea una copia de la reserva con algunos campos modificados (inmutable).
-  // INMUTABLE: en vez de modificar la instancia actual, se crea una nueva con los cambios deseados.
+    return {
+      'userId': userId,
+      'statusId': getStatusId(), // 🌟 CAMBIO: Enviamos statusId en lugar de status
+      'init_date': startDate.toIso8601String(), // 🌟 CAMBIO: init_date en vez de start_date
+      'end_date': endDate.toIso8601String(),
+      // 'total_price': Lo calcula en el backend.
+      'lines': lines.map((l) => l.toMap()).toList(),
+      if (activityId != null) 'activityId': activityId,
+      'damage_fee': damageFee,
+      'damagedItems': damagedItems.entries
+          .map((e) => {'equipmentId': e.key, 'quantity': e.value})
+          .toList(),
+    };
+  }
+
   Booking copyWith({
     int? userId,
     List<BookingLine>? lines,
@@ -83,7 +96,7 @@ class Booking {
     Map<int, int>? damagedItems,
   }) {
     return Booking(
-      id: id,
+      id: id ?? this.id,
       userId: userId ?? this.userId,
       lines: lines ?? this.lines,
       activityId: activityId ?? this.activityId,
@@ -96,4 +109,3 @@ class Booking {
     );
   }
 }
-

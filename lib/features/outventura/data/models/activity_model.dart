@@ -6,18 +6,17 @@ import 'package:outventura/features/outventura/domain/entities/category.dart';
 class ActivityModel extends Activity {
   const ActivityModel({
     super.id,
+    required super.title,
     super.description,
     required super.initDate,
     required super.endDate,
     required super.difficulty,
     required super.maxParticipants,
-    required super.startPoint,
-    required super.endPoint,
+    super.startEndPoint,
     required super.categories,
     super.imageAsset,
-    super.status,
-    super.price,
-    super.materialsPerParticipant,
+    super.recommendedEquipmentIds,
+    super.guideId,
   });
 
   factory ActivityModel.fromMap(Map<String, dynamic> map) {
@@ -26,25 +25,25 @@ class ActivityModel extends Activity {
         .map(CategoryModel.fromMap)
         .toList();
 
+    // Extraemos de forma segura los IDs de los materiales recomendados
+    // Dependiendo de si el backend manda los objetos enteros o solo los IDs.
+    final List<int> parsedEquipmentIds = (map['recomendedEquipments'] as List<dynamic>? ?? [])
+        .map((e) => e is int ? e : (e['id_equipment'] as int))
+        .toList();
+
     return ActivityModel(
       id: map['id_activity'] as int?,
+      title: map['title'] as String? ?? '',
       description: map['description'] as String?,
       initDate: DateTime.parse(map['init_date'] as String),
       endDate: DateTime.parse(map['end_date'] as String),
       difficulty: map['difficulty'] as int? ?? 0,
       maxParticipants: map['max_participants'] as int? ?? 0,
-      startPoint: map['start_point'] as String? ?? '',
-      endPoint: map['end_point'] as String? ?? '',
+      startEndPoint: map['start_end_point'] as String?,
       categories: parsedCategories,
       imageAsset: map['image_asset'] as String?,
-      status: map['status'] != null
-          ? ActivityStatus.fromString(map['status'] as String)
-          : ActivityStatus.disponible,
-      price: (map['price'] as num?)?.toDouble() ?? 0,
-      materialsPerParticipant: {
-        for (final e in (map['materialRequirements'] as List<dynamic>? ?? []))
-          (e['equipmentId'] as int): (e['quantity'] as int),
-      },
+      recommendedEquipmentIds: parsedEquipmentIds,
+      guideId: map['guideId'] as int?,
     );
   }
 }

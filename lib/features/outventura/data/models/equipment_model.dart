@@ -8,9 +8,10 @@ class EquipmentModel extends Equipment {
     required super.title,
     super.description,
     required super.categories,
-    required super.units,
     required super.totalUnits,
-    required super.status,
+    super.availableUnits = 0,
+    super.status,
+    super.statusId,
     required super.pricePerDay,
     required super.damageFee,
     super.imageAsset,
@@ -22,17 +23,27 @@ class EquipmentModel extends Equipment {
         .map(CategoryModel.fromMap)
         .toList();
 
-    final String? statusValue = map['status'] as String?;
-    final int units = num.parse((map['units'] ?? 0).toString()).toInt();
+    final int total = num.parse((map['total_units'] ?? 0).toString()).toInt();
+    
+    // Leemos las available_units calculadas por el backend. Si no vienen, usamos el total.
+    final int available = map['available_units'] != null 
+        ? num.parse(map['available_units'].toString()).toInt() 
+        : total;
+
+    EquipmentStatus? parsedStatus;
+    if (map['status'] != null) {
+      parsedStatus = EquipmentStatus.fromMap(map['status'] as Map<String, dynamic>);
+    }
 
     return EquipmentModel(
       id: map['id_equipment'] as int?,
-      title: map['title'] as String,
+      title: map['title'] as String? ?? '',
       description: map['description'] as String?,
       categories: parsedCategories,
-      units: units,
-      totalUnits: num.parse((map['total_units'] ?? map['units'] ?? 0).toString()).toInt(),
-      status: EquipmentStatus.fromString(statusValue ?? 'AVAILABLE'),
+      totalUnits: total,
+      availableUnits: available,
+      status: parsedStatus,
+      statusId: map['statusId'] as int? ?? parsedStatus?.id,
       pricePerDay: map['price_per_day'] != null
           ? num.parse(map['price_per_day'].toString()).toDouble()
           : 0,

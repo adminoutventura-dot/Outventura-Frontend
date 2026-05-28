@@ -39,12 +39,19 @@ class BookingModel extends Booking {
         .map((e) => BookingLineModel.fromMap(e as Map<String, dynamic>))
         .toList();
 
-    final int? activityId = map['activityId'] as int? ??
-        (linesRaw.isNotEmpty
-            ? (linesRaw.first as Map<String, dynamic>)['activityId'] as int?
-            : null);
+    // En el nuevo backend, la actividad cuelga de la reserva directamente (activityId)
+    // Ya no es necesario buscarla dentro de la primera línea.
+    final int? activityId = map['activityId'] as int?;
 
-    final String statusCode = map['status'] as String? ?? '';
+    // 🌟 CAMBIO: El estado viene como un objeto anidado en el nuevo backend
+    String statusCode = 'PENDING';
+    if (map['status'] != null) {
+      if (map['status'] is Map) {
+        statusCode = map['status']['code'] as String? ?? 'PENDING';
+      } else if (map['status'] is String) {
+        statusCode = map['status'] as String;
+      }
+    }
 
     final userMap = map['user'] as Map<String, dynamic>?;
     final int userId = userMap?['id_user'] as int? ?? 0;
@@ -55,8 +62,8 @@ class BookingModel extends Booking {
         e['equipmentId'] as int: e['quantity'] as int,
     };
 
-    // Si por algún motivo llegan nulas, se pone DateTime.now() como medida de seguridad.
-    final String? startDateRaw = map['start_date'] as String?;
+    // 🌟 CAMBIO: Buscamos init_date en vez de start_date
+    final String? startDateRaw = map['init_date'] as String? ?? map['start_date'] as String?;
     final String? endDateRaw = map['end_date'] as String?;
     
     final DateTime parsedStartDate = startDateRaw != null ? DateTime.parse(startDateRaw) : DateTime.now();
