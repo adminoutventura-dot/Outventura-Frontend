@@ -92,7 +92,6 @@ class AppDrawer extends ConsumerWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     onTap: () async {
-                      if (usuario == null) return;
 
                       final result = await Navigator.push<Map<String, dynamic>>(
                         context, 
@@ -172,7 +171,7 @@ class AppDrawer extends ConsumerWidget {
                   horizontalTitleGap: 8,
                   leading: Icon(isGuest ? Icons.login : Icons.logout, color: isGuest ? cs.primary : cs.error, size: 22),
                   title: Text(
-                    isGuest ? 'Iniciar sesión' : s.logout, // TODO: Si tienes s.login en tu archivo de idiomas, ponlo aquí
+                    isGuest ? 'Iniciar sesión' : s.logout, // TODO: hardcodeado
                     style: AppTextStyles.labelLarge.copyWith(color: isGuest ? cs.primary : cs.error)
                   ),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

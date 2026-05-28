@@ -207,7 +207,7 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 10),
-            // TODO: Solo muestra usuarios clientes?
+              
             // Dropdown de usuarios (clientes)
             AppDropdownField<User>(
               value: _controller.idUsuario,
@@ -365,7 +365,8 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
                             try {
                               eq = equipamientos.firstWhere((e) => e.id == idEquipamiento);
                             } catch (e) {
-                              // TODO: Equipment not found, allow increment
+                              // TODO: HARDCODEADO, mejorar mensaje de error
+                              showErrorSnackBar(context, "s.equipmentNotFound(idEquipamiento)");
                             }
                             if (eq != null && cantidad >= eq.units) {
                               showErrorSnackBar(context, s.insufficientStock(eq.units, idEquipamiento));

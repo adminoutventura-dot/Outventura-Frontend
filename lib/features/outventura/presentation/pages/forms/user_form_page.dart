@@ -14,7 +14,6 @@ import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/controllers/user_form_controller.dart';
 
-// TODO: Revisar
 class UserFormPage extends StatefulWidget {
   // Si se pasa un usuario, el formulario actúa en modo edición y precarga sus datos.
   final User? usuario;
