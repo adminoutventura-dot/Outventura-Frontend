@@ -86,7 +86,7 @@ class AppBarClipper extends CustomClipper<Path> {
     
     path.quadraticBezierTo(
       size.width * 0.25,       // Punto de control X
-      size.height - 30,        // Punto de control Y
+      size.height - 25,        // Punto de control Y
       0,                       // Punto final X (izquierda)
       size.height -10,             // Punto final Y (altura completa - 10)
     );

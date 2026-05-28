@@ -48,11 +48,15 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
     final TextTheme tt = Theme.of(context).textTheme;
     final AppLocalizations s = AppLocalizations.of(context)!;
 
+    final usuarioActual = ref.watch(currentUserProvider);
+    final bool isGuide = usuarioActual?.role.code == 'GUIDE';
+
+    // 🌟 COMPROBAMOS SI ES INVITADO (o si el usuario es null)
+    final bool isGuest = usuarioActual == null || 
+                         usuarioActual.role.code == 'INVITADO' || 
+                         usuarioActual.role.code == 'GUEST';
+
     // Escucha los equipamientos filtrados según el estado del controlador.
-    // equipamientosFiltradosProvider(...) — provider que internamente coge todos los equipamientos y aplica los filtros.
-    // Query: texto de búsqueda.
-    // Estado: estado seleccionado (disponible, agotado, en mantenimiento...).
-    // Categoria: caategoria seleccionada.
     final AsyncValue<List<Equipment>> equipamientosFiltrados = ref.watch(filteredEquipmentProvider((
       query: _search.query,
       estado: _controller.estadoFiltro,
@@ -77,7 +81,8 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
         ],
       ),
       drawer: const AppDrawer(),
-      floatingActionButton: widget.puedeGestionar
+      // BLOQUEAMOS EL FAB SI ES GUÍA
+      floatingActionButton: (widget.puedeGestionar && !isGuide)
           ? Padding(
               padding: const EdgeInsets.only(bottom: 100.0),
               child: AddFab(
@@ -144,7 +149,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                 final Equipment equipamiento = lista[index];
                 return EquipmentCard(
                   equipamiento: equipamiento,
-                  onEditar: widget.puedeGestionar
+                  onEditar: (widget.puedeGestionar && !isGuide)
                       ? () async {
                           final Equipment? actualizado =
                               await Navigator.of(context).push<Equipment>(
@@ -169,7 +174,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           }
                         }
                       : null,
-                  onEliminar: widget.puedeGestionar
+                  onEliminar: (widget.puedeGestionar && !isGuide)
                       ? () async {
                           final bool confirm = await showConfirmDialog(
                             context: context,
@@ -181,7 +186,6 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           if (confirm) {
                             try {
                               await ref.read(equipmentProvider.notifier).eliminar(equipamiento);
-                              // TODO: HARDCODEADO
                               if (context.mounted) {
                                 showSuccessSnackBar(context, 'Material eliminado'); 
                               }
@@ -192,8 +196,14 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           }
                         }
                       : null,
-                  onAlquilar: widget.puedeSolicitar
+                  onAlquilar: (widget.puedeSolicitar && !isGuide)
                       ? () async {
+                          // 🌟 TRAMPA PARA INVITADOS USANDO TU SNACKBAR
+                          if (isGuest) {
+                            showErrorSnackBar(context, 'Necesitas iniciar sesión para alquilar equipamiento.');
+                            return;
+                          }
+
                           final usuario = ref.read(currentUserProvider);
                           if (usuario == null) {
                             return;

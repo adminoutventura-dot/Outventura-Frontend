@@ -31,7 +31,12 @@ class HomeAdminPage extends ConsumerWidget {
     final s = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
 
-    final String adminName = ref.watch(currentUserProvider)?.name ?? '';
+    final currentUser = ref.watch(currentUserProvider);
+    final String adminName = currentUser?.name ?? '';
+    
+    // 🌟 COMPROBAMOS SI EL USUARIO CONECTADO ES UN GUÍA
+    final bool isGuide = currentUser?.role.code == 'GUIDE';
+
     final reservas = ref.watch(reservationsProvider).value ?? [];
     final solicitudes = ref.watch(requestsProvider).value ?? [];
     final stats = ref.watch(adminRequestsStatsProvider);
@@ -71,14 +76,14 @@ class HomeAdminPage extends ConsumerWidget {
           // -- CONTENIDO --
           SliverPadding(
             padding: EdgeInsets.only(
-              // Reiniciamos a 0 para que nazca pegado al header
+              // Reinicia a 0 para que nazca pegado al header
               top: 20, 
               bottom: MediaQuery.of(context).padding.bottom + 40,
             ),
             sliver: SliverToBoxAdapter(
-              // Aplicamos el Transform para empujar todo hacia arriba
+              // Aplica el Transform para empujar todo hacia arriba
               child: Transform.translate(
-                offset: const Offset(0, -35), // <-- AJUSTA ESTE NÚMERO
+                offset: const Offset(0, -40), 
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -88,46 +93,46 @@ class HomeAdminPage extends ConsumerWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Usuarios
-                          Expanded(
-                            child: HomeQuickActionButton(
-                              label: s.usersTitle,
-                              onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const UsersPage(),
-                                ),
-                              ),
-                            ),
-                          ),
-                          
-                          // Separador sin márgenes
-                          Container(
-                            width: 1,
-                            color: cs.surface,
-                          ),
-                    
-                          // Reservas
-                          Expanded(
-                            child: HomeQuickActionButton(
-                              label: s.reservationsTitle,
-                              onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const ReservationsPage(
-                                    puedeGestionar: true,
-                                    puedeCrear: true,
+                          // ESCONDE USUARIOS Y RESERVAS SI ES UN GUÍA
+                          if (!isGuide) ...[
+                            // Usuarios
+                            Expanded(
+                              child: HomeQuickActionButton(
+                                label: s.usersTitle,
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const UsersPage(),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          
-                          // Separador sin márgenes
-                          Container(
-                            width: 1,
-                            color: cs.surface,
-                          ),
+                            // Separador sin márgenes
+                            Container(
+                              width: 1,
+                              color: cs.surface,
+                            ),
+                            // Reservas
+                            Expanded(
+                              child: HomeQuickActionButton(
+                                label: s.reservationsTitle,
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const ReservationsPage(
+                                      puedeGestionar: true,
+                                      puedeCrear: true,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // Separador sin márgenes
+                            Container(
+                              width: 1,
+                              color: cs.surface,
+                            ),
+                          ],
                     
-                          // Solicitudes
+                          // Solicitudes (El guía SÍ puede ver esto)
                           Expanded(
                             child: HomeQuickActionButton(
                               label: s.requestsTitle,
@@ -274,7 +279,7 @@ class HomeAdminPage extends ConsumerWidget {
 
                     // ACTIVIDAD RECIENTE 
                     if (solicitudes.where((r) => r.status == WorkflowStatus.pendiente).isNotEmpty ||
-                        reservas.where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso).isNotEmpty) ...[
+                        (!isGuide && reservas.where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso).isNotEmpty)) ...[
                       const SizedBox(height: 28),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -284,7 +289,7 @@ class HomeAdminPage extends ConsumerWidget {
                         ),
                       ),
 
-                      // Muestra hasta 2 solicitudes pendientes y 2 reservas activas más recientes.
+                      // Muestra hasta 2 solicitudes pendientes
                       for (final r in solicitudes.where((r) => r.status == WorkflowStatus.pendiente).take(2))
                         Padding(
                           padding: const EdgeInsets.only(left: 16, right: 16),
@@ -300,21 +305,22 @@ class HomeAdminPage extends ConsumerWidget {
                           ),
                         ),
 
-                      // Recorre las reservas confirmadas o en curso, muestra las 2 más recientes.
-                      for (final r in reservas.where( (r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso).take(2))
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 16),
-                          child: EventoTile(
-                            titulo: s.reservationEvent,
-                            subtitulo: ref.watch(activityNameProvider(r.activityId)) ?? s.unknown,
-                            color: cs.tertiary,
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => ReservationDetailPage(reserva: r),
+                      // 🌟 Solo mostramos las reservas recientes a los que no son guías
+                      if (!isGuide)
+                        for (final r in reservas.where( (r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso).take(2))
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 16),
+                            child: EventoTile(
+                              titulo: s.reservationEvent,
+                              subtitulo: ref.watch(activityNameProvider(r.activityId)) ?? s.unknown,
+                              color: cs.tertiary,
+                              onTap: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ReservationDetailPage(reserva: r),
+                                ),
                               ),
                             ),
                           ),
-                        ),
                     ],
                   ],
                 ),

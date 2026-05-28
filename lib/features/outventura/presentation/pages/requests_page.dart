@@ -48,9 +48,16 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
     final s = AppLocalizations.of(context)!;
 
     final usuarioActual = ref.watch(currentUserProvider);
-    final AsyncValue<List<Request>> filtradas = ref.watch(filteredRequestsProvider((
+    
+    final bool isGuide = usuarioActual?.role.code == 'GUIDE';
+    
+    // Si es gestor de verdad (ADMIN/SUPER) ve todas. 
+    // Si es CLIENTE o GUÍA, se le pasa su propio ID para que solo vea las suyas.
+    final int? idFiltro = widget.puedeGestionar ? null : usuarioActual?.id;
+
+    final AsyncValue<List<Request>> filtradasAsync = ref.watch(filteredRequestsProvider((
       query: _search.query,
-      idUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+      idUsuario: idFiltro,
       estado: _controller.estadoFiltro,
       fechaDesde: _controller.fechaDesde,
       fechaHasta: _controller.fechaHasta,
@@ -73,41 +80,29 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
           ),
         ],
       ),
-      // Solo muestra el FAB de añadir si el usuario tiene permiso para crear solicitudes.
-      floatingActionButton: widget.puedeCrear
+      // 🌟 MODIFICADO: Solo muestra el FAB si tiene permiso Y NO ES GUÍA.
+      floatingActionButton: (widget.puedeCrear && !isGuide)
           ? AddFab(
               onPressed: () async {
-                // Navega al formulario de creación de solicitud. 
                 final Request? nueva = await Navigator.of(context)
                     .push<Request>(
                       MaterialPageRoute(
-                        // En modo cliente, se pasa el ID del usuario actual para que el formulario lo tenga preseleccionado y no pueda elegir otro usuario. En modo gestión, se deja null para que pueda elegir cualquier usuario.
                         builder: (_) => SolicitudFormPage(
-                        initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+                        initialIdUsuario: (widget.puedeGestionar && !isGuide) ? null : usuarioActual?.id,
                       ),
                       ),
                     );
 
-                if (nueva == null) {
-                  return;
-                }
+                if (nueva == null) return;
 
                 try {
-                  // Si se ha creado una nueva solicitud, la agrega al provider de solicitudes.
                   await ref.read(requestsProvider.notifier).agregar(nueva);
+                  if (!context.mounted) return;
 
-                  if (!context.mounted) {
-                    return;
-                  }
-
-                  // Muestra un snackbar de éxito. 
-                  // Si la solicitud se ha convertido automáticamente en reserva, muestra un mensaje diferente.
                   final String mensaje = nueva.bookingId != null
                       ? s.requestCreatedWithReservation
                       : s.requestCreated;
-
                   showSuccessSnackBar(context, mensaje);
-
                 } catch (e) {
                   if (!context.mounted) return;
                   showErrorSnackBar(context, s.error(e.toString()));
@@ -119,7 +114,6 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Barra de búsqueda
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
@@ -136,36 +130,47 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
             ),
           ),
 
-          // Lista de solicitudes filtradas
           Expanded(
-            child: filtradas.when(
+            child: filtradasAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text(s.error(error.toString()))),
-              data: (List<Request> lista) => lista.isEmpty
-                // Si no hay solicitudes que mostrar, se muestra un mensaje. 
-                ? Center(
+              data: (List<Request> listaCompleta) {
+                
+                // Filtro para que el guía solo vea las suyas (o las asignadas)
+                List<Request> listaFinal = listaCompleta;
+                if (isGuide) {
+                  final int? miIdUsuario = usuarioActual?.id; 
+                  listaFinal = listaCompleta.where((r) => 
+                    r.guideId == miIdUsuario || r.userId == miIdUsuario
+                  ).toList();
+                }
+
+                if (listaFinal.isEmpty) {
+                  return Center(
                     child: Text(
                       s.noRequests,
                       style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
-                  )
+                  );
+                }
 
-                // Si hay solicitudes, se muestran en una lista.
-                : ListView.separated(
+                return ListView.separated(
                     padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
-                    itemCount: lista.length,
+                    itemCount: listaFinal.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (BuildContext context, int index) {
-                      // solicitud actual
-                      final Request soli = lista[index];
-                      // Actividad asociada a la solicitud
+                      final Request soli = listaFinal[index];
                       final Activity? actividad = ref.watch(activityByIdProvider(soli.activityId));
-                      // Nombre del usuario que hizo la solicitud (si existe)
+                      
                       final String? nombreUsuario = soli.userId != null
                           ? ref.watch(userNameProvider(soli.userId!))
                           : null;
+                          
+                      // 🌟 BUSCAMOS EL NOMBRE DEL EXPERTO
+                      final String? nombreExperto = soli.guideId != null
+                          ? ref.watch(userNameProvider(soli.guideId!))
+                          : null;
                       
-                      // Si no se encuentra la actividad muestra la card con un mensaje
                       if (actividad == null) {
                         return Card(
                           child: Padding(
@@ -178,39 +183,49 @@ class _RequestsPageState extends ConsumerState<RequestsPage> {
                         );
                       }
                       
-                      // Card de solicitud
                       return RequestCard(
                         solicitud: soli,
                         actividad: actividad,
-                        nombreUsuario: (!widget.puedeGestionar)
-                            ? null
-                            : nombreUsuario,
-                        onGestionar:
-                            widget.puedeGestionar &&
-                                soli.status == WorkflowStatus.pendiente
-                            ? () => _controller.aceptar( solicitud: soli, context: context, ref: ref)
+                        nombreUsuario: (!widget.puedeGestionar || isGuide) ? null : nombreUsuario,
+                        nombreExperto: nombreExperto, // 🌟 SE LO PASAMOS A LA TARJETA
+                            
+                        onGestionar: (!isGuide && widget.puedeGestionar && soli.status == WorkflowStatus.pendiente)
+                            ? () async {
+                                await _controller.aceptar(solicitud: soli, context: context, ref: ref);
+                                ref.invalidate(requestsProvider);
+                              }
                             : null,
-                        onCancelar: soli.status == WorkflowStatus.pendiente
-                            ? () => _controller.rechazar( solicitud: soli, context: context, ref: ref)
+                            
+                        onCancelar: (!isGuide && soli.status == WorkflowStatus.pendiente)
+                            ? () async {
+                                await _controller.rechazar(solicitud: soli, context: context, ref: ref);
+                                ref.invalidate(requestsProvider);
+                              }
                             : null,
-                        onEditar: (!widget.puedeGestionar && soli.status != WorkflowStatus.pendiente)
-                            ? null
-                            : () => _controller.editar(
-                                solicitud: soli,
-                                context: context,
-                                ref: ref,
-                                // Si el usuario no puede gestionar, se le asigna su propio ID para que solo pueda editar su solicitud
-                                fixedIdUsuario: widget.puedeGestionar ? null : ref.read(currentUserProvider)?.id,
-                              ),
+                            
+                        onEditar: isGuide 
+                            ? null 
+                            : (!widget.puedeGestionar && soli.status != WorkflowStatus.pendiente)
+                                ? null 
+                                : () async {
+                                    await _controller.editar(
+                                      solicitud: soli,
+                                      context: context,
+                                      ref: ref,
+                                      fixedIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+                                    );
+                                    ref.invalidate(requestsProvider);
+                                  },
+                                  
                         onVerDetalle: () {
-                          // Navega a la página de detalle de la solicitud al pulsar sobre la card.
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => RequestDetailPage(solicitud: soli),
                           ));
                         },
                       );
                     },
-                  ),
+                  );
+              },
             ),
           ),
         ],

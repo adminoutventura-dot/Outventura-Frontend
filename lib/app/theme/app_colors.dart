@@ -32,7 +32,7 @@ class AppColors {
   static const Color darkSecondary = Color.fromARGB(255, 214, 152, 97); // Cambiado
 
   static const Color darkTertiary = Color.fromARGB(255, 75, 116, 145); // Cambiado
-  static const Color darkOnTertiary = Color.fromARGB(255, 26, 42, 61); // Cambiado
+  static const Color darkOnTertiary = Color.fromARGB(255, 58, 100, 151); // Cambiado
 
   static const Color darkError = Color.fromARGB(255, 236, 94, 94); // Cambiado
 

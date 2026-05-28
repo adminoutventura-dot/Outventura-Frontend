@@ -14,6 +14,7 @@ class RequestCard extends StatelessWidget {
   final Request solicitud;
   final Activity actividad;
   final String? nombreUsuario;
+  final String? nombreExperto; // 🌟 AÑADIDO EL NOMBRE DEL EXPERTO
   final VoidCallback? onGestionar;
   final VoidCallback? onCancelar;
   final VoidCallback? onEditar;
@@ -24,6 +25,7 @@ class RequestCard extends StatelessWidget {
     required this.solicitud,
     required this.actividad,
     this.nombreUsuario,
+    this.nombreExperto, // 🌟 AÑADIDO AL CONSTRUCTOR
     this.onGestionar,
     this.onCancelar,
     this.onEditar,
@@ -75,14 +77,13 @@ class RequestCard extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                // Manejo de Base64
+                // Manejo de Base64 vs Assets
                 child: imagen != null
                     ? Image.memory(
                         base64Decode(imagen.contains(',') ? imagen.split(',').last : imagen),
                         fit: BoxFit.cover,
                         errorBuilder: (_, _, _) => Center(child: Icon(Icons.broken_image, color: cs.error)),
                       )
-
                     : Container(
                         color: statusColor.withValues(alpha: 0.20),
                         child: Center(
@@ -154,7 +155,11 @@ class RequestCard extends StatelessWidget {
 
                     // Experto
                     Text(
-                      solicitud.guideId != null ? s.assignedExpert : s.noExpert,
+                      solicitud.guideId != null 
+                          ? (nombreExperto != null && nombreExperto!.isNotEmpty 
+                              ? '${s.assignedExpert}: $nombreExperto' 
+                              : s.assignedExpert)
+                          : s.noExpert,
                       style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
 

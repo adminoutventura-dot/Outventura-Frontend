@@ -6,6 +6,8 @@ import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
+import 'package:outventura/features/auth/domain/entities/role.dart';
+import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/pages/register_page.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
@@ -116,28 +118,28 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
 
                           // Recuperar contraseña
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () {
-                                // TODO: Recuperar contraseña
-                              },
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                              ),
-                              child: Text(
-                                s.forgotPassword,
-                                style: textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          ),
+                          // Align(
+                          //   alignment: Alignment.centerRight,
+                          //   child: TextButton(
+                          //     onPressed: () {
+                          //       // TODO: Recuperar contraseña
+                          //     },
+                          //     style: TextButton.styleFrom(
+                          //       padding: const EdgeInsets.symmetric(
+                          //         horizontal: 8,
+                          //         vertical: 4,
+                          //       ),
+                          //     ),
+                          //     child: Text(
+                          //       s.forgotPassword,
+                          //       style: textTheme.bodySmall?.copyWith(
+                          //         color: colorScheme.primary,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
 
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
 
                           // Botón principal
                           _isLoading
@@ -171,7 +173,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                                       // Si ocurre un error mostrar un SnackBar con el mensaje de error.
                                       if (context.mounted) {
-                                        showErrorSnackBar(context, e);
+                                        showErrorSnackBar(context, e.toString());
                                       }
 
                                     } finally {
@@ -248,6 +250,33 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                             ],
                           ),
+                          
+                          const SizedBox(height: 10),
+                          
+                          // 🌟 NUEVO BOTÓN: ENTRAR COMO INVITADO
+                          SecondaryButton(
+                            label: 'Entrar como invitado', 
+                            onPressed: () {
+                              final invitado = const User(
+                                id: null, 
+                                name: 'Invitado', 
+                                surname: '',
+                                email: '',
+                                active: true, 
+                                role: UserRole(
+                                  id: 4, 
+                                  code: 'INVITADO', 
+                                  description: 'Usuario invitado'
+                                ), 
+                              );
+                              
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute( builder: (_) => MainScaffold(usuario: invitado)),
+                              );
+                            },
+                          ),
+                          
                         ],
                       ),
                     ),

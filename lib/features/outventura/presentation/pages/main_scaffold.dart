@@ -25,7 +25,11 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   void initState() {
     super.initState();
-    final bool esCliente = widget.usuario.role == UserRole.usuario;
+    
+    // 🌟 CORRECCIÓN: Un "cliente" a nivel de interfaz es tanto el usuario registrado como el invitado
+    final bool esCliente = widget.usuario.role == UserRole.usuario || 
+                           widget.usuario.role.code == 'INVITADO' || 
+                           widget.usuario.role.code == 'GUEST';
 
     _pages = [
       esCliente

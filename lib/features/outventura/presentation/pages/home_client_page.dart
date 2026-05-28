@@ -31,13 +31,17 @@ class HomeClientePage extends ConsumerWidget {
     final s = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
 
+    // 🌟 COMPROBAR SI ES INVITADO (Ajusta el código de rol si es necesario)
+    final bool isGuest = usuario.role.code == 'INVITADO' || usuario.role.code == 'GUEST';
+
     final today = DateTime.now();
     final rawDate = DateFormat.yMMMMEEEEd(locale).format(today);
     final dateStr = rawDate[0].toUpperCase() + rawDate.substring(1);
 
-    final List<Booking> misReservas = ref.watch(userReservationsProvider(usuario.id!));
-    final List<Request> misSolicitudes = ref.watch(userRequestsProvider(usuario.id!));
-    final int solicitudesPendientes = ref.watch(userPendingRequestsCountProvider(usuario.id!));
+    // Si es invitado, no hace falta que busquemos reservas ni solicitudes
+    final List<Booking> misReservas = isGuest ? [] : ref.watch(userReservationsProvider(usuario.id!));
+    final List<Request> misSolicitudes = isGuest ? [] : ref.watch(userRequestsProvider(usuario.id!));
+    final int solicitudesPendientes = isGuest ? 0 : ref.watch(userPendingRequestsCountProvider(usuario.id!));
 
     // Últimas 5 actividades para el carrusel
     final actividadesRecientes = ref.watch(recentActivitiesProvider(5));
@@ -78,54 +82,55 @@ class HomeClientePage extends ConsumerWidget {
             sliver: SliverToBoxAdapter(
               // Aplicamos el Transform para empujar todo hacia arriba
               child: Transform.translate(
-                offset: const Offset(0, -35),
+                offset: const Offset(0, -40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     
-                    // MENÚ RÁPIDO SUPERIOR
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Mis Reservas
-                          Expanded(
-                            child: HomeQuickActionButton(
-                              label: s.myReservationsBtn,
-                              onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const ReservationsPage(
-                                    puedeGestionar: false,
-                                    puedeCrear: true,
+                    // MENÚ RÁPIDO SUPERIOR - 🌟 SOLO VISIBLE SI NO ES INVITADO
+                    if (!isGuest)
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Mis Reservas
+                            Expanded(
+                              child: HomeQuickActionButton(
+                                label: s.myReservationsBtn,
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const ReservationsPage(
+                                      puedeGestionar: false,
+                                      puedeCrear: true,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          
-                          // Separador sin márgenes
-                          Container(
-                            width: 1,
-                            color: cs.surface,
-                          ),
-                    
-                          // Mis Solicitudes
-                          Expanded(
-                            child: HomeQuickActionButton(
-                              label: s.myRequestsBtn,
-                              onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const RequestsPage(
-                                    puedeGestionar: false,
-                                    puedeCrear: true,
+                            
+                            // Separador sin márgenes
+                            Container(
+                              width: 1,
+                              color: cs.surface,
+                            ),
+                      
+                            // Mis Solicitudes
+                            Expanded(
+                              child: HomeQuickActionButton(
+                                label: s.myRequestsBtn,
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const RequestsPage(
+                                      puedeGestionar: false,
+                                      puedeCrear: true,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
 
                     const SizedBox(height: 28),
 
@@ -156,8 +161,9 @@ class HomeClientePage extends ConsumerWidget {
                     ],
 
                     // MIS ACTIVIDADES RECIENTES (reservas activas + solicitudes pendientes)
-                    if (misReservas.where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso).isNotEmpty ||
-                        misSolicitudes.where((s) => s.status == WorkflowStatus.pendiente || s.status == WorkflowStatus.confirmada).isNotEmpty) ...[
+                    // 🌟 TAMBIÉN OCULTAMOS ESTO PARA LOS INVITADOS POR PRECAUCIÓN
+                    if (!isGuest && (misReservas.where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso).isNotEmpty ||
+                        misSolicitudes.where((s) => s.status == WorkflowStatus.pendiente || s.status == WorkflowStatus.confirmada).isNotEmpty)) ...[
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                         child: Text(

@@ -22,6 +22,11 @@ class AppDrawer extends ConsumerWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final s = AppLocalizations.of(context)!;
 
+    // 🌟 COMPROBAMOS SI ES INVITADO
+    final bool isGuest = usuario == null || 
+                         usuario.role.code == 'INVITADO' || 
+                         usuario.role.code == 'GUEST';
+
     return Drawer(
       backgroundColor: cs.surface,
       child: Column(
@@ -78,50 +83,52 @@ class AppDrawer extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
                 // Item - Perfil
-                ListTile(
-                  horizontalTitleGap: 8,
-                  leading: Icon(Icons.person_outline, color: cs.onSurface, size: 22),
-                  title: Text(s.profile, style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  onTap: () async {
-                    if (usuario == null) return;
+                // 🌟 OCULTAMOS EL PERFIL SI ES INVITADO
+                if (!isGuest)
+                  ListTile(
+                    horizontalTitleGap: 8,
+                    leading: Icon(Icons.person_outline, color: cs.onSurface, size: 22),
+                    title: Text(s.profile, style: AppTextStyles.labelLarge.copyWith(color: cs.onSurface)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    onTap: () async {
+                      if (usuario == null) return;
 
-                    final result = await Navigator.push<Map<String, dynamic>>(
-                      context, 
-                      MaterialPageRoute(
-                        builder: (_) => ProfileFormPage(usuario: usuario),
-                      )
-                    );
-
-
-                    if (result == null) {
-                      // Si el usuario vuelve atrás sin guardar, cierra el drawer de forma segura
-                      if (context.mounted) Navigator.pop(context);
-                      return;
-                    }
-
-                    final User usuarioEditado = result['usuario'] as User;
-                    final String? nuevaPassword = result['password'] as String?;
-
-                    try {
-                      await ref.read(currentUserProvider.notifier).actualizarPerfil(
-                        usuarioEditado, 
-                        nuevaPassword: nuevaPassword,
+                      final result = await Navigator.push<Map<String, dynamic>>(
+                        context, 
+                        MaterialPageRoute(
+                          builder: (_) => ProfileFormPage(usuario: usuario),
+                        )
                       );
-                      
-                      if (context.mounted) {
-                        showSuccessSnackBar(context, s.userUpdated);
-                        Navigator.pop(context);
+
+
+                      if (result == null) {
+                        // Si el usuario vuelve atrás sin guardar, cierra el drawer de forma segura
+                        if (context.mounted) Navigator.pop(context);
+                        return;
                       }
-                    } catch (e) {
-                      
-                      if (context.mounted) {
-                        showErrorSnackBar(context, e.toString());
+
+                      final User usuarioEditado = result['usuario'] as User;
+                      final String? nuevaPassword = result['password'] as String?;
+
+                      try {
+                        await ref.read(currentUserProvider.notifier).actualizarPerfil(
+                          usuarioEditado, 
+                          nuevaPassword: nuevaPassword,
+                        );
+                        
+                        if (context.mounted) {
+                          showSuccessSnackBar(context, s.userUpdated);
+                          Navigator.pop(context);
+                        }
+                      } catch (e) {
+                        
+                        if (context.mounted) {
+                          showErrorSnackBar(context, e.toString());
+                        }
                       }
-                    }
-                  },
-                ),
+                    },
+                  ),
 
                 // Item - Catálogo de componentes
                 ListTile(
@@ -159,20 +166,33 @@ class AppDrawer extends ConsumerWidget {
                   child: Divider(),
                 ),
                 
-                // Item - Cerrar sesión 
+                // Item - Cerrar sesión / Iniciar sesión
+                // 🌟 DINÁMICO: CERRAR SESIÓN (ROJO) O INICIAR SESIÓN (PRIMARY)
                 ListTile(
                   horizontalTitleGap: 8,
-                  leading: Icon(Icons.logout, color: cs.error, size: 22),
-                  title: Text(s.logout, style: AppTextStyles.labelLarge.copyWith(color: cs.error)),
+                  leading: Icon(isGuest ? Icons.login : Icons.logout, color: isGuest ? cs.primary : cs.error, size: 22),
+                  title: Text(
+                    isGuest ? 'Iniciar sesión' : s.logout, // TODO: Si tienes s.login en tu archivo de idiomas, ponlo aquí
+                    style: AppTextStyles.labelLarge.copyWith(color: isGuest ? cs.primary : cs.error)
+                  ),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   onTap: () async {
                     Navigator.pop(context);
-                    await ref.read(currentUserProvider.notifier).cerrarSesion();
-                    if (context.mounted) {
+                    
+                    if (isGuest) {
+                      // Si es invitado, navegamos directamente al Login
                       Navigator.pushReplacement(context, MaterialPageRoute(
                         builder: (_) => const LoginPage(),
                       ));
+                    } else {
+                      // Si es usuario, deslogueamos en el Provider y navegamos al Login
+                      await ref.read(currentUserProvider.notifier).cerrarSesion();
+                      if (context.mounted) {
+                        Navigator.pushReplacement(context, MaterialPageRoute(
+                          builder: (_) => const LoginPage(),
+                        ));
+                      }
                     }
                   },
                 ),
@@ -184,4 +204,3 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 }
-

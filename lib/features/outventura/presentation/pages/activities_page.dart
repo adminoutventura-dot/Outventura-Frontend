@@ -47,6 +47,15 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
     final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
+
+    final usuarioActual = ref.watch(currentUserProvider);
+    final bool isGuide = usuarioActual?.role.code == 'GUIDE';
+    
+    // 🌟 COMPROBAMOS SI ES INVITADO (o si el usuario es null)
+    final bool isGuest = usuarioActual == null || 
+                         usuarioActual.role.code == 'INVITADO' || 
+                         usuarioActual.role.code == 'GUEST';
+
     final AsyncValue<List<Activity>> actividadesFiltradas = ref.watch(filteredActivitiesProvider((
       query: _search.query,
       estado: _controller.estadoFiltro,
@@ -73,7 +82,8 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
         ],
       ),
       drawer: const AppDrawer(),
-      floatingActionButton: widget.puedeGestionar
+      // BLOQUEAMOS EL FAB SI ES GUÍA
+      floatingActionButton: (widget.puedeGestionar && !isGuide)
           ? Padding(
               padding: const EdgeInsets.only(bottom: 100.0),
               child: AddFab(
@@ -137,7 +147,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                 final Activity actividad = lista[index];
                 return ActivityCard(
                   actividad: actividad,
-                  onEditar: widget.puedeGestionar
+                  onEditar: (widget.puedeGestionar && !isGuide)
                       ? () async {
                           final Activity? actualizada =
                               await Navigator.of(context).push<Activity>(
@@ -159,7 +169,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                           }
                         }
                       : null,
-                  onEliminar: widget.puedeGestionar
+                  onEliminar: (widget.puedeGestionar && !isGuide)
                         ? () async {
                             // Aviso alertando del borrado en cascada
                             final bool confirm = await showConfirmDialog(
@@ -181,8 +191,14 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                             }
                           }
                         : null,
-                  onSolicitar: widget.puedeSolicitar
+                  onSolicitar: (widget.puedeSolicitar && !isGuide)
                       ? () async {
+                          // 🌟 TRAMPA PARA INVITADOS USANDO TU SNACKBAR
+                          if (isGuest) {
+                            showErrorSnackBar(context, 'Necesitas iniciar sesión para solicitar una excursión.');
+                            return;
+                          }
+
                           final usuario = ref.read(currentUserProvider);
                           if (usuario == null) {
                             return;
