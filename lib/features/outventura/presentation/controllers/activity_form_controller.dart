@@ -1,36 +1,66 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/utils/date_formatter.dart';
-import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 class ActivityFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  final TextEditingController puntoInicioController = TextEditingController();
-  final TextEditingController puntoFinController = TextEditingController();
+  // Elimina precio, añade título y unifica el punto de encuentro
+  final TextEditingController tituloController = TextEditingController();
+  final TextEditingController puntoInicioFinController =
+      TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
   final TextEditingController participantesController = TextEditingController();
-  late final TextEditingController precioController = TextEditingController(text: '0');
 
   DateTime fechaInicio = DateTime.now();
-  DateTime fechaFin = DateTime.now().add(const Duration(days: 1));
-  TimeOfDay horaInicio = const TimeOfDay(hour: 9, minute: 0);
-  TimeOfDay horaFin = const TimeOfDay(hour: 17, minute: 0);
-  ActivityStatus estado = ActivityStatus.disponible;
-  List<Category> categorias = [];
+  DateTime fechaFin = DateTime.now().add(const Duration(hours: 2));
+  TimeOfDay horaInicio = TimeOfDay.now();
+  TimeOfDay horaFin = TimeOfDay.now();
+
+  int dificultad = 1;
   String? imagenAsset;
-  bool editando = false;
+  List<Category> categorias = [];
   Map<int, int> materialesRecomendados = {};
 
-  Activity? seleccionado;
+  bool editando = false;
+  Activity? seleccionada;
 
   bool validar() {
-    if (formKey.currentState == null) {
-      return false;
-    }
-    return formKey.currentState!.validate();
+    return formKey.currentState?.validate() ?? false;
   }
-  
+
+  void cargarActividad(Activity actividad) {
+    editando = true;
+    seleccionada = actividad;
+
+    tituloController.text = actividad.title;
+    puntoInicioFinController.text = actividad.startEndPoint ?? '';
+    descripcionController.text = actividad.description ?? '';
+    participantesController.text = actividad.maxParticipants.toString();
+
+    fechaInicio = actividad.initDate;
+    horaInicio = TimeOfDay(
+      hour: actividad.initDate.hour,
+      minute: actividad.initDate.minute,
+    );
+
+    fechaFin = actividad.endDate;
+    horaFin = TimeOfDay(
+      hour: actividad.endDate.hour,
+      minute: actividad.endDate.minute,
+    );
+
+    dificultad = actividad.difficulty;
+    imagenAsset = actividad.imageAsset;
+    categorias = List.from(actividad.categories);
+
+    // La entidad de actividad ya no tiene el mapa de cantidades.
+    // Para no romper la UI, asigna cantidad 1 por defecto a cada material recomendado.
+    materialesRecomendados = {
+      for (final id in actividad.recommendedEquipmentIds) id: 1,
+    };
+  }
+
   void alternarCategoria(Category cat) {
     if (categorias.contains(cat)) {
       categorias.remove(cat);
@@ -39,82 +69,60 @@ class ActivityFormController {
     }
   }
 
-  // Cargar los datos de una actividad en los inputs
-  void cargarActividad(Activity actividad) {
-    editando = true;
-    seleccionado = actividad;
-    puntoInicioController.text = actividad.startPoint;
-    puntoFinController.text = actividad.endPoint;
-    descripcionController.text = actividad.description ?? '';
-    participantesController.text = '${actividad.maxParticipants}';
-    fechaInicio = actividad.initDate;
-    fechaFin = actividad.endDate;
-    horaInicio = TimeOfDay.fromDateTime(actividad.initDate);
-    horaFin = TimeOfDay.fromDateTime(actividad.endDate);
-    estado = actividad.status;
-    categorias = List<Category>.from(actividad.categories);
-    imagenAsset = actividad.imageAsset;
-    precioController.text = actividad.price.toStringAsFixed(2);
-    materialesRecomendados = Map<int, int>.from(actividad.materialsPerParticipant);
-  }
-
-  // Limpiar todos los campos
-  void limpiar() {
-    editando = false;
-    seleccionado = null;
-    puntoInicioController.clear();
-    puntoFinController.clear();
-    descripcionController.clear();
-    participantesController.clear();
-    fechaInicio = DateTime.now();
-    fechaFin = DateTime.now().add(const Duration(days: 1));
-    horaInicio = const TimeOfDay(hour: 9, minute: 0);
-    horaFin = const TimeOfDay(hour: 17, minute: 0);
-    estado = ActivityStatus.disponible;
-    categorias = [];
-  }
-
   void establecerFecha({required bool isStart, required DateTime value}) {
     if (isStart) {
       fechaInicio = value;
-      if (fechaFin.isBefore(value)) {
-        fechaFin = value.add(const Duration(days: 1));
+      // Valida que el fin no sea antes que el inicio
+      if (fechaFin.isBefore(fechaInicio)) {
+        fechaFin = fechaInicio;
       }
-      return;
+    } else {
+      fechaFin = value;
     }
-    fechaFin = value;
   }
 
-  String formatearFecha(DateTime dt) {
-    return FormateadorFecha.short(dt);
-  }
-
-  // Construye una actividad a partir de los datos del formulario.
   Activity construirActividad() {
-    final String puntoInicio = puntoInicioController.text.trim();
-    final String puntoFin = puntoFinController.text.trim();
+    final initDateTime = DateTime(
+      fechaInicio.year,
+      fechaInicio.month,
+      fechaInicio.day,
+      horaInicio.hour,
+      horaInicio.minute,
+    );
+    final endDateTime = DateTime(
+      fechaFin.year,
+      fechaFin.month,
+      fechaFin.day,
+      horaFin.hour,
+      horaFin.minute,
+    );
+
     return Activity(
-      id: seleccionado?.id,
-      description: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
-      initDate: fechaInicio.copyWith(hour: horaInicio.hour, minute: horaInicio.minute, second: 0),
-      endDate: fechaFin.copyWith(hour: horaFin.hour, minute: horaFin.minute, second: 0),
-      difficulty: seleccionado?.difficulty ?? 1,
+      id: seleccionada?.id,
+      title: tituloController.text.trim(),
+      description: descripcionController.text.trim().isEmpty
+          ? null
+          : descripcionController.text.trim(),
+      initDate: initDateTime,
+      endDate: endDateTime,
+      difficulty: dificultad,
       maxParticipants: int.tryParse(participantesController.text) ?? 1,
-      startPoint: puntoInicio,
-      endPoint: puntoFin,
-      categories: List<Category>.from(categorias),
+      startEndPoint: puntoInicioFinController.text.trim().isEmpty
+          ? null
+          : puntoInicioFinController.text.trim(),
+      categories: categorias,
       imageAsset: imagenAsset,
-      status: estado,
-      price: double.tryParse(precioController.text.replaceAll(',', '.')) ?? 0,
-      materialsPerParticipant: Map<int, int>.from(materialesRecomendados),
+      // Extrae solo las keys (los IDs) del mapa para enviar al backend
+      recommendedEquipmentIds: materialesRecomendados.keys.toList(),
+      // Mantiene el guideId original si se está editando
+      guideId: seleccionada?.guideId,
     );
   }
 
   void dispose() {
-    puntoInicioController.dispose();
-    puntoFinController.dispose();
+    tituloController.dispose();
+    puntoInicioFinController.dispose();
     descripcionController.dispose();
     participantesController.dispose();
-    precioController.dispose();
   }
 }

@@ -1,242 +1,192 @@
-import 'package:flutter/material.dart';
-import 'package:outventura/core/utils/snackbar_helper.dart';
-import 'package:outventura/core/widgets/app_bar.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/l10n/app_localizations.dart';
-import 'package:outventura/core/widgets/confirm_dialog.dart';
-import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
-import 'package:outventura/features/outventura/presentation/controllers/activities_page_controller.dart';
+import 'package:outventura/core/network/dio_client.dart';
+import 'package:outventura/features/outventura/data/models/activity_model.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
-import 'package:outventura/features/outventura/domain/entities/request.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/activity_form_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
-import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
-import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
-import 'package:outventura/core/widgets/add_fab.dart';
-import 'package:outventura/core/widgets/app_input_field.dart';
-import 'package:outventura/features/outventura/presentation/widgets/activity_card.dart';
 
-class ActivitiesPage extends ConsumerStatefulWidget {
-  final bool puedeGestionar;
-  final bool puedeSolicitar;
+// Lista completa de actividades. GET /activity.
+final AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>
+activitiesProvider = AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>(
+  ActivitiesNotifier.new,
+);
 
-  const ActivitiesPage({
-    super.key,
-    this.puedeGestionar = true,
-    this.puedeSolicitar = false,
-  });
+// Filtra actividades en el frontend por categoría, rango de fechas y texto libre
+// (título y ruta). El filtrado es local mientras no haya query params en el backend.
+final filteredActivitiesProvider =
+    Provider.family<
+      AsyncValue<List<Activity>>,
+      ({
+        String query,
+        Category? categoria,
+        DateTime? fechaDesde,
+        DateTime? fechaHasta,
+      })
+    >((ref, params) {
+      // Se re-ejecuta automáticamente cuando cambia la lista de actividades
+      final AsyncValue<List<Activity>> asyncTodas = ref.watch(
+        activitiesProvider,
+      );
 
+      return asyncTodas.whenData((List<Activity> todas) {
+        List<Activity> base = todas;
+
+        if (params.categoria != null) {
+          base = base
+              .where((Activity e) => e.categories.contains(params.categoria))
+              .toList();
+        }
+        // Una actividad entra en el rango si no terminó antes del fechaDesde
+        if (params.fechaDesde != null) {
+          base = base
+              .where((Activity e) => !e.endDate.isBefore(params.fechaDesde!))
+              .toList();
+        }
+        // Una actividad entra en el rango si no empieza después del fechaHasta
+        if (params.fechaHasta != null) {
+          base = base
+              .where((Activity e) => !e.initDate.isAfter(params.fechaHasta!))
+              .toList();
+        }
+        if (params.query.isEmpty) {
+          return base;
+        }
+        final String q = params.query.toLowerCase();
+        // Busca en la ruta: punto de salida + punto de llegada
+        return base
+            .where(
+              (Activity e) => '${e.title} ${e.startEndPoint ?? ''}'
+                  .toLowerCase()
+                  .contains(q),
+            )
+            .toList();
+      });
+    });
+
+// Las últimas [count] actividades de la lista (para el dashboard).
+final recentActivitiesProvider = Provider.family<List<Activity>, int>((
+  ref,
+  count,
+) {
+  return (ref.watch(activitiesProvider).value ?? []).take(count).toList();
+});
+
+class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   @override
-  ConsumerState<ActivitiesPage> createState() => _ActivitiesPageState();
-}
-
-class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
-  final SearchFieldController _search = SearchFieldController();
-  final ActivitiesPageController _controller = ActivitiesPageController();
-
-  @override
-  void dispose() {
-    _search.dispose();
-    super.dispose();
+  // Carga todas las actividades desde el backend al inicializar.
+  Future<List<Activity>> build() async {
+    try {
+      final dio = ref.read(dioProvider);
+      final response = await dio.get('/activity');
+      final List<dynamic> data = response.data as List<dynamic>;
+      return data
+          .map((e) => ActivityModel.fromMap(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw parseDioError(e);
+    }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final AppLocalizations s = AppLocalizations.of(context)!;
-    final ColorScheme cs = Theme.of(context).colorScheme;
-    final TextTheme tt = Theme.of(context).textTheme;
+  // POST /activity - crea la actividad. Devuelve la actividad con el ID asignado por el backend.
+  Future<Activity> agregar(Activity actividad) async {
+    try {
+      final dio = ref.read(dioProvider);
+      final response = await dio.post('/activity', data: actividad.toMap());
+      final Activity created = ActivityModel.fromMap(
+        response.data as Map<String, dynamic>,
+      );
 
-    final usuarioActual = ref.watch(currentUserProvider);
-    final bool isGuide = usuarioActual?.role.code == 'GUIDE';
-    
-    // 🌟 COMPROBAMOS SI ES INVITADO (o si el usuario es null)
-    final bool isGuest = usuarioActual == null || 
-                         usuarioActual.role.code == 'INVITADO' || 
-                         usuarioActual.role.code == 'GUEST';
+      ref.invalidateSelf();
+      // Fuerza la recarga del dropdown
+      ref.invalidate(availableActivitiesProvider);
 
-    final AsyncValue<List<Activity>> actividadesFiltradas = ref.watch(filteredActivitiesProvider((
-      query: _search.query,
-      estado: _controller.estadoFiltro,
-      categoria: _controller.categoriaFiltro,
-      fechaDesde: _controller.fechaDesde,
-      fechaHasta: _controller.fechaHasta,
-    )));
+      return created;
+    } on DioException catch (e) {
+      throw parseDioError(e);
+    }
+  }
 
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: s.actividadesTitle,
-        actions: [
-          Badge(
-            isLabelVisible: _controller.hayFiltros,
-            alignment: const AlignmentDirectional(0.5, -0.5),
-            smallSize: 7,
-            child: IconButton(
-              icon: const Icon(Icons.filter_list),
-              tooltip: s.filtersTitle,
-              padding: EdgeInsets.zero,
-              onPressed: () => _controller.mostrarFiltros(context, setState),
-            ),
-          ),
-        ],
-      ),
-      drawer: const AppDrawer(),
-      // BLOQUEAMOS EL FAB SI ES GUÍA
-      floatingActionButton: (widget.puedeGestionar && !isGuide)
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 100.0),
-              child: AddFab(
-                onPressed: () async {
-                  final Activity? nueva = await Navigator.of(context)
-                      .push<Activity>(
-                        MaterialPageRoute(builder: (_) => const ActivityFormPage()),
-                      );
-                  if (nueva == null) {
-                    return;
-                  }
-                  try {
-                    await ref.read(activitiesProvider.notifier).agregar(nueva);
-                    if (!context.mounted) return;
-                    showSuccessSnackBar(context, s.actividadCreada);
-                  } catch (e) {
-                    if (!context.mounted) return;
-                    showErrorSnackBar(context, s.error(e.toString()));
-                  }
-                },
-              ),
-            )
-          : null,
+  // PATCH /activity/:id - actualiza la actividad en el backend y en la lista local.
+  Future<void> actualizar(Activity viejo, Activity nuevo) async {
+    if (viejo.id == null) {
+      throw StateError('Activity has no id');
+    }
+    try {
+      final dio = ref.read(dioProvider);
 
-      body: Column(
-        children: [
-          // Barra de búsqueda
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
-            child: CustomInputField(
-              controller: _search.controller,
-              labelText: s.searchByRoute,
-              prefixIcon: Icons.search,
-              suffixIcon: _search.query.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () => setState(_search.clear),
-                    )
-                  : null,
-              onChanged: (String v) => setState(() => _search.query = v),
-            ),
-          ),
-          // Lista de actividades filtradas
-          Expanded(
-            child: actividadesFiltradas.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(child: Text(s.error(error.toString()))),
-              data: (List<Activity> lista) => ListView.separated(
-              padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
-              itemCount: lista.isEmpty ? 1 : lista.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
-              itemBuilder: (BuildContext context, int index) {
-                if (lista.isEmpty) {
-                  return Center(
-                    child: Text(
-                      s.noActividadesParaCategoria,
-                      style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                    ),
-                  );
-                }
-                final Activity actividad = lista[index];
-                return ActivityCard(
-                  actividad: actividad,
-                  onEditar: (widget.puedeGestionar && !isGuide)
-                      ? () async {
-                          final Activity? actualizada =
-                              await Navigator.of(context).push<Activity>(
-                                MaterialPageRoute(
-                                  builder: (BuildContext _) =>
-                                      ActivityFormPage(actividad: actividad),
-                                ),
-                              );
-                          if (actualizada == null) {
-                            return;
-                          }
-                          try {
-                            await ref.read(activitiesProvider.notifier).actualizar(actividad, actualizada);
-                            if (!context.mounted) return;
-                            showSuccessSnackBar(context, s.actividadActualizada);
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            showErrorSnackBar(context, s.error(e.toString()));
-                          }
-                        }
-                      : null,
-                  onEliminar: (widget.puedeGestionar && !isGuide)
-                        ? () async {
-                            // Aviso alertando del borrado en cascada
-                            final bool confirm = await showConfirmDialog(
-                              context: context,
-                              title: s.deleteActividad,
-                              content: '${s.deleteActividadConfirm('${actividad.startPoint} → ${actividad.endPoint}')}\n\n'
-                                       '⚠️ ¡Atención! Al eliminar esta actividad se borrarán permanentemente todas las solicitudes asociadas a ella.',
-                            );
-                            
-                            if (confirm) {
-                              try {
-                                await ref.read(activitiesProvider.notifier).eliminar(actividad);
-                                if (!context.mounted) return;
-                                showSuccessSnackBar(context, 'Actividad eliminada con éxito');
-                              } catch (e) {
-                                if (!context.mounted) return;
-                                showErrorSnackBar(context, s.error(e.toString()));
-                              }
-                            }
-                          }
-                        : null,
-                  onSolicitar: (widget.puedeSolicitar && !isGuide)
-                      ? () async {
-                          // 🌟 TRAMPA PARA INVITADOS USANDO TU SNACKBAR
-                          if (isGuest) {
-                            showErrorSnackBar(context, 'Necesitas iniciar sesión para solicitar una excursión.');
-                            return;
-                          }
+      // Envia la actividad actualizada al backend para que la guarde y reenvie la versión actualizada.
+      final response = await dio.patch(
+        '/activity/${viejo.id}',
+        data: nuevo.toMap(),
+      );
 
-                          final usuario = ref.read(currentUserProvider);
-                          if (usuario == null) {
-                            return;
-                          }
+      // Convierte la respuesta JSON en un ActivityModel actualizado.
+      final Activity actividadServidor = ActivityModel.fromMap(
+        response.data as Map<String, dynamic>,
+      );
 
-                          final Request? solicitud =
-                              await Navigator.of(context).push<Request>(
-                                MaterialPageRoute(
-                                  builder: (_) => SolicitudFormPage(
-                                    initialIdActividad: actividad.id,
-                                    initialIdUsuario: usuario.id,
-                                  ),
-                                ),
-                              );
+      // Crea una copia de la lista local de actividades para modificarla (inmutable).
+      final List<Activity> listaActual = [...(state.value ?? [])];
 
-                          if (solicitud == null) {
-                            return;
-                          }
-                          try {
-                            await ref.read(requestsProvider.notifier).agregar(solicitud);
-                            if (!context.mounted) return;
-                            final String mensaje = solicitud.bookingId != null
-                                ? s.requestCreatedWithReservation
-                                : s.requestCreated;
-                            showSuccessSnackBar(context, mensaje);
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            showErrorSnackBar(context, s.error(e.toString()));
-                          }
-                        }
-                      : null,
-                );
-              },
-            ),
-            ),
-          ),
-        ],
-      ),
+      // Busca la posición de la actividad vieja
+      final int index = listaActual.indexWhere(
+        (Activity e) => e.id == viejo.id,
+      );
+
+      if (index != -1) {
+        // Reemplaza la actividad vieja por la nueva (actualizada desde el servidor) en la lista local.
+        listaActual[index] = actividadServidor;
+      }
+
+      // Notifica a Riverpod el cambio de la lista local
+      state = AsyncData(listaActual);
+
+      // Fuerza la recarga del dropdown por si ha cambiado de estado
+      ref.invalidate(availableActivitiesProvider);
+    } on DioException catch (e) {
+      throw parseDioError(e);
+    }
+  }
+
+  // DELETE /activity/:id - elimina la actividad del backend y de la lista local.
+  Future<void> eliminar(Activity actividad) async {
+    if (actividad.id == null) {
+      throw StateError('Activity has no id');
+    }
+    try {
+      final dio = ref.read(dioProvider);
+      await dio.delete('/activity/${actividad.id}');
+      final List<Activity> listaActual = [...(state.value ?? [])];
+      listaActual.removeWhere((Activity a) => a.id == actividad.id);
+      state = AsyncData(listaActual);
+
+      // Fuerza la recarga del dropdown
+      ref.invalidate(availableActivitiesProvider);
+    } on DioException catch (e) {
+      throw parseDioError(e);
+    }
+  }
+}
+
+// Lista de actividades disponibles. GET /activity/available.
+final AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>>
+availableActivitiesProvider =
+    AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>>(
+      AvailableActivitiesNotifier.new,
     );
+
+class AvailableActivitiesNotifier extends AsyncNotifier<List<Activity>> {
+  @override
+  Future<List<Activity>> build() async {
+    try {
+      final dio = ref.read(dioProvider);
+      final response = await dio.get('/activity/available');
+      final List<dynamic> data = response.data as List<dynamic>;
+      return data
+          .map((e) => ActivityModel.fromMap(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw parseDioError(e);
+    }
   }
 }

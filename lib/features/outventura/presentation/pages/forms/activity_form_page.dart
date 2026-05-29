@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
-import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
@@ -51,13 +50,21 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final AppLocalizations s = AppLocalizations.of(context)!;
-    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+    final List<Equipment> equipamientos =
+        ref.watch(equipmentProvider).value ?? [];
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: CustomAppBar(title: _controller.editando ? s.editActividad : s.nuevaActividad),
+      appBar: CustomAppBar(
+        title: _controller.editando ? s.editActividad : s.nuevaActividad,
+      ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          20,
+          20,
+          MediaQuery.of(context).padding.bottom + 24,
+        ),
         child: Form(
           key: _controller.formKey,
           child: Column(
@@ -83,21 +90,22 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 8),
 
-              // Puntos inicio
+              // Título (Nuevo)
               CustomInputField(
-                controller: _controller.puntoInicioController,
-                labelText: s.startPoint,
-                prefixIcon: Icons.place_outlined,
+                controller: _controller.tituloController,
+                labelText: "s.title" ?? 'Título', // TODO: Update L10n if needed
+                prefixIcon: Icons.title,
                 validator: ValidadoresFormulario.campoObligatorio(s),
               ),
               const SizedBox(height: 14),
 
-              // Punto fin
+              // Punto inicio/fin fusionado
               CustomInputField(
-                controller: _controller.puntoFinController,
-                labelText: s.endPoint,
-                prefixIcon: Icons.flag_outlined,
-                validator: ValidadoresFormulario.campoObligatorio(s),
+                controller: _controller.puntoInicioFinController,
+                labelText:
+                    s.startPoint ??
+                    'Punt de trobada/Ruta', // TODO: Update L10n if needed
+                prefixIcon: Icons.place_outlined,
               ),
               const SizedBox(height: 14),
 
@@ -107,16 +115,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 labelText: s.descriptionOptional,
                 prefixIcon: Icons.notes_outlined,
                 keyboardType: TextInputType.multiline,
-              ),
-              const SizedBox(height: 14),
-
-              // Precio por participante
-              CustomInputField(
-                controller: _controller.precioController,
-                labelText: s.pricePerParticipant,
-                prefixIcon: Icons.euro_outlined,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: ValidadoresFormulario.decimalPositivo(s),
               ),
               const SizedBox(height: 20),
 
@@ -128,15 +126,22 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  // Fechas de inicio 
+                  // Fechas de inicio
                   Expanded(
                     child: AppDateSelector(
                       label: s.start,
                       date: _controller.fechaInicio,
                       firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                      lastDate: DateTime.now().add(
+                        const Duration(days: 365 * 2),
+                      ),
                       onDateSelected: (DateTime picked) {
-                        setState(() => _controller.establecerFecha(isStart: true, value: picked));
+                        setState(
+                          () => _controller.establecerFecha(
+                            isStart: true,
+                            value: picked,
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -148,16 +153,23 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       label: s.end,
                       date: _controller.fechaFin,
                       firstDate: _controller.fechaInicio,
-                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                      lastDate: DateTime.now().add(
+                        const Duration(days: 365 * 2),
+                      ),
                       onDateSelected: (DateTime picked) {
-                        setState(() => _controller.establecerFecha(isStart: false, value: picked));
+                        setState(
+                          () => _controller.establecerFecha(
+                            isStart: false,
+                            value: picked,
+                          ),
+                        );
                       },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-            
+
               Row(
                 children: [
                   // Horas de inicio
@@ -209,36 +221,16 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 onToggle: (Category cat) {
                   setState(() => _controller.alternarCategoria(cat));
                 },
-                // El validator recibe la lista de categorías seleccionadas y devuelve un mensaje de error si la lista está vacía.
                 validator: (List<Category>? v) {
-                  return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Estado
-              Text(
-                s.status.toUpperCase(),
-                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-              ),
-              const SizedBox(height: 8),
-
-              // Lista de estados como chips seleccionables (única selección).
-              AppChipWrap(
-                children: ActivityStatus.values.map((ActivityStatus est) {
-                  final bool seleccionado = _controller.estado == est;
-                  return AppChoiceChip(
-                    label: est.localizedLabel(s),
-                    seleccionado: seleccionado,
-                    onSelected: (_) {
-                      setState(() => _controller.estado = est);
-                    },
+                  return ValidadoresFormulario.listaRequerida(
+                    v,
+                    s.selectCategory,
                   );
-                }).toList(),
+                },
               ),
               const SizedBox(height: 32),
 
-              // Materiales recomendados por participante
+              // Materiales recomendados
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -258,7 +250,10 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       if (result == null) return;
                       setState(() {
                         _controller.materialesRecomendados[result.equipmentId] =
-                            (_controller.materialesRecomendados[result.equipmentId] ?? 0) + result.quantity;
+                            (_controller.materialesRecomendados[result
+                                    .equipmentId] ??
+                                0) +
+                            result.quantity;
                       });
                     },
                   ),
@@ -277,7 +272,10 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                   if (equip == null) return const SizedBox.shrink();
 
                   return ReservationLineCard(
-                    linea: BookingLine(equipmentId: idEquip, quantity: cantidad),
+                    linea: BookingLine(
+                      equipmentId: idEquip,
+                      quantity: cantidad,
+                    ),
                     equipamiento: equip,
                     cantidadDaniada: 0,
                     esCliente: true,
@@ -285,16 +283,22 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       final result = await mostrarDialogoLineaReserva(
                         context: context,
                         equipamientos: equipamientos,
-                        initialLinea: BookingLine(equipmentId: idEquip, quantity: cantidad),
+                        initialLinea: BookingLine(
+                          equipmentId: idEquip,
+                          quantity: cantidad,
+                        ),
                         validateStock: false,
                       );
                       if (result == null) return;
                       setState(() {
                         _controller.materialesRecomendados.remove(idEquip);
-                        _controller.materialesRecomendados[result.equipmentId] = result.quantity;
+                        _controller.materialesRecomendados[result.equipmentId] =
+                            result.quantity;
                       });
                     },
-                    onDelete: () => setState(() => _controller.materialesRecomendados.remove(idEquip)),
+                    onDelete: () => setState(
+                      () => _controller.materialesRecomendados.remove(idEquip),
+                    ),
                   );
                 }),
 
