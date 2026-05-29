@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart'; 
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/utils/form_validators.dart';
+import 'package:outventura/core/widgets/app_dropdown_field.dart';
+import 'package:outventura/features/outventura/presentation/widgets/equipment_search_modal.dart'; 
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
@@ -14,18 +16,13 @@ import 'package:outventura/features/auth/presentation/providers/current_user_pro
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/presentation/controllers/activity_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
-import 'package:outventura/features/outventura/presentation/widgets/booking_line_card.dart';
-import 'package:outventura/features/outventura/presentation/widgets/booking_line_dialog.dart';
 
-// Obtiene los guías de la base de datos de forma dinámica
 final guidesProvider = FutureProvider<List<dynamic>>((ref) async {
   final dio = ref.read(dioProvider);
   final response = await dio.get('/guide');
 
-  // Si tu backend devuelve la lista envuelta en { data: [...] } la extraemos, si no, la enviamos directa
   if (response.data is Map && response.data['data'] != null) {
     return response.data['data'] as List<dynamic>;
   }
@@ -43,6 +40,9 @@ class ActivityFormPage extends ConsumerStatefulWidget {
 
 class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
   late final ActivityFormController _controller;
+  
+  // Variable local para gestionar el mensaje de error debajo del selector
+  String? _errorTiempo;
 
   @override
   void initState() {
@@ -51,7 +51,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
     if (widget.actividad != null) {
       _controller.cargarActividad(widget.actividad!);
     } else {
-      // Si estamos creando una nueva actividad, comprobamos si el usuario activo es guía
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final usuarioLogueado = ref.read(currentUserProvider);
         if (usuarioLogueado?.role.code == 'GUIDE') {
@@ -79,9 +78,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
     final usuarioActual = ref.watch(currentUserProvider);
     final bool isGuide = usuarioActual?.role.code == 'GUIDE';
 
-    final List<Equipment> equipamientos =
-        ref.watch(equipmentProvider).value ?? [];
-
+    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
     final AsyncValue<List<dynamic>> guidesAsync = ref.watch(guidesProvider);
     final List<dynamic> listaGuiasReales = guidesAsync.value ?? [];
 
@@ -102,7 +99,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Imagen selector
               AppImagePickerField(
                 imageUrl: _controller.imagenAsset,
                 isAsset: true,
@@ -115,14 +111,12 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Datos descriptivos de la actividad
               Text(
                 s.actividadSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
 
-              // Título
               CustomInputField(
                 controller: _controller.tituloController,
                 labelText: "s.title", // TODO: hardcodeado
@@ -131,7 +125,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 14),
 
-              // Punto de encuentro o ruta fusionada
               CustomInputField(
                 controller: _controller.puntoInicioFinController,
                 labelText: s.startPoint,
@@ -139,7 +132,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 14),
 
-              // Detalles descriptivos adicionales
               CustomInputField(
                 controller: _controller.descripcionController,
                 labelText: s.descriptionOptional,
@@ -148,52 +140,30 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 14),
 
-              // SELECTOR DE GUÍA ASIGNADO
               if (!isGuide) ...[
-                DropdownButtonFormField<int>(
+                AppDropdownField<dynamic>(
                   value: _controller.guideId,
-                  dropdownColor: cs.surfaceContainerHighest,
-                  style: tt.bodyLarge?.copyWith(color: cs.onSurface),
-                  decoration: InputDecoration(
-                    labelText: 'Guía Asignado *',
-                    prefixIcon: Icon(Icons.person_outline, color: cs.primary),
-                    filled: true,
-                    fillColor: cs.surfaceVariant.withValues(alpha: 0.3),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: cs.outline),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: cs.outlineVariant),
-                    ),
-                  ),
-                  // Mapeamos dinámicamente según la estructura relacional de Prisma (id_guide + user)
-                  items: listaGuiasReales.map((dynamic guia) {
-                    final int idGuide = guia['id_guide'] as int;
-                    final Map<String, dynamic> user =
-                        guia['user'] as Map<String, dynamic>;
-                    final String nombreCompleto =
-                        '${user['name']} ${user['surname']}';
-
-                    return DropdownMenuItem<int>(
-                      value: idGuide,
-                      child: Text(nombreCompleto),
-                    );
-                  }).toList(),
-                  onChanged: (int? nuevoId) {
+                  items: listaGuiasReales,
+                  itemValue: (dynamic guia) => guia['id_guide'] as int,
+                  itemLabel: (dynamic guia) {
+                    final Map<String, dynamic> user = guia['user'] as Map<String, dynamic>;
+                    return '${user['name']} ${user['surname']}';
+                  },
+                  prefixIcon: Icons.person_outline,
+                  label: 'Guía Asignado', // TODO: hardcodeado
+                  hint: 'Selecciona un guía obligatorio', // TODO: hardcodeado
+                  onChanged: (dynamic nuevoId) {
                     setState(() {
-                      _controller.guideId = nuevoId;
+                      _controller.guideId = nuevoId as int?;
                     });
                   },
                   validator: (value) => value == null
-                      ? 'Por favor, selecciona un guía obligatorio'
+                      ? 'Por favor, selecciona un guía obligatorio' // TODO: hardcodeado
                       : null,
                 ),
                 const SizedBox(height: 20),
               ],
 
-              // Gestión de fechas de realización
               Text(
                 s.datesSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
@@ -201,43 +171,32 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  // Selector de inicio
                   Expanded(
                     child: AppDateSelector(
                       label: s.start,
                       date: _controller.fechaInicio,
                       firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(
-                        const Duration(days: 365 * 2),
-                      ),
+                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
                       onDateSelected: (DateTime picked) {
-                        setState(
-                          () => _controller.establecerFecha(
-                            isStart: true,
-                            value: picked,
-                          ),
-                        );
+                        setState(() {
+                          _controller.establecerFecha(isStart: true, value: picked);
+                          _errorTiempo = null; // Limpiamos el error al cambiar datos
+                        });
                       },
                     ),
                   ),
                   const SizedBox(width: 12),
-
-                  // Selector de finalización
                   Expanded(
                     child: AppDateSelector(
                       label: s.end,
                       date: _controller.fechaFin,
                       firstDate: _controller.fechaInicio,
-                      lastDate: DateTime.now().add(
-                        const Duration(days: 365 * 2),
-                      ),
+                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
                       onDateSelected: (DateTime picked) {
-                        setState(
-                          () => _controller.establecerFecha(
-                            isStart: false,
-                            value: picked,
-                          ),
-                        );
+                        setState(() {
+                          _controller.establecerFecha(isStart: false, value: picked);
+                          _errorTiempo = null; // Limpiamos el error al cambiar datos
+                        });
                       },
                     ),
                   ),
@@ -245,36 +204,51 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 12),
 
-              // Gestión de franjas horarias
               Row(
                 children: [
-                  // Hora de salida
                   Expanded(
                     child: AppTimeSelector(
                       label: s.startTime,
                       time: _controller.horaInicio,
                       onTimeSelected: (TimeOfDay picked) {
-                        setState(() => _controller.horaInicio = picked);
+                        setState(() {
+                          _controller.horaInicio = picked;
+                          _errorTiempo = null; 
+                        });
                       },
                     ),
                   ),
                   const SizedBox(width: 12),
-
-                  // Hora de regreso
                   Expanded(
                     child: AppTimeSelector(
                       label: s.endTime,
                       time: _controller.horaFin,
                       onTimeSelected: (TimeOfDay picked) {
-                        setState(() => _controller.horaFin = picked);
+                        setState(() {
+                          _controller.horaFin = picked;
+                          _errorTiempo = null;
+                        });
                       },
                     ),
                   ),
                 ],
               ),
+
+              // Si existe un error de tiempos, se renderiza justo aquí debajo de las horas
+              if (_errorTiempo != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, left: 14),
+                  child: Text(
+                    _errorTiempo!,
+                    style: tt.bodySmall?.copyWith(
+                      color: cs.error,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                
               const SizedBox(height: 20),
 
-              // Aforo de la excursión
               CustomInputField(
                 controller: _controller.participantesController,
                 labelText: s.maxParticipants,
@@ -284,29 +258,24 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Categorías temáticas asociadas
               Text(
                 s.categories.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
 
-              // Chips de selección múltiple
               AppFilterChipFormField(
                 seleccionados: _controller.categories,
                 onToggle: (Category cat) {
                   setState(() => _controller.alternarCategoria(cat));
                 },
                 validator: (List<Category>? v) {
-                  return ValidadoresFormulario.listaRequerida(
-                    v,
-                    s.selectCategory,
-                  );
+                  return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
                 },
               ),
               const SizedBox(height: 32),
 
-              // Sección de inventario recomendado
+              // --- SECCIÓN MATERIAL RECOMENDADO MODAL ---
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -318,72 +287,91 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                     label: s.addLine,
                     icon: Icons.add,
                     onPressed: () async {
-                      final result = await mostrarDialogoLineaReserva(
+                      final Map<int, int>? resultadoModal = await showEquipmentSearchModal(
                         context: context,
-                        equipamientos: equipamientos,
-                        validateStock: false,
+                        equipments: equipamientos,
+                        initialSelected: _controller.materialesRecomendados,
                       );
-                      if (result == null) return;
-                      setState(() {
-                        _controller.materialesRecomendados[result
-                                .equipmentId!] =
-                            (_controller.materialesRecomendados[result
-                                    .equipmentId!] ??
-                                0) +
-                            result.quantity;
-                      });
+
+                      if (resultadoModal != null) {
+                        setState(() {
+                          _controller.materialesRecomendados = resultadoModal;
+                        });
+                      }
                     },
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
 
-              // Desglose de materiales recomendados
-              if (_controller.materialesRecomendados.isNotEmpty)
-                ..._controller.materialesRecomendados.entries.map((entry) {
-                  final int idEquip = entry.key;
-                  final int cantidad = entry.value;
-                  Equipment? equip;
-                  try {
-                    equip = equipamientos.firstWhere((e) => e.id == idEquip);
-                  } catch (_) {}
-                  if (equip == null) return const SizedBox.shrink();
-
-                  return ReservationLineCard(
-                    linea: BookingLine(
-                      equipmentId: idEquip,
-                      quantity: cantidad,
+              if (_controller.materialesRecomendados.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16), 
+                    border: Border.all(
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.2), 
+                      width: 1.5,
                     ),
-                    equipamiento: equip,
-                    cantidadDaniada: 0,
-                    esCliente: true,
-                    onEdit: () async {
-                      final result = await mostrarDialogoLineaReserva(
-                        context: context,
-                        equipamientos: equipamientos,
-                        initialLinea: BookingLine(
-                          equipmentId: idEquip,
-                          quantity: cantidad,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.inventory_2_outlined, size: 18, color: cs.primary.withValues(alpha: 0.5)),
+                      const SizedBox(width: 8),
+                      Text(
+                        'No hay material recomendado seleccionado', // TODO: hardcodeado
+                        style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _controller.materialesRecomendados.keys.map((idEquip) {
+                    final Equipment? item = equipamientos.where((e) => e.id == idEquip).firstOrNull;
+                    if (item == null) return const SizedBox.shrink();
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: cs.primary.withValues(alpha: 0.08), 
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: cs.primary.withValues(alpha: 0.4),
+                          width: 1.5,
                         ),
-                        validateStock: false,
-                      );
-                      if (result == null) return;
-                      setState(() {
-                        _controller.materialesRecomendados.remove(idEquip);
-                        _controller.materialesRecomendados[result
-                                .equipmentId!] =
-                            result.quantity;
-                      });
-                    },
-                    onDelete: () => setState(
-                      () => _controller.materialesRecomendados.remove(idEquip),
-                    ),
-                  );
-                }),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.inventory_2_outlined, size: 16, color: cs.primary),
+                          const SizedBox(width: 8),
+                          Text(
+                            item.title,
+                            style: tt.labelMedium?.copyWith(color: cs.onSurface, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => setState(() {
+                              _controller.materialesRecomendados.remove(idEquip);
+                            }),
+                            child: Icon(
+                              Icons.cancel_rounded, 
+                              size: 16, 
+                              color: cs.error.withValues(alpha: 0.7)
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
 
               const SizedBox(height: 32),
 
-              // Botón de confirmación final
               SizedBox(
                 width: double.infinity,
                 child: PrimaryButton(
@@ -392,6 +380,33 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                     if (!_controller.validar()) {
                       return;
                     }
+
+                    // Fusión cronológica estricta (Fecha + Hora)
+                    final DateTime inicioCompleto = DateTime(
+                      _controller.fechaInicio.year,
+                      _controller.fechaInicio.month,
+                      _controller.fechaInicio.day,
+                      _controller.horaInicio.hour,
+                      _controller.horaInicio.minute,
+                    );
+
+                    final DateTime finCompleto = DateTime(
+                      _controller.fechaFin.year,
+                      _controller.fechaFin.month,
+                      _controller.fechaFin.day,
+                      _controller.horaFin.hour,
+                      _controller.horaFin.minute,
+                    );
+
+                    if (finCompleto.isBefore(inicioCompleto)) {
+                      setState(() {
+                        _errorTiempo = 'La hora de fin no puede ser anterior a la de inicio'; // TODO: hardcodeado
+                      });
+                      return; 
+                    }
+
+                    setState(() => _errorTiempo = null); 
+
                     final Activity actividad = _controller.construirActividad();
                     Navigator.of(context).pop(actividad);
                   },

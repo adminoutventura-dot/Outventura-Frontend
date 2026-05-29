@@ -6,125 +6,141 @@ import 'package:outventura/features/outventura/data/models/activity_model.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
-// Lista completa de actividades.
+// Lista oficial de actividades que escucha tu pantalla
 final AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>
 activitiesProvider = AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>(
   ActivitiesNotifier.new,
 );
 
-// Filtra actividades en el frontend.
-final filteredActivitiesProvider =
-    Provider.family<
-      AsyncValue<List<Activity>>,
-      ({
-        String query,
-        Category? categoria,
-        DateTime? fechaDesde,
-        DateTime? fechaHasta,
-      })
-    >((ref, params) {
-      final AsyncValue<List<Activity>> asyncTodas = ref.watch(
-        activitiesProvider,
-      );
-
-      return asyncTodas.whenData((List<Activity> todas) {
-        List<Activity> base = todas;
-
-        if (params.categoria != null) {
-          base = base
-              .where((Activity e) => e.categories.contains(params.categoria))
-              .toList();
-        }
-        if (params.fechaDesde != null) {
-          base = base
-              .where((Activity e) => !e.endDate.isBefore(params.fechaDesde!))
-              .toList();
-        }
-        if (params.fechaHasta != null) {
-          base = base
-              .where((Activity e) => !e.initDate.isAfter(params.fechaHasta!))
-              .toList();
-        }
-        if (params.query.isEmpty) {
-          return base;
-        }
-        final String q = params.query.toLowerCase();
-        return base
-            .where(
-              (Activity e) => '${e.title} ${e.startEndPoint ?? ''}'
-                  .toLowerCase()
-                  .contains(q),
-            )
-            .toList();
-      });
-    });
-
-// Actividades recientes (Dashboard)
-final recentActivitiesProvider = Provider.family<List<Activity>, int>((
-  ref,
-  count,
-) {
+// Actividades recientes para el Dashboard
+final recentActivitiesProvider = Provider.family<List<Activity>, int>((ref, count) {
   return (ref.watch(activitiesProvider).value ?? []).take(count).toList();
 });
 
 class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   int currentPage = 1;
   int totalPages = 1;
+  final int _itemsPerPage = 3; 
+
+  // Almacén local de seguridad para guardar todo el catálogo que mande el NestJS
+  List<Activity> _allActivities = [];
+
+  // Estado de los filtros activos en la botonera de la app
+  String _query = '';
+  Category? _categoria;
+  DateTime? _fechaDesde;
+  DateTime? _fechaHasta;
 
   @override
   Future<List<Activity>> build() async {
-    return _fetchPage(1);
-  }
-
-  // Descarga una página específica
-  Future<List<Activity>> _fetchPage(int page) async {
     try {
       final dio = ref.read(dioProvider);
+      
       final response = await dio.get(
         '/activity',
-        queryParameters: {
-          'page': page,
-          'limit': 3, // Límite de 3 excursiones por página
-        },
+        queryParameters: {'limit': 99999}, 
       );
 
       final List<dynamic> data = response.data['data'] as List<dynamic>;
-      final meta = response.data['meta'];
-
-      // Guardamos la página en la que estamos y el total
-      currentPage = meta['page'];
-      totalPages = meta['totalPages'];
-
-      return data
+      
+      _allActivities = data
           .map((e) => ActivityModel.fromMap(e as Map<String, dynamic>))
           .toList();
+
+      // Procesamos la segmentación de 3 en 3 sobre el total
+      return _procesarFiltrosYPaginas();
     } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
-  Future<void> cambiarPagina(int nuevaPagina) async {
-    // Si intentamos ir a una página inválida o a la misma, no hacemos nada
-    if (nuevaPagina < 1 ||
-        nuevaPagina > totalPages ||
-        nuevaPagina == currentPage) {
-      return;
+  /// Filtra sobre el 100% de los datos y luego los pagina cada 3
+  List<Activity> _procesarFiltrosYPaginas() {
+    List<Activity> resultado = _allActivities;
+
+    // Filtro por Categoría (Compara de forma segura por código o ID)
+    if (_categoria != null) {
+      resultado = resultado.where((act) => 
+        act.categories.any((c) => c.id == _categoria!.id || c.code == _categoria!.code)
+      ).toList();
     }
 
-    state = const AsyncLoading(); // Mostramos indicador de carga
-    try {
-      final newActivities = await _fetchPage(nuevaPagina);
-      state = AsyncData(newActivities);
-    } catch (e, st) {
-      state = AsyncError(e, st);
+    // Filtro por Fecha Desde
+    if (_fechaDesde != null) {
+      resultado = resultado.where((act) => !act.endDate.isBefore(_fechaDesde!)).toList();
     }
+
+    // Filtro por Fecha Hasta
+    if (_fechaHasta != null) {
+      resultado = resultado.where((act) => !act.initDate.isAfter(_fechaHasta!)).toList();
+    }
+
+    // Filtro por el Buscador de texto superior
+    if (_query.isNotEmpty) {
+      final q = _query.toLowerCase();
+      resultado = resultado.where((act) => 
+        act.title.toLowerCase().contains(q) || 
+        (act.startEndPoint ?? '').toLowerCase().contains(q)
+      ).toList();
+    }
+
+    // Si los filtros dejan la lista vacía, reseteamos la paginación a 1/1
+    if (resultado.isEmpty) {
+      currentPage = 1;
+      totalPages = 1;
+      return [];
+    }
+
+    // CALCULO REAL DE PÁGINAS SOBRE EL RESULTADO FILTRADO EN EL MÓVIL
+    totalPages = (resultado.length / _itemsPerPage).ceil();
+    
+    // Control de desbordamiento de páginas
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    // Extraemos limpiamente los 3 elementos que corresponden a la página visualizada
+    final int indiceInicio = (currentPage - 1) * _itemsPerPage;
+    final int indiceFin = indiceInicio + _itemsPerPage;
+    
+    return resultado.sublist(
+      indiceInicio, 
+      indiceFin > resultado.length ? resultado.length : indiceFin
+    );
   }
 
-  // POST /activity - CREACIÓN DE LA ACTIVIDAD
+  // Vinculado a la barra de búsqueda en tiempo real
+  void aplicarFiltroTexto(String texto) {
+    _query = texto;
+    currentPage = 1; 
+    state = AsyncData(_procesarFiltrosYPaginas());
+  }
+
+  // Vinculado al botón de confirmar del modal de filtros avanzados
+  void aplicarFiltrosAvanzados({
+    Category? categoria,
+    DateTime? fechaDesde,
+    DateTime? fechaHasta,
+  }) {
+    _categoria = categoria;
+    _fechaDesde = fechaDesde;
+    _fechaHasta = fechaHasta;
+    currentPage = 1; 
+    state = AsyncData(_procesarFiltrosYPaginas());
+  }
+
+  // Control de los botones de cambio de página de tu UI < 1 / X >
+  void cambiarPagina(int nuevaPagina) {
+    if (nuevaPagina < 1 || nuevaPagina > totalPages || nuevaPagina == currentPage) {
+      return;
+    }
+    currentPage = nuevaPagina;
+    state = AsyncData(_procesarFiltrosYPaginas());
+  }
+
+  // POST /activity
   Future<Activity> agregar(Activity actividad) async {
     try {
       final dio = ref.read(dioProvider);
-
       final Map<String, dynamic> datosAEnviar = actividad.toMap();
 
       if (datosAEnviar['guideId'] == null) {
@@ -132,36 +148,21 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
         if (usuarioLogueado != null) {
           final dynamic userDynamic = usuarioLogueado;
           try {
-            // Intentamos mapear las distintas variantes de nombres que pueda tener en tu modelo de sesión
             datosAEnviar['guideId'] =
                 userDynamic.guideId ??
                 userDynamic.id_guide ??
                 userDynamic.guide?.id;
-          } catch (_) {
-            print(
-              " Si tu modelo de usuario no tiene el ID de guía mapeado, ignoramos el fallo silenciosamente",
-            );
-          }
+          } catch (_) {}
         }
       }
 
       if (datosAEnviar['guideId'] != null) {
         final int? parsedId = int.tryParse(datosAEnviar['guideId'].toString());
-        if (parsedId != null) {
-          datosAEnviar['guideId'] = parsedId;
-        }
-      } else {
-        // Alerta preventiva en la consola de depuración si se envía completamente vacío
-        print(
-          '⚠️ ALERTA OUTVENTURA: Estás intentando crear una actividad sin asignar un "guideId". El backend lo rechazará si no estás logueado como Guía con su ID correspondiente.',
-        );
+        if (parsedId != null) datosAEnviar['guideId'] = parsedId;
       }
 
-      // 2. Enviamos la petición POST con el payload perfectamente estructurado
       final response = await dio.post('/activity', data: datosAEnviar);
-      final Activity created = ActivityModel.fromMap(
-        response.data as Map<String, dynamic>,
-      );
+      final Activity created = ActivityModel.fromMap(response.data as Map<String, dynamic>);
 
       ref.invalidateSelf();
       ref.invalidate(availableActivitiesProvider);
@@ -172,17 +173,13 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     }
   }
 
-  // PATCH /activity/:id - actualiza la actividad en el backend y en la lista local.
+  // PATCH /activity/:id
   Future<void> actualizar(Activity viejo, Activity nuevo) async {
-    if (viejo.id == null) {
-      throw StateError('Activity has no id');
-    }
+    if (viejo.id == null) throw StateError('Activity has no id');
     try {
       final dio = ref.read(dioProvider);
-
       final Map<String, dynamic> datosAEnviar = nuevo.toMap();
 
-      // Helper rápido para estandarizar las fechas a texto idéntico
       String normalizarFecha(DateTime date) {
         final String iso = date.toIso8601String();
         return iso.endsWith('Z') ? iso : '${iso}Z';
@@ -195,31 +192,16 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
         datosAEnviar.remove('end_date');
       }
 
-      final response = await dio.patch(
-        '/activity/${viejo.id}',
-        data: datosAEnviar,
-      );
+      await dio.patch('/activity/${viejo.id}', data: datosAEnviar);
 
-      final Activity actividadServidor = ActivityModel.fromMap(
-        response.data as Map<String, dynamic>,
-      );
-
-      final List<Activity> listaActual = [...(state.value ?? [])];
-      final int index = listaActual.indexWhere(
-        (Activity e) => e.id == viejo.id,
-      );
-
-      if (index != -1) {
-        listaActual[index] = actividadServidor;
-      }
-
-      state = AsyncData(listaActual);
+      ref.invalidateSelf();
       ref.invalidate(availableActivitiesProvider);
     } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
+  // DELETE /activity/:id
   Future<void> eliminar(Activity actividad) async {
     if (actividad.id == null) throw StateError('Activity has no id');
     try {

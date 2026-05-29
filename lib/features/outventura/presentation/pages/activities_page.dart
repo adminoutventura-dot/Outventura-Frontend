@@ -9,6 +9,7 @@ import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/activity_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/booking_act_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/activity_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
@@ -55,14 +56,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
         usuarioActual.role.code == 'INVITADO' ||
         usuarioActual.role.code == 'GUEST';
 
-    final AsyncValue<List<Activity>> actividadesFiltradas = ref.watch(
-      filteredActivitiesProvider((
-        query: _search.query,
-        categoria: _controller.categoriaFiltro,
-        fechaDesde: _controller.fechaDesde,
-        fechaHasta: _controller.fechaHasta,
-      )),
-    );
+    final actividadesAsync = ref.watch(activitiesProvider);
 
     final activitiesNotifier = ref.read(activitiesProvider.notifier);
     final int currentPage = activitiesNotifier.currentPage;
@@ -81,7 +75,14 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
               icon: const Icon(Icons.filter_list),
               tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
-              onPressed: () => _controller.mostrarFiltros(context, setState),
+              onPressed: () => _controller.mostrarFiltros(context, (fn) {
+                setState(fn);
+                activitiesNotifier.aplicarFiltrosAvanzados(
+                  categoria: _controller.categoriaFiltro,
+                  fechaDesde: _controller.fechaDesde,
+                  fechaHasta: _controller.fechaHasta,
+                );
+              }),
             ),
           ),
         ],
@@ -123,39 +124,38 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
               suffixIcon: _search.query.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
-                      onPressed: () => setState(_search.clear),
+                      onPressed: () => setState(() {
+                        _search.clear();
+                        activitiesNotifier.aplicarFiltroTexto('');
+                      }),
                     )
                   : null,
-              onChanged: (String v) => setState(() => _search.query = v),
+              onChanged: (String v) => setState(() {
+                _search.query = v;
+                activitiesNotifier.aplicarFiltroTexto(v);
+              }),
             ),
           ),
 
-          // PAGINACIÓN COMPACTA < 1 / 2 > (Alineada a la derecha)
+          // PAGINACIÓN COMPACTA < 1 / 2 >
           if (totalPages > 1)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment
-                    .end, // 👈 ¡El cambio está aquí! (end = derecha, start = izquierda)
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // Flecha Izquierda
                   IconButton(
                     icon: const Icon(Icons.chevron_left, size: 28),
                     color: currentPage > 1
                         ? cs.primary
                         : cs.onSurfaceVariant.withValues(alpha: 0.3),
                     onPressed: currentPage > 1
-                        ? () => ref
-                              .read(activitiesProvider.notifier)
-                              .cambiarPagina(currentPage - 1)
+                        ? () => ref.read(activitiesProvider.notifier).cambiarPagina(currentPage - 1)
                         : null,
                   ),
 
-                  // Texto: Actual / Total
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                    ), // Un pelín menos de margen al no estar centrada
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
                     child: Text(
                       '$currentPage / $totalPages',
                       style: tt.titleMedium?.copyWith(
@@ -166,16 +166,13 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                     ),
                   ),
 
-                  // Flecha Derecha
                   IconButton(
                     icon: const Icon(Icons.chevron_right, size: 28),
                     color: currentPage < totalPages
                         ? cs.primary
                         : cs.onSurfaceVariant.withValues(alpha: 0.3),
                     onPressed: currentPage < totalPages
-                        ? () => ref
-                              .read(activitiesProvider.notifier)
-                              .cambiarPagina(currentPage + 1)
+                        ? () => ref.read(activitiesProvider.notifier).cambiarPagina(currentPage + 1)
                         : null,
                   ),
                 ],
@@ -184,10 +181,9 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
 
           // 3. LISTADO DE EXCURSIONES
           Expanded(
-            child: actividadesFiltradas.when(
+            child: actividadesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) =>
-                  Center(child: Text(s.error(error.toString()))),
+              error: (error, _) => Center(child: Text(s.error(error.toString()))),
               data: (List<Activity> lista) => ListView.separated(
                 padding: EdgeInsets.fromLTRB(
                   12,
@@ -211,25 +207,25 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                   final Activity actividad = lista[index];
                   return ActivityCard(
                     actividad: actividad,
+                    onVerDetalle: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ActivityDetailPage(actividad: actividad),
+                        ),
+                      );
+                    },
                     onEditar: (widget.puedeGestionar && !isGuide)
                         ? () async {
-                            final Activity? actualizada =
-                                await Navigator.of(context).push<Activity>(
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        ActivityFormPage(actividad: actividad),
-                                  ),
-                                );
+                            final Activity? actualizada = await Navigator.of(context).push<Activity>(
+                              MaterialPageRoute(
+                                builder: (_) => ActivityFormPage(actividad: actividad),
+                              ),
+                            );
                             if (actualizada == null) return;
                             try {
-                              await ref
-                                  .read(activitiesProvider.notifier)
-                                  .actualizar(actividad, actualizada);
+                              await ref.read(activitiesProvider.notifier).actualizar(actividad, actualizada);
                               if (!context.mounted) return;
-                              showSuccessSnackBar(
-                                context,
-                                s.actividadActualizada,
-                              );
+                              showSuccessSnackBar(context, s.actividadActualizada);
                             } catch (e) {
                               if (!context.mounted) return;
                               showErrorSnackBar(context, s.error(e.toString()));
@@ -241,25 +237,16 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                             final bool confirm = await showConfirmDialog(
                               context: context,
                               title: s.deleteActividad,
-                              content:
-                                  '${s.deleteActividadConfirm(actividad.title)}\n\n⚠️ ¡Atención! Al eliminar esta actividad se borrarán permanentemente totes les reserves associades a ella.',
+                              content: '${s.deleteActividadConfirm(actividad.title)}\n\n⚠️ ¡Atención! Al eliminar esta actividad se borrarán permanentemente totes les reserves associades a ella.',
                             );
                             if (confirm) {
                               try {
-                                await ref
-                                    .read(activitiesProvider.notifier)
-                                    .eliminar(actividad);
+                                await ref.read(activitiesProvider.notifier).eliminar(actividad);
                                 if (!context.mounted) return;
-                                showSuccessSnackBar(
-                                  context,
-                                  'Actividad eliminada con éxito',
-                                );
+                                showSuccessSnackBar(context, 'Actividad eliminada con éxito');
                               } catch (e) {
                                 if (!context.mounted) return;
-                                showErrorSnackBar(
-                                  context,
-                                  s.error(e.toString()),
-                                );
+                                showErrorSnackBar(context, s.error(e.toString()));
                               }
                             }
                           }
@@ -267,35 +254,26 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                     onSolicitar: (widget.puedeSolicitar && !isGuide)
                         ? () async {
                             if (isGuest) {
-                              showErrorSnackBar(
-                                context,
-                                'Necesitas iniciar sesión para apuntarte a una excursión.',
-                              );
+                              showErrorSnackBar(context, 'Necesitas iniciar sesión para apuntarte a una excursión.');
                               return;
                             }
                             final usuario = ref.read(currentUserProvider);
                             if (usuario == null) return;
 
-                            final Booking? reserva = await Navigator.of(context)
-                                .push<Booking>(
-                                  MaterialPageRoute(
-                                    builder: (_) => BookingActFormPage(
-                                      initialIdActividad: actividad.id,
-                                      initialIdUsuario: usuario.id,
-                                    ),
-                                  ),
-                                );
+                            final Booking? reserva = await Navigator.of(context).push<Booking>(
+                              MaterialPageRoute(
+                                builder: (_) => BookingActFormPage(
+                                  initialIdActividad: actividad.id,
+                                  initialIdUsuario: usuario.id,
+                                ),
+                              ),
+                            );
 
                             if (reserva == null) return;
                             try {
-                              await ref
-                                  .read(reservationsProvider.notifier)
-                                  .agregar(reserva);
+                              await ref.read(reservationsProvider.notifier).agregar(reserva);
                               if (!context.mounted) return;
-                              showSuccessSnackBar(
-                                context,
-                                'Reserva realizada con éxito',
-                              );
+                              showSuccessSnackBar(context, 'Reserva realizada con éxito');
                             } catch (e) {
                               if (!context.mounted) return;
                               showErrorSnackBar(context, s.error(e.toString()));

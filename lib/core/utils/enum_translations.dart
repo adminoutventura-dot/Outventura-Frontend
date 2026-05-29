@@ -39,7 +39,7 @@ extension EstadoEquipamientoL10n on EquipmentStatus {
 // Traducciones para los tipos de Categorías.
 extension CategoriaActividadL10n on Category {
   String localizedLabel(AppLocalizations s) {
-    switch (code) {
+    switch (code.toUpperCase()) {
       case 'AQUATIC':
         return s.categoryAquatic;
       case 'SNOW':
@@ -48,6 +48,8 @@ extension CategoriaActividadL10n on Category {
         return s.categoryMountain;
       case 'CAMPING':
         return s.categoryCamping;
+      case 'HIKING':
+        return "Hiking"; // TODO: HARDCODEADO
       default:
         return code;
     }

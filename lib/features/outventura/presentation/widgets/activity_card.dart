@@ -15,6 +15,7 @@ class ActivityCard extends StatelessWidget {
   final VoidCallback? onEditar;
   final VoidCallback? onEliminar;
   final VoidCallback? onSolicitar;
+  final VoidCallback? onVerDetalle; 
 
   const ActivityCard({
     super.key,
@@ -23,6 +24,7 @@ class ActivityCard extends StatelessWidget {
     this.onEditar,
     this.onEliminar,
     this.onSolicitar,
+    this.onVerDetalle, 
   });
 
   @override
@@ -77,7 +79,7 @@ class ActivityCard extends StatelessWidget {
                     ),
                   ),
 
-                  // Título sobre la imagen (Sustituye a la antigua ruta)
+                  // Título sobre la imagen
                   Positioned(
                     bottom: 12,
                     left: 14,
@@ -121,7 +123,6 @@ class ActivityCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Icono de actividad
                   Container(
                     width: 40,
                     height: 40,
@@ -137,7 +138,6 @@ class ActivityCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
 
-                  // Título de la actividad
                   Expanded(
                     child: Text(
                       actividad.title,
@@ -285,7 +285,6 @@ class ActivityCard extends StatelessWidget {
                             onTap: onEditar!,
                           ),
 
-                        // Separador
                         if (onEditar != null && onEliminar != null)
                           const SizedBox(width: 6),
 
@@ -297,7 +296,6 @@ class ActivityCard extends StatelessWidget {
                             onTap: onEliminar!,
                           ),
 
-                        // Separador
                         if ((onEditar != null || onEliminar != null) &&
                             onSolicitar != null)
                           const SizedBox(width: 6),
@@ -310,6 +308,18 @@ class ActivityCard extends StatelessWidget {
                             textColor: cs.onPrimary,
                             backgroundColor: cs.primary,
                           ),
+
+                        // VISTA DETALLE 
+                        // Muestra el espaciador y el botón solo si onVerDetalle no es nulo
+                        if (onVerDetalle != null) ...[
+                          if (onEditar != null || onEliminar != null || onSolicitar != null)
+                            const SizedBox(width: 6),
+                          ActionIcon(
+                            icon: Icons.chevron_right_rounded,
+                            color: cs.onSurfaceVariant,
+                            onTap: onVerDetalle!,
+                          ),
+                        ],
                       ],
                     ),
                   ],

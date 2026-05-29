@@ -32,27 +32,11 @@ class AppTimeSelector extends StatelessWidget {
           builder: (BuildContext context, Widget? child) {
             final ColorScheme cs = Theme.of(context).colorScheme;
 
-            // Estilo personlizado de TimePicker
             return Theme(
               data: Theme.of(context).copyWith(
                 timePickerTheme: TimePickerThemeData(
-                  // "Enter time" (texto)
+                  // "Enter time" (texto superior)
                   helpTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant),
-
-                  // Selector AM/PM
-                  dayPeriodColor: WidgetStateColor.resolveWith(
-                    (Set<WidgetState> states) => states.contains(WidgetState.selected)
-                        ? cs.primary.withValues(alpha: 0.15)
-                        : cs.surface,
-                  ),
-
-                  dayPeriodTextColor: WidgetStateColor.resolveWith(
-                    (Set<WidgetState> states) => states.contains(WidgetState.selected)
-                        ? cs.primary
-                        : cs.onSurfaceVariant,
-                  ),
-
-                  dayPeriodBorderSide: BorderSide(color: cs.onSurfaceVariant.withValues(alpha: 0.3)),
 
                   // Icono de cambio de modo (texto / reloj)
                   entryModeIconColor: cs.onSurfaceVariant,
@@ -65,10 +49,14 @@ class AppTimeSelector extends StatelessWidget {
                   ),
                 ),
               ),
-
-              child: child!,
+              
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  alwaysUse24HourFormat: true, 
+                ),
+                child: child!,
+              ),
             );
-            
           },
         );
         if (picked != null) {
@@ -76,7 +64,7 @@ class AppTimeSelector extends StatelessWidget {
         }
       },
 
-      // Boton de selección de hora.
+      // Botón de selección de hora con vuestra estética corporativa
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -86,13 +74,13 @@ class AppTimeSelector extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon( Icons.access_time_outlined, size: 18, color: cs.primary.withValues(alpha: 0.7)),
+            Icon(Icons.access_time_outlined, size: 18, color: cs.primary.withValues(alpha: 0.7)),
             const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text( label, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
-                Text( _formatTime(time), style: tt.labelMedium?.copyWith(color: cs.onSurface)),
+                Text(label, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                Text(_formatTime(time), style: tt.labelMedium?.copyWith(color: cs.onSurface)),
               ],
             ),
           ],

@@ -18,9 +18,10 @@ class Category {
   static const Category nieve = Category(code: 'SNOW');
   static const Category montana = Category(code: 'MOUNTAIN');
   static const Category camping = Category(code: 'CAMPING');
+  static const Category hiking = Category(code: 'HIKING');
 
   // Lista de todas las categorías conocidas (equivale a enum.values).
-  static const List<Category> values = [acuatico, nieve, montana, camping];
+  static const List<Category> values = [acuatico, nieve, montana, camping, hiking];
 
   // Crea una Category a partir del código (String).
   // Usado cuando el backend devuelve un código de categoría como string suelto.
