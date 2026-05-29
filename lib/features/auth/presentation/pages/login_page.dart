@@ -253,7 +253,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           
                           const SizedBox(height: 10),
                           
-                          // 🌟 NUEVO BOTÓN: ENTRAR COMO INVITADO
+                          // ENTRAR COMO INVITADO
                           SecondaryButton(
                             label: 'Entrar como invitado', 
                             onPressed: () {

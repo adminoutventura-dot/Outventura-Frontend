@@ -3,13 +3,11 @@ import 'package:outventura/features/auth/data/fakes/users_fake.dart';
 import 'package:outventura/features/outventura/data/fakes/equipment_fake.dart';
 import 'package:outventura/features/outventura/data/fakes/activities_fake.dart';
 import 'package:outventura/features/outventura/data/fakes/reservations_fake.dart';
-import 'package:outventura/features/outventura/data/fakes/requests_fake.dart';
+// import 'package:outventura/features/outventura/data/fakes/requests_fake.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/activity.dart';
 // import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/widgets/equipment_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/activity_card.dart';
-import 'package:outventura/features/outventura/presentation/widgets/request_card.dart';
 // import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
@@ -60,25 +58,25 @@ class CardsDemo extends StatelessWidget {
             onSolicitar: () {},
           ),
 
-          // SOLICITUD CARD
-          const SizedBox(height: 24),
-          Text('SolicitudCard – Solo lectura', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
-          const SizedBox(height: 8),
-          RequestCard(
-            solicitud: requestsFake[0],
-            actividad: activitiesFake.firstWhere((Activity e) => e.id == requestsFake[0].activityId),
-          ),
+          // // SOLICITUD CARD
+          // const SizedBox(height: 24),
+          // Text('SolicitudCard – Solo lectura', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          // const SizedBox(height: 8),
+          // RequestCard(
+          //   solicitud: requestsFake[0],
+          //   actividad: activitiesFake.firstWhere((Activity e) => e.id == requestsFake[0].activityId),
+          // ),
 
-          const SizedBox(height: 16),
-          Text('SolicitudCard – Pendiente con acciones', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
-          const SizedBox(height: 8),
-          RequestCard(
-            solicitud: requestsFake[1],
-            actividad: activitiesFake.firstWhere((Activity e) => e.id == requestsFake[1].activityId),
-            onGestionar: () {},
-            onCancelar: () {},
-            onEditar: () {},
-          ),
+          // const SizedBox(height: 16),
+          // Text('SolicitudCard – Pendiente con acciones', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          // const SizedBox(height: 8),
+          // RequestCard(
+          //   solicitud: requestsFake[1],
+          //   actividad: activitiesFake.firstWhere((Activity e) => e.id == requestsFake[1].activityId),
+          //   onGestionar: () {},
+          //   onCancelar: () {},
+          //   onEditar: () {},
+          // ),
 
           // RESERVA CARD
           // const SizedBox(height: 24),

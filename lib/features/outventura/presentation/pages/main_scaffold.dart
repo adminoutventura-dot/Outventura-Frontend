@@ -19,17 +19,17 @@ class MainScaffold extends StatefulWidget {
 
 class _MainScaffoldState extends State<MainScaffold> {
   int _indiceActual = 0;
-
   late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
-    
-    // 🌟 CORRECCIÓN: Un "cliente" a nivel de interfaz es tanto el usuario registrado como el invitado
-    final bool esCliente = widget.usuario.role == UserRole.usuario || 
-                           widget.usuario.role.code == 'INVITADO' || 
-                           widget.usuario.role.code == 'GUEST';
+
+    // Determina si el rol del usuario conectado equivale a un perfil de cliente o invitado
+    final bool esCliente =
+        widget.usuario.role == UserRole.usuario ||
+        widget.usuario.role.code == 'INVITADO' ||
+        widget.usuario.role.code == 'GUEST';
 
     _pages = [
       esCliente
@@ -37,7 +37,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           : const HomeAdminPage(),
       ActivitiesPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
       EquipmentPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
-      CalendarPage(usuario: widget.usuario, esAdmin: !esCliente),
+      const CalendarPage(), // Limpieza de la firma del constructor
     ];
   }
 
@@ -51,7 +51,7 @@ class _MainScaffoldState extends State<MainScaffold> {
       body: _pages[_indiceActual],
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          padding: const EdgeInsets.all(16),
           child: Material(
             elevation: 2,
             shadowColor: cs.onSurface.withValues(alpha: 0.5),
@@ -65,28 +65,21 @@ class _MainScaffoldState extends State<MainScaffold> {
               unselectedItemColor: cs.onSurfaceVariant,
               backgroundColor: cs.surface,
               items: [
-                // Home
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.home_outlined),
                   activeIcon: const Icon(Icons.home),
                   label: s.tabHome,
                 ),
-
-                // Actividades
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.hiking_outlined),
                   activeIcon: const Icon(Icons.hiking),
                   label: s.tabActividades,
                 ),
-
-                // Equipamiento
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.inventory_2_outlined),
                   activeIcon: const Icon(Icons.inventory_2),
                   label: s.tabEquipment,
                 ),
-
-                // Calendario
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.calendar_today_outlined),
                   activeIcon: const Icon(Icons.calendar_today),

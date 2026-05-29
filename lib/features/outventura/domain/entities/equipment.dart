@@ -1,34 +1,24 @@
 import 'category.dart';
 
-// Estados posibles de un material.
-enum EquipmentStatus {
-  disponible,
-  agotado,
-  mantenimiento,
-  fueraDeServicio;
+// Clase para manejar el estado del material que viene de la nueva tabla EquipmentStatus
+class EquipmentStatus {
+  final int id;
+  final String code;
+  final String? description;
 
-  // Devuelve el nombre legible del estado.
-  String get code {
-    switch (this) {
-      case EquipmentStatus.disponible:
-        return 'AVAILABLE';
-      case EquipmentStatus.agotado:
-        return 'OUT_OF_STOCK';
-      case EquipmentStatus.mantenimiento:
-        return 'MAINTENANCE';
-      case EquipmentStatus.fueraDeServicio:
-        return 'OUT_OF_SERVICE';
-    }
-  }
+  const EquipmentStatus({
+    required this.id,
+    required this.code,
+    this.description,
+  });
 
-  // Crea un estado a partir del valor en texto que devuelve el backend.
-  static EquipmentStatus fromString(String value) {
-    for (EquipmentStatus status in EquipmentStatus.values) {
-      if (status.code == value) {
-        return status;
-      }
-    }
-    return EquipmentStatus.disponible;
+  // Parsea el objeto status que vendrá anidado desde el backend
+  factory EquipmentStatus.fromMap(Map<String, dynamic> map) {
+    return EquipmentStatus(
+      id: map['id_status'] as int? ?? 1,
+      code: map['code'] as String? ?? 'AVAILABLE',
+      description: map['description'] as String?,
+    );
   }
 }
 
@@ -38,9 +28,10 @@ class Equipment {
   final String title;
   final String? description;
   final List<Category> categories;
-  final int units;
   final int totalUnits;
-  final EquipmentStatus status;
+  final int availableUnits; // El backend nos calculará esto en tiempo real
+  final EquipmentStatus? status; // Objeto de estado devuelto por el backend
+  final int? statusId; // ID para cuando enviamos un alta/edición al backend
   final double pricePerDay;
   final double damageFee;
   final String? imageAsset;
@@ -50,9 +41,10 @@ class Equipment {
     required this.title,
     this.description,
     required this.categories,
-    required this.units,
     required this.totalUnits,
-    required this.status,
+    this.availableUnits = 0,
+    this.status,
+    this.statusId,
     required this.pricePerDay,
     required this.damageFee,
     this.imageAsset,
@@ -63,34 +55,36 @@ class Equipment {
     'title': title,
     'description': description,
     'image_asset': imageAsset,
-    'units': units,
     'total_units': totalUnits,
     'price_per_day': pricePerDay,
     'damage_fee': damageFee,
-    'status': status.code,
+    'statusId': statusId ?? status?.id ?? 1, // Enviamos el ID
     'categoryCodes': categories.map((Category c) => c.code).toList(),
   };
 
   // Crea un nuevo material a partir del actual, permitiendo modificar algunos campos.
   Equipment copyWith({
+    int? id,
     String? title,
     String? description,
     List<Category>? categories,
-    int? units,
     int? totalUnits,
+    int? availableUnits,
     EquipmentStatus? status,
+    int? statusId,
     double? pricePerDay,
     double? damageFee,
     String? imageAsset,
   }) {
     return Equipment(
-      id: id,
+      id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
       categories: categories ?? this.categories,
-      units: units ?? this.units,
       totalUnits: totalUnits ?? this.totalUnits,
+      availableUnits: availableUnits ?? this.availableUnits,
       status: status ?? this.status,
+      statusId: statusId ?? this.statusId,
       pricePerDay: pricePerDay ?? this.pricePerDay,
       damageFee: damageFee ?? this.damageFee,
       imageAsset: imageAsset ?? this.imageAsset,

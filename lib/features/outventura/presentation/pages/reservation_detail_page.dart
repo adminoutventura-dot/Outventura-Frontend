@@ -25,23 +25,31 @@ class ReservationDetailPage extends ConsumerWidget {
 
     final reservasAsync = ref.watch(reservationsProvider);
     final Booking actual = reservasAsync.maybeWhen(
-      // .cast<Booking>(), transformas la colección de Dart en una lista genérica de reservas.
-      data: (lista) => lista.cast<Booking>().firstWhere((r) => r.id == reserva.id, orElse: () => reserva),
+      data: (lista) => lista.cast<Booking>().firstWhere(
+        (r) => r.id == reserva.id,
+        orElse: () => reserva,
+      ),
       orElse: () => reserva,
     );
 
     final String nombreUsuario = ref.watch(userNameProvider(reserva.userId));
-    final actividad = reserva.activityId != null
-        ? ref.watch(activityByIdProvider(reserva.activityId!))
+
+    // Extrae el ID de la actividad buscando en la lista interna de líneas
+    final int? activityIdFromLine = actual.lines
+        .where((l) => l.activityId != null)
+        .map((l) => l.activityId)
+        .firstOrNull;
+
+    final actividad = activityIdFromLine != null
+        ? ref.watch(activityByIdProvider(activityIdFromLine))
         : null;
 
-    // --- CÁLCULOS ---
-    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
-    // calcularPrecioReserva gestiona el mínimo de 1 día internamente.
+    final List<Equipment> equipamientos =
+        ref.watch(equipmentProvider).value ?? [];
     final double totalAlquiler = calcularPrecioReserva(
       lineas: actual.lines,
-      fechaDesde: actual.startDate, 
-      fechaHasta: actual.endDate,   
+      fechaDesde: actual.startDate,
+      fechaHasta: actual.endDate,
       equipamientos: equipamientos,
     );
 
@@ -63,121 +71,93 @@ class ReservationDetailPage extends ConsumerWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(20, 24, 20, MediaQuery.of(context).padding.bottom + 32),
+              padding: EdgeInsets.fromLTRB(
+                20,
+                24,
+                20,
+                MediaQuery.of(context).padding.bottom + 32,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Stats principales
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Participantes
-                      if (actividad != null) ...[
-                        Expanded(
-                          child: DetailStatItem(
-                            label: s.start,
-                            value: FormateadorFecha.short(actual.startDate),
-                          ),
+                      Expanded(
+                        child: DetailStatItem(
+                          label: s.start,
+                          value: FormateadorFecha.short(actual.startDate),
                         ),
-                        const SizedBox(width: 12),
-                        Container(width: 1, height: 36, color: cs.outlineVariant),
-                        const SizedBox(width: 12),
-
-                        // Fin (fecha de devolución)
-                        Expanded(
-                          child: DetailStatItem(
-                            label: s.end,
-                            value: FormateadorFecha.short(actividad.endDate),
-                          ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(width: 1, height: 36, color: cs.outlineVariant),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: DetailStatItem(
+                          label: s.end,
+                          value: FormateadorFecha.short(actual.endDate),
                         ),
-                      ],
-
-                      // Cantidad de material reservado (solo si es > 0)
-                      if (reserva.lines.isNotEmpty) ...[
-                        const SizedBox(width: 12),
-                        Container(width: 1, height: 36, color: cs.outlineVariant),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: DetailStatItem(
-                            label: s.reservedMaterial,
-                            value: '${reserva.lines.length}',
-                          ),
-                        ),
-                      ],
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
 
-                  // Sección de información general
                   DetailSection(
                     title: s.generalInfo,
                     children: [
-                      // Nombre del usuario que hizo la reserva
                       DetailRow(Icons.person_outline, s.user, nombreUsuario),
-
-                      // Actividad asociada a la reserva (si existe)
-                      if (actividad != null) ...[
-                        DetailRow(Icons.hiking_outlined, s.actividad, '${actividad.startPoint} → ${actividad.endPoint}'),
-                      
-                        // Fecha de inicio (fecha de recogida del material)
-                        DetailRow(Icons.calendar_today_outlined, s.start, FormateadorFecha.withTime(actual.startDate)),
-                      
-                        // Fecha de fin (fecha de devolución del material)
-                        DetailRow(Icons.event_outlined, s.end, FormateadorFecha.withTime(actual.endDate)),
-                      ],
+                      if (actividad != null)
+                        DetailRow(
+                          Icons.hiking_outlined,
+                          s.actividad,
+                          actividad.title,
+                        ),
+                      DetailRow(
+                        Icons.calendar_today_outlined,
+                        s.start,
+                        FormateadorFecha.withTime(actual.startDate),
+                      ),
+                      DetailRow(
+                        Icons.event_outlined,
+                        s.end,
+                        FormateadorFecha.withTime(actual.endDate),
+                      ),
                     ],
                   ),
 
-                  // Sección de material reservado (solo si hay material reservado)
-                  if (reserva.lines.isNotEmpty) ...[
+                  if (reserva.lines.any((l) => l.equipmentId != null)) ...[
                     const SizedBox(height: 20),
                     DetailSection(
                       title: s.reservedMaterial,
                       children: [
-                        for (final linea in reserva.lines)
-                        // Lineas de material reservado
+                        for (final linea in reserva.lines.where(
+                          (l) => l.equipmentId != null,
+                        ))
                           DetailRow(
                             Icons.inventory_2_outlined,
-                            ref.watch(equipmentNameProvider(linea.equipmentId)),
+                            ref.watch(
+                              equipmentNameProvider(linea.equipmentId!),
+                            ),
                             s.unitsShort(linea.quantity),
                           ),
                       ],
                     ),
                   ],
 
-                  // Sección de daños (solo si hay daños registrados)
-                  if (reserva.damageFee > 0 || reserva.damagedItems.isNotEmpty) ...[
-                    const SizedBox(height: 20),
-                    DetailSection(
-                      title: s.damages,
-                      children: [
-                        // Si hay una penalización por daños, muestra un item con el coste total de la penalización.
-                        if (reserva.damageFee > 0)
-                          DetailRow(Icons.euro_outlined, s.damageCharge, s.priceEur(reserva.damageFee.toStringAsFixed(2))),
-                        
-                        // Si hay material dañado, muestra un item por cada tipo de material dañado con la cantidad dañada.
-                        for (final entry in reserva.damagedItems.entries)
-                          DetailRow(
-                            Icons.warning_amber_outlined,
-                            ref.watch(equipmentNameProvider(entry.key)),
-                            s.damagedItems(entry.value),
-                          ),
-                      ],
-                    ),
-                  ],
                   const SizedBox(height: 20),
-                  // Sección de resumen de precios
                   DetailSection(
                     title: s.priceSummary,
                     children: [
-                      // Precio total del alquiler
-                      DetailRow(Icons.credit_card_outlined, s.materialsRental, s.priceEur(totalAlquiler.toStringAsFixed(2))),
-                      
-                      // Si hay una penalización por daños, se muestra como un item.
-                      if (reserva.damageFee > 0)
-                        DetailRow(Icons.warning_amber_outlined, s.totalDamages, '+ ${s.priceEur(reserva.damageFee.toStringAsFixed(2))}'),
-                      // Precio total (alquiler + daños)
-                      DetailRow(Icons.analytics_outlined, s.total, s.priceEur((totalAlquiler + reserva.damageFee).toStringAsFixed(2))),
+                      DetailRow(
+                        Icons.credit_card_outlined,
+                        s.materialsRental,
+                        s.priceEur(totalAlquiler.toStringAsFixed(2)),
+                      ),
+                      DetailRow(
+                        Icons.analytics_outlined,
+                        s.total,
+                        s.priceEur(totalAlquiler.toStringAsFixed(2)),
+                      ),
                     ],
                   ),
                 ],

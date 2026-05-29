@@ -4,8 +4,7 @@ import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
-// Grupo de chips que se pueden seleccionar. 
-//El AppChipWrap organiza los chips y el AppChoiceChip representa cada chip individual.
+// Organiza la distribución espacial de los chips con espaciados fijos.
 class AppChipWrap extends StatelessWidget {
   final List<Widget> children;
 
@@ -17,11 +16,13 @@ class AppChipWrap extends StatelessWidget {
   }
 }
 
-// Chip que se permite una sola selección. 
+// Representa un chip de selección única optimizado para estados mutuamente excluyentes.
+// Chip que permite una sola selección (ahora con onPressed opcional).
 class AppChoiceChip extends StatelessWidget {
   final String label;
   final bool seleccionado;
-  final void Function(bool) onSelected;
+  final VoidCallback?
+  onPressed; 
 
   final Color? selectedColor;
   final Color? selectedBorderColor;
@@ -30,7 +31,7 @@ class AppChoiceChip extends StatelessWidget {
     super.key,
     required this.label,
     required this.seleccionado,
-    required this.onSelected,
+    this.onPressed,
     this.selectedColor,
     this.selectedBorderColor,
   });
@@ -40,33 +41,41 @@ class AppChoiceChip extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final Color selColor = selectedColor ?? cs.tertiary; 
+    final Color selColor = selectedColor ?? cs.tertiary;
     final Color selBorder = selectedBorderColor ?? cs.tertiary;
 
     return Container(
-      padding: seleccionado ? const EdgeInsets.all(1.5) : const EdgeInsets.all(0), 
+      padding: seleccionado
+          ? const EdgeInsets.all(1.5)
+          : const EdgeInsets.all(0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: seleccionado ? AppGradients.cardAccent(selBorder) : null,
       ),
       child: ChoiceChip(
-        label: seleccionado 
+        label: seleccionado
             ? ShaderMask(
                 blendMode: BlendMode.srcIn,
-                shaderCallback: (bounds) => AppGradients.cardAccent(selColor).createShader(bounds),
+                shaderCallback: (bounds) =>
+                    AppGradients.cardAccent(selColor).createShader(bounds),
                 child: Text(label),
               )
             : Text(label),
 
         selected: seleccionado,
-        onSelected: onSelected,
+        // Ejecuta el callback solo si no es nulo
+        onSelected: (_) {
+          if (onPressed != null) onPressed!();
+        },
         selectedColor: cs.surface,
         backgroundColor: cs.onPrimary,
-        checkmarkColor: selColor, 
+        checkmarkColor: selColor,
 
         // Quita el margen invisible que añade Material Design alrededor del widget
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        labelStyle: tt.labelMedium?.copyWith(color: seleccionado ? selColor : cs.onSurfaceVariant),
+        labelStyle: tt.labelMedium?.copyWith(
+          color: seleccionado ? selColor : cs.onSurfaceVariant,
+        ),
         side: BorderSide(
           color: seleccionado ? Colors.transparent : cs.onSurfaceVariant,
           width: seleccionado ? 0 : 1.5,
@@ -77,7 +86,7 @@ class AppChoiceChip extends StatelessWidget {
   }
 }
 
-// Filter chip para selección múltiple.
+// Representa un chip de selección múltiple interactivo.
 class AppFilterChip extends StatelessWidget {
   final String label;
   final bool seleccionado;
@@ -100,27 +109,27 @@ class AppFilterChip extends StatelessWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    final Color selColor = selectedColor ?? cs.primary; 
+    final Color selColor = selectedColor ?? cs.primary;
     final Color selBorder = selectedBorderColor ?? cs.primary;
 
     return Container(
-      padding: seleccionado ? const EdgeInsets.all(1.5) : const EdgeInsets.all(0),
+      padding: seleccionado
+          ? const EdgeInsets.all(1.5)
+          : const EdgeInsets.all(0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: seleccionado ? AppGradients.cardAccent(selBorder) : null,
       ),
-
       child: FilterChip(
-        label: seleccionado 
+        label: seleccionado
             ? ShaderMask(
                 blendMode: BlendMode.srcIn,
-                shaderCallback: (bounds) => AppGradients.cardAccent(selColor).createShader(bounds),
+                shaderCallback: (bounds) =>
+                    AppGradients.cardAccent(selColor).createShader(bounds),
                 child: Text(label),
               )
             : Text(label),
-      // Indica si el chip debe mostrarse como seleccionado o no.
         selected: seleccionado,
-      // Callback que se ejecuta cuando el usuario pulsa el chip.
         onSelected: onSelected,
         selectedColor: cs.surface,
         backgroundColor: cs.onPrimary,
@@ -140,7 +149,7 @@ class AppFilterChip extends StatelessWidget {
   }
 }
 
-// FormField de selección múltiple con chips
+// Control estructural encapsulado para validación y gestión múltiple de categorías.
 class AppFilterChipFormField extends StatelessWidget {
   final List<Category> seleccionados;
   final void Function(Category) onToggle;
@@ -165,6 +174,7 @@ class AppFilterChipFormField extends StatelessWidget {
       builder: (FormFieldState<List<Category>> field) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Renderiza de forma dinámica las propiedades iteradas del enum de categorías
           AppChipWrap(
             children: Category.values.map((Category cat) {
               return AppFilterChip(
@@ -172,7 +182,7 @@ class AppFilterChipFormField extends StatelessWidget {
                 seleccionado: seleccionados.contains(cat),
                 onSelected: (_) {
                   onToggle(cat);
-                  // Le notifica al FormField que su valor ha cambiado, para que pueda re-evaluar la validación.
+                  // Notifica al FormField el cambio estructural para relanzar la validación interactiva
                   field.didChange(List.from(seleccionados));
                 },
               );

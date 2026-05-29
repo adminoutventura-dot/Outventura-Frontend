@@ -1,7 +1,6 @@
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
@@ -18,30 +17,21 @@ extension WorkflowStatusL10n on WorkflowStatus {
   }
 }
 
-// Traducciones para la disponibilidad de las Actividades.
-extension ActivityStatusL10n on ActivityStatus {
-  String localizedLabel(AppLocalizations s) {
-    switch (this) {
-      case ActivityStatus.disponible:
-        return s.statusAvailable;
-      case ActivityStatus.noDisponible:
-        return s.statusNotAvailable;
-    }
-  }
-}
 
-// Traducciones para el estado del Material/Equipamiento.
+// Traducciones para el estado del Material/Equipamiento (Ahora es una clase, evaluamos el 'code').
 extension EstadoEquipamientoL10n on EquipmentStatus {
   String localizedLabel(AppLocalizations s) {
-    switch (this) {
-      case EquipmentStatus.disponible:
+    switch (code) { 
+      case 'AVAILABLE':
         return s.statusAvailable;
-      case EquipmentStatus.agotado:
+      case 'OUT_OF_STOCK':
         return s.statusOutOfStock;
-      case EquipmentStatus.mantenimiento:
+      case 'MAINTENANCE':
         return s.statusMaintenance;
-      case EquipmentStatus.fueraDeServicio:
+      case 'OUT_OF_SERVICE':
         return s.statusOutOfService;
+      default:
+        return s.statusAvailable; 
     }
   }
 }

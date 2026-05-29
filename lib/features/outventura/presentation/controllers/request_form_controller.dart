@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:outventura/core/utils/snackbar_helper.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
-import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
-import 'package:outventura/features/outventura/services/pricing_service.dart';
-import 'package:outventura/l10n/app_localizations.dart';
 
 class RequestFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -18,33 +11,37 @@ class RequestFormController {
   int? idActividad;
   int get numeroParticipantes => int.tryParse(participantesCtrl.text) ?? 1;
   WorkflowStatus estado = WorkflowStatus.pendiente;
-  int? idExperto;
   int? idUsuario;
-  int? idReserva;
   Map<int, int> materialesSolicitados = {};
 
   bool editando = false;
-  Request? seleccionado;
+  Booking? seleccionado;
 
   bool validar() {
     if (formKey.currentState == null) return false;
     return formKey.currentState!.validate();
   }
 
-  // Carga los datos de una solicitud en el formulario para su edición.
-  void cargarSolicitud(Request solicitud) {
+  void cargarReservaUnificada(Booking reserva) {
     editando = true;
-    seleccionado = solicitud;
-    idActividad = solicitud.activityId;
-    participantesCtrl.text = '${solicitud.participantCount}';
-    estado = solicitud.status;
-    idExperto = solicitud.guideId;
-    idUsuario = solicitud.userId;
-    idReserva = solicitud.bookingId;
-    materialesSolicitados = Map<int, int>.from(solicitud.requestedMaterials);
+    seleccionado = reserva;
+    idUsuario = reserva.userId;
+    estado = reserva.status;
+
+    final actLine = reserva.lines
+        .where((l) => l.activityId != null)
+        .firstOrNull;
+    if (actLine != null) {
+      idActividad = actLine.activityId;
+      participantesCtrl.text = '${actLine.quantity}';
+    }
+
+    materialesSolicitados = {};
+    for (final line in reserva.lines.where((l) => l.equipmentId != null)) {
+      materialesSolicitados[line.equipmentId!] = line.quantity;
+    }
   }
 
-  // Aplica los valores de la actividad seleccionada y el usuario.
   void aplicarValoresIniciales({int? idActividad, int? idUsuario}) {
     this.idActividad = idActividad;
     this.idUsuario = idUsuario;
@@ -53,7 +50,6 @@ class RequestFormController {
     }
   }
 
-  // Calcula el total de materiales solicitados sumando las cantidades de cada equipamiento.
   void establecerCantidadMaterial(int idEquipamiento, int cantidad) {
     if (cantidad <= 0) {
       materialesSolicitados.remove(idEquipamiento);
@@ -62,262 +58,88 @@ class RequestFormController {
     materialesSolicitados[idEquipamiento] = cantidad;
   }
 
-  // Crea una nueva solicitud a partir de los datos del formulario.
-  Request? crearEditarSolicitud(List<Activity> actividades, List<Equipment> equipamientos) {
-    if (!validar()) {
-      return null;
-    }
-    if (idActividad == null) {
+  Booking? construirReservaDirecta(List<Activity> actividades) {
+    if (!validar() || idUsuario == null || idActividad == null) {
       return null;
     }
 
-    final double precio = calcularPrecioTotal(actividades, equipamientos);
+    final Activity? actividad = actividades
+        .where((a) => a.id == idActividad)
+        .firstOrNull;
+    final DateTime fechaInicio = actividad?.initDate ?? DateTime.now();
+    final DateTime fechaFin =
+        actividad?.endDate ?? DateTime.now().add(const Duration(hours: 4));
 
-    return Request(
+    final List<BookingLine> todasLasLineas = [];
+    todasLasLineas.add(
+      BookingLine(activityId: idActividad, quantity: numeroParticipantes),
+    );
+
+    for (final entry in materialesSolicitados.entries) {
+      if (entry.value > 0) {
+        todasLasLineas.add(
+          BookingLine(equipmentId: entry.key, quantity: entry.value),
+        );
+      }
+    }
+
+    return Booking(
       id: seleccionado?.id,
-      activityId: idActividad!,
-      participantCount: numeroParticipantes,
+      userId: idUsuario!,
+      lines: todasLasLineas,
       status: estado,
-      guideId: idExperto,
-      userId: idUsuario,
-      bookingId: idReserva,
-      requestedMaterials: Map<int, int>.from(materialesSolicitados),
-      totalPrice: precio,
+      startDate: fechaInicio,
+      endDate: fechaFin,
     );
   }
 
-  // Convierte una lista de líneas de reserva en un mapa {idEquipamiento → cantidad}.
-  Map<int, int> materialesDesdeLineas(List<BookingLine> lineas) {
-    final Map<int, int> materiales = {};
-    for (final BookingLine linea in lineas) {
-      materiales[linea.equipmentId] = linea.quantity;
-    }
-    return materiales;
-  }
-
-  // Convierte el mapa en lista de LineaReserva, filtrando los que tengan cantidad 0.
-  List<BookingLine> lineasDesdeMateriales() {
-    return materialesSolicitados.entries
-        .where((entry) => entry.value > 0)
-        .map(
-          (entry) =>
-              BookingLine(equipmentId: entry.key, quantity: entry.value),
-        )
-        .toList();
-  }
-
-  // Busca la actividad seleccionada en la lista de actividades disponibles.
   Activity? buscarActividadSeleccionada(List<Activity> actividades) {
-    if (idActividad == null) {
-      return null;
-    }
-    for (final Activity e in actividades) {
-      if (e.id == idActividad) {
-        return e;
-      }
-    }
-    return null;
+    if (idActividad == null) return null;
+    return actividades.where((e) => e.id == idActividad).firstOrNull;
   }
 
-  // TEMPORAL: reemplazar por GET /api/precio-solicitud con parámetros. El backend calculará el precio total.
-  // Recalcula los materiales solicitados basándose en la actividad seleccionada y el número de participantes.
+  // Usa 'recommendedEquipmentIds' de forma nativa como List<int>
   void recalcularMateriales(List<Activity> actividades) {
-    // Si ya existe una reserva asociada, no sobreescribir las cantidades.
-    if (idReserva != null) {
-      return;
-    }
-    // Si no hay actividad seleccionada, limpia los materiales solicitados.
     final Activity? actividad = buscarActividadSeleccionada(actividades);
     if (actividad == null) {
       materialesSolicitados = {};
       return;
     }
 
-    final int participantes = numeroParticipantes;
-    // Variable que guarda las entradas del mapa materialesPorParticipante para poder recorrerlas.
-    final Iterable<MapEntry<int, int>> plantilla = actividad.materialsPerParticipant.entries;
     final Map<int, int> recalculado = {};
 
-    for (final MapEntry<int, int> entry in plantilla) {
-      // Calcula la cantidad total para este material multiplicando la cantidad por persona por el número de participantes.
-      final int total = entry.value * participantes;
-
-      // Materiales que su cantidad total sea mayor que 0.
-      if (total > 0) {
-        recalculado[entry.key] = total;
-      }
+    // Al ser un List<int>, iteramos los identificadores directamente
+    for (final int idEquipamiento in actividad.recommendedEquipmentIds) {
+      recalculado[idEquipamiento] = numeroParticipantes;
     }
 
     materialesSolicitados = recalculado;
   }
 
-  // Construye una reserva a partir de la solicitud actual. El backend asignará el ID real.
-  Booking? construirReserva(List<Activity> actividades) {
-    if (idUsuario == null) {
-      return null;
-    }
+  double calcularPrecioTotal(
+    List<Activity> actividades,
+    List<Equipment> equipamientos,
+  ) {
+    final Activity? act = buscarActividadSeleccionada(actividades);
+    if (act == null) return 0;
 
-    final List<BookingLine> lineas = lineasDesdeMateriales();
-    if (lineas.isEmpty) {
-      return null;
-    }
+    double total = 0;
+    final int dias = act.endDate.difference(act.initDate).inDays.clamp(1, 999);
+    final Map<int, Equipment> equipPorId = {
+      for (final Equipment e in equipamientos) e.id!: e,
+    };
 
-    // Actividad asociada para extraer sus fechas exactas.
-    final Activity? actividad = actividades.where((a) => a.id == idActividad).firstOrNull;
-
-    // Si no encuentra la actividad (fallback de seguridad), pone la fecha actual.
-    final DateTime fechaInicio = actividad?.initDate ?? DateTime.now();
-    final DateTime fechaFin = actividad?.endDate ?? DateTime.now().add(const Duration(hours: 4));
-
-    return Booking(
-      userId: idUsuario!,
-      lines: lineas,
-      activityId: idActividad,
-      status: WorkflowStatus.pendiente,
-      startDate: fechaInicio,
-      endDate: fechaFin,
-    );
-  }
-
-  // Busca una reserva por su ID en una lista de reservas.
-  Booking? buscarReserva(List<Booking> reservas, int id) {
-    for (final Booking r in reservas) {
-      if (r.id == id) {
-        return r;
+    for (final entry in materialesSolicitados.entries) {
+      final Equipment? equip = equipPorId[entry.key];
+      if (equip != null) {
+        total += equip.pricePerDay * entry.value * dias;
       }
     }
-    return null;
-  }
 
-  // Sincroniza la reserva existente con los datos actuales de la solicitud.
-  Booking? sincronizarReserva(Request solicitud, List<Booking> reservas) {
-    // Obtiene el ID de la reserva asociada a la solicitud.
-    final int? idRes = solicitud.bookingId;
-    if (idRes == null) {
-      return null;
-    }
-    
-    // Busca esa reserva en la lista por su ID. 
-    final Booking? reserva = buscarReserva(reservas, idRes);
-    if (reserva == null) {
-      return null;
-    }
-
-    // Convierte los materiales actuales del formulario (materialesSolicitados) en líneas de reserva.
-    final List<BookingLine> lineas = lineasDesdeMateriales();
-    if (lineas.isEmpty) {
-      return null;
-    }
-
-    // Devuelve una copia de la reserva original con los datos actualizados.
-    return reserva.copyWith(
-      userId: solicitud.userId ?? reserva.userId,
-      activityId: solicitud.activityId,
-      lines: lineas,
-    );
-  }
-
-  // Crea una reserva a partir de los datos actuales. Devuelve null si hay error de validación.
-  Booking? crearEditarReserva(List<Activity> actividades) {
-    final Booking? reserva = construirReserva(actividades);
-    return reserva;
-  }
-
-  // Sincroniza la reserva asociada a la solicitud con los datos actuales. Devuelve la reserva actualizada.
-  Booking? sincronizarReservaConSolicitud(Request solicitud, List<Booking> reservas) {
-    final Booking? actualizada = sincronizarReserva(solicitud, reservas);
-    return actualizada;
-  }
-
-  // Devuelve la reserva actual, o null si no hay ninguna asociada.
-  Booking? buscarReservaActual(List<Booking> reservas) {
-    if (idReserva == null) {
-      return null;
-    }
-    return buscarReserva(reservas, idReserva!);
-  }
-
-  // Comprueba si la reserva asociada sigue existiendo en la lista.
-  bool reservaExiste(List<Booking> reservas) {
-    if (idReserva == null) {
-      return false;
-    }
-    return reservas.any((Booking r) => r.id == idReserva);
-  }
-
-  // Actualiza los materiales del formulario a partir de la reserva resultado.
-  void actualizarDesdeReserva(Booking resultado) {
-    materialesSolicitados = materialesDesdeLineas(resultado.lines);
-  }
-
-  // Calcula el precio total de la solicitud delegando al servicio de pricing.
-  double calcularPrecioTotal(List<Activity> actividades, List<Equipment> equipamientos) {
-    return calcularPrecioSolicitud(
-      idActividad: idActividad,
-      numeroParticipantes: numeroParticipantes,
-      materialesSolicitados: materialesSolicitados,
-      actividades: actividades,
-      equipamientos: equipamientos,
-    );
-  }
-
-  bool get tieneMateriales {
-    return materialesSolicitados.values.any((int v) => v > 0);
-  }
-
-  String? mensajeErrorReserva(BuildContext context) {
-    if (idUsuario == null) {
-      return AppLocalizations.of(context)!.selectClientForReservation;
-    }
-    if (!tieneMateriales) {
-      return AppLocalizations.of(context)!.addAtLeastOneMaterial;
-    }
-    return null;
-  }
-
-  void limpiar() {
-    editando = false;
-    seleccionado = null;
-    idActividad = null;
-    participantesCtrl.clear();
-    estado = WorkflowStatus.pendiente;
-    idExperto = null;
-    idUsuario = null;
-    idReserva = null;
-    materialesSolicitados = {};
+    return total;
   }
 
   void dispose() {
     participantesCtrl.dispose();
-  }
-
-  // Crea una reserva a partir de los datos actuales del formulario.
-  // Si hay un error de validación, muestra un snackbar y devuelve null.
-  Future<Booking?> crearEditarReservaDesdeSolicitud({
-    required BuildContext context,
-    required WidgetRef ref,
-  }) async {
-    final s = AppLocalizations.of(context)!;
-    final String? error = mensajeErrorReserva(context);
-    if (error != null) {
-      showErrorSnackBar(context, error);
-      return null;
-    }
-    final List<Activity> actividades = ref.read(activitiesProvider).value ?? [];
-    final Booking? reserva = crearEditarReserva(actividades);
-    if (reserva == null) {
-      return null;
-    }
-
-    try {
-      final Booking creada = await ref.read(reservationsProvider.notifier).agregar(reserva);
-      idReserva = creada.id;
-      return creada;
-      
-    } catch (e) {
-      if (!context.mounted) return null;
-      showErrorSnackBar(context, s.error(e.toString())); 
-      return null; 
-    }
   }
 }

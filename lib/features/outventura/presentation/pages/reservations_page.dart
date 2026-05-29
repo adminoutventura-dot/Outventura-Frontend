@@ -2,25 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/reservations_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
-import 'package:outventura/features/outventura/domain/entities/request.dart'; // <-- IMPORTANTE
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/solicitud_form_page.dart'; // Asegura esta importación
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservation_detail_page.dart';
-import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
+import 'package:outventura/features/outventura/presentation/widgets/material_reservation_card.dart';
+import 'package:outventura/features/outventura/presentation/widgets/activity_reservation_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_dialogs.dart';
-
-import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 
 class ReservationsPage extends ConsumerStatefulWidget {
   final bool puedeGestionar;
@@ -52,18 +50,27 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
     final usuarioActual = ref.watch(currentUserProvider);
-    final ReservationsNotifier notifier = ref.read(reservationsProvider.notifier);
-    final AsyncValue<List<Booking>> filtradas = ref.watch(filteredReservationsProvider((
-      query: _search.query,
-      idUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
-      estado: _controller.estadoFiltro,
-      fechaDesde: _controller.fechaDesde,
-      fechaHasta: _controller.fechaHasta,
-    )));
+    final ReservationsNotifier notifier = ref.read(
+      reservationsProvider.notifier,
+    );
+
+    final AsyncValue<List<Booking>> filtradas = ref.watch(
+      filteredReservationsProvider((
+        query: _search.query,
+        idUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+        estado: _controller.estadoFiltro,
+        fechaDesde: _controller.fechaDesde,
+        fechaHasta: _controller.fechaHasta,
+        tipo: _controller.tipoFiltro,
+      )),
+    );
 
     return Scaffold(
+      backgroundColor: cs.surface,
       appBar: CustomAppBar(
-        title: widget.puedeGestionar ? s.reservationManagement : s.reservationsTitle,
+        title: widget.puedeGestionar
+            ? s.reservationManagement
+            : s.reservationsTitle,
         actions: [
           Badge(
             isLabelVisible: _controller.hayFiltros,
@@ -81,12 +88,15 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
       floatingActionButton: widget.puedeCrear
           ? AddFab(
               onPressed: () async {
+                // Al crear desde el FAB general de reservas, asumimos flujo de materiales puros
                 final Booking? nueva = await Navigator.of(context)
                     .push<Booking>(
                       MaterialPageRoute(
                         builder: (_) => ReservationFormPage(
-                        initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
-                      ),
+                          initialIdUsuario: widget.puedeGestionar
+                              ? null
+                              : usuarioActual?.id,
+                        ),
                       ),
                     );
 
@@ -104,6 +114,29 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+            child: SegmentedButton<TipoReserva>(
+              segments: const [
+                ButtonSegment(value: TipoReserva.todas, label: Text('Totes')),
+                ButtonSegment(
+                  value: TipoReserva.materiales,
+                  label: Text('Materials'),
+                ),
+                ButtonSegment(
+                  value: TipoReserva.actividades,
+                  label: Text('Excursions'),
+                ),
+              ],
+              selected: {_controller.tipoFiltro},
+              onSelectionChanged: (Set<TipoReserva> nuevaSeleccion) {
+                setState(() {
+                  _controller.tipoFiltro = nuevaSeleccion.first;
+                });
+              },
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 6, 12, 4),
             child: CustomInputField(
               controller: _search.controller,
               labelText: s.searchByUserOrActividad,
@@ -121,146 +154,198 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
           Expanded(
             child: filtradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(child: Text(s.error(error.toString()))),
+              error: (error, _) =>
+                  Center(child: Text(s.error(error.toString()))),
               data: (List<Booking> lista) => lista.isEmpty
-                ? Center(child: Text(s.noReservations, style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant)))
-                : ListView.separated(
-                    padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
-                    itemCount: lista.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 10),
-                    itemBuilder: (_, int i) {
-                      final Booking res = lista[i];
+                  ? Center(
+                      child: Text(
+                        s.noReservations,
+                        style: tt.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: EdgeInsets.fromLTRB(
+                        12,
+                        12,
+                        12,
+                        MediaQuery.of(context).padding.bottom + 80,
+                      ),
+                      itemCount: lista.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
+                      itemBuilder: (BuildContext context, int i) {
+                        final Booking res = lista[i];
 
-                      return ReservationCard(
-                        reserva: res,
-                        lineas: res.lines.map((BookingLine linea) => (
-                          nombre: ref.watch(equipmentNameProvider(linea.equipmentId)),
-                          imagen: ref.watch(equipmentImageProvider(linea.equipmentId)),
-                          cantidad: linea.quantity,
-                        )).toList(),
+                        final bool tieneActividad = res.lines.any(
+                          (l) => l.activityId != null,
+                        );
 
-                        nombreUsuario: ref.watch(userNameProvider(res.userId)),
-                        nombreActividad: ref.watch(activityNameProvider(res.activityId)),
-
-                        onEditar: (!widget.puedeGestionar && res.status != WorkflowStatus.pendiente)
-                            ? null
-                            : () async {
-                          
-                          // REDIRECCIÓN A LA SOLICITUD ORIGINAL
-                          if (res.activityId != null) {
-                            final solicitudes = ref.read(requestsProvider).value ?? [];
-                            final solicitudAsociada = solicitudes.where((s) => s.bookingId == res.id).firstOrNull;
-
-                            if (solicitudAsociada != null) {
-                              
-                              // ABRE EL FORMULARIO Y ESPERA EL OBJETO REQUEST DE VUELTA
-                              final Request? resultadoSolicitud = await Navigator.of(context).push<Request>(
-                                MaterialPageRoute(
-                                  builder: (_) => SolicitudFormPage(
-                                    solicitud: solicitudAsociada,
-                                    initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
-                                  ),
+                        final lineasMapeadas = res.lines
+                            .where((l) => l.equipmentId != null)
+                            .map(
+                              (BookingLine linea) => (
+                                nombre: ref.watch(
+                                  equipmentNameProvider(linea.equipmentId!),
                                 ),
-                              );
-                              
-                              // SI EL USUARIO GUARDA, LO ENVIA AL BACKEND
-                              if (resultadoSolicitud != null && context.mounted) {
-                                try {
-                                  await ref.read(requestsProvider.notifier).actualizar(solicitudAsociada, resultadoSolicitud);
-                                  
-                                  // Invalida para que todo se repinte con los nuevos valores
-                                  ref.invalidate(reservationsProvider);
-                                  ref.invalidate(equipmentProvider);
-                                  
-                                  if (context.mounted) {
-                                    showSuccessSnackBar(context, "Sol·licitud actualitzada amb èxit");
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Error del servidor: $e'),
-                                        backgroundColor: cs.error,
-                                      ),
-                                    );
-                                  }
-                                }
-                              }
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text("No s'ha trobat la sol·licitud original en memòria. Actualitza la llista."),
-                                  backgroundColor: cs.error,
+                                imagen: ref.watch(
+                                  equipmentImageProvider(linea.equipmentId!),
                                 ),
-                              );
-                            }
-                            return; // Salie para no ejecutar la lógica de reserva normal
-                          }
-
-
-                          // FLUJO NORMAL: Si es una Reserva directa (sin actividad)
-
-                          final Booking? resultado = await Navigator.of(context).push<Booking>(
-                            MaterialPageRoute(
-                              builder: (BuildContext _) => ReservationFormPage(
-                                reserva: res,
-                                initialActivity: res.activityId != null ? ref.read(activityByIdProvider(res.activityId!)) : null,
-                                initialIdUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
+                                cantidad: linea.quantity,
                               ),
+                            )
+                            .toList();
+
+                        final String nombreUsuario = ref.watch(
+                          userNameProvider(res.userId),
+                        );
+
+                        void onVerDetalleCall() {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ReservationDetailPage(reserva: res),
                             ),
                           );
+                        }
 
-                          if (resultado == null) return;
-                          try {
-                            await notifier.actualizar(res, resultado);
-                            ref.invalidate(equipmentProvider);
+                        final int? activityIdFromLine = res.lines
+                            .where((l) => l.activityId != null)
+                            .map((l) => l.activityId)
+                            .firstOrNull;
 
-                            if (!context.mounted) return;
-                            showSuccessSnackBar(context, s.reservationUpdated);
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Error del servidor: $e'),
-                                backgroundColor: Theme.of(context).colorScheme.error,
-                              ),
-                            );
-                          }
-                        },
+                        // Enrutador dinámico de edición de formularios
+                        final onEditarCall =
+                            (!widget.puedeGestionar &&
+                                res.status != WorkflowStatus.pendiente)
+                            ? null
+                            : () async {
+                                final Booking?
+                                resultado = await Navigator.of(context).push<Booking>(
+                                  MaterialPageRoute(
+                                    builder: (BuildContext _) {
+                                      if (tieneActividad) {
+                                        // Si tiene excursión vinculada, abre SolicitudFormPage
+                                        return SolicitudFormPage(
+                                          reserva: res,
+                                          initialIdUsuario:
+                                              widget.puedeGestionar
+                                              ? null
+                                              : usuarioActual?.id,
+                                        );
+                                      } else {
+                                        // Si es sólo materiales, abre ReservationFormPage
+                                        return ReservationFormPage(
+                                          reserva: res,
+                                          initialIdUsuario:
+                                              widget.puedeGestionar
+                                              ? null
+                                              : usuarioActual?.id,
+                                        );
+                                      }
+                                    },
+                                  ),
+                                );
 
-                        onAprobar: widget.puedeGestionar && res.status == WorkflowStatus.pendiente
-                            ? () => mostrarDialogoAprobacion(context, res, () async {
-                                  await notifier.aprobar(res);
+                                if (resultado == null) return;
+                                try {
+                                  await notifier.actualizar(res, resultado);
                                   ref.invalidate(equipmentProvider);
-                                })
-                            : null,
-                        onRechazar: widget.puedeGestionar && res.status == WorkflowStatus.pendiente
-                            ? () => mostrarDialogoRechazo(context, res, () async {
-                                  await notifier.rechazar(res);
-                                  ref.invalidate(equipmentProvider);
-                                })
-                            : null,
-                        onRegistrarDevolucion: widget.puedeGestionar && res.status == WorkflowStatus.enCurso
-                            ? () => mostrarDialogoDevolucion(context, res, () async {
-                                  await notifier.registrarDevolucion(res);
-                                  ref.invalidate(equipmentProvider);
-                                })
-                            : null,
-                        onCancelar: (widget.puedeGestionar && res.status == WorkflowStatus.confirmada) ||
-                                    (!widget.puedeGestionar && (res.status == WorkflowStatus.pendiente || res.status == WorkflowStatus.confirmada))
-                            ? () => mostrarDialogoCancelacion(context, res, () async {
-                                  await notifier.cancelar(res);
-                                  ref.invalidate(equipmentProvider);
-                                })
-                            : null,
-                        onVerDetalle: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => ReservationDetailPage(reserva: res),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+
+                                  if (!context.mounted) return;
+                                  showSuccessSnackBar(
+                                    context,
+                                    s.reservationUpdated,
+                                  );
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error del servidor: $e'),
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.error,
+                                    ),
+                                  );
+                                }
+                              };
+
+                        // Divide el árbol de renderizado según los archivos separados
+                        if (tieneActividad) {
+                          return ActivityReservationCard(
+                            reserva: res,
+                            lineas: lineasMapeadas,
+                            nombreUsuario: nombreUsuario,
+                            nombreActividad: ref.watch(
+                              activityNameProvider(activityIdFromLine),
+                            ),
+                            onEditar: onEditarCall,
+                            onVerDetalle: onVerDetalleCall,
+                          );
+                        } else {
+                          return MaterialReservationCard(
+                            reserva: res,
+                            lineas: lineasMapeadas,
+                            nombreUsuario: nombreUsuario,
+                            onEditar: onEditarCall,
+                            onVerDetalle: onVerDetalleCall,
+                            onAprobar:
+                                widget.puedeGestionar &&
+                                    res.status == WorkflowStatus.pendiente
+                                ? () => mostrarDialogoAprobacion(
+                                    context,
+                                    res,
+                                    () async {
+                                      await notifier.aprobar(res);
+                                      ref.invalidate(equipmentProvider);
+                                    },
+                                  )
+                                : null,
+                            onRechazar:
+                                widget.puedeGestionar &&
+                                    res.status == WorkflowStatus.pendiente
+                                ? () => mostrarDialogoRechazo(
+                                    context,
+                                    res,
+                                    () async {
+                                      await notifier.rechazar(res);
+                                      ref.invalidate(equipmentProvider);
+                                    },
+                                  )
+                                : null,
+                            onRegistrarDevolucion:
+                                widget.puedeGestionar &&
+                                    res.status == WorkflowStatus.enCurso
+                                ? () => mostrarDialogoDevolucion(
+                                    context,
+                                    res,
+                                    () async {
+                                      await notifier.registrarDevolucion(res);
+                                      ref.invalidate(equipmentProvider);
+                                    },
+                                  )
+                                : null,
+                            onCancelar:
+                                (widget.puedeGestionar &&
+                                        res.status ==
+                                            WorkflowStatus.confirmada) ||
+                                    (!widget.puedeGestionar &&
+                                        (res.status ==
+                                                WorkflowStatus.pendiente ||
+                                            res.status ==
+                                                WorkflowStatus.confirmada))
+                                ? () => mostrarDialogoCancelacion(
+                                    context,
+                                    res,
+                                    () async {
+                                      await notifier.cancelar(res);
+                                      ref.invalidate(equipmentProvider);
+                                    },
+                                  )
+                                : null,
+                          );
+                        }
+                      },
+                    ),
             ),
           ),
         ],

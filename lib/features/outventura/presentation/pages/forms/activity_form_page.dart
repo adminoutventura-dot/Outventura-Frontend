@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
-import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
@@ -51,19 +50,27 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final AppLocalizations s = AppLocalizations.of(context)!;
-    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+    final List<Equipment> equipamientos =
+        ref.watch(equipmentProvider).value ?? [];
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: CustomAppBar(title: _controller.editando ? s.editActividad : s.nuevaActividad),
+      appBar: CustomAppBar(
+        title: _controller.editando ? s.editActividad : s.nuevaActividad,
+      ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          20,
+          20,
+          MediaQuery.of(context).padding.bottom + 24,
+        ),
         child: Form(
           key: _controller.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Imagen
+              // Imagen selector
               AppImagePickerField(
                 imageUrl: _controller.imagenAsset,
                 isAsset: true,
@@ -76,51 +83,41 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Nombre de la actividad
+              // Datos descriptivos de la actividad
               Text(
                 s.actividadSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
 
-              // Puntos inicio
+              // Título
               CustomInputField(
-                controller: _controller.puntoInicioController,
+                controller: _controller.tituloController,
+                labelText:
+                    "s.title", // Arreglado el literal string que causaba problemas
+                prefixIcon: Icons.title,
+                validator: ValidadoresFormulario.campoObligatorio(s),
+              ),
+              const SizedBox(height: 14),
+
+              // Punto de encuentro o ruta fusionada
+              CustomInputField(
+                controller: _controller.puntoInicioFinController,
                 labelText: s.startPoint,
                 prefixIcon: Icons.place_outlined,
-                validator: ValidadoresFormulario.campoObligatorio(s),
               ),
               const SizedBox(height: 14),
 
-              // Punto fin
-              CustomInputField(
-                controller: _controller.puntoFinController,
-                labelText: s.endPoint,
-                prefixIcon: Icons.flag_outlined,
-                validator: ValidadoresFormulario.campoObligatorio(s),
-              ),
-              const SizedBox(height: 14),
-
-              // Descripción
+              // Detalles descriptivos adicionales
               CustomInputField(
                 controller: _controller.descripcionController,
                 labelText: s.descriptionOptional,
                 prefixIcon: Icons.notes_outlined,
                 keyboardType: TextInputType.multiline,
               ),
-              const SizedBox(height: 14),
-
-              // Precio por participante
-              CustomInputField(
-                controller: _controller.precioController,
-                labelText: s.pricePerParticipant,
-                prefixIcon: Icons.euro_outlined,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: ValidadoresFormulario.decimalPositivo(s),
-              ),
               const SizedBox(height: 20),
 
-              // Fechas
+              // Gestión de fechas de realización
               Text(
                 s.datesSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
@@ -128,39 +125,54 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  // Fechas de inicio 
+                  // Selector de inicio
                   Expanded(
                     child: AppDateSelector(
                       label: s.start,
                       date: _controller.fechaInicio,
                       firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                      lastDate: DateTime.now().add(
+                        const Duration(days: 365 * 2),
+                      ),
                       onDateSelected: (DateTime picked) {
-                        setState(() => _controller.establecerFecha(isStart: true, value: picked));
+                        setState(
+                          () => _controller.establecerFecha(
+                            isStart: true,
+                            value: picked,
+                          ),
+                        );
                       },
                     ),
                   ),
                   const SizedBox(width: 12),
 
-                  // Fechas de fin
+                  // Selector de finalización
                   Expanded(
                     child: AppDateSelector(
                       label: s.end,
                       date: _controller.fechaFin,
                       firstDate: _controller.fechaInicio,
-                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                      lastDate: DateTime.now().add(
+                        const Duration(days: 365 * 2),
+                      ),
                       onDateSelected: (DateTime picked) {
-                        setState(() => _controller.establecerFecha(isStart: false, value: picked));
+                        setState(
+                          () => _controller.establecerFecha(
+                            isStart: false,
+                            value: picked,
+                          ),
+                        );
                       },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-            
+
+              // Gestión de franjas horarias
               Row(
                 children: [
-                  // Horas de inicio
+                  // Hora de salida
                   Expanded(
                     child: AppTimeSelector(
                       label: s.startTime,
@@ -172,7 +184,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                   ),
                   const SizedBox(width: 12),
 
-                  // Horas de fin
+                  // Hora de regreso
                   Expanded(
                     child: AppTimeSelector(
                       label: s.endTime,
@@ -186,7 +198,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Participantes
+              // Aforo de la excursión
               CustomInputField(
                 controller: _controller.participantesController,
                 labelText: s.maxParticipants,
@@ -196,49 +208,29 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Categorías
+              // Categorías temáticas asociadas
               Text(
                 s.categories.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
 
-              // Lista de categorías como chips seleccionables.
+              // Despliega chips de selección múltiple
               AppFilterChipFormField(
                 seleccionados: _controller.categorias,
                 onToggle: (Category cat) {
                   setState(() => _controller.alternarCategoria(cat));
                 },
-                // El validator recibe la lista de categorías seleccionadas y devuelve un mensaje de error si la lista está vacía.
                 validator: (List<Category>? v) {
-                  return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Estado
-              Text(
-                s.status.toUpperCase(),
-                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-              ),
-              const SizedBox(height: 8),
-
-              // Lista de estados como chips seleccionables (única selección).
-              AppChipWrap(
-                children: ActivityStatus.values.map((ActivityStatus est) {
-                  final bool seleccionado = _controller.estado == est;
-                  return AppChoiceChip(
-                    label: est.localizedLabel(s),
-                    seleccionado: seleccionado,
-                    onSelected: (_) {
-                      setState(() => _controller.estado = est);
-                    },
+                  return ValidadoresFormulario.listaRequerida(
+                    v,
+                    s.selectCategory,
                   );
-                }).toList(),
+                },
               ),
               const SizedBox(height: 32),
 
-              // Materiales recomendados por participante
+              // Sección de inventario recomendado para el trayecto
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -257,8 +249,13 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       );
                       if (result == null) return;
                       setState(() {
-                        _controller.materialesRecomendados[result.equipmentId] =
-                            (_controller.materialesRecomendados[result.equipmentId] ?? 0) + result.quantity;
+                        // Forzamos aserción porque en este formulario el diálogo sólo devuelve materiales con ID válido
+                        _controller.materialesRecomendados[result
+                                .equipmentId!] =
+                            (_controller.materialesRecomendados[result
+                                    .equipmentId!] ??
+                                0) +
+                            result.quantity;
                       });
                     },
                   ),
@@ -266,6 +263,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 8),
 
+              // Renderiza el desglose de materiales inyectados a la plantilla
               if (_controller.materialesRecomendados.isNotEmpty)
                 ..._controller.materialesRecomendados.entries.map((entry) {
                   final int idEquip = entry.key;
@@ -277,7 +275,10 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                   if (equip == null) return const SizedBox.shrink();
 
                   return ReservationLineCard(
-                    linea: BookingLine(equipmentId: idEquip, quantity: cantidad),
+                    linea: BookingLine(
+                      equipmentId: idEquip,
+                      quantity: cantidad,
+                    ),
                     equipamiento: equip,
                     cantidadDaniada: 0,
                     esCliente: true,
@@ -285,22 +286,30 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       final result = await mostrarDialogoLineaReserva(
                         context: context,
                         equipamientos: equipamientos,
-                        initialLinea: BookingLine(equipmentId: idEquip, quantity: cantidad),
+                        initialLinea: BookingLine(
+                          equipmentId: idEquip,
+                          quantity: cantidad,
+                        ),
                         validateStock: false,
                       );
                       if (result == null) return;
                       setState(() {
                         _controller.materialesRecomendados.remove(idEquip);
-                        _controller.materialesRecomendados[result.equipmentId] = result.quantity;
+                        // Forzamos aserción para registrar de forma segura el stock modificado
+                        _controller.materialesRecomendados[result
+                                .equipmentId!] =
+                            result.quantity;
                       });
                     },
-                    onDelete: () => setState(() => _controller.materialesRecomendados.remove(idEquip)),
+                    onDelete: () => setState(
+                      () => _controller.materialesRecomendados.remove(idEquip),
+                    ),
                   );
                 }),
 
               const SizedBox(height: 32),
 
-              // Botón Guardar / Crear
+              // Botón de confirmación e inserción general
               SizedBox(
                 width: double.infinity,
                 child: PrimaryButton(

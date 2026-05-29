@@ -45,11 +45,11 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
   @override
   void initState() {
     super.initState();
-    // Si hay línea inicial (edición), precarga el equipamiento y la cantidad.
-    // Si no (creación), el equipamiento queda vacío y la cantidad por defecto es 1.
     _idEquipamiento = widget.initialLinea?.equipmentId;
     _cantCtrl = TextEditingController(
-      text: widget.initialLinea != null ? '${widget.initialLinea!.quantity}' : '1',
+      text: widget.initialLinea != null
+          ? '${widget.initialLinea!.quantity}'
+          : '1',
     );
   }
 
@@ -63,14 +63,12 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
   Widget build(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     return AlertDialog(
-      // El título varía según si es creación o edición de línea.
       title: Text(widget.initialLinea == null ? s.addLine : s.editLine),
       content: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Selector de equipamiento
             AppDropdownField<Equipment>(
               value: _idEquipamiento,
               items: widget.equipamientos,
@@ -83,8 +81,6 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
               onChanged: (int? v) => setState(() => _idEquipamiento = v),
             ),
             const SizedBox(height: 16),
-
-            // Campo de cantidad (mínimo 1)
             CustomInputField(
               controller: _cantCtrl,
               labelText: s.quantity,
@@ -93,21 +89,24 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
               validator: (String? v) {
                 final int? n = int.tryParse(v ?? '');
                 if (n == null || n < 1) return s.invalidQuantity;
-                
-                // Validar contra el stock disponible del equipamiento seleccionado
+
                 if (widget.validateStock && _idEquipamiento != null) {
                   Equipment? selectedEquipment;
                   try {
-                    selectedEquipment = widget.equipamientos.firstWhere((e) => e.id == _idEquipamiento);
-                  } catch (e) {
-                    // TODO: Equipment not found
-                  }
-                  
-                  if (selectedEquipment != null && n > selectedEquipment.units) {
-                    return s.insufficientStock(selectedEquipment.units, _idEquipamiento!);
+                    selectedEquipment = widget.equipamientos.firstWhere(
+                      (e) => e.id == _idEquipamiento,
+                    );
+                  } catch (_) {}
+
+                  // Mapea contra 'totalUnits' en lugar del 'units'
+                  if (selectedEquipment != null &&
+                      n > selectedEquipment.totalUnits) {
+                    return s.insufficientStock(
+                      selectedEquipment.totalUnits,
+                      _idEquipamiento!,
+                    );
                   }
                 }
-                
                 return null;
               },
             ),
@@ -115,15 +114,12 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
         ),
       ),
       actions: [
-        // Cancelar sin guardar cambios
         SecondaryButton(
           label: s.cancel,
           onPressed: () => Navigator.pop(context),
           backgroundColor: Theme.of(context).colorScheme.surface,
           borderColor: Theme.of(context).colorScheme.primary,
         ),
-        
-        // Confirmar: valida el formulario y devuelve la BookingLine resultante.
         PrimaryButton(
           label: s.confirm,
           onPressed: () {

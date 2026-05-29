@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // 🌟 Añadido para consumir estados
 import 'package:outventura/core/widgets/app_bar_forms.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/utils/form_validators.dart';
-import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/presentation/controllers/equipment_form_controller.dart';
+import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart'; // Asegura la ruta de tu provider de estados
 
-class EquipmentFormPage extends StatefulWidget {
+class EquipmentFormPage extends ConsumerStatefulWidget { // 🌟 Cambiado a ConsumerStatefulWidget
   final Equipment? equipamiento;
 
   const EquipmentFormPage({super.key, this.equipamiento});
 
   @override
-  State<EquipmentFormPage> createState() => _EquipmentFormPageState();
+  ConsumerState<EquipmentFormPage> createState() => _EquipmentFormPageState();
 }
 
-class _EquipmentFormPageState extends State<EquipmentFormPage> {
+class _EquipmentFormPageState extends ConsumerState<EquipmentFormPage> {
   late final EquipmentFormController _controller;
 
   @override
@@ -44,11 +45,12 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
+    // Obtiene la lista de estados dinámicos de la base de datos
+    final listaEstados = ref.watch(equipmentStatusesProvider).value ?? [];
+
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: CustomAppBarForm(title: _controller.editando ? s.editEquipment : s.newEquipment),
-
-      // SingleChildScrollView permite que un solo hijo sea scrollable. 
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).padding.bottom + 24),
         child: Form(
@@ -56,7 +58,6 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Imagen
               Center(
                 child: AppImagePickerField(
                   imageUrl: _controller.imagenAsset,
@@ -72,13 +73,11 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               ),
               const SizedBox(height: 20),
               
-              // Categoría
               Text(
                 s.equipmentSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              // Nombre 
               CustomInputField(
                 controller: _controller.nombreController,
                 labelText: s.name,
@@ -87,7 +86,6 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               ),
               const SizedBox(height: 14),
 
-              // Descripción
               CustomInputField(
                 controller: _controller.descripcionController,
                 labelText: s.description,
@@ -96,14 +94,12 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Categorías
               Text(
                 s.categories.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
 
-              // Lista de categorías como chips seleccionables.
               AppFilterChipFormField(
                 seleccionados: _controller.categorias,
                 onToggle: (Category cat) {
@@ -115,75 +111,49 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Estado
               Text(
                 s.status.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              // Lista de estados como chips seleccionables (única selección).
               AppChipWrap(
-                children: EquipmentStatus.values.map((EquipmentStatus est) {
-                  final bool seleccionado = _controller.estado == est;
+                children: listaEstados.map((dynamic est) {
+                  final bool seleccionado = _controller.statusId == est.id;
                   return AppChoiceChip(
-                    label: est.localizedLabel(s),
+                    label: est.name as String,
                     seleccionado: seleccionado,
-                    onSelected: (_) {
-                      setState(() => _controller.estado = est);
+                    // 🌟 ARREGLO: Corregido callback unificado onPressed
+                    onPressed: () {
+                      setState(() => _controller.statusId = est.id as int);
                     },
                   );
                 }).toList(),
               ),
               const SizedBox(height: 20),
 
-
-              // Stock
               Text(
                 s.stockSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
-              const SizedBox(height: 4),
-
-              
-              Row(
-                children: [
-                  // Stock disponible
-                  Expanded(
-                    child: CustomInputField(
-                      controller: _controller.stockController,
-                      labelText: s.availableStock,
-                      prefixIcon: Icons.format_list_numbered,
-                      keyboardType: TextInputType.number,
-                      validator: ValidadoresFormulario.enteroPositivo(s),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-
-                  // Stock total
-                  Expanded(
-                    child: CustomInputField(
-                      controller: _controller.stockTotalController,
-                      labelText: s.totalStock,
-                      prefixIcon: Icons.inventory_2_outlined,
-                      keyboardType: TextInputType.number,
-                      validator: ValidadoresFormulario.enteroPositivo(s),
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 8),
+              // 🌟 ARREGLO: Ocultamos stockController; solo el total es editable por el Admin
+              CustomInputField(
+                controller: _controller.stockTotalController,
+                labelText: s.totalStock,
+                prefixIcon: Icons.inventory_2_outlined,
+                keyboardType: TextInputType.number,
+                validator: ValidadoresFormulario.enteroPositivo(s),
               ),
               const SizedBox(height: 14),
 
-              // Tarifas
               Text(
                 s.rates.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 4),
 
-              // Precios
               Row(
                 children: [
-                  // Precio por día
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.precioController,
@@ -194,8 +164,6 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-
-                  // Precio por hora
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.tarifaController,
@@ -209,17 +177,13 @@ class _EquipmentFormPageState extends State<EquipmentFormPage> {
               ),
               const SizedBox(height: 32),
 
-              // Botón Guardar / Crear
               SizedBox(
                 width: double.infinity,
                 child: PrimaryButton(
                   label: _controller.editando ? s.save : s.create,
                   onPressed: () {
                     final Equipment? equipamiento = _controller.crearEquipamiento();
-                    if (equipamiento == null) {
-                      return;
-                    }
-                    // Cierra la página y devuelve el nuevo equipamiento a la página anterior
+                    if (equipamiento == null) return;
                     Navigator.of(context).pop(equipamiento);
                   },
                 ),

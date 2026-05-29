@@ -7,11 +7,11 @@ import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/activities_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
-import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/activity_form_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/request_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/solicitud_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
@@ -50,19 +50,19 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
 
     final usuarioActual = ref.watch(currentUserProvider);
     final bool isGuide = usuarioActual?.role.code == 'GUIDE';
-    
-    // 🌟 COMPROBAMOS SI ES INVITADO (o si el usuario es null)
-    final bool isGuest = usuarioActual == null || 
-                         usuarioActual.role.code == 'INVITADO' || 
-                         usuarioActual.role.code == 'GUEST';
+    final bool isGuest =
+        usuarioActual == null ||
+        usuarioActual.role.code == 'INVITADO' ||
+        usuarioActual.role.code == 'GUEST';
 
-    final AsyncValue<List<Activity>> actividadesFiltradas = ref.watch(filteredActivitiesProvider((
-      query: _search.query,
-      estado: _controller.estadoFiltro,
-      categoria: _controller.categoriaFiltro,
-      fechaDesde: _controller.fechaDesde,
-      fechaHasta: _controller.fechaHasta,
-    )));
+    final AsyncValue<List<Activity>> actividadesFiltradas = ref.watch(
+      filteredActivitiesProvider((
+        query: _search.query,
+        categoria: _controller.categoriaFiltro,
+        fechaDesde: _controller.fechaDesde,
+        fechaHasta: _controller.fechaHasta,
+      )),
+    );
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -82,7 +82,6 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
         ],
       ),
       drawer: const AppDrawer(),
-      // BLOQUEAMOS EL FAB SI ES GUÍA
       floatingActionButton: (widget.puedeGestionar && !isGuide)
           ? Padding(
               padding: const EdgeInsets.only(bottom: 100.0),
@@ -90,11 +89,11 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                 onPressed: () async {
                   final Activity? nueva = await Navigator.of(context)
                       .push<Activity>(
-                        MaterialPageRoute(builder: (_) => const ActivityFormPage()),
+                        MaterialPageRoute(
+                          builder: (_) => const ActivityFormPage(),
+                        ),
                       );
-                  if (nueva == null) {
-                    return;
-                  }
+                  if (nueva == null) return;
                   try {
                     await ref.read(activitiesProvider.notifier).agregar(nueva);
                     if (!context.mounted) return;
@@ -107,10 +106,8 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
               ),
             )
           : null,
-
       body: Column(
         children: [
-          // Barra de búsqueda
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
@@ -126,113 +123,128 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
               onChanged: (String v) => setState(() => _search.query = v),
             ),
           ),
-          // Lista de actividades filtradas
           Expanded(
             child: actividadesFiltradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(child: Text(s.error(error.toString()))),
+              error: (error, _) =>
+                  Center(child: Text(s.error(error.toString()))),
               data: (List<Activity> lista) => ListView.separated(
-              padding: EdgeInsets.fromLTRB(12, 12, 12, MediaQuery.of(context).padding.bottom + 80),
-              itemCount: lista.isEmpty ? 1 : lista.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
-              itemBuilder: (BuildContext context, int index) {
-                if (lista.isEmpty) {
-                  return Center(
-                    child: Text(
-                      s.noActividadesParaCategoria,
-                      style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                    ),
-                  );
-                }
-                final Activity actividad = lista[index];
-                return ActivityCard(
-                  actividad: actividad,
-                  onEditar: (widget.puedeGestionar && !isGuide)
-                      ? () async {
-                          final Activity? actualizada =
-                              await Navigator.of(context).push<Activity>(
-                                MaterialPageRoute(
-                                  builder: (BuildContext _) =>
-                                      ActivityFormPage(actividad: actividad),
-                                ),
-                              );
-                          if (actualizada == null) {
-                            return;
-                          }
-                          try {
-                            await ref.read(activitiesProvider.notifier).actualizar(actividad, actualizada);
-                            if (!context.mounted) return;
-                            showSuccessSnackBar(context, s.actividadActualizada);
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            showErrorSnackBar(context, s.error(e.toString()));
-                          }
-                        }
-                      : null,
-                  onEliminar: (widget.puedeGestionar && !isGuide)
+                padding: EdgeInsets.fromLTRB(
+                  12,
+                  12,
+                  12,
+                  MediaQuery.of(context).padding.bottom + 80,
+                ),
+                itemCount: lista.isEmpty ? 1 : lista.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
+                itemBuilder: (BuildContext context, int index) {
+                  if (lista.isEmpty) {
+                    return Center(
+                      child: Text(
+                        s.noActividadesParaCategoria,
+                        style: tt.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    );
+                  }
+                  final Activity actividad = lista[index];
+                  return ActivityCard(
+                    actividad: actividad,
+                    onEditar: (widget.puedeGestionar && !isGuide)
                         ? () async {
-                            // Aviso alertando del borrado en cascada
+                            final Activity? actualizada =
+                                await Navigator.of(context).push<Activity>(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        ActivityFormPage(actividad: actividad),
+                                  ),
+                                );
+                            if (actualizada == null) return;
+                            try {
+                              await ref
+                                  .read(activitiesProvider.notifier)
+                                  .actualizar(actividad, actualizada);
+                              if (!context.mounted) return;
+                              showSuccessSnackBar(
+                                context,
+                                s.actividadActualizada,
+                              );
+                            } catch (e) {
+                              if (!context.mounted) return;
+                              showErrorSnackBar(context, s.error(e.toString()));
+                            }
+                          }
+                        : null,
+                    onEliminar: (widget.puedeGestionar && !isGuide)
+                        ? () async {
                             final bool confirm = await showConfirmDialog(
                               context: context,
                               title: s.deleteActividad,
-                              content: '${s.deleteActividadConfirm('${actividad.startPoint} → ${actividad.endPoint}')}\n\n'
-                                       '⚠️ ¡Atención! Al eliminar esta actividad se borrarán permanentemente todas las solicitudes asociadas a ella.',
+                              content:
+                                  '${s.deleteActividadConfirm(actividad.title)}\n\n⚠️ ¡Atención! Al eliminar esta actividad se borrarán permanentemente totes les reserves associades a ella.',
                             );
-                            
                             if (confirm) {
                               try {
-                                await ref.read(activitiesProvider.notifier).eliminar(actividad);
+                                await ref
+                                    .read(activitiesProvider.notifier)
+                                    .eliminar(actividad);
                                 if (!context.mounted) return;
-                                showSuccessSnackBar(context, 'Actividad eliminada con éxito');
+                                showSuccessSnackBar(
+                                  context,
+                                  'Actividad eliminada con éxito',
+                                );
                               } catch (e) {
                                 if (!context.mounted) return;
-                                showErrorSnackBar(context, s.error(e.toString()));
+                                showErrorSnackBar(
+                                  context,
+                                  s.error(e.toString()),
+                                );
                               }
                             }
                           }
                         : null,
-                  onSolicitar: (widget.puedeSolicitar && !isGuide)
-                      ? () async {
-                          // 🌟 TRAMPA PARA INVITADOS USANDO TU SNACKBAR
-                          if (isGuest) {
-                            showErrorSnackBar(context, 'Necesitas iniciar sesión para solicitar una excursión.');
-                            return;
-                          }
-
-                          final usuario = ref.read(currentUserProvider);
-                          if (usuario == null) {
-                            return;
-                          }
-
-                          final Request? solicitud =
-                              await Navigator.of(context).push<Request>(
-                                MaterialPageRoute(
-                                  builder: (_) => SolicitudFormPage(
-                                    initialIdActividad: actividad.id,
-                                    initialIdUsuario: usuario.id,
-                                  ),
-                                ),
+                    onSolicitar: (widget.puedeSolicitar && !isGuide)
+                        ? () async {
+                            if (isGuest) {
+                              showErrorSnackBar(
+                                context,
+                                'Necesitas iniciar sesión para apuntarte a una excursión.',
                               );
+                              return;
+                            }
+                            final usuario = ref.read(currentUserProvider);
+                            if (usuario == null) return;
 
-                          if (solicitud == null) {
-                            return;
+                            final Booking? reserva = await Navigator.of(context)
+                                .push<Booking>(
+                                  MaterialPageRoute(
+                                    builder: (_) => SolicitudFormPage(
+                                      initialIdActividad: actividad.id,
+                                      initialIdUsuario: usuario.id,
+                                    ),
+                                  ),
+                                );
+
+                            if (reserva == null) return;
+                            try {
+                              await ref
+                                  .read(reservationsProvider.notifier)
+                                  .agregar(reserva);
+                              if (!context.mounted) return;
+                              showSuccessSnackBar(
+                                context,
+                                'Reserva realizada con éxito',
+                              );
+                            } catch (e) {
+                              if (!context.mounted) return;
+                              showErrorSnackBar(context, s.error(e.toString()));
+                            }
                           }
-                          try {
-                            await ref.read(requestsProvider.notifier).agregar(solicitud);
-                            if (!context.mounted) return;
-                            final String mensaje = solicitud.bookingId != null
-                                ? s.requestCreatedWithReservation
-                                : s.requestCreated;
-                            showSuccessSnackBar(context, mensaje);
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            showErrorSnackBar(context, s.error(e.toString()));
-                          }
-                        }
-                      : null,
-                );
-              },
-            ),
+                        : null,
+                  );
+                },
+              ),
             ),
           ),
         ],

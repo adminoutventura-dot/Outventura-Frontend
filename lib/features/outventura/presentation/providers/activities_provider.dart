@@ -6,46 +6,68 @@ import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
 // Lista completa de actividades. GET /activity.
-final AsyncNotifierProvider<ActivitiesNotifier, List<Activity>> activitiesProvider =
-    AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>(ActivitiesNotifier.new);
+final AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>
+activitiesProvider = AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>(
+  ActivitiesNotifier.new,
+);
 
-// Filtra actividades en el frontend por estado, categoría, rango de fechas y texto libre
-// (punto de inicio y punto de fin). El filtrado es local mientras no haya query params en el backend.
-final filteredActivitiesProvider = Provider.family<AsyncValue<List<Activity>>, ({String query, ActivityStatus? estado, Category? categoria, DateTime? fechaDesde, DateTime? fechaHasta})>((ref, params) {
+// Filtra actividades en el frontend por categoría, rango de fechas y texto libre
+// (título y ruta). El filtrado es local mientras no haya query params en el backend.
+final filteredActivitiesProvider =
+    Provider.family<
+      AsyncValue<List<Activity>>,
+      ({
+        String query,
+        Category? categoria,
+        DateTime? fechaDesde,
+        DateTime? fechaHasta,
+      })
+    >((ref, params) {
+      // Se re-ejecuta automáticamente cuando cambia la lista de actividades
+      final AsyncValue<List<Activity>> asyncTodas = ref.watch(
+        activitiesProvider,
+      );
 
-  // Se re-ejecuta automáticamente cuando cambia la lista de actividades
-  final AsyncValue<List<Activity>> asyncTodas = ref.watch(activitiesProvider);
+      return asyncTodas.whenData((List<Activity> todas) {
+        List<Activity> base = todas;
 
-  return asyncTodas.whenData((List<Activity> todas) {
-    List<Activity> base = todas;
-
-    if (params.estado != null) {
-      base = base.where((Activity e) => e.status == params.estado).toList();
-    }
-    if (params.categoria != null) {
-      base = base.where((Activity e) => e.categories.contains(params.categoria)).toList();
-    }
-    // Una actividad entra en el rango si no terminó antes del fechaDesde
-    if (params.fechaDesde != null) {
-      base = base.where((Activity e) => !e.endDate.isBefore(params.fechaDesde!)).toList();
-    }
-    // Una actividad entra en el rango si no empieza después del fechaHasta
-    if (params.fechaHasta != null) {
-      base = base.where((Activity e) => !e.initDate.isAfter(params.fechaHasta!)).toList();
-    }
-    if (params.query.isEmpty) {
-      return base;
-    }
-    final String q = params.query.toLowerCase();
-    // Busca en la ruta: punto de salida + punto de llegada
-    return base.where((Activity e) =>
-      '${e.startPoint} ${e.endPoint}'.toLowerCase().contains(q)
-    ).toList();
-  });
-});
+        if (params.categoria != null) {
+          base = base
+              .where((Activity e) => e.categories.contains(params.categoria))
+              .toList();
+        }
+        // Una actividad entra en el rango si no terminó antes del fechaDesde
+        if (params.fechaDesde != null) {
+          base = base
+              .where((Activity e) => !e.endDate.isBefore(params.fechaDesde!))
+              .toList();
+        }
+        // Una actividad entra en el rango si no empieza después del fechaHasta
+        if (params.fechaHasta != null) {
+          base = base
+              .where((Activity e) => !e.initDate.isAfter(params.fechaHasta!))
+              .toList();
+        }
+        if (params.query.isEmpty) {
+          return base;
+        }
+        final String q = params.query.toLowerCase();
+        // Busca en la ruta: punto de salida + punto de llegada
+        return base
+            .where(
+              (Activity e) => '${e.title} ${e.startEndPoint ?? ''}'
+                  .toLowerCase()
+                  .contains(q),
+            )
+            .toList();
+      });
+    });
 
 // Las últimas [count] actividades de la lista (para el dashboard).
-final recentActivitiesProvider = Provider.family<List<Activity>, int>((ref, count) {
+final recentActivitiesProvider = Provider.family<List<Activity>, int>((
+  ref,
+  count,
+) {
   return (ref.watch(activitiesProvider).value ?? []).take(count).toList();
 });
 
@@ -57,7 +79,9 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/activity');
       final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((e) => ActivityModel.fromMap(e as Map<String, dynamic>)).toList();
+      return data
+          .map((e) => ActivityModel.fromMap(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -68,12 +92,14 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.post('/activity', data: actividad.toMap());
-      final Activity created = ActivityModel.fromMap(response.data as Map<String, dynamic>);
-      
+      final Activity created = ActivityModel.fromMap(
+        response.data as Map<String, dynamic>,
+      );
+
       ref.invalidateSelf();
       // Fuerza la recarga del dropdown
-      ref.invalidate(availableActivitiesProvider); 
-      
+      ref.invalidate(availableActivitiesProvider);
+
       return created;
     } on DioException catch (e) {
       throw parseDioError(e);
@@ -87,30 +113,36 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     }
     try {
       final dio = ref.read(dioProvider);
-      
+
       // Envia la actividad actualizada al backend para que la guarde y reenvie la versión actualizada.
-      final response = await dio.patch('/activity/${viejo.id}', data: nuevo.toMap());
-      
+      final response = await dio.patch(
+        '/activity/${viejo.id}',
+        data: nuevo.toMap(),
+      );
+
       // Convierte la respuesta JSON en un ActivityModel actualizado.
-      final Activity actividadServidor = ActivityModel.fromMap(response.data as Map<String, dynamic>);
-      
+      final Activity actividadServidor = ActivityModel.fromMap(
+        response.data as Map<String, dynamic>,
+      );
+
       // Crea una copia de la lista local de actividades para modificarla (inmutable).
       final List<Activity> listaActual = [...(state.value ?? [])];
-      
+
       // Busca la posición de la actividad vieja
-      final int index = listaActual.indexWhere((Activity e) => e.id == viejo.id);
-      
+      final int index = listaActual.indexWhere(
+        (Activity e) => e.id == viejo.id,
+      );
+
       if (index != -1) {
         // Reemplaza la actividad vieja por la nueva (actualizada desde el servidor) en la lista local.
         listaActual[index] = actividadServidor;
       }
-      
+
       // Notifica a Riverpod el cambio de la lista local
       state = AsyncData(listaActual);
-      
+
       // Fuerza la recarga del dropdown por si ha cambiado de estado
       ref.invalidate(availableActivitiesProvider);
-      
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -127,10 +159,9 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       final List<Activity> listaActual = [...(state.value ?? [])];
       listaActual.removeWhere((Activity a) => a.id == actividad.id);
       state = AsyncData(listaActual);
-      
+
       // Fuerza la recarga del dropdown
       ref.invalidate(availableActivitiesProvider);
-      
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -138,8 +169,11 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
 }
 
 // Lista de actividades disponibles. GET /activity/available.
-final AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>> availableActivitiesProvider =
-    AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>>(AvailableActivitiesNotifier.new);
+final AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>>
+availableActivitiesProvider =
+    AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>>(
+      AvailableActivitiesNotifier.new,
+    );
 
 class AvailableActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   @override
@@ -148,7 +182,9 @@ class AvailableActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/activity/available');
       final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((e) => ActivityModel.fromMap(e as Map<String, dynamic>)).toList();
+      return data
+          .map((e) => ActivityModel.fromMap(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw parseDioError(e);
     }

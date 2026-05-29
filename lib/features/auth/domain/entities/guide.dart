@@ -19,7 +19,10 @@ class Guide {
   Map<String, dynamic> toMap() => {
     'userId': userId,
     'credentials': credentials,
-    'categoryCodes': categories.map((Category c) => c.code).toList(),
+    'categoryIds': categories
+        .map((Category c) => c.id)
+        .whereType<int>()
+        .toList(),
   };
 
   Guide copyWith({

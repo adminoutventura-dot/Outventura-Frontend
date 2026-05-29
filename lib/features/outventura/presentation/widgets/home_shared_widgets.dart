@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
-// Tarjeta de actividad para el carrusel horizontal del home.
+// Tarjeta de actividad adaptada para mostrar el título unificado en el carrusel horizontal.
 class ActivityCarouselCard extends StatelessWidget {
   final Activity actividad;
 
@@ -30,7 +30,7 @@ class ActivityCarouselCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // IMAGEN
+          // Sección de cabecera visual de la tarjeta
           Container(
             height: 120,
             width: double.infinity,
@@ -49,7 +49,6 @@ class ActivityCarouselCard extends StatelessWidget {
                     fit: StackFit.expand,
                     children: [
                       Image.asset(actividad.imageAsset!, fit: BoxFit.cover),
-                      // Degradado overlay
                       const DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -70,7 +69,7 @@ class ActivityCarouselCard extends StatelessWidget {
                   ),
           ),
 
-          // CONTENIDO
+          // Bloque descriptivo inferior de la actividad
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -78,32 +77,32 @@ class ActivityCarouselCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${actividad.startPoint} → ${actividad.endPoint}',
-                    style: tt.labelMedium?.copyWith(
-                      color: cs.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                    actividad.startEndPoint ?? 'Ruta no especificada',
+                    style: tt.labelMedium,
                   ),
                   const Spacer(),
                   Row(
                     children: [
-                      Icon(Icons.group_outlined, size: 14, color: cs.onSurfaceVariant),
+                      Icon(
+                        Icons.group_outlined,
+                        size: 14,
+                        color: cs.onSurfaceVariant,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '${actividad.maxParticipants} plazas',
-                        style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                        style: tt.labelSmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                       const Spacer(),
-                      if (actividad.price > 0)
-                        Text(
-                          '${actividad.price.toStringAsFixed(0)}€',
-                          style: tt.labelSmall?.copyWith(
-                            color: cs.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                      Text(
+                        'Excursió',
+                        style: tt.labelSmall?.copyWith(
+                          color: cs.primary,
+                          fontWeight: FontWeight.w600,
                         ),
+                      ),
                     ],
                   ),
                 ],
@@ -116,7 +115,7 @@ class ActivityCarouselCard extends StatelessWidget {
   }
 }
 
-// Botón de acción rápida para el menú superior del home.
+// Botón estructural reutilizable para los accesos rápidos del panel general.
 class HomeQuickActionButton extends StatelessWidget {
   final String label;
   final Color? textColor;

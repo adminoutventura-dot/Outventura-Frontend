@@ -1,108 +1,78 @@
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 
-// Estados posibles de una actividad.
-enum ActivityStatus {
-  disponible,
-  noDisponible;
-
-  String get code {
-    switch (this) {
-      case ActivityStatus.disponible:
-        return 'AVAILABLE';
-      case ActivityStatus.noDisponible:
-        return 'NOT_AVAILABLE';
-    }
-  }
-
-  static ActivityStatus fromString(String value) {
-    for (ActivityStatus status in ActivityStatus.values) {
-      if (status.code == value) {
-        return status;
-      }
-    }
-    return ActivityStatus.disponible;
-  }
-}
-
 // Entidad de actividad.
 class Activity {
   final int? id;
+  final String title;
   final String? description;
   final DateTime initDate;
   final DateTime endDate;
   final int difficulty;
   final int maxParticipants;
-  final String startPoint;
-  final String endPoint;
+  final String? startEndPoint;
   final List<Category> categories;
   final String? imageAsset;
-  final ActivityStatus status;
-  final double price;
-  final Map<int, int> materialsPerParticipant;
+  final List<int> recommendedEquipmentIds;
+  final int? guideId; // Lo necesitamos para saber a qué guía asignarlo
 
   const Activity({
     this.id,
+    required this.title,
     this.description,
     required this.initDate,
     required this.endDate,
     required this.difficulty,
     required this.maxParticipants,
-    required this.startPoint,
-    required this.endPoint,
+    this.startEndPoint,
     required this.categories,
     this.imageAsset,
-    this.status = ActivityStatus.disponible,
-    this.price = 0,
-    this.materialsPerParticipant = const {},
+    this.recommendedEquipmentIds = const [],
+    this.guideId,
   });
 
   // Convierte la actividad a un mapa para enviar al backend.
   Map<String, dynamic> toMap() => {
+    'title': title,
     'description': description,
     'init_date': initDate.toIso8601String(),
     'end_date': endDate.toIso8601String(),
     'difficulty': difficulty,
     'max_participants': maxParticipants,
-    'start_point': startPoint,
-    'end_point': endPoint,
+    if (startEndPoint != null) 'start_end_point': startEndPoint,
     if (imageAsset != null) 'image_asset': imageAsset,
-    'status': status.code,
-    'price': price,
     'categoryCodes': categories.map((Category c) => c.code).toList(),
-    'materialRequirements': materialsPerParticipant.entries
-        .map((e) => {'equipmentId': e.key, 'quantity': e.value})
-        .toList(),
+    'recommendedEquipmentIds': recommendedEquipmentIds,
+    if (guideId != null) 'guideId': guideId,
   };
 
   // Crea una nueva actividad a partir de la actual, permitiendo modificar algunos campos.
   Activity copyWith({
+    int? id,
+    String? title,
     String? description,
     DateTime? initDate,
     DateTime? endDate,
     int? difficulty,
     int? maxParticipants,
-    String? startPoint,
-    String? endPoint,
+    String? startEndPoint,
     List<Category>? categories,
     String? imageAsset,
-    ActivityStatus? status,
-    double? price,
-    Map<int, int>? materialsPerParticipant,
+    List<int>? recommendedEquipmentIds,
+    int? guideId,
   }) {
     return Activity(
-      id: id,
+      id: id ?? this.id,
+      title: title ?? this.title,
       description: description ?? this.description,
       initDate: initDate ?? this.initDate,
       endDate: endDate ?? this.endDate,
       difficulty: difficulty ?? this.difficulty,
       maxParticipants: maxParticipants ?? this.maxParticipants,
-      startPoint: startPoint ?? this.startPoint,
-      endPoint: endPoint ?? this.endPoint,
+      startEndPoint: startEndPoint ?? this.startEndPoint,
       categories: categories ?? this.categories,
       imageAsset: imageAsset ?? this.imageAsset,
-      status: status ?? this.status,
-      price: price ?? this.price,
-      materialsPerParticipant: materialsPerParticipant ?? this.materialsPerParticipant,
+      recommendedEquipmentIds: recommendedEquipmentIds ?? this.recommendedEquipmentIds,
+      guideId: guideId ?? this.guideId,
     );
   }
 }
