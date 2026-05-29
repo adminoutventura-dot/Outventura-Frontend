@@ -18,8 +18,6 @@ final FutureProvider<void> sessionRestorerProvider = FutureProvider<void>((
 ) async {
   final token = await readAuthToken();
 
-  debugPrint('>>> TOKEN AL ARRANCAR: $token');
-
   if (token != null) {
     try {
       final dio = ref.read(dioProvider);
