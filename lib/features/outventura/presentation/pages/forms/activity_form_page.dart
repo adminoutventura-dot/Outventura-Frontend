@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/core/network/dio_client.dart'; // 🌟 Importante para conectar con el BackEnd
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -9,6 +10,7 @@ import 'package:outventura/core/widgets/app_date_selector.dart';
 import 'package:outventura/core/widgets/app_time_selector.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
@@ -17,6 +19,18 @@ import 'package:outventura/features/outventura/presentation/controllers/activity
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
+
+// 🌟 PROVIDER REAL: Obtiene los guías de la base de datos de forma dinámica
+final guidesProvider = FutureProvider<List<dynamic>>((ref) async {
+  final dio = ref.read(dioProvider);
+  final response = await dio.get('/guide');
+
+  // Si tu backend devuelve la lista envuelta en { data: [...] } la extraemos, si no, la enviamos directa
+  if (response.data is Map && response.data['data'] != null) {
+    return response.data['data'] as List<dynamic>;
+  }
+  return response.data as List<dynamic>;
+});
 
 class ActivityFormPage extends ConsumerStatefulWidget {
   final Activity? actividad;
@@ -36,6 +50,17 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
     _controller = ActivityFormController();
     if (widget.actividad != null) {
       _controller.cargarActividad(widget.actividad!);
+    } else {
+      // Si estamos creando una nueva actividad, comprobamos si el usuario activo es guía
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final usuarioLogueado = ref.read(currentUserProvider);
+        if (usuarioLogueado?.role.code == 'GUIDE') {
+          setState(() {
+            final dynamic user = usuarioLogueado;
+            _controller.guideId = user.id_guide ?? user.guideId;
+          });
+        }
+      });
     }
   }
 
@@ -50,8 +75,16 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final AppLocalizations s = AppLocalizations.of(context)!;
+
+    final usuarioActual = ref.watch(currentUserProvider);
+    final bool isGuide = usuarioActual?.role.code == 'GUIDE';
+
     final List<Equipment> equipamientos =
         ref.watch(equipmentProvider).value ?? [];
+
+    // 🌟 LEEMOS LOS GUÍAS REALES DESDE EL PROVIDER ASÍNCRONO
+    final AsyncValue<List<dynamic>> guidesAsync = ref.watch(guidesProvider);
+    final List<dynamic> listaGuiasReales = guidesAsync.value ?? [];
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -93,8 +126,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               // Título
               CustomInputField(
                 controller: _controller.tituloController,
-                labelText:
-                    "s.title", // Arreglado el literal string que causaba problemas
+                labelText: "s.title", // TODO: hardcodeado
                 prefixIcon: Icons.title,
                 validator: ValidadoresFormulario.campoObligatorio(s),
               ),
@@ -115,7 +147,52 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 prefixIcon: Icons.notes_outlined,
                 keyboardType: TextInputType.multiline,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
+
+              // 🌟 NUEVO: SELECTOR DE GUÍA ASIGNADO REAL DE BASE DE DATOS
+              if (!isGuide) ...[
+                DropdownButtonFormField<int>(
+                  value: _controller.guideId,
+                  dropdownColor: cs.surfaceContainerHighest,
+                  style: tt.bodyLarge?.copyWith(color: cs.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'Guía Asignado *',
+                    prefixIcon: Icon(Icons.person_outline, color: cs.primary),
+                    filled: true,
+                    fillColor: cs.surfaceVariant.withValues(alpha: 0.3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: cs.outline),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: cs.outlineVariant),
+                    ),
+                  ),
+                  // Mapeamos dinámicamente según la estructura relacional de Prisma (id_guide + user)
+                  items: listaGuiasReales.map((dynamic guia) {
+                    final int idGuide = guia['id_guide'] as int;
+                    final Map<String, dynamic> user =
+                        guia['user'] as Map<String, dynamic>;
+                    final String nombreCompleto =
+                        '${user['name']} ${user['surname']}';
+
+                    return DropdownMenuItem<int>(
+                      value: idGuide,
+                      child: Text(nombreCompleto),
+                    );
+                  }).toList(),
+                  onChanged: (int? nuevoId) {
+                    setState(() {
+                      _controller.guideId = nuevoId;
+                    });
+                  },
+                  validator: (value) => value == null
+                      ? 'Por favor, selecciona un guía obligatorio'
+                      : null,
+                ),
+                const SizedBox(height: 20),
+              ],
 
               // Gestión de fechas de realización
               Text(
@@ -215,9 +292,9 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 8),
 
-              // Despliega chips de selección múltiple
+              // Chips de selección múltiple
               AppFilterChipFormField(
-                seleccionados: _controller.categorias,
+                seleccionados: _controller.categories,
                 onToggle: (Category cat) {
                   setState(() => _controller.alternarCategoria(cat));
                 },
@@ -230,7 +307,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 32),
 
-              // Sección de inventario recomendado para el trayecto
+              // Sección de inventario recomendado
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -249,7 +326,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       );
                       if (result == null) return;
                       setState(() {
-                        // Forzamos aserción porque en este formulario el diálogo sólo devuelve materiales con ID válido
                         _controller.materialesRecomendados[result
                                 .equipmentId!] =
                             (_controller.materialesRecomendados[result
@@ -263,7 +339,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 8),
 
-              // Renderiza el desglose de materiales inyectados a la plantilla
+              // Desglose de materiales recomendados
               if (_controller.materialesRecomendados.isNotEmpty)
                 ..._controller.materialesRecomendados.entries.map((entry) {
                   final int idEquip = entry.key;
@@ -295,7 +371,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       if (result == null) return;
                       setState(() {
                         _controller.materialesRecomendados.remove(idEquip);
-                        // Forzamos aserción para registrar de forma segura el stock modificado
                         _controller.materialesRecomendados[result
                                 .equipmentId!] =
                             result.quantity;
@@ -309,7 +384,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
 
               const SizedBox(height: 32),
 
-              // Botón de confirmación e inserción general
+              // Botón de confirmación final
               SizedBox(
                 width: double.infinity,
                 child: PrimaryButton(

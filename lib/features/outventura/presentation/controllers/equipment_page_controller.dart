@@ -5,7 +5,7 @@ import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
 class EquipmentPageController {
-  int? estadoFiltro; // 🌟 ARREGLO: Filtrado por ID numérico de estado
+  int? estadoFiltro;
   Category? categoriaFiltro;
 
   bool get hayFiltros => estadoFiltro != null || categoriaFiltro != null;
