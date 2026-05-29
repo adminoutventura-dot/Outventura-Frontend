@@ -9,31 +9,20 @@ class ReservationFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   int? idUsuario;
-  int? idActividad;
+  int? idActividad; // Mantiene la referencia temporal en el formulario de la UI
   DateTime fechaDesde = DateTime.now();
   DateTime fechaHasta = DateTime.now();
   TimeOfDay horaInicio = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay horaFin = const TimeOfDay(hour: 17, minute: 0);
   WorkflowStatus estado = WorkflowStatus.pendiente;
 
-  // Líneas de la reserva (material + cantidad).
+  // Líneas de la reserva (materiales o actividades).
   List<BookingLine> lineas = [];
-
-  // Daños por línea: idEquipamiento - cantidad dañada.
-  Map<int, int> cantidadesDaniadas = {};
 
   bool editando = false;
   Booking? seleccionado;
 
-  // Total de cargos por daños calculado usando el servicio de pricing.
-  double totalCargoDanios(List<Equipment> equipamientos) {
-    return calcularCargoDanios(
-      cantidadesDaniadas: cantidadesDaniadas,
-      equipamientos: equipamientos,
-    );
-  }
-
-  // Total de alquiler de equipamientos: precioAlquilerDiario × cantidad × días.
+  // Calcula el total del alquiler de equipamientos.
   double totalAlquiler(List<Equipment> equipamientos) {
     return calcularPrecioReserva(
       lineas: lineas,
@@ -50,23 +39,28 @@ class ReservationFormController {
     return formKey.currentState!.validate();
   }
 
-  int cantidadDaniada(int idEquipamiento) {
-    return cantidadesDaniadas[idEquipamiento] ?? 0;
-  }
-
-  void cargarReserva(Booking reserva, {DateTime? activityStart, DateTime? activityEnd}) {
+  void cargarReserva(Booking reserva) {
     editando = true;
     seleccionado = reserva;
     idUsuario = reserva.userId;
     lineas = List.from(reserva.lines);
-    idActividad = reserva.activityId;
-    // Las fechas vienen de la Activity asociada
+    estado = reserva.status;
     fechaDesde = reserva.startDate;
     fechaHasta = reserva.endDate;
-    horaInicio = TimeOfDay(hour: reserva.startDate.hour, minute: reserva.startDate.minute);
-    horaFin = TimeOfDay(hour: reserva.endDate.hour, minute: reserva.endDate.minute);
-    cantidadesDaniadas = Map.from(reserva.damagedItems);
-    estado = reserva.status;
+    horaInicio = TimeOfDay(
+      hour: reserva.startDate.hour,
+      minute: reserva.startDate.minute,
+    );
+    horaFin = TimeOfDay(
+      hour: reserva.endDate.hour,
+      minute: reserva.endDate.minute,
+    );
+
+    // Recupera el id de actividad buscando en las líneas para la UI del formulario
+    final lineAct = reserva.lines
+        .where((l) => l.activityId != null)
+        .firstOrNull;
+    idActividad = lineAct?.activityId;
   }
 
   void aplicarValoresIniciales({
@@ -86,6 +80,16 @@ class ReservationFormController {
         ),
       );
     }
+
+    // Si viene de una actividad, inserta la línea correspondiente
+    if (idActividad != null && lineas.isEmpty) {
+      lineas.add(
+        BookingLine(
+          activityId: idActividad,
+          quantity: 1, // Por defecto una plaza
+        ),
+      );
+    }
   }
 
   void agregarLinea(BookingLine linea) {
@@ -97,28 +101,17 @@ class ReservationFormController {
   }
 
   void eliminarLinea(int index) {
-    final BookingLine linea = lineas[index];
-    cantidadesDaniadas.remove(linea.equipmentId);
     lineas.removeAt(index);
   }
 
-  void establecerCantidadDaniada(int idEquipamiento, int cantidad) {
-    cantidadesDaniadas[idEquipamiento] = cantidad;
-  }
-
-  // Abre un diálogo para añadir o editar una línea de reserva.
+  // Abre un diálogo para añadir o editar una línea de reserva de material.
   Future<void> mostrarDialogoLinea({
     required BuildContext context,
     required List<Equipment> equipamientos,
     required void Function(VoidCallback) setState,
     int? index,
   }) async {
-    final BookingLine? linea;
-    if (index != null) {
-      linea = lineas[index];
-    } else {
-      linea = null;
-    }
+    final BookingLine? linea = index != null ? lineas[index] : null;
 
     final BookingLine? result = await mostrarDialogoLineaReserva(
       context: context,
@@ -133,24 +126,17 @@ class ReservationFormController {
       if (index == null) {
         agregarLinea(result);
       } else {
-        // Si el equipamiento cambió, limpia los daños del id anterior.
-        if (linea != null && linea.equipmentId != result.equipmentId) {
-          cantidadesDaniadas.remove(linea.equipmentId);
-        }
         actualizarLinea(index, result);
       }
     });
   }
 
   Booking? crearEditarReserva(List<Equipment> equipamientos) {
-    if (!validar()) {
-      return null;
-    }
-    if (idUsuario == null || lineas.isEmpty) {
+    if (!validar() || idUsuario == null || lineas.isEmpty) {
       return null;
     }
 
-    // Fusionar fechaDesde con horaInicio
+    // Fusiona fechaDesde con horaInicio
     final DateTime fechaInicioReal = DateTime(
       fechaDesde.year,
       fechaDesde.month,
@@ -159,7 +145,7 @@ class ReservationFormController {
       horaInicio.minute,
     );
 
-    // Fusionar fechaHasta con horaFin
+    // Fusiona fechaHasta con horaFin
     final DateTime fechaFinReal = DateTime(
       fechaHasta.year,
       fechaHasta.month,
@@ -172,10 +158,7 @@ class ReservationFormController {
       id: seleccionado?.id,
       userId: idUsuario!,
       lines: List.unmodifiable(lineas),
-      activityId: idActividad,
       status: estado,
-      damageFee: totalCargoDanios(equipamientos),
-      damagedItems: Map.from(cantidadesDaniadas),
       startDate: fechaInicioReal,
       endDate: fechaFinReal,
     );

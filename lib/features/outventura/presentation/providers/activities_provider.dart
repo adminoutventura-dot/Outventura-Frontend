@@ -52,7 +52,7 @@ final filteredActivitiesProvider =
           return base;
         }
         final String q = params.query.toLowerCase();
-        // Busca en el título y en la ruta
+        // Busca en la ruta: punto de salida + punto de llegada
         return base
             .where(
               (Activity e) => '${e.title} ${e.startEndPoint ?? ''}'

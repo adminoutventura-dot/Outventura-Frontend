@@ -3,15 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:outventura/core/widgets/evento_tile.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/domain/entities/request.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/requests_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/reservation_detail_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/request_detail_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/solicitud_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/requests_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/home_app_bar_delegate.dart';
@@ -31,29 +28,37 @@ class HomeClientePage extends ConsumerWidget {
     final s = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
 
-    // 🌟 COMPROBAR SI ES INVITADO (Ajusta el código de rol si es necesario)
-    final bool isGuest = usuario.role.code == 'INVITADO' || usuario.role.code == 'GUEST';
+    final bool isGuest =
+        usuario.role.code == 'INVITADO' || usuario.role.code == 'GUEST';
 
     final today = DateTime.now();
     final rawDate = DateFormat.yMMMMEEEEd(locale).format(today);
     final dateStr = rawDate[0].toUpperCase() + rawDate.substring(1);
 
-    // Si es invitado, no hace falta que busquemos reservas ni solicitudes
-    final List<Booking> misReservas = isGuest ? [] : ref.watch(userReservationsProvider(usuario.id!));
-    final List<Request> misSolicitudes = isGuest ? [] : ref.watch(userRequestsProvider(usuario.id!));
-    final int solicitudesPendientes = isGuest ? 0 : ref.watch(userPendingRequestsCountProvider(usuario.id!));
+    final List<Booking> todasMisReservas = isGuest
+        ? []
+        : (ref.watch(reservationsProvider).value ?? [])
+              .where((r) => r.userId == usuario.id)
+              .toList();
 
-    // Últimas 5 actividades para el carrusel
+    final misReservasMateriales = todasMisReservas
+        .where((b) => !b.lines.any((l) => l.activityId != null))
+        .toList();
+    final misExcursiones = todasMisReservas
+        .where((b) => b.lines.any((l) => l.activityId != null))
+        .toList();
+    final int pendientes = misExcursiones
+        .where((b) => b.status == WorkflowStatus.pendiente)
+        .length;
+
     final actividadesRecientes = ref.watch(recentActivitiesProvider(5));
 
     return Scaffold(
       backgroundColor: cs.onPrimary,
-      // Extender el cuerpo por detrás del AppBar
-      extendBodyBehindAppBar: true, 
+      extendBodyBehindAppBar: true,
       drawer: const AppDrawer(),
       body: CustomScrollView(
         slivers: [
-          // -- HEADER COLAPSABLE --
           SliverPersistentHeader(
             pinned: true,
             delegate: HomeAppBarDelegate(
@@ -62,38 +67,37 @@ class HomeClientePage extends ConsumerWidget {
               greeting: s.greeting(usuario.name),
               dateStr: dateStr,
               statSlots: [
-                // Número de reservas activas (confirmadas o en curso)
-                HomeStatSlot(value: '${misReservas.length}', label: s.myReservations),
-                // Número de solicitudes activas (pendientes o confirmadas)
-                HomeStatSlot(value: '${misSolicitudes.length}', label: s.myRequests),
-                // Número de solicitudes pendientes
-                HomeStatSlot(value: '$solicitudesPendientes', label: s.pendingLabel),
+                HomeStatSlot(
+                  value: '${misReservasMateriales.length}',
+                  label: s.myReservations,
+                ),
+                HomeStatSlot(
+                  value: '${misExcursiones.length}',
+                  label: s.myRequests,
+                ),
+                HomeStatSlot(value: '$pendientes', label: s.pendingLabel),
               ],
               collapsedHeight: 32.0,
             ),
           ),
-          
-          // -- CONTENIDO --
+
           SliverPadding(
             padding: EdgeInsets.only(
-              top: 20, 
+              top: 20,
               bottom: MediaQuery.of(context).padding.bottom + 40,
             ),
+            // Cambiado 'child' por 'sliver'
             sliver: SliverToBoxAdapter(
-              // Aplicamos el Transform para empujar todo hacia arriba
               child: Transform.translate(
                 offset: const Offset(0, -40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    
-                    // MENÚ RÁPIDO SUPERIOR - 🌟 SOLO VISIBLE SI NO ES INVITADO
                     if (!isGuest)
                       IntrinsicHeight(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // Mis Reservas
                             Expanded(
                               child: HomeQuickActionButton(
                                 label: s.myReservationsBtn,
@@ -107,20 +111,13 @@ class HomeClientePage extends ConsumerWidget {
                                 ),
                               ),
                             ),
-                            
-                            // Separador sin márgenes
-                            Container(
-                              width: 1,
-                              color: cs.surface,
-                            ),
-                      
-                            // Mis Solicitudes
+                            Container(width: 1, color: cs.surface),
                             Expanded(
                               child: HomeQuickActionButton(
                                 label: s.myRequestsBtn,
                                 onTap: () => Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) => const RequestsPage(
+                                    builder: (_) => const ReservationsPage(
                                       puedeGestionar: false,
                                       puedeCrear: true,
                                     ),
@@ -133,15 +130,14 @@ class HomeClientePage extends ConsumerWidget {
                       ),
 
                     const SizedBox(height: 28),
-
-                    // ACTIVIDADES DESTACADAS - CARRUSEL
                     if (actividadesRecientes.isNotEmpty) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          // TODO: traducir "Actividades Destacadas"
                           'Actividades Destacadas'.toUpperCase(),
-                          style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                          style: tt.labelMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -157,47 +153,42 @@ class HomeClientePage extends ConsumerWidget {
                           },
                         ),
                       ),
-                      const SizedBox(height: 28),
                     ],
 
-                    // MIS ACTIVIDADES RECIENTES (reservas activas + solicitudes pendientes)
-                    // 🌟 TAMBIÉN OCULTAMOS ESTO PARA LOS INVITADOS POR PRECAUCIÓN
-                    if (!isGuest && (misReservas.where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso).isNotEmpty ||
-                        misSolicitudes.where((s) => s.status == WorkflowStatus.pendiente || s.status == WorkflowStatus.confirmada).isNotEmpty)) ...[
+                    if (!isGuest && todasMisReservas.isNotEmpty) ...[
+                      const SizedBox(height: 28),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                         child: Text(
                           s.recentActivity.toUpperCase(),
-                          style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-                        ),
-                      ),
-                      // Solicitudes pendientes o confirmadas
-                      for (final sol in misSolicitudes
-                          .where((s) => s.status == WorkflowStatus.pendiente || s.status == WorkflowStatus.confirmada)
-                          .take(2))
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 16),
-                          child: EventoTile(
-                            titulo: s.requestEvent,
-                            subtitulo: ref.watch(activityNameProvider(sol.activityId)) ?? s.unknown,
-                            color: cs.primary,
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => RequestDetailPage(solicitud: sol)),
-                            ),
+                          style: tt.labelMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
                           ),
                         ),
-                      // Reservas confirmadas o en curso
-                      for (final res in misReservas
-                          .where((r) => r.status == WorkflowStatus.confirmada || r.status == WorkflowStatus.enCurso)
-                          .take(2))
+                      ),
+                      for (final sol in misExcursiones.take(2))
                         Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
                           child: EventoTile(
-                            titulo: s.reservationEvent,
-                            subtitulo: ref.watch(activityNameProvider(res.activityId)) ?? s.unknown,
-                            color: cs.tertiary,
+                            titulo: s.requestEvent,
+                            subtitulo:
+                                ref.watch(
+                                  activityNameProvider(
+                                    sol.lines
+                                        .firstWhere((l) => l.activityId != null)
+                                        .activityId,
+                                  ),
+                                ) ??
+                                s.unknown,
+                            color: cs.primary,
                             onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => ReservationDetailPage(reserva: res)),
+                              MaterialPageRoute(
+                                // Cambiado 'reserva' por 'solicitud'
+                                builder: (_) => SolicitudFormPage(reserva: sol),
+                              ),
                             ),
                           ),
                         ),

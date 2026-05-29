@@ -1,41 +1,11 @@
-import 'package:outventura/features/outventura/domain/entities/activity.dart';
-import 'package:outventura/features/outventura/domain/entities/request.dart';
+import 'package:flutter/material.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 
 class CalendarPageController {
-  // Devuelve todos los eventos (reservas y solicitudes) que ocurren en el día.
-  List<Object> eventosDelDia(
-    DateTime day,
-    List<Booking> misReservas,
-    List<Request> misSolicitudes,
-    List<Activity> actividades,
-  ) {
-    final normalized = DateTime(day.year, day.month, day.day);
-    final List<Object> result = [];
-
-    for (final r in misReservas) {
-      // Las fechas de la reserva vienen de la Activity asociada
-      final act = actividades.where((e) => e.id == r.activityId).firstOrNull;
-      if (act != null) {
-        final start = DateTime(act.initDate.year, act.initDate.month, act.initDate.day);
-        final end = DateTime(act.endDate.year, act.endDate.month, act.endDate.day);
-        if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
-          result.add(r);
-        }
-      }
-    }
-
-    for (final s in misSolicitudes) {
-      final act = actividades.where((e) => e.id == s.activityId).firstOrNull;
-      if (act != null) {
-        final start = DateTime(act.initDate.year, act.initDate.month, act.initDate.day);
-        final end = DateTime(act.endDate.year, act.endDate.month, act.endDate.day);
-        if (!normalized.isBefore(start) && !normalized.isAfter(end)) {
-          result.add(s);
-        }
-      }
-    }
-
-    return result;
+  // Filtra los bookings unificados que contienen excursiones para pintarlos en el calendario
+  List<Booking> obtenerEventosActividades(List<Booking> todasLasReservas) {
+    return todasLasReservas
+        .where((b) => b.lines.any((l) => l.activityId != null))
+        .toList();
   }
 }
