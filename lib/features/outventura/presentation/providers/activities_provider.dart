@@ -5,14 +5,13 @@ import 'package:outventura/features/outventura/data/models/activity_model.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
-// Lista completa de actividades. GET /activity.
+// Lista completa de actividades.
 final AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>
 activitiesProvider = AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>(
   ActivitiesNotifier.new,
 );
 
-// Filtra actividades en el frontend por categoría, rango de fechas y texto libre
-// (título y ruta). El filtrado es local mientras no haya query params en el backend.
+// Filtra actividades en el frontend.
 final filteredActivitiesProvider =
     Provider.family<
       AsyncValue<List<Activity>>,
@@ -23,7 +22,6 @@ final filteredActivitiesProvider =
         DateTime? fechaHasta,
       })
     >((ref, params) {
-      // Se re-ejecuta automáticamente cuando cambia la lista de actividades
       final AsyncValue<List<Activity>> asyncTodas = ref.watch(
         activitiesProvider,
       );
@@ -36,13 +34,11 @@ final filteredActivitiesProvider =
               .where((Activity e) => e.categories.contains(params.categoria))
               .toList();
         }
-        // Una actividad entra en el rango si no terminó antes del fechaDesde
         if (params.fechaDesde != null) {
           base = base
               .where((Activity e) => !e.endDate.isBefore(params.fechaDesde!))
               .toList();
         }
-        // Una actividad entra en el rango si no empieza después del fechaHasta
         if (params.fechaHasta != null) {
           base = base
               .where((Activity e) => !e.initDate.isAfter(params.fechaHasta!))
@@ -52,7 +48,6 @@ final filteredActivitiesProvider =
           return base;
         }
         final String q = params.query.toLowerCase();
-        // Busca en la ruta: punto de salida + punto de llegada
         return base
             .where(
               (Activity e) => '${e.title} ${e.startEndPoint ?? ''}'
@@ -63,7 +58,7 @@ final filteredActivitiesProvider =
       });
     });
 
-// Las últimas [count] actividades de la lista (para el dashboard).
+// Actividades recientes (Dashboard)
 final recentActivitiesProvider = Provider.family<List<Activity>, int>((
   ref,
   count,
@@ -72,13 +67,34 @@ final recentActivitiesProvider = Provider.family<List<Activity>, int>((
 });
 
 class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
+  // 🌟 AQUÍ ESTÁN LAS VARIABLES QUE NO ENCONTRABA FLUTTER
+  int currentPage = 1;
+  int totalPages = 1;
+
   @override
-  // Carga todas las actividades desde el backend al inicializar.
   Future<List<Activity>> build() async {
+    return _fetchPage(1);
+  }
+
+  // Descarga una página específica
+  Future<List<Activity>> _fetchPage(int page) async {
     try {
       final dio = ref.read(dioProvider);
-      final response = await dio.get('/activity');
-      final List<dynamic> data = response.data as List<dynamic>;
+      final response = await dio.get(
+        '/activity',
+        queryParameters: {
+          'page': page,
+          'limit': 3, // Límite de 3 excursiones por página
+        },
+      );
+
+      final List<dynamic> data = response.data['data'] as List<dynamic>;
+      final meta = response.data['meta'];
+
+      // Guardamos la página en la que estamos y el total
+      currentPage = meta['page'];
+      totalPages = meta['totalPages'];
+
       return data
           .map((e) => ActivityModel.fromMap(e as Map<String, dynamic>))
           .toList();
@@ -87,7 +103,24 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     }
   }
 
-  // POST /activity - crea la actividad. Devuelve la actividad con el ID asignado por el backend.
+  // 🌟 AQUÍ ESTÁ EL MÉTODO QUE CONECTA CON LA BOTONERA DE ABAJO
+  Future<void> cambiarPagina(int nuevaPagina) async {
+    // Si intentamos ir a una página inválida o a la misma, no hacemos nada
+    if (nuevaPagina < 1 ||
+        nuevaPagina > totalPages ||
+        nuevaPagina == currentPage)
+      return;
+
+    state = const AsyncLoading(); // Mostramos indicador de carga
+    try {
+      final newActivities = await _fetchPage(nuevaPagina);
+      state = AsyncData(newActivities); // Actualizamos la lista
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  // Operaciones normales (Crear, Actualizar, Eliminar)
   Future<Activity> agregar(Activity actividad) async {
     try {
       final dio = ref.read(dioProvider);
@@ -96,8 +129,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
         response.data as Map<String, dynamic>,
       );
 
-      ref.invalidateSelf();
-      // Fuerza la recarga del dropdown
+      ref.invalidateSelf(); // Refresca la lista actual
       ref.invalidate(availableActivitiesProvider);
 
       return created;
@@ -106,61 +138,24 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     }
   }
 
-  // PATCH /activity/:id - actualiza la actividad en el backend y en la lista local.
   Future<void> actualizar(Activity viejo, Activity nuevo) async {
-    if (viejo.id == null) {
-      throw StateError('Activity has no id');
-    }
+    if (viejo.id == null) throw StateError('Activity has no id');
     try {
       final dio = ref.read(dioProvider);
-
-      // Envia la actividad actualizada al backend para que la guarde y reenvie la versión actualizada.
-      final response = await dio.patch(
-        '/activity/${viejo.id}',
-        data: nuevo.toMap(),
-      );
-
-      // Convierte la respuesta JSON en un ActivityModel actualizado.
-      final Activity actividadServidor = ActivityModel.fromMap(
-        response.data as Map<String, dynamic>,
-      );
-
-      // Crea una copia de la lista local de actividades para modificarla (inmutable).
-      final List<Activity> listaActual = [...(state.value ?? [])];
-
-      // Busca la posición de la actividad vieja
-      final int index = listaActual.indexWhere(
-        (Activity e) => e.id == viejo.id,
-      );
-
-      if (index != -1) {
-        // Reemplaza la actividad vieja por la nueva (actualizada desde el servidor) en la lista local.
-        listaActual[index] = actividadServidor;
-      }
-
-      // Notifica a Riverpod el cambio de la lista local
-      state = AsyncData(listaActual);
-
-      // Fuerza la recarga del dropdown por si ha cambiado de estado
+      await dio.patch('/activity/${viejo.id}', data: nuevo.toMap());
+      ref.invalidateSelf();
       ref.invalidate(availableActivitiesProvider);
     } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
-  // DELETE /activity/:id - elimina la actividad del backend y de la lista local.
   Future<void> eliminar(Activity actividad) async {
-    if (actividad.id == null) {
-      throw StateError('Activity has no id');
-    }
+    if (actividad.id == null) throw StateError('Activity has no id');
     try {
       final dio = ref.read(dioProvider);
       await dio.delete('/activity/${actividad.id}');
-      final List<Activity> listaActual = [...(state.value ?? [])];
-      listaActual.removeWhere((Activity a) => a.id == actividad.id);
-      state = AsyncData(listaActual);
-
-      // Fuerza la recarga del dropdown
+      ref.invalidateSelf();
       ref.invalidate(availableActivitiesProvider);
     } on DioException catch (e) {
       throw parseDioError(e);
@@ -168,7 +163,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   }
 }
 
-// Lista de actividades disponibles. GET /activity/available.
+// Lista de actividades para los Dropdowns
 final AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>>
 availableActivitiesProvider =
     AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>>(
@@ -180,8 +175,11 @@ class AvailableActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   Future<List<Activity>> build() async {
     try {
       final dio = ref.read(dioProvider);
-      final response = await dio.get('/activity/available');
-      final List<dynamic> data = response.data as List<dynamic>;
+      final response = await dio.get(
+        '/activity/available',
+        queryParameters: {'limit': 100},
+      );
+      final List<dynamic> data = response.data['data'] as List<dynamic>;
       return data
           .map((e) => ActivityModel.fromMap(e as Map<String, dynamic>))
           .toList();
