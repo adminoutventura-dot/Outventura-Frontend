@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/reservation_form_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
@@ -9,7 +10,6 @@ import 'package:outventura/features/outventura/presentation/controllers/equipmen
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/equipment_form_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/solicitud_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
@@ -78,7 +78,12 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
               icon: const Icon(Icons.filter_list),
               tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
-              onPressed: () => _controller.mostrarFiltros(context, setState),
+              onPressed: () {
+                final estadosBack =
+                    ref.read(equipmentStatusesProvider).value ?? [];
+
+                _controller.mostrarFiltros(context, setState, estadosBack);
+              },
             ),
           ),
         ],
@@ -217,7 +222,6 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                         : null,
                     onAlquilar: (widget.puedeSolicitar && !isGuide)
                         ? () async {
-                            
                             if (isGuest) {
                               showErrorSnackBar(
                                 context,

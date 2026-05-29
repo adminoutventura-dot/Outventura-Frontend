@@ -3,7 +3,6 @@ import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/l10n/app_localizations.dart';
-import 'package:outventura/core/utils/enum_translations.dart';
 import 'dart:convert';
 
 class EquipmentCard extends StatefulWidget {
@@ -31,20 +30,35 @@ class _EquipmentCardState extends State<EquipmentCard> {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    // Color del badge y la barra de stock según el estado del equipamiento.
-    final Color statusColor = switch (widget.equipamiento.status) {
-      EquipmentStatus.disponible => cs.primary,
-      EquipmentStatus.agotado => cs.tertiary,
-      EquipmentStatus.mantenimiento => cs.onSurfaceVariant,
-      EquipmentStatus.fueraDeServicio => cs.error,
-    };
+    // Evalúa las propiedades en tiempo real mapeando contra los códigos String del Backend
+    final String statusCode = widget.equipamiento.status?.code ?? 'AVAILABLE';
+    // 🌟 ARREGLO: Se cambia .units por .availableUnits
+    final bool esAgotado =
+        statusCode == 'AVAILABLE' && widget.equipamiento.availableUnits <= 0;
+    final bool esMantenimiento = statusCode == 'MAINTENANCE';
+    final bool esFueraServicio = statusCode == 'OUT_OF_SERVICE';
 
-    // Porcentaje de stock restante (0.0 a 1.0). Se usa para la barra de progreso.
+    // TODO: HARDCODEADO
+    Color statusColor = cs.primary;
+    String labelTexto = "s.available";
+
+    if (esAgotado) {
+      statusColor = cs.tertiary;
+      labelTexto = "s.outOfStock";
+    } else if (esMantenimiento) {
+      statusColor = cs.onSurfaceVariant;
+      labelTexto = "s.maintenance";
+    } else if (esFueraServicio) {
+      statusColor = cs.error;
+      labelTexto = "s.outOfService";
+    }
+
+    // 🌟 ARREGLO: Se cambia .units por .availableUnits para la barra de progreso
     final double stockPct = widget.equipamiento.totalUnits > 0
-        ? (widget.equipamiento.units / widget.equipamiento.totalUnits).clamp(0.0, 1.0)
+        ? (widget.equipamiento.availableUnits / widget.equipamiento.totalUnits)
+              .clamp(0.0, 1.0)
         : 0.0;
 
-    // Imagen del equipamiento (null si no tiene, se muestra un icono por defecto).
     final String? imagen = widget.equipamiento.imageAsset;
 
     return Container(
@@ -62,17 +76,15 @@ class _EquipmentCardState extends State<EquipmentCard> {
       clipBehavior: Clip.hardEdge,
       child: IntrinsicHeight(
         child: Row(
-        children: [
-          // CONTENIDO IZQUIERDO
-          Expanded(
-            flex: 3,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(15, 13, 8, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                    // Nombre + badge en la misma fila
+          children: [
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(15, 13, 8, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -88,43 +100,48 @@ class _EquipmentCardState extends State<EquipmentCard> {
                     ),
                     const SizedBox(height: 4),
 
-                    // Estado del equipamiento 
                     TagWidget(
-                      text: widget.equipamiento.status.localizedLabel(s),
+                      text: labelTexto,
                       backgroundColor: statusColor.withValues(alpha: 0.12),
                       textColor: statusColor,
                     ),
 
-                    // Descripción
                     if (widget.equipamiento.description != null) ...[
                       const SizedBox(height: 5),
                       Text(
                         widget.equipamiento.description!,
-                        style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant, height: 1.35),
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          height: 1.35,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
 
                     const SizedBox(height: 6),
-
-                    // Precio
                     Row(
                       children: [
-                        Icon(Icons.sell_outlined, size: 12, color: cs.onSurfaceVariant),
+                        Icon(
+                          Icons.sell_outlined,
+                          size: 12,
+                          color: cs.onSurfaceVariant,
+                        ),
                         const SizedBox(width: 4),
                         Text(
-                          s.pricePerDayShort(widget.equipamiento.pricePerDay.toStringAsFixed(2)),
-                          style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                          s.pricePerDayShort(
+                            widget.equipamiento.pricePerDay.toStringAsFixed(2),
+                          ),
+                          style: tt.labelSmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 5),
 
                     Row(
                       children: [
-                        // Barra de stock + texto
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +151,8 @@ class _EquipmentCardState extends State<EquipmentCard> {
                                 child: LinearProgressIndicator(
                                   value: stockPct,
                                   minHeight: 5,
-                                  backgroundColor: cs.onSurfaceVariant.withValues(alpha: 0.15),
+                                  backgroundColor: cs.onSurfaceVariant
+                                      .withValues(alpha: 0.15),
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     stockPct < 0.25 ? cs.error : cs.primary,
                                   ),
@@ -142,33 +160,49 @@ class _EquipmentCardState extends State<EquipmentCard> {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                s.stockInfo(widget.equipamiento.units, widget.equipamiento.totalUnits),
-                                style: tt.labelSmall?.copyWith(fontSize: 10, color: cs.onSurfaceVariant),
+                                // 🌟 ARREGLO: Se cambia .units por .availableUnits
+                                s.stockInfo(
+                                  widget.equipamiento.availableUnits,
+                                  widget.equipamiento.totalUnits,
+                                ),
+                                style: tt.labelSmall?.copyWith(
+                                  fontSize: 10,
+                                  color: cs.onSurfaceVariant,
+                                ),
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(width: 8),
-                        
-                        // Acciones
                         Row(
                           children: [
-                            // Si onEditar no es null, mostrar el icono de editar.
                             if (widget.onEditar != null)
-                              ActionIcon(icon: Icons.edit_outlined, color: cs.tertiary, onTap: widget.onEditar!),
-                            
-                            // Si onEditar y onEliminar y/o onAlquilar no son null, mostrar un SizedBox de separación.
-                            if (widget.onEditar != null && (widget.onEliminar != null || widget.onAlquilar != null))
+                              ActionIcon(
+                                icon: Icons.edit_outlined,
+                                color: cs.tertiary,
+                                onTap: widget.onEditar!,
+                              ),
+                            if (widget.onEditar != null &&
+                                (widget.onEliminar != null ||
+                                    widget.onAlquilar != null))
                               const SizedBox(width: 5),
-
-                            // Si onEliminar no es null, mostrar el icono de eliminar.
                             if (widget.onEliminar != null)
-                              ActionIcon(icon: Icons.delete_outline, color: cs.error, onTap: widget.onEliminar!),
-
-                            // Si onAlquilar no es null, mostrar el icono de alquilar.
-                            if (widget.onAlquilar != null) ...[
-                              if (widget.onEliminar != null) const SizedBox(width: 5),
-                              ActionIcon(icon: Icons.add_rounded, color: cs.primary, onTap: widget.onAlquilar!),
+                              ActionIcon(
+                                icon: Icons.delete_outline,
+                                color: cs.error,
+                                onTap: widget.onEliminar!,
+                              ),
+                            // 🌟 ARREGLO: Se cambia .units por .availableUnits
+                            if (widget.onAlquilar != null &&
+                                statusCode == 'AVAILABLE' &&
+                                widget.equipamiento.availableUnits > 0) ...[
+                              if (widget.onEliminar != null)
+                                const SizedBox(width: 5),
+                              ActionIcon(
+                                icon: Icons.add_rounded,
+                                color: cs.primary,
+                                onTap: widget.onAlquilar!,
+                              ),
                             ],
                           ],
                         ),
@@ -176,41 +210,42 @@ class _EquipmentCardState extends State<EquipmentCard> {
                     ),
                   ],
                 ),
+              ),
             ),
-          ),
 
-          // IMAGEN DERECHA con clip diagonal
-          ClipPath(
-            clipper: _DiagonalLeftClipper(),
-            child: SizedBox(
-              width: 110,
-              height: double.infinity,
-              child: imagen != null && imagen.isNotEmpty
-                  ? (imagen.startsWith('assets/')
-                      ? Image.asset(imagen, fit: BoxFit.cover)
-                      : Image.memory(base64Decode(imagen), fit: BoxFit.cover)) // 👈 Aquí descodificamos
-                  : DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: cs.primaryContainer.withValues(alpha: 0.5),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.inventory_2_outlined,
-                          size: 32,
-                          color: cs.primary.withValues(alpha: 0.5),
+            ClipPath(
+              clipper: _DiagonalLeftClipper(),
+              child: SizedBox(
+                width: 110,
+                height: double.infinity,
+                child: imagen != null && imagen.isNotEmpty
+                    ? (imagen.startsWith('assets/')
+                          ? Image.asset(imagen, fit: BoxFit.cover)
+                          : Image.memory(
+                              base64Decode(imagen),
+                              fit: BoxFit.cover,
+                            ))
+                    : DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: cs.primaryContainer.withValues(alpha: 0.5),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.inventory_2_outlined,
+                            size: 32,
+                            color: cs.primary.withValues(alpha: 0.5),
+                          ),
                         ),
                       ),
-                    ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    )
     );
   }
 }
 
-/// Recorta el lado izquierdo de forma diagonal.
 class _DiagonalLeftClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {

@@ -103,7 +103,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               // Punto de encuentro o ruta fusionada
               CustomInputField(
                 controller: _controller.puntoInicioFinController,
-                labelText: s.startPoint ?? 'Punt de trobada/Ruta',
+                labelText: s.startPoint,
                 prefixIcon: Icons.place_outlined,
               ),
               const SizedBox(height: 14),

@@ -7,19 +7,16 @@ class EquipmentFormController {
 
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
-  final TextEditingController stockController = TextEditingController();
   final TextEditingController stockTotalController = TextEditingController();
   final TextEditingController precioController = TextEditingController();
   final TextEditingController tarifaController = TextEditingController();
 
   List<Category> categorias = [];
-  EquipmentStatus estado = EquipmentStatus.disponible;
+  int? statusId; // 🌟 ARREGLO: ID numérico dinámico del backend en vez de Enum
   String? imagenAsset;
   bool editando = false;
-
   Equipment? seleccionado;
 
-  // Valida el formulario antes de enviarlo.
   bool validar() {
     if (formKey.currentState == null) {
       return false;
@@ -27,7 +24,6 @@ class EquipmentFormController {
     return formKey.currentState!.validate();
   }
 
-  // Alternar la selección de una categoría
   void alternarCategoria(Category cat) {
     if (categorias.contains(cat)) {
       categorias.remove(cat);
@@ -36,63 +32,60 @@ class EquipmentFormController {
     }
   }
 
-  // Cargar los datos de un material
   void cargarEquipo(Equipment equipamiento) {
     editando = true;
     seleccionado = equipamiento;
     nombreController.text = equipamiento.title;
     descripcionController.text = equipamiento.description ?? '';
-    stockController.text = '${equipamiento.units}';
+    // 🌟 ARREGLO: Vinculado a totalUnits de la nueva estructura
     stockTotalController.text = '${equipamiento.totalUnits}';
-    // toStringAsFixed(2) convierte un double a String con exactamente 2 decimales.
     precioController.text = equipamiento.pricePerDay.toStringAsFixed(2);
     tarifaController.text = equipamiento.damageFee.toStringAsFixed(2);
     categorias = List<Category>.from(equipamiento.categories);
-    estado = equipamiento.status;
+    statusId = equipamiento.statusId;
     imagenAsset = equipamiento.imageAsset;
   }
 
-  // Construye el objeto Equipamiento con los datos del formulario.
   Equipment? crearEquipamiento() {
-    if (!validar()) {
+    if (!validar() || statusId == null) {
       return null;
     }
-    
+
     return Equipment(
       id: seleccionado?.id,
       title: nombreController.text.trim(),
-      description: descripcionController.text.trim().isEmpty ? null : descripcionController.text.trim(),
+      description: descripcionController.text.trim().isEmpty
+          ? null
+          : descripcionController.text.trim(),
       categories: List<Category>.from(categorias),
-      units: int.tryParse(stockController.text) ?? 0,
+      // Al crear, units (disponibles) hereda el valor total inicial
+      availableUnits: int.tryParse(stockTotalController.text) ?? 0,
       totalUnits: int.tryParse(stockTotalController.text) ?? 0,
-      status: estado,
+      statusId: statusId!,
       pricePerDay: double.tryParse(precioController.text) ?? 0,
       damageFee: double.tryParse(tarifaController.text) ?? 0,
       imageAsset: imagenAsset,
     );
   }
 
-  // Limpiar todos los campos
   void limpiar() {
     editando = false;
     seleccionado = null;
     nombreController.clear();
     descripcionController.clear();
-    stockController.clear();
+    stockTotalController.clear();
     precioController.clear();
     tarifaController.clear();
     categorias = [];
-    estado = EquipmentStatus.disponible;
+    statusId = null;
+    imagenAsset = null;
   }
 
-  // Libera de la memoria los TextEditingController
   void dispose() {
     nombreController.dispose();
     descripcionController.dispose();
-    stockController.dispose();
+    stockTotalController.dispose();
     precioController.dispose();
     tarifaController.dispose();
   }
-
-  
 }

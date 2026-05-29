@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
-import 'package:outventura/core/widgets/app_chip.dart';
-import 'package:outventura/core/widgets/app_date_selector.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
-import 'package:outventura/core/widgets/app_time_selector.dart';
 import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
-import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/auth/data/fakes/users_fake.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/data/fakes/activities_fake.dart';
-import 'package:outventura/features/outventura/domain/entities/category.dart';
 
 class InputsDemo extends StatefulWidget {
   const InputsDemo({super.key});
@@ -24,7 +18,6 @@ class InputsDemo extends StatefulWidget {
 
 class _InputsDemoState extends State<InputsDemo> {
   // Chips
-  final Set<Category> _chips = {};
 
   // Dropdowns
   int? _idUsuario;
