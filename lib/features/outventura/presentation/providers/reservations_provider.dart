@@ -117,7 +117,12 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/booking');
-      final List<dynamic> data = response.data as List<dynamic>;
+      final raw = response.data;
+
+      final List<dynamic> data = raw is List
+          ? raw
+          : (raw['data'] as List<dynamic>);
+
       return data
           .map((e) => BookingModel.fromMap(e as Map<String, dynamic>))
           .toList();

@@ -14,8 +14,8 @@ class BookingLineModel extends BookingLine {
     return BookingLineModel(
       equipmentId: map['equipmentId'] as int?,
       activityId: map['activityId'] as int?,
-      quantity: map['quantity'] as int? ?? 0,
-      priceAtMoment: (map['price_at_moment'] as num?)?.toDouble() ?? 0,
+      quantity: int.tryParse(map['quantity'].toString()) ?? 0,
+      priceAtMoment: double.tryParse(map['price_at_moment'].toString()) ?? 0,
     );
   }
 }
@@ -70,7 +70,7 @@ class BookingModel extends Booking {
       status: WorkflowStatus.fromCode(statusCode),
       startDate: parsedStartDate,
       endDate: parsedEndDate,
-      totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0,
+      totalPrice: double.tryParse(map['total_price'].toString()) ?? 0,
     );
   }
 }

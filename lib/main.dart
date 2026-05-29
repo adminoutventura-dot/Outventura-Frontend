@@ -16,7 +16,8 @@ import 'package:outventura/features/preferences/data/models/preferences.dart';
 // TODO: Añadir borde a logo
 
 void main() async {
-  final WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  final WidgetsBinding widgetsBinding =
+      WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await initializeDateFormatting();
   runApp(const ProviderScope(child: SplashWrapper()));
@@ -38,39 +39,45 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<Preferencias> preferenciasAsync = ref.watch(preferenciasProvider);
+    final AsyncValue<Preferencias> preferenciasAsync = ref.watch(
+      preferenciasProvider,
+    );
     // Restaurar sesión al iniciar la app.
-    ref.watch(sessionRestorerProvider);
+    final sessionAsync = ref.watch(sessionRestorerProvider);
     // Observar el usuario actual para decidir qué pantalla mostrar.
     final User? usuarioActual = ref.watch(currentUserProvider);
 
     return preferenciasAsync.when(
       data: (Preferencias preferences) {
         return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Outventura',
-        locale: _localeFromString(preferences.idioma),
-        localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        themeMode: preferences.temaOscuro ? ThemeMode.dark : ThemeMode.light,
-        // Si hay usuario logueado, mostrar MainScaffold. Si no, mostrar LoginPage.
-        home: usuarioActual != null
-            ? MainScaffold(usuario: usuarioActual)
-            : const LoginPage(),
+          debugShowCheckedModeBanner: false,
+          title: 'Outventura',
+          locale: _localeFromString(preferences.idioma),
+          localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: preferences.temaOscuro ? ThemeMode.dark : ThemeMode.light,
+          // Si hay usuario logueado, mostrar MainScaffold. Si no, mostrar LoginPage.
+          home: sessionAsync.when(
+            loading: () => const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+            error: (_, __) => const LoginPage(),
+            data: (_) => usuarioActual != null
+                ? MainScaffold(usuario: usuarioActual)
+                : const LoginPage(),
+          ),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (Object error, StackTrace stack) => MaterialApp(
-        home: Scaffold(
-          body: Center(child: Text('Error: $error')),
-        ),
+        home: Scaffold(body: Center(child: Text('Error: $error'))),
       ),
     );
   }

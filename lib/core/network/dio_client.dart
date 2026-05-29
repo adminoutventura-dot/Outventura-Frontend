@@ -3,7 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const String _tokenKey = 'auth_token';
-const _storage = FlutterSecureStorage();
+const _storage = FlutterSecureStorage(
+  webOptions: WebOptions(
+    dbName: 'outventura_storage',
+    publicKey: 'outventura_key',
+  ),
+);
 
 // Guarda el JWT recibido tras el login.
 Future<void> saveAuthToken(String token) =>
@@ -53,7 +58,7 @@ final dioProvider = Provider<Dio>((ref) {
 // Convierte cualquier error de red en una excepción legible.
 Exception parseDioError(Object error) {
   if (error is! DioException) return Exception(error.toString());
-  
+
   if (error.type == DioExceptionType.connectionError ||
       error.type == DioExceptionType.unknown) {
     return Exception('Sin conexión al servidor');
@@ -66,7 +71,8 @@ Exception parseDioError(Object error) {
 
   // Extrae el mensaje real que NestJS manda en el JSON
   String? extraerMensajeNestJS() {
-    if (error.response?.data is Map && error.response?.data['message'] != null) {
+    if (error.response?.data is Map &&
+        error.response?.data['message'] != null) {
       final mensaje = error.response?.data['message'];
       // NestJS a veces devuelve los errores de validación como una lista de strings
       if (mensaje is List) {

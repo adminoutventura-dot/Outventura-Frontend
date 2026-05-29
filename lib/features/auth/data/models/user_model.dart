@@ -33,7 +33,9 @@ class UserModel extends User {
       phone: map['phone']?.toString(),
       role: role,
       photo: map['photo'] as String?,
-      active: map['status'] as bool? ?? true,
+      active: map['status'] is bool
+          ? map['status'] as bool
+          : map['status'] == 'ACTIU',
     );
   }
 }
