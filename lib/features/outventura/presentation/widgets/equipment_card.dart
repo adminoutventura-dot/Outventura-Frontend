@@ -32,7 +32,6 @@ class _EquipmentCardState extends State<EquipmentCard> {
 
     // Evalúa las propiedades en tiempo real mapeando contra los códigos String del Backend
     final String statusCode = widget.equipamiento.status?.code ?? 'AVAILABLE';
-    // 🌟 ARREGLO: Se cambia .units por .availableUnits
     final bool esAgotado =
         statusCode == 'AVAILABLE' && widget.equipamiento.availableUnits <= 0;
     final bool esMantenimiento = statusCode == 'MAINTENANCE';
@@ -53,7 +52,6 @@ class _EquipmentCardState extends State<EquipmentCard> {
       labelTexto = "s.outOfService";
     }
 
-    // 🌟 ARREGLO: Se cambia .units por .availableUnits para la barra de progreso
     final double stockPct = widget.equipamiento.totalUnits > 0
         ? (widget.equipamiento.availableUnits / widget.equipamiento.totalUnits)
               .clamp(0.0, 1.0)
@@ -160,7 +158,6 @@ class _EquipmentCardState extends State<EquipmentCard> {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                // 🌟 ARREGLO: Se cambia .units por .availableUnits
                                 s.stockInfo(
                                   widget.equipamiento.availableUnits,
                                   widget.equipamiento.totalUnits,
@@ -192,7 +189,6 @@ class _EquipmentCardState extends State<EquipmentCard> {
                                 color: cs.error,
                                 onTap: widget.onEliminar!,
                               ),
-                            // 🌟 ARREGLO: Se cambia .units por .availableUnits
                             if (widget.onAlquilar != null &&
                                 statusCode == 'AVAILABLE' &&
                                 widget.equipamiento.availableUnits > 0) ...[

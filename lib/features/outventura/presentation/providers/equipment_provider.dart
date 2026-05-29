@@ -5,7 +5,6 @@ import 'package:outventura/features/outventura/data/models/equipment_model.dart'
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 
-// 🌟 Añadido para listar los estados reales del backend
 final equipmentStatusesProvider = FutureProvider<List<dynamic>>((ref) async {
   final dio = ref.read(dioProvider);
   final response = await dio.get('/equipment-status');
@@ -17,7 +16,6 @@ final equipmentProvider =
       EquipmentNotifier.new,
     );
 
-// 🌟 ARREGLO: Filtra usando el identificador numérico de estado int?
 final filteredEquipmentProvider =
     Provider.family<
       AsyncValue<List<Equipment>>,

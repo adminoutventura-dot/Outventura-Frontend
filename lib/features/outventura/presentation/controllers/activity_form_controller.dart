@@ -19,8 +19,10 @@ class ActivityFormController {
 
   int dificultad = 1;
   String? imagenAsset;
-  List<Category> categorias = [];
+  List<Category> categories = [];
   Map<int, int> materialesRecomendados = {};
+
+  int? guideId;
 
   bool editando = false;
   Activity? seleccionada;
@@ -52,7 +54,9 @@ class ActivityFormController {
 
     dificultad = actividad.difficulty;
     imagenAsset = actividad.imageAsset;
-    categorias = List.from(actividad.categories);
+    categories = List.from(actividad.categories);
+
+    guideId = actividad.guideId;
 
     // La entidad de actividad ya no tiene el mapa de cantidades.
     // Para no romper la UI, asigna cantidad 1 por defecto a cada material recomendado.
@@ -62,10 +66,10 @@ class ActivityFormController {
   }
 
   void alternarCategoria(Category cat) {
-    if (categorias.contains(cat)) {
-      categorias.remove(cat);
+    if (categories.contains(cat)) {
+      categories.remove(cat);
     } else {
-      categorias.add(cat);
+      categories.add(cat);
     }
   }
 
@@ -110,12 +114,12 @@ class ActivityFormController {
       startEndPoint: puntoInicioFinController.text.trim().isEmpty
           ? null
           : puntoInicioFinController.text.trim(),
-      categories: categorias,
+      categories: categories,
       imageAsset: imagenAsset,
       // Extrae solo las keys (los IDs) del mapa para enviar al backend
       recommendedEquipmentIds: materialesRecomendados.keys.toList(),
-      // Mantiene el guideId original si se está editando
-      guideId: seleccionada?.guideId,
+      
+      guideId: guideId,
     );
   }
 

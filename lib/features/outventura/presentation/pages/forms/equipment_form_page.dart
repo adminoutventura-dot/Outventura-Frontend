@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // 🌟 Añadido para consumir estados
+import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'package:outventura/core/widgets/app_bar_forms.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
@@ -10,9 +10,9 @@ import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/presentation/controllers/equipment_form_controller.dart';
-import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart'; // Asegura la ruta de tu provider de estados
+import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart'; 
 
-class EquipmentFormPage extends ConsumerStatefulWidget { // 🌟 Cambiado a ConsumerStatefulWidget
+class EquipmentFormPage extends ConsumerStatefulWidget { 
   final Equipment? equipamiento;
 
   const EquipmentFormPage({super.key, this.equipamiento});
@@ -122,7 +122,6 @@ class _EquipmentFormPageState extends ConsumerState<EquipmentFormPage> {
                   return AppChoiceChip(
                     label: est.name as String,
                     seleccionado: seleccionado,
-                    // 🌟 ARREGLO: Corregido callback unificado onPressed
                     onPressed: () {
                       setState(() => _controller.statusId = est.id as int);
                     },
@@ -136,7 +135,6 @@ class _EquipmentFormPageState extends ConsumerState<EquipmentFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              // 🌟 ARREGLO: Ocultamos stockController; solo el total es editable por el Admin
               CustomInputField(
                 controller: _controller.stockTotalController,
                 labelText: s.totalStock,

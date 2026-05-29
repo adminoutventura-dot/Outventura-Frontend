@@ -130,7 +130,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
             ),
           ),
 
-          // 🌟 2. PAGINACIÓN COMPACTA < 1 / 2 > (Alineada a la derecha)
+          // PAGINACIÓN COMPACTA < 1 / 2 > (Alineada a la derecha)
           if (totalPages > 1)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

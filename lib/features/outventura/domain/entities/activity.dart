@@ -31,19 +31,27 @@ class Activity {
   });
 
   // Convierte la actividad a un mapa para enviar al backend.
-  Map<String, dynamic> toMap() => {
-    'title': title,
-    'description': description,
-    'init_date': initDate.toIso8601String(),
-    'end_date': endDate.toIso8601String(),
-    'difficulty': difficulty,
-    'max_participants': maxParticipants,
-    if (startEndPoint != null) 'start_end_point': startEndPoint,
-    if (imageAsset != null) 'image_asset': imageAsset,
-    'categoryCodes': categories.map((Category c) => c.code).toList(),
-    'recommendedEquipmentIds': recommendedEquipmentIds,
-    if (guideId != null) 'guideId': guideId,
-  };
+  Map<String, dynamic> toMap() {
+    // Función auxiliar que añade la 'Z' si no la tiene, SIN restar horas de zona horaria
+    String formatPrismaDate(DateTime date) {
+      final String iso = date.toIso8601String();
+      return iso.endsWith('Z') ? iso : '${iso}Z';
+    }
+
+    return {
+      'title': title,
+      'description': description,
+      'init_date': formatPrismaDate(initDate),
+      'end_date': formatPrismaDate(endDate),
+      'difficulty': difficulty,
+      'max_participants': maxParticipants,
+      if (startEndPoint != null) 'start_end_point': startEndPoint,
+      if (imageAsset != null) 'image_asset': imageAsset,
+      'categoryCodes': categories.map((Category c) => c.code).toList(),
+      'recommendedEquipmentIds': recommendedEquipmentIds,
+      if (guideId != null) 'guideId': guideId,
+    };
+  }
 
   // Crea una nueva actividad a partir de la actual, permitiendo modificar algunos campos.
   Activity copyWith({
@@ -71,7 +79,8 @@ class Activity {
       startEndPoint: startEndPoint ?? this.startEndPoint,
       categories: categories ?? this.categories,
       imageAsset: imageAsset ?? this.imageAsset,
-      recommendedEquipmentIds: recommendedEquipmentIds ?? this.recommendedEquipmentIds,
+      recommendedEquipmentIds:
+          recommendedEquipmentIds ?? this.recommendedEquipmentIds,
       guideId: guideId ?? this.guideId,
     );
   }

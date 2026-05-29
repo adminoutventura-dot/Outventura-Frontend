@@ -12,7 +12,7 @@ class EquipmentFormController {
   final TextEditingController tarifaController = TextEditingController();
 
   List<Category> categorias = [];
-  int? statusId; // 🌟 ARREGLO: ID numérico dinámico del backend en vez de Enum
+  int? statusId;
   String? imagenAsset;
   bool editando = false;
   Equipment? seleccionado;
@@ -37,7 +37,6 @@ class EquipmentFormController {
     seleccionado = equipamiento;
     nombreController.text = equipamiento.title;
     descripcionController.text = equipamiento.description ?? '';
-    // 🌟 ARREGLO: Vinculado a totalUnits de la nueva estructura
     stockTotalController.text = '${equipamiento.totalUnits}';
     precioController.text = equipamiento.pricePerDay.toStringAsFixed(2);
     tarifaController.text = equipamiento.damageFee.toStringAsFixed(2);
