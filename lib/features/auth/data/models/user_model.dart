@@ -15,15 +15,23 @@ class UserModel extends User {
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
+    final roleRaw = map['role'];
+    final UserRole role;
+    if (roleRaw is String) {
+      role = UserRole.fromCode(roleRaw);
+    } else if (roleRaw is Map<String, dynamic>) {
+      role = UserRole.fromMap(roleRaw);
+    } else {
+      role = UserRole.invitado;
+    }
+
     return UserModel(
-      id: map['id_user'] as int? ?? 0,
+      id: map['id_user'] as int? ?? map['id'] as int? ?? 0,
       name: map['name'] as String,
       surname: map['surname'] as String? ?? '',
       email: map['email'] as String,
       phone: map['phone']?.toString(),
-      role: map['role'] != null
-          ? UserRole.fromMap(map['role'] as Map<String, dynamic>)
-          : UserRole.invitado,
+      role: role,
       photo: map['photo'] as String?,
       active: map['status'] as bool? ?? true,
     );
