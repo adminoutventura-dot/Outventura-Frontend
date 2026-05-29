@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/outventura/data/fakes/equipment_fake.dart';
-import 'package:outventura/features/outventura/data/fakes/reservations_fake.dart';
-import 'package:outventura/features/outventura/presentation/widgets/reservation_dialogs.dart';
-import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
+import 'package:outventura/features/outventura/data/fakes/booking_fake.dart';
+import 'package:outventura/features/outventura/presentation/widgets/booking_dialogs.dart';
+import 'package:outventura/features/outventura/presentation/widgets/booking_line_dialog.dart';
 
 class OverlaysDemo extends StatelessWidget {
   const OverlaysDemo({super.key});

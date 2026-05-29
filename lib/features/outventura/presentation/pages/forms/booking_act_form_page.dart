@@ -12,21 +12,21 @@ import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
-import 'package:outventura/features/outventura/presentation/controllers/request_form_controller.dart';
+import 'package:outventura/features/outventura/presentation/controllers/booking_act_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 
-class SolicitudFormPage extends ConsumerStatefulWidget {
+class BookingActFormPage extends ConsumerStatefulWidget {
   final Booking? reserva;
   final int? initialIdActividad;
   final int? initialIdUsuario;
 
-  const SolicitudFormPage({
+  const BookingActFormPage({
     super.key,
     this.reserva,
     this.initialIdActividad,
@@ -34,17 +34,17 @@ class SolicitudFormPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SolicitudFormPage> createState() => _SolicitudFormPageState();
+  ConsumerState<BookingActFormPage> createState() => _BookingActFormPageState();
 }
 
-class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
-  late final RequestFormController _controller;
+class _BookingActFormPageState extends ConsumerState<BookingActFormPage> {
+  late final BookingActFormController _controller;
   bool _mostrarMateriales = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = RequestFormController();
+    _controller = BookingActFormController();
 
     if (widget.reserva != null) {
       _controller.cargarReservaUnificada(widget.reserva!);
@@ -88,8 +88,9 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
         ref.watch(equipmentProvider).value ?? [];
     final bool modoCliente = widget.initialIdUsuario != null;
 
+    final List<User> todosLosUsuarios = ref.watch(usuariosProvider).value ?? [];
     final List<User> usuariosDisponibles = !modoCliente
-        ? ref.watch(clientesProvider).value ?? []
+        ? todosLosUsuarios.where((u) => u.role.code == 'USER').toList()
         : switch (ref.watch(currentUserProvider)) {
             final User u => [u],
             null => [],
@@ -100,7 +101,6 @@ class _SolicitudFormPageState extends ConsumerState<SolicitudFormPage> {
     final Activity? actividadSeleccionada = _controller
         .buscarActividadSeleccionada(actividades);
 
-    // Calcula el precio dinámico usando el método correcto de este controlador
     final double totalPrice = _controller.calcularPrecioTotal(
       actividades,
       equipamientos,

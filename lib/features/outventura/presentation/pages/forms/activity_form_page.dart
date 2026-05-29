@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/network/dio_client.dart'; // 🌟 Importante para conectar con el BackEnd
+import 'package:outventura/core/network/dio_client.dart'; 
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -14,13 +14,13 @@ import 'package:outventura/features/auth/presentation/providers/current_user_pro
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/presentation/controllers/activity_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
-import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
-import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
+import 'package:outventura/features/outventura/presentation/widgets/booking_line_card.dart';
+import 'package:outventura/features/outventura/presentation/widgets/booking_line_dialog.dart';
 
-// 🌟 PROVIDER REAL: Obtiene los guías de la base de datos de forma dinámica
+// Obtiene los guías de la base de datos de forma dinámica
 final guidesProvider = FutureProvider<List<dynamic>>((ref) async {
   final dio = ref.read(dioProvider);
   final response = await dio.get('/guide');
@@ -82,7 +82,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
     final List<Equipment> equipamientos =
         ref.watch(equipmentProvider).value ?? [];
 
-    // 🌟 LEEMOS LOS GUÍAS REALES DESDE EL PROVIDER ASÍNCRONO
     final AsyncValue<List<dynamic>> guidesAsync = ref.watch(guidesProvider);
     final List<dynamic> listaGuiasReales = guidesAsync.value ?? [];
 
@@ -149,7 +148,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 14),
 
-              // 🌟 NUEVO: SELECTOR DE GUÍA ASIGNADO REAL DE BASE DE DATOS
+              // SELECTOR DE GUÍA ASIGNADO
               if (!isGuide) ...[
                 DropdownButtonFormField<int>(
                   value: _controller.guideId,

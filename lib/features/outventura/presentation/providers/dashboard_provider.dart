@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
-import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
+import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
 
 // Genera las estadísticas para el panel principal
 final adminDashboardStatsProvider = Provider<AsyncValue<Map<String, int>>>((

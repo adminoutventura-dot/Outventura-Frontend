@@ -15,12 +15,12 @@ import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
-import 'package:outventura/features/outventura/presentation/controllers/reservation_form_controller.dart';
+import 'package:outventura/features/outventura/presentation/controllers/booking_mat_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
-import 'package:outventura/features/outventura/presentation/widgets/reservation_line_card.dart';
+import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
+import 'package:outventura/features/outventura/presentation/widgets/booking_line_card.dart';
 import 'package:outventura/core/widgets/bottom_price_bar.dart';
 
 class ReservationFormPage extends ConsumerStatefulWidget {
@@ -43,12 +43,12 @@ class ReservationFormPage extends ConsumerStatefulWidget {
 }
 
 class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
-  late final ReservationFormController _controller;
+  late final BookingMatFormController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = ReservationFormController();
+    _controller = BookingMatFormController();
 
     if (widget.reserva != null) {
       _controller.cargarReserva(widget.reserva!);
@@ -94,12 +94,13 @@ class _ReservationFormPageState extends ConsumerState<ReservationFormPage> {
         MediaQuery.of(context).padding.top + kToolbarHeight;
     final double bottomBarHeight = MediaQuery.of(context).padding.bottom + 100;
 
+    final List<User> todosLosUsuarios = ref.watch(usuariosProvider).value ?? [];
     final List<User> usuariosDisponibles = modoCliente
         ? switch (ref.watch(currentUserProvider)) {
             final User u => [u],
             null => [],
           }
-        : ref.watch(clientesProvider).value ?? [];
+        : todosLosUsuarios.where((u) => u.role.code == 'USER').toList();
 
     return Scaffold(
       extendBodyBehindAppBar: true,

@@ -21,13 +21,13 @@ class _InputsDemoState extends State<InputsDemo> {
 
   // Dropdowns
   int? _idUsuario;
-  int? _idActividad;
+  // int? _idActividad;
 
-  // Date
-  DateTime _fecha = DateTime(2026, 6, 15);
+  // // Date
+  // DateTime _fecha = DateTime(2026, 6, 15);
 
-  // Time
-  TimeOfDay _time = const TimeOfDay(hour: 9, minute: 0);
+  // // Time
+  // TimeOfDay _time = const TimeOfDay(hour: 9, minute: 0);
 
   @override
   Widget build(BuildContext context) {

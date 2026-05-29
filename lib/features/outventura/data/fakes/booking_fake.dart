@@ -1,4 +1,4 @@
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 
 final List<Booking> reservationsFake = [
@@ -9,7 +9,7 @@ final List<Booking> reservationsFake = [
       BookingLine(
         activityId: 1,
         quantity: 1,
-      ), // 🌟 ARREGLO: Mapeado como línea híbrida
+      ),
       BookingLine(equipmentId: 5, quantity: 6, priceAtMoment: 7.0),
       BookingLine(equipmentId: 6, quantity: 10, priceAtMoment: 3.0),
     ],
@@ -22,7 +22,7 @@ final List<Booking> reservationsFake = [
     id: 102,
     userId: 4,
     lines: const [
-      BookingLine(activityId: 2, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 2, quantity: 1),
       BookingLine(equipmentId: 3, quantity: 4, priceAtMoment: 25.0),
       BookingLine(equipmentId: 8, quantity: 2, priceAtMoment: 4.0),
     ],
@@ -35,12 +35,12 @@ final List<Booking> reservationsFake = [
     id: 103,
     userId: 3,
     lines: const [
-      BookingLine(activityId: 2, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 2, quantity: 1), 
       BookingLine(equipmentId: 4, quantity: 2, priceAtMoment: 20.0),
       BookingLine(equipmentId: 2, quantity: 2, priceAtMoment: 10.0),
     ],
     status: WorkflowStatus
-        .finalizada, // 🌟 ARREGLO: Eliminados damageFee y damagedItems
+        .finalizada, 
     startDate: DateTime(2026, 5, 20, 9, 0),
     endDate: DateTime(2026, 5, 20, 13, 0),
   ),
@@ -49,7 +49,7 @@ final List<Booking> reservationsFake = [
     id: 104,
     userId: 3,
     lines: const [
-      BookingLine(activityId: 4, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 4, quantity: 1), 
       BookingLine(equipmentId: 2, quantity: 3, priceAtMoment: 10.0),
     ],
     status: WorkflowStatus.cancelada,
@@ -61,7 +61,7 @@ final List<Booking> reservationsFake = [
     id: 105,
     userId: 3,
     lines: const [
-      BookingLine(activityId: 5, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 5, quantity: 1), 
       BookingLine(equipmentId: 5, quantity: 4, priceAtMoment: 7.0),
       BookingLine(equipmentId: 1, quantity: 2, priceAtMoment: 12.5),
       BookingLine(equipmentId: 3, quantity: 1, priceAtMoment: 25.0),
@@ -75,7 +75,7 @@ final List<Booking> reservationsFake = [
     id: 106,
     userId: 3,
     lines: const [
-      BookingLine(activityId: 1, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 1, quantity: 1),
       BookingLine(equipmentId: 5, quantity: 3, priceAtMoment: 7.0),
       BookingLine(equipmentId: 6, quantity: 6, priceAtMoment: 3.0),
     ],
@@ -88,7 +88,7 @@ final List<Booking> reservationsFake = [
     id: 107,
     userId: 4,
     lines: const [
-      BookingLine(activityId: 6, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 6, quantity: 1), 
       BookingLine(equipmentId: 5, quantity: 2, priceAtMoment: 7.0),
     ],
     status: WorkflowStatus.confirmada,
@@ -100,7 +100,7 @@ final List<Booking> reservationsFake = [
     id: 108,
     userId: 3,
     lines: const [
-      BookingLine(activityId: 7, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 7, quantity: 1), 
       BookingLine(equipmentId: 3, quantity: 2, priceAtMoment: 25.0),
     ],
     status: WorkflowStatus.confirmada,
@@ -112,7 +112,7 @@ final List<Booking> reservationsFake = [
     id: 109,
     userId: 4,
     lines: const [
-      BookingLine(activityId: 8, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 8, quantity: 1), 
       BookingLine(equipmentId: 8, quantity: 1, priceAtMoment: 4.0),
     ],
     status: WorkflowStatus.enCurso,
@@ -124,7 +124,7 @@ final List<Booking> reservationsFake = [
     id: 110,
     userId: 3,
     lines: const [
-      BookingLine(activityId: 9, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 9, quantity: 1),
       BookingLine(equipmentId: 6, quantity: 3, priceAtMoment: 3.0),
     ],
     status: WorkflowStatus.confirmada,
@@ -136,7 +136,7 @@ final List<Booking> reservationsFake = [
     id: 111,
     userId: 4,
     lines: const [
-      BookingLine(activityId: 10, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 10, quantity: 1), 
       BookingLine(equipmentId: 3, quantity: 4, priceAtMoment: 25.0),
     ],
     status: WorkflowStatus.confirmada,
@@ -148,7 +148,7 @@ final List<Booking> reservationsFake = [
     id: 112,
     userId: 3,
     lines: const [
-      BookingLine(activityId: 7, quantity: 1), // 🌟 ARREGLO
+      BookingLine(activityId: 7, quantity: 1), 
       BookingLine(equipmentId: 5, quantity: 2, priceAtMoment: 7.0),
     ],
     status: WorkflowStatus.confirmada,

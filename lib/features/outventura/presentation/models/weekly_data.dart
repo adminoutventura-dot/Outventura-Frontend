@@ -1,4 +1,4 @@
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 
 class WeeklyData {
   final DateTime startOfWeek;

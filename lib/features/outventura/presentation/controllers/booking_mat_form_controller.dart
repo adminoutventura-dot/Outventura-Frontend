@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
-import 'package:outventura/features/outventura/presentation/widgets/reservation_line_dialog.dart';
+import 'package:outventura/features/outventura/presentation/widgets/booking_line_dialog.dart';
 import 'package:outventura/features/outventura/services/pricing_service.dart';
 
-class ReservationFormController {
+class BookingMatFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   int? idUsuario;
-  int? idActividad; // Mantiene la referencia temporal en el formulario de la UI
+  int? idActividad;
   DateTime fechaDesde = DateTime.now();
   DateTime fechaHasta = DateTime.now();
   TimeOfDay horaInicio = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay horaFin = const TimeOfDay(hour: 17, minute: 0);
   WorkflowStatus estado = WorkflowStatus.pendiente;
 
-  // Líneas de la reserva (materiales o actividades).
   List<BookingLine> lineas = [];
 
   bool editando = false;
   Booking? seleccionado;
 
-  // Calcula el total del alquiler de equipamientos.
   double totalAlquiler(List<Equipment> equipamientos) {
     return calcularPrecioReserva(
       lineas: lineas,
@@ -56,7 +54,6 @@ class ReservationFormController {
       minute: reserva.endDate.minute,
     );
 
-    // Recupera el id de actividad buscando en las líneas para la UI del formulario
     final lineAct = reserva.lines
         .where((l) => l.activityId != null)
         .firstOrNull;
@@ -81,14 +78,8 @@ class ReservationFormController {
       );
     }
 
-    // Si viene de una actividad, inserta la línea correspondiente
     if (idActividad != null && lineas.isEmpty) {
-      lineas.add(
-        BookingLine(
-          activityId: idActividad,
-          quantity: 1, // Por defecto una plaza
-        ),
-      );
+      lineas.add(BookingLine(activityId: idActividad, quantity: 1));
     }
   }
 
@@ -104,7 +95,6 @@ class ReservationFormController {
     lineas.removeAt(index);
   }
 
-  // Abre un diálogo para añadir o editar una línea de reserva de material.
   Future<void> mostrarDialogoLinea({
     required BuildContext context,
     required List<Equipment> equipamientos,
@@ -136,7 +126,6 @@ class ReservationFormController {
       return null;
     }
 
-    // Fusiona fechaDesde con horaInicio
     final DateTime fechaInicioReal = DateTime(
       fechaDesde.year,
       fechaDesde.month,
@@ -145,7 +134,6 @@ class ReservationFormController {
       horaInicio.minute,
     );
 
-    // Fusiona fechaHasta con horaFin
     final DateTime fechaFinReal = DateTime(
       fechaHasta.year,
       fechaHasta.month,

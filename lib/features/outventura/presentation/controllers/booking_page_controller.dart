@@ -4,7 +4,7 @@ import 'package:outventura/features/outventura/domain/entities/workflow_status.d
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 // Importa el enum TipoReserva desde su provider
-import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
 
 class ReservationsPageController {
   WorkflowStatus? estadoFiltro;

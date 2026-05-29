@@ -1,5 +1,5 @@
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 
 // Calcula el precio de coste de reservas de materiales básandose en los días transcurridos.
 double calcularPrecioReserva({

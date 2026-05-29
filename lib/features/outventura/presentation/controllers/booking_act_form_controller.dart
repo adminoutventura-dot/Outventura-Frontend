@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 
-class RequestFormController {
+class BookingActFormController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController participantesCtrl = TextEditingController();
 
@@ -98,7 +98,6 @@ class RequestFormController {
     return actividades.where((e) => e.id == idActividad).firstOrNull;
   }
 
-  // Usa 'recommendedEquipmentIds' de forma nativa como List<int>
   void recalcularMateriales(List<Activity> actividades) {
     final Activity? actividad = buscarActividadSeleccionada(actividades);
     if (actividad == null) {
@@ -108,7 +107,6 @@ class RequestFormController {
 
     final Map<int, int> recalculado = {};
 
-    // Al ser un List<int>, iteramos los identificadores directamente
     for (final int idEquipamiento in actividad.recommendedEquipmentIds) {
       recalculado[idEquipamiento] = numeroParticipantes;
     }

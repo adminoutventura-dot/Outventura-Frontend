@@ -10,22 +10,35 @@ import 'package:outventura/core/utils/enum_translations.dart';
 
 typedef LineaDisplayInfo = ({String nombre, String? imagen, int cantidad});
 
-class ActivityReservationCard extends StatelessWidget {
+class BookingCard extends StatelessWidget {
   final Booking reserva;
   final List<LineaDisplayInfo> lineas;
   final String nombreUsuario;
+  
+  // Clave para saber si es Excursión o Material
+  final bool esActividad; 
   final String? nombreActividad;
 
+  // Todos los botones posibles
   final VoidCallback? onEditar;
+  final VoidCallback? onAprobar;
+  final VoidCallback? onRechazar;
+  final VoidCallback? onRegistrarDevolucion;
+  final VoidCallback? onCancelar;
   final VoidCallback? onVerDetalle;
 
-  const ActivityReservationCard({
+  const BookingCard({
     super.key,
     required this.reserva,
     required this.lineas,
     required this.nombreUsuario,
+    required this.esActividad,
     this.nombreActividad,
     this.onEditar,
+    this.onAprobar,
+    this.onRechazar,
+    this.onRegistrarDevolucion,
+    this.onCancelar,
     this.onVerDetalle,
   });
 
@@ -35,7 +48,6 @@ class ActivityReservationCard extends StatelessWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    // Se añade un caso por defecto por si el backend mandase un estado no mapeado
     final Color statusColor = switch (reserva.status) {
       WorkflowStatus.pendiente => cs.tertiary,
       WorkflowStatus.confirmada => cs.primary,
@@ -68,6 +80,7 @@ class ActivityReservationCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Franja de color izquierda
             Container(
               width: 5,
               decoration: BoxDecoration(
@@ -80,7 +93,9 @@ class ActivityReservationCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // --- CABECERA ---
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
@@ -103,7 +118,9 @@ class ActivityReservationCard extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    'EXCURSIÓ #${reserva.id ?? ""}',
+                                    esActividad
+                                        ? 'EXCURSIÓ #${reserva.id ?? ""}'
+                                        : 'RESERVA #${reserva.id ?? ""}',
                                     style: tt.labelSmall?.copyWith(
                                       color: statusColor,
                                       fontWeight: FontWeight.w700,
@@ -127,14 +144,13 @@ class ActivityReservationCard extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   TagWidget(
                                     text: reserva.status.localizedLabel(s),
-                                    backgroundColor: statusColor.withValues(
-                                      alpha: 0.13,
-                                    ),
+                                    backgroundColor: statusColor.withValues(alpha: 0.13),
                                     textColor: statusColor,
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 8),
+                              // Fechas
                               Row(
                                 children: [
                                   Icon(
@@ -151,7 +167,8 @@ class ActivityReservationCard extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              if (nombreActividad != null) ...[
+                              // Nombre de la excursión (si existe)
+                              if (esActividad && nombreActividad != null) ...[
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
@@ -178,49 +195,54 @@ class ActivityReservationCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Divider(
-                      height: 1,
-                      thickness: 0.5,
-                      color: statusColor.withValues(alpha: 0.20),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Desglose de materiales opcionales vinculados a la excursión
-                    ...lineas
-                        .where((l) => l.imagen != null)
-                        .map(
-                          (LineaDisplayInfo l) => Padding(
-                            padding: const EdgeInsets.only(bottom: 5),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.inventory_2_outlined,
-                                  size: 13,
-                                  color: cs.onSurfaceVariant,
-                                ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    l.nombre,
-                                    style: tt.bodySmall?.copyWith(
-                                      color: cs.onSurface,
+                    
+                    // --- SECCIÓN MATERIALES ---
+                    if (lineas.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Divider(
+                        height: 1,
+                        thickness: 0.5,
+                        color: statusColor.withValues(alpha: 0.20),
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: lineas
+                            .map(
+                              (LineaDisplayInfo l) => Padding(
+                                padding: const EdgeInsets.only(bottom: 5),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.inventory_2_outlined,
+                                      size: 13,
+                                      color: cs.onSurfaceVariant,
                                     ),
-                                  ),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        l.nombre,
+                                        style: tt.bodySmall?.copyWith(
+                                          color: cs.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    TagWidget(
+                                      text: '×${l.cantidad}',
+                                      backgroundColor: cs.secondary.withValues(alpha: 0.15),
+                                      textColor: cs.onPrimaryContainer,
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 6),
-                                TagWidget(
-                                  text: '×${l.cantidad}',
-                                  backgroundColor: cs.secondary.withValues(
-                                    alpha: 0.15,
-                                  ),
-                                  textColor: cs.onPrimaryContainer,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ],
+
+                    // --- BOTONERA ---
                     const SizedBox(height: 4),
                     Divider(
                       height: 1,
@@ -229,12 +251,44 @@ class ActivityReservationCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 9),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        const Spacer(),
+                        if (onCancelar != null) ...[
+                          ActionIcon(
+                            icon: Icons.cancel_outlined,
+                            color: cs.error,
+                            onTap: onCancelar!,
+                          ),
+                          const SizedBox(width: 5),
+                        ],
+                        if (onRechazar != null) ...[
+                          ActionIcon(
+                            icon: Icons.close_rounded,
+                            color: cs.error,
+                            onTap: onRechazar!,
+                          ),
+                          const SizedBox(width: 5),
+                        ],
+                        if (onAprobar != null) ...[
+                          ActionIcon(
+                            icon: Icons.check_circle_outline,
+                            color: cs.primary,
+                            onTap: onAprobar!,
+                          ),
+                          const SizedBox(width: 5),
+                        ],
+                        if (onRegistrarDevolucion != null) ...[
+                          ActionIcon(
+                            icon: Icons.assignment_return_outlined,
+                            color: cs.secondary,
+                            onTap: onRegistrarDevolucion!,
+                          ),
+                          const SizedBox(width: 5),
+                        ],
                         if (onEditar != null) ...[
                           ActionIcon(
-                            icon: Icons.assignment_outlined,
-                            color: cs.secondary,
+                            icon: Icons.edit_outlined,
+                            color: cs.tertiary,
                             onTap: onEditar!,
                           ),
                           const SizedBox(width: 5),
@@ -284,7 +338,6 @@ class _ImageGrid extends StatelessWidget {
       );
     }
 
-    // Función auxiliar con protección contra base64 corruptos
     Widget buildImg(String src) {
       try {
         final cleanSrc = src.contains(',') ? src.split(',').last : src;
@@ -309,7 +362,7 @@ class _ImageGrid extends StatelessWidget {
       children: [
         for (int i = 0; i < imagenes.length && i < 4; i++)
           SizedBox(
-            width: 30.25, // Mitad de 62 menos el espaciado
+            width: 30.25,
             height: 30.25,
             child: (i == 3 && imagenes.length > 4)
                 ? ColoredBox(

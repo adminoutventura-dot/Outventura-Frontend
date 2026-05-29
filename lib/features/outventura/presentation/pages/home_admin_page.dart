@@ -5,9 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:outventura/core/widgets/evento_tile.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
-import 'package:outventura/features/outventura/presentation/pages/reservations_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/booking_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/users_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/home_shared_widgets.dart';
@@ -15,7 +15,7 @@ import 'package:outventura/features/outventura/presentation/widgets/legend_item.
 import 'package:outventura/features/outventura/presentation/widgets/weekly_bar_chart.dart';
 import 'package:outventura/features/outventura/presentation/widgets/home_app_bar_delegate.dart';
 import 'package:outventura/features/outventura/presentation/providers/dashboard_provider.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/solicitud_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/booking_act_form_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
 class HomeAdminPage extends ConsumerWidget {
@@ -268,7 +268,7 @@ class HomeAdminPage extends ConsumerWidget {
                                   MaterialPageRoute(
                                     // Cambiado 'reserva' por 'solicitud'
                                     builder: (_) =>
-                                        SolicitudFormPage(reserva: r),
+                                        BookingActFormPage(reserva: r),
                                   ),
                                 ),
                               ),

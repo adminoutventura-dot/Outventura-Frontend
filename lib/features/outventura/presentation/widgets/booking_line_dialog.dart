@@ -3,7 +3,7 @@ import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
 Future<BookingLine?> mostrarDialogoLineaReserva({

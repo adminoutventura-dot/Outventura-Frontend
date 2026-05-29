@@ -4,9 +4,9 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
-import 'package:outventura/features/outventura/presentation/pages/reservation_detail_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/reservations_provider.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
+import 'package:outventura/features/outventura/presentation/pages/booking_detail_page.dart';
+import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/app/theme/app_text_styles.dart';
@@ -23,7 +23,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
 
-  // 🌟 Método auxiliar para agrupar las reservas y excursiones de un día concreto
+  // Método auxiliar para agrupar las reservas y excursiones de un día concreto
   List<Booking> _eventosDelDia(
     DateTime day,
     List<Booking> misReservas,
@@ -49,7 +49,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
         usuarioActual?.role.code == 'ADMIN' ||
         usuarioActual?.role.code == 'SUPER';
 
-    // 🌟 SEPARACIÓN LOGÍSTICA: Dividimos la colección para alimentar tus badges originales de la UI
+    // SEPARACIÓN LOGÍSTICA:
     // Excursiones (Antiguas solicitudes): Tienen alguna línea con ID de actividad
     final misSolicitudes = todasLasReservas.where((r) {
       if (!isAdmin && r.userId != usuarioActual?.id) return false;
@@ -188,7 +188,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     );
                   },
 
-                  // 🌟 TU MARCADOR ORIGINAL RESTAURADO: Badges con Wrap e incrementos numéricos por texto
+                  // Badges con Wrap e incrementos numéricos por texto
                   markerBuilder: (context, day, events) {
                     if (events.isEmpty) return const SizedBox.shrink();
 
@@ -287,7 +287,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             color: cs.onSurfaceVariant.withValues(alpha: 0.12),
           ),
 
-          // 🌟 TUS CARDS ORIGINALES RESTAURADAS: ListView con EventoTile adaptado
+          // ListView con EventoTile adaptado
           Expanded(
             child: eventosSeleccionados.isNotEmpty
                 ? ListView.builder(
@@ -335,6 +335,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     child: Text(
                       _selectedDay != null
                           ? s.noEventsToday
+                          // TODO: HARDCODEADO
                           : "Selecciona un día para ver las reservas y solicitudes",
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: cs.onSurfaceVariant.withValues(alpha: 0.50),

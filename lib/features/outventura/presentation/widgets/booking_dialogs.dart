@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
 // Muestra el diálogo de confirmación para aprobar una reserva.

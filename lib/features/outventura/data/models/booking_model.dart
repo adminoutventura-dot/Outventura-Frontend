@@ -1,4 +1,4 @@
-import 'package:outventura/features/outventura/domain/entities/reservation.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 
 /// Modelo de línea de reserva: extiende [BookingLine] añadiendo la deserialización desde JSON.
