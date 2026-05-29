@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/activities_page_controller.dart';
@@ -17,6 +16,7 @@ import 'package:outventura/features/outventura/presentation/controllers/search_c
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/activity_card.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 class ActivitiesPage extends ConsumerStatefulWidget {
   final bool puedeGestionar;
@@ -64,7 +64,12 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
       )),
     );
 
+    final activitiesNotifier = ref.read(activitiesProvider.notifier);
+    final int currentPage = activitiesNotifier.currentPage;
+    final int totalPages = activitiesNotifier.totalPages;
+
     return Scaffold(
+      backgroundColor: cs.surface,
       appBar: CustomAppBar(
         title: s.actividadesTitle,
         actions: [
@@ -108,6 +113,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
           : null,
       body: Column(
         children: [
+          // 1. BARRA DE BÚSQUEDA
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
@@ -123,6 +129,60 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
               onChanged: (String v) => setState(() => _search.query = v),
             ),
           ),
+
+          // 🌟 2. PAGINACIÓN COMPACTA < 1 / 2 > (Alineada a la derecha)
+          if (totalPages > 1)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment
+                    .end, // 👈 ¡El cambio está aquí! (end = derecha, start = izquierda)
+                children: [
+                  // Flecha Izquierda
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left, size: 28),
+                    color: currentPage > 1
+                        ? cs.primary
+                        : cs.onSurfaceVariant.withValues(alpha: 0.3),
+                    onPressed: currentPage > 1
+                        ? () => ref
+                              .read(activitiesProvider.notifier)
+                              .cambiarPagina(currentPage - 1)
+                        : null,
+                  ),
+
+                  // Texto: Actual / Total
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                    ), // Un pelín menos de margen al no estar centrada
+                    child: Text(
+                      '$currentPage / $totalPages',
+                      style: tt.titleMedium?.copyWith(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+
+                  // Flecha Derecha
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right, size: 28),
+                    color: currentPage < totalPages
+                        ? cs.primary
+                        : cs.onSurfaceVariant.withValues(alpha: 0.3),
+                    onPressed: currentPage < totalPages
+                        ? () => ref
+                              .read(activitiesProvider.notifier)
+                              .cambiarPagina(currentPage + 1)
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+
+          // 3. LISTADO DE EXCURSIONES
           Expanded(
             child: actividadesFiltradas.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -131,9 +191,9 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
               data: (List<Activity> lista) => ListView.separated(
                 padding: EdgeInsets.fromLTRB(
                   12,
+                  6,
                   12,
-                  12,
-                  MediaQuery.of(context).padding.bottom + 80,
+                  MediaQuery.of(context).padding.bottom + 100,
                 ),
                 itemCount: lista.isEmpty ? 1 : lista.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
