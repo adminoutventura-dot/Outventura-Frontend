@@ -7,6 +7,10 @@ import 'package:outventura/features/auth/presentation/providers/current_user_pro
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/presentation/pages/booking_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
+import 'package:outventura/features/outventura/presentation/pages/activity_detail_page.dart';
+
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/app/theme/app_text_styles.dart';
@@ -23,52 +27,65 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
 
-  // Método auxiliar para agrupar las reservas y excursiones de un día concreto
-  List<Booking> _eventosDelDia(
-    DateTime day,
-    List<Booking> misReservas,
-    List<Booking> misSolicitudes,
-  ) {
-    final res = misReservas.where((r) => isSameDay(r.startDate, day)).toList();
-    final sol = misSolicitudes
-        .where((s) => isSameDay(s.startDate, day))
-        .toList();
-    return [...res, ...sol];
-  }
-
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final s = AppLocalizations.of(context)!;
 
+    // ROL DEL USUARIO
     final usuarioActual = ref.watch(currentUserProvider);
-    final List<Booking> todasLasReservas =
-        ref.watch(reservationsProvider).value ?? [];
-
-    final bool isAdmin =
-        usuarioActual?.role.code == 'ADMIN' ||
+    final bool isGuest = usuarioActual == null ||
+        usuarioActual.role.code == 'INVITADO' ||
+        usuarioActual.role.code == 'GUEST';
+    final bool isAdmin = usuarioActual?.role.code == 'ADMIN' ||
         usuarioActual?.role.code == 'SUPER';
 
-    // SEPARACIÓN LOGÍSTICA:
-    // Excursiones (Antiguas solicitudes): Tienen alguna línea con ID de actividad
-    final misSolicitudes = todasLasReservas.where((r) {
-      if (!isAdmin && r.userId != usuarioActual?.id) return false;
-      return r.lines.any((l) => l.activityId != null);
-    }).toList();
+    // DATOS
+    final List<Booking> todasLasReservas =
+        ref.watch(reservationsProvider).value ?? [];
+    final List<Activity> todasLasActividades = 
+        ref.watch(activitiesProvider).value ?? [];
 
-    // Alquiler de Material (Antiguas reservas): No tienen ninguna actividad vinculada
-    final misReservas = todasLasReservas.where((r) {
-      if (!isAdmin && r.userId != usuarioActual?.id) return false;
-      return !r.lines.any((l) => l.activityId != null);
-    }).toList();
+    // RESERVAS (Solo si no es invitado)
+    List<Booking> misSolicitudes = [];
+    List<Booking> misReservas = [];
+
+    if (!isGuest) {
+      misSolicitudes = todasLasReservas.where((r) {
+        // Si no es admin, solo ve lo suyo
+        if (!isAdmin && r.userId != usuarioActual.id) return false;
+        return r.lines.any((l) => l.activityId != null);
+      }).toList();
+
+      misReservas = todasLasReservas.where((r) {
+        if (!isAdmin && r.userId != usuarioActual.id) return false;
+        return !r.lines.any((l) => l.activityId != null);
+      }).toList();
+    }
+
+    // NUEVO MOTOR DE EVENTOS SEGÚN EL ROL
+    List<dynamic> eventosDelDia(DateTime day) {
+      if (isGuest) {
+        // Si es INVITADO, devuelve las Actividades disponibles ese día
+        return todasLasActividades
+            .where((a) => isSameDay(a.initDate, day))
+            .toList();
+      } else {
+        // Si es USUARIO (ve lo suyo) o ADMIN (ve todo), devuelve los Bookings
+        final res = misReservas.where((r) => isSameDay(r.startDate, day)).toList();
+        final sol = misSolicitudes.where((s) => isSameDay(s.startDate, day)).toList();
+        return [...res, ...sol];
+      }
+    }
 
     final eventosSeleccionados = _selectedDay != null
-        ? _eventosDelDia(_selectedDay!, misReservas, misSolicitudes)
-        : <Booking>[];
+        ? eventosDelDia(_selectedDay!)
+        : [];
 
-    // Leyenda de colores original
+    // Colores de la leyenda
     final colorReserva = cs.tertiary;
     final colorSolicitud = cs.primary;
+    final colorActividad = cs.secondary;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -76,7 +93,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
       drawer: const AppDrawer(),
       body: Column(
         children: [
-          // Espaciador exacto original debajo del AppBar plano
           ColoredBox(
             color: cs.surface,
             child: SizedBox(
@@ -88,7 +104,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             color: cs.surface,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
-              child: TableCalendar<Booking>(
+              child: TableCalendar<dynamic>(
                 firstDay: DateTime.now().subtract(const Duration(days: 365)),
                 lastDay: DateTime.now().add(const Duration(days: 365)),
                 focusedDay: _focusedDay,
@@ -102,12 +118,10 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 onPageChanged: (focusedDay) {
                   _focusedDay = focusedDay;
                 },
-                eventLoader: (day) =>
-                    _eventosDelDia(day, misReservas, misSolicitudes),
+                eventLoader: (day) => eventosDelDia(day),
                 locale: Localizations.localeOf(context).toString(),
                 startingDayOfWeek: StartingDayOfWeek.monday,
 
-                // Estilo del header original (mes y flechas)
                 headerStyle: HeaderStyle(
                   formatButtonVisible: false,
                   titleCentered: true,
@@ -125,7 +139,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   ),
                 ),
 
-                // Estilo de la fila de días de la semana original
                 daysOfWeekHeight: 36,
                 daysOfWeekStyle: DaysOfWeekStyle(
                   decoration: const BoxDecoration(color: Colors.transparent),
@@ -137,7 +150,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   ),
                 ),
 
-                calendarBuilders: CalendarBuilders<Booking>(
+                calendarBuilders: CalendarBuilders<dynamic>(
                   dowBuilder: (context, day) {
                     final days = [
                       s.monShort,
@@ -165,7 +178,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     );
                   },
 
-                  // Celda seleccionada original: fondo blanco + círculo azul
                   selectedBuilder: (context, day, focusedDay) {
                     return Container(
                       color: Colors.transparent,
@@ -188,17 +200,24 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     );
                   },
 
-                  // Badges con Wrap e incrementos numéricos por texto
                   markerBuilder: (context, day, events) {
                     if (events.isEmpty) return const SizedBox.shrink();
 
-                    // Contamos según las dos colecciones relacionales del BackEnd
-                    final reservasCount = events
-                        .where((b) => !b.lines.any((l) => l.activityId != null))
-                        .length;
-                    final solicitudesCount = events
-                        .where((b) => b.lines.any((l) => l.activityId != null))
-                        .length;
+                    int reservasCount = 0;
+                    int solicitudesCount = 0;
+                    int actividadesCount = 0;
+
+                    for (final e in events) {
+                      if (e is Booking) {
+                        if (e.lines.any((l) => l.activityId != null)) {
+                          solicitudesCount++;
+                        } else {
+                          reservasCount++;
+                        }
+                      } else if (e is Activity) {
+                        actividadesCount++;
+                      }
+                    }
 
                     return Positioned(
                       bottom: 2,
@@ -222,9 +241,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                               ),
                               child: Text(
                                 s.reservationsBadge(reservasCount),
-                                style: AppTextStyles.titleSmall.copyWith(
-                                  color: Colors.white,
-                                ),
+                                style: AppTextStyles.titleSmall.copyWith(color: cs.surface),
                               ),
                             ),
                           if (solicitudesCount > 0)
@@ -239,9 +256,23 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                               ),
                               child: Text(
                                 s.requestsBadge(solicitudesCount),
-                                style: AppTextStyles.titleSmall.copyWith(
-                                  color: Colors.white,
-                                ),
+                                style: AppTextStyles.titleSmall.copyWith(color: cs.surface),
+                              ),
+                            ),
+                          // BADGE PARA ACTIVIDADES DEL CATÁLOGO (Invitados)
+                          if (actividadesCount > 0)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 1,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colorActividad,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '$actividadesCount A', // TODO: HARCODEADO Usa s.actividadesTitle si tienes
+                                style: AppTextStyles.titleSmall.copyWith(color: cs.surface),
                               ),
                             ),
                         ],
@@ -249,11 +280,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     );
                   },
                 ),
-
-                // Altura de las filas original
                 rowHeight: 55,
-
-                // Estilo de las celdas original al 100%
                 calendarStyle: CalendarStyle(
                   cellMargin: EdgeInsets.zero,
                   todayDecoration: BoxDecoration(
@@ -281,13 +308,10 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               ),
             ),
           ),
-
           Divider(
             height: 1,
             color: cs.onSurfaceVariant.withValues(alpha: 0.12),
           ),
-
-          // ListView con EventoTile adaptado
           Expanded(
             child: eventosSeleccionados.isNotEmpty
                 ? ListView.builder(
@@ -297,45 +321,58 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     ),
                     itemCount: eventosSeleccionados.length,
                     itemBuilder: (context, index) {
-                      final Booking evento = eventosSeleccionados[index];
-                      final bool esExcursion = evento.lines.any(
-                        (l) => l.activityId != null,
-                      );
+                      final dynamic evento = eventosSeleccionados[index];
 
-                      if (!esExcursion) {
-                        // Alquiler de Material puro (Antigua Reserva)
+                      // RENDERIZADO SEGÚN EL TIPO DE EVENTO
+                      if (evento is Activity) {
                         return EventoTile(
-                          titulo: s.reservationEvent,
-                          subtitulo: evento.status.localizedLabel(s),
-                          color: colorReserva,
+                          titulo: 'Excursión programada',
+                          subtitulo: evento.title,
+                          color: colorActividad,
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  ReservationDetailPage(reserva: evento),
+                              builder: (_) => ActivityDetailPage(actividad: evento),
                             ),
                           ),
                         );
-                      } else {
-                        // Excursión programada (Antigua Solicitud)
-                        return EventoTile(
-                          titulo: s.requestEvent,
-                          subtitulo: evento.status.localizedLabel(s),
-                          color: colorSolicitud,
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  ReservationDetailPage(reserva: evento),
-                            ),
-                          ),
+                      } else if (evento is Booking) {
+                        final bool esExcursion = evento.lines.any(
+                          (l) => l.activityId != null,
                         );
+
+                        if (!esExcursion) {
+                          return EventoTile(
+                            titulo: s.reservationEvent,
+                            subtitulo: evento.status.localizedLabel(s),
+                            color: colorReserva,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ReservationDetailPage(reserva: evento),
+                              ),
+                            ),
+                          );
+                        } else {
+                          return EventoTile(
+                            titulo: s.requestEvent,
+                            subtitulo: evento.status.localizedLabel(s),
+                            color: colorSolicitud,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ReservationDetailPage(reserva: evento),
+                              ),
+                            ),
+                          );
+                        }
                       }
+                      return const SizedBox.shrink();
                     },
                   )
                 : Center(
                     child: Text(
                       _selectedDay != null
                           ? s.noEventsToday
-                          // TODO: HARDCODEADO
                           : "Selecciona un día para ver las reservas y solicitudes",
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: cs.onSurfaceVariant.withValues(alpha: 0.50),

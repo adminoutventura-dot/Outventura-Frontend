@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:outventura/main.dart';
 
-// TODO: REVISAR
 // Widget que muestra la pantalla de splash animada al arrancar la app.
 class SplashWrapper extends StatefulWidget {
   const SplashWrapper({super.key});

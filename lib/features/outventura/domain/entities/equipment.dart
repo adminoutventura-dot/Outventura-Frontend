@@ -29,9 +29,9 @@ class Equipment {
   final String? description;
   final List<Category> categories;
   final int totalUnits;
-  final int availableUnits; // El backend nos calculará esto en tiempo real
-  final EquipmentStatus? status; // Objeto de estado devuelto por el backend
-  final int? statusId; // ID para cuando enviamos un alta/edición al backend
+  final int availableUnits;
+  final EquipmentStatus? status; 
+  final int? statusId;
   final double pricePerDay;
   final double damageFee;
   final String? imageAsset;
@@ -58,7 +58,7 @@ class Equipment {
     'total_units': totalUnits,
     'price_per_day': pricePerDay,
     'damage_fee': damageFee,
-    'statusId': statusId ?? status?.id ?? 1, // Enviamos el ID
+    'statusId': statusId ?? status?.id ?? 1,
     'categoryCodes': categories.map((Category c) => c.code).toList(),
   };
 

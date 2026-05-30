@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/core/utils/form_validators.dart';
@@ -13,20 +14,19 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/controllers/user_form_controller.dart';
+import 'package:outventura/features/outventura/presentation/providers/categories_provider.dart'; 
 
-class UserFormPage extends StatefulWidget {
-  // Si se pasa un usuario, el formulario actúa en modo edición y precarga sus datos.
+class UserFormPage extends ConsumerStatefulWidget {
   final User? usuario;
-  // Si el usuario es guía, se precargan sus datos de guía.
   final Guide? guia;
 
   const UserFormPage({super.key, this.usuario, this.guia});
 
   @override
-  State<UserFormPage> createState() => _UserFormPageState();
+  ConsumerState<UserFormPage> createState() => _UserFormPageState();
 }
 
-class _UserFormPageState extends State<UserFormPage> {
+class _UserFormPageState extends ConsumerState<UserFormPage> {
   late final UserFormController _controller;
   late final LoginController _loginController;
 
@@ -35,7 +35,6 @@ class _UserFormPageState extends State<UserFormPage> {
     super.initState();
     _controller = UserFormController();
     _loginController = LoginController();
-    // Si se pasa un usuario existente, carga sus datos en el controlador (modo edición).
     if (widget.usuario != null) {
       _controller.cargarUsuario(
         widget.usuario!,
@@ -54,7 +53,6 @@ class _UserFormPageState extends State<UserFormPage> {
 
   bool get _esGuia => _controller.rol == UserRole.guia;
 
-  // Valida el formulario y, si es correcto, construye el usuario y lo devuelve.
   void _submit() {
     if (!_controller.validar()) {
       return;
@@ -63,13 +61,12 @@ class _UserFormPageState extends State<UserFormPage> {
     final String? password = _controller.editando
         ? null
         : _loginController.passwordController.text;
+        
     Map<String, dynamic>? guiaData;
     if (_esGuia && _controller.credenciales.text.trim().isNotEmpty) {
       guiaData = {
         'credentials': _controller.credenciales.text.trim(),
-        'categoryCodes': _controller.categoriasGuia
-            .map((Category c) => c.code)
-            .toList(),
+        'categoryCodes': _controller.categoriasGuia,
       };
     }
     Navigator.of(context).pop(<String, dynamic>{
@@ -84,8 +81,9 @@ class _UserFormPageState extends State<UserFormPage> {
     final AppLocalizations s = AppLocalizations.of(context)!;
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
-    // Se pone a true dentro de cargarUsuario().
     final bool isEdit = _controller.editando;
+    
+    final listaCategorias = ref.watch(categoriesProvider).value ?? [];
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -108,12 +106,9 @@ class _UserFormPageState extends State<UserFormPage> {
                 height:
                     MediaQuery.of(context).padding.top + kToolbarHeight + 65,
               ),
-              // Avatar
               Center(
                 child: AppImagePickerField(
                   imageUrl: _controller.foto,
-                  // le indica al widget AppImagePickerField que la imagen de perfil es un asset local (por ejemplo, assets/images/Camino.jpg)
-                  // y no una URL de internet. Así, usa Image.asset en vez de NetworkImage para mostrar la foto.
                   isAsset: true,
                   isCircular: true,
                   placeholder: Icons.person_outline,
@@ -125,7 +120,6 @@ class _UserFormPageState extends State<UserFormPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Sección de datos personales
               Text(
                 s.userDataSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
@@ -134,7 +128,6 @@ class _UserFormPageState extends State<UserFormPage> {
 
               Row(
                 children: [
-                  // Nombre
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.nombre,
@@ -144,7 +137,6 @@ class _UserFormPageState extends State<UserFormPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Apellidos
                   Expanded(
                     child: CustomInputField(
                       controller: _controller.apellidos,
@@ -157,7 +149,6 @@ class _UserFormPageState extends State<UserFormPage> {
               ),
               const SizedBox(height: 14),
 
-              // Email
               CustomInputField(
                 controller: _controller.email,
                 labelText: s.email,
@@ -167,7 +158,6 @@ class _UserFormPageState extends State<UserFormPage> {
               ),
               const SizedBox(height: 14),
 
-              // Teléfono
               CustomInputField(
                 controller: _controller.telefono,
                 labelText: s.phone,
@@ -176,7 +166,6 @@ class _UserFormPageState extends State<UserFormPage> {
               ),
               const SizedBox(height: 14),
 
-              // Contraseña (solo en creación)
               if (!isEdit) ...[
                 CustomInputField(
                   controller: _loginController.passwordController,
@@ -190,13 +179,11 @@ class _UserFormPageState extends State<UserFormPage> {
               ] else
                 const SizedBox(height: 6),
 
-              // Rol
               Text(
                 s.role.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              // Chips de roles
               AppChipWrap(
                 children: UserRole.values.map((UserRole rol) {
                   final bool seleccionado = _controller.rol == rol;
@@ -209,19 +196,15 @@ class _UserFormPageState extends State<UserFormPage> {
               ),
               const SizedBox(height: 20),
 
-              // Sección datos de guía (solo para trabajadores)
-              if (_esGuia) ..._buildGuideSection(cs, tt),
+              if (_esGuia) ..._buildGuideSection(cs, tt, listaCategorias),
 
-              // Estado activo
               Row(
                 children: [
-                  // Etiqueta "Usuario activo"
                   Text(
                     s.activeUser.toUpperCase(),
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
                   const Spacer(),
-                  // Switch para activar/desactivar el usuario.
                   Switch(
                     value: _controller.activo,
                     onChanged: (bool v) =>
@@ -232,7 +215,6 @@ class _UserFormPageState extends State<UserFormPage> {
                     inactiveTrackColor: cs.onSurfaceVariant.withValues(
                       alpha: 0.35,
                     ),
-                    // Quita el borde del track en todos los estados
                     trackOutlineColor: const WidgetStatePropertyAll(
                       Colors.transparent,
                     ),
@@ -241,7 +223,6 @@ class _UserFormPageState extends State<UserFormPage> {
               ),
               const SizedBox(height: 32),
 
-              // Botón Guardar / Crear
               SizedBox(
                 width: double.infinity,
                 child: PrimaryButton(
@@ -259,7 +240,7 @@ class _UserFormPageState extends State<UserFormPage> {
     );
   }
 
-  List<Widget> _buildGuideSection(ColorScheme cs, TextTheme tt) {
+  List<Widget> _buildGuideSection(ColorScheme cs, TextTheme tt, List<Category> categoriasDisponibles) {
     final AppLocalizations s = AppLocalizations.of(context)!;
     return [
       Text(
@@ -268,7 +249,7 @@ class _UserFormPageState extends State<UserFormPage> {
       ),
       const SizedBox(height: 8),
       AppChipWrap(
-        children: Category.values.map((Category cat) {
+        children: categoriasDisponibles.map((Category cat) {
           final bool sel = _controller.categoriasGuia.contains(cat);
           return AppFilterChip(
             label: cat.localizedLabel(s),

@@ -13,8 +13,8 @@ final List<Activity> activitiesFake = [
     difficulty: 2,
     maxParticipants: 20,
     startEndPoint: 'Puerto de Soller - Torre Picada',
-    categories: [Category.acuatico, Category.montana],
-    recommendedEquipmentIds: [5, 6],
+    categories: const [Category(code: 'AQUATIC'), Category(code: 'MOUNTAIN')],
+    recommendedEquipmentIds: const [5, 6],
   ),
 
   // Actividad en kayak por el Delta del Ebro.
@@ -27,24 +27,24 @@ final List<Activity> activitiesFake = [
     difficulty: 1,
     maxParticipants: 15,
     startEndPoint: 'Deltebre - Isla de Buda',
-    categories: [Category.acuatico],
+    categories: const [Category(code: 'AQUATIC')],
     imageAsset: 'assets/images/Camino.jpg',
-    recommendedEquipmentIds: [3, 8],
+    recommendedEquipmentIds: const [3, 8],
   ),
 
   // Ruta de escalada en los Picos de Europa.
   Activity(
     id: 3,
     title: 'Ascensión Picos de Europa',
-    description: 'Ascensión técnica con tramos exigentes.',
+    description: 'Ascensión técnica con traexigentes.',
     initDate: DateTime(2026, 7, 15, 8, 0),
     endDate: DateTime(2026, 7, 16, 18, 0),
     difficulty: 4,
     maxParticipants: 10,
     startEndPoint: 'Fuente De - Torre de los Horcados Rojos',
-    categories: [Category.acuatico, Category.montana],
+    categories: const [Category(code: 'AQUATIC'), Category(code: 'MOUNTAIN')],
     imageAsset: 'assets/images/Camino.jpg',
-    recommendedEquipmentIds: [7, 8, 6],
+    recommendedEquipmentIds: const [7, 8, 6],
   ),
 
   // Actividad con raquetas de nieve en los Pirineos.
@@ -57,9 +57,9 @@ final List<Activity> activitiesFake = [
     difficulty: 2,
     maxParticipants: 12,
     startEndPoint: 'Benasque - Pico Cerler',
-    categories: [Category.nieve],
+    categories: const [Category(code: 'SNOW')],
     imageAsset: 'assets/images/Camino.jpg',
-    recommendedEquipmentIds: [9, 2, 6],
+    recommendedEquipmentIds: const [9, 2, 6],
   ),
 
   // Actividad urbana.
@@ -72,8 +72,8 @@ final List<Activity> activitiesFake = [
     difficulty: 1,
     maxParticipants: 25,
     startEndPoint: 'Plaza Mayor - Mirador del Castillo',
-    categories: [Category.montana],
-    recommendedEquipmentIds: [],
+    categories: const [Category(code: 'MOUNTAIN')],
+    recommendedEquipmentIds: const [],
   ),
 
   // ── Actividades de esta semana (19–25 mayo 2026) para la gráfica ──
@@ -86,8 +86,8 @@ final List<Activity> activitiesFake = [
     difficulty: 3,
     maxParticipants: 8,
     startEndPoint: 'Somosierra - Buitrago del Lozoya',
-    categories: [Category.montana],
-    recommendedEquipmentIds: [],
+    categories: const [Category(code: 'MOUNTAIN')],
+    recommendedEquipmentIds: const [],
   ),
 
   Activity(
@@ -99,8 +99,8 @@ final List<Activity> activitiesFake = [
     difficulty: 1,
     maxParticipants: 12,
     startEndPoint: 'Playa de Palma - Can Pastilla',
-    categories: [Category.acuatico],
-    recommendedEquipmentIds: [],
+    categories: const [Category(code: 'AQUATIC')],
+    recommendedEquipmentIds: const [],
   ),
 
   Activity(
@@ -112,8 +112,8 @@ final List<Activity> activitiesFake = [
     difficulty: 4,
     maxParticipants: 6,
     startEndPoint: 'Monistrol - Cavall Bernat',
-    categories: [Category.montana],
-    recommendedEquipmentIds: [],
+    categories: const [Category(code: 'MOUNTAIN')],
+    recommendedEquipmentIds: const [],
   ),
 
   Activity(
@@ -125,8 +125,8 @@ final List<Activity> activitiesFake = [
     difficulty: 2,
     maxParticipants: 20,
     startEndPoint: 'Caín - Poncebos',
-    categories: [Category.montana],
-    recommendedEquipmentIds: [],
+    categories: const [Category(code: 'MOUNTAIN')],
+    recommendedEquipmentIds: const [],
   ),
 
   Activity(
@@ -138,7 +138,7 @@ final List<Activity> activitiesFake = [
     difficulty: 2,
     maxParticipants: 10,
     startEndPoint: 'Port de la Selva - Cap de Creus',
-    categories: [Category.acuatico],
-    recommendedEquipmentIds: [],
+    categories: const [Category(code: 'AQUATIC')],
+    recommendedEquipmentIds: const [],
   ),
 ];

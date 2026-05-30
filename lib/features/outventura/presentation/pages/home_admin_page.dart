@@ -17,7 +17,6 @@ import 'package:outventura/features/outventura/presentation/widgets/home_app_bar
 import 'package:outventura/features/outventura/presentation/providers/dashboard_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/booking_act_form_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
-
 class HomeAdminPage extends ConsumerWidget {
   const HomeAdminPage({super.key});
 

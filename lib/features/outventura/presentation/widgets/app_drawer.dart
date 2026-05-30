@@ -12,6 +12,7 @@ import 'package:outventura/features/auth/presentation/pages/login_page.dart';
 import 'package:outventura/features/auth/presentation/pages/profile_form_page.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/preferences/presentation/pages/preferences_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/categories_page.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -26,6 +27,8 @@ class AppDrawer extends ConsumerWidget {
         usuario == null ||
         usuario.role.code == 'INVITADO' ||
         usuario.role.code == 'GUEST';
+
+    final bool isAdmin = usuario?.role.code == 'SUPER' || usuario?.role.code == 'ADMIN';
 
     return Drawer(
       backgroundColor: cs.surface,
@@ -55,7 +58,7 @@ class AppDrawer extends ConsumerWidget {
                             : (usuario.photo!.startsWith('assets/')
                                   ? AssetImage(usuario.photo!)
                                   : MemoryImage(base64Decode(usuario.photo!))
-                                        as ImageProvider))
+                                      as ImageProvider))
                       : null,
                   child: (usuario?.photo == null || usuario!.photo!.isEmpty)
                       ? Text(
@@ -122,7 +125,6 @@ class AppDrawer extends ConsumerWidget {
                       );
 
                       if (result == null) {
-                        // Si el usuario vuelve atrás sin guardar, cierra el drawer de forma segura
                         if (context.mounted) Navigator.pop(context);
                         return;
                       }
@@ -177,6 +179,35 @@ class AppDrawer extends ConsumerWidget {
                     );
                   },
                 ),
+
+                if (isAdmin)
+                  ListTile(
+                    horizontalTitleGap: 8,
+                    leading: Icon(
+                      Icons.category_outlined,
+                      color: cs.onSurface,
+                      size: 22,
+                    ),
+                    title: Text(
+                      s.categories,
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    onTap: () {
+                      Navigator.pop(context); // Cerrael drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CategoriesPage(),
+                        ),
+                      );
+                    },
+                  ),
 
                 // Item - Preferencias
                 ListTile(
@@ -235,13 +266,11 @@ class AppDrawer extends ConsumerWidget {
                     Navigator.pop(context);
 
                     if (isGuest) {
-                      // Si es invitado, navegamos directamente al Login
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => const LoginPage()),
                       );
                     } else {
-                      // Si es usuario, deslogueamos en el Provider y navegamos al Login
                       await ref
                           .read(currentUserProvider.notifier)
                           .cerrarSesion();

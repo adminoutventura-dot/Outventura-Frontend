@@ -75,7 +75,7 @@ class HomeAppBarDelegate extends SliverPersistentHeaderDelegate {
                   PreferredSize(
                     preferredSize: Size.fromHeight(kToolbarHeight + topPadding),
                     child: AppBar(
-                      // Forzamos a que el AppBar maneje el espacio de la barra de estado automáticamente
+                      // Fuerza a que el AppBar maneje el espacio de la barra de estado automáticamente
                       primary: true, 
                       backgroundColor: Colors.transparent,
                       elevation: 0,

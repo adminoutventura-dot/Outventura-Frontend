@@ -25,7 +25,7 @@ class EquipmentModel extends Equipment {
 
     final int total = num.parse((map['total_units'] ?? 0).toString()).toInt();
     
-    // Leemos las available_units calculadas por el backend. Si no vienen, usamos el total.
+    // Lee las available_units calculadas por el backend. Si no vienen, usael total.
     final int available = map['available_units'] != null 
         ? num.parse(map['available_units'].toString()).toInt() 
         : total;

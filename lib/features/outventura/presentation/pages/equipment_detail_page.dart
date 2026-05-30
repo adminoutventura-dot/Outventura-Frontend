@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
-import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/core/widgets/detail_sliver_header.dart';
 import 'package:outventura/l10n/app_localizations.dart';
@@ -57,7 +56,6 @@ class EquipmentDetailPage extends ConsumerWidget {
       backgroundColor: cs.surface,
       body: CustomScrollView(
         slivers: [
-          // 🌟 Usamos tu cabecera corporativa idéntica a la de reservas
           DetailSliverHeader(
             title: equipamiento.title,
             subtitle: labelTexto,
@@ -98,7 +96,7 @@ class EquipmentDetailPage extends ConsumerWidget {
                     const SizedBox(height: 24),
                   ],
 
-                  // --- ESTADÍSTICAS RÁPIDAS (Usando tu componente DetailStatItem) ---
+                  // --- ESTADÍSTICAS RÁPIDAS ---
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

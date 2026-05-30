@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
+import 'package:outventura/features/outventura/presentation/providers/categories_provider.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/utils/enum_translations.dart';
 
@@ -21,8 +23,7 @@ class AppChipWrap extends StatelessWidget {
 class AppChoiceChip extends StatelessWidget {
   final String label;
   final bool seleccionado;
-  final VoidCallback?
-  onPressed; 
+  final VoidCallback? onPressed; 
 
   final Color? selectedColor;
   final Color? selectedBorderColor;
@@ -150,7 +151,7 @@ class AppFilterChip extends StatelessWidget {
 }
 
 // Control estructural encapsulado para validación y gestión múltiple de categorías.
-class AppFilterChipFormField extends StatelessWidget {
+class AppFilterChipFormField extends ConsumerWidget {
   final List<Category> seleccionados;
   final void Function(Category) onToggle;
   final String? Function(List<Category>?)? validator;
@@ -163,10 +164,12 @@ class AppFilterChipFormField extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
+    
+    final listaCategorias = ref.watch(categoriesProvider).value ?? [];
 
     return FormField<List<Category>>(
       initialValue: seleccionados,
@@ -174,15 +177,13 @@ class AppFilterChipFormField extends StatelessWidget {
       builder: (FormFieldState<List<Category>> field) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Renderiza de forma dinámica las propiedades iteradas del enum de categorías
           AppChipWrap(
-            children: Category.values.map((Category cat) {
+            children: listaCategorias.map((Category cat) {
               return AppFilterChip(
                 label: cat.localizedLabel(s),
                 seleccionado: seleccionados.contains(cat),
                 onSelected: (_) {
                   onToggle(cat);
-                  // Notifica al FormField el cambio estructural para relanzar la validación interactiva
                   field.didChange(List.from(seleccionados));
                 },
               );

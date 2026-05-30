@@ -12,7 +12,11 @@ class ActivitiesPageController {
   bool get hayFiltros =>
       categoriaFiltro != null || fechaDesde != null || fechaHasta != null;
 
-  void mostrarFiltros(BuildContext context, StateSetter setState) {
+  void mostrarFiltros(
+    BuildContext context, 
+    StateSetter setState,
+    List<Category> categoriasDisponibles, // 👈 Inyección añadida
+  ) {
     Category? categoriaTemp = categoriaFiltro;
     DateTime? desdeTemp = fechaDesde;
     DateTime? hastaTemp = fechaHasta;
@@ -24,7 +28,7 @@ class ActivitiesPageController {
         grupos: [
           FilterGrupo(
             titulo: s.categoryFilter,
-            chips: Category.values
+            chips: categoriasDisponibles
                 .map(
                   (Category c) => FilterChipSpec(
                     label: c.localizedLabel(s),

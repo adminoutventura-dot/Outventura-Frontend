@@ -60,21 +60,21 @@ class EquipmentNotifier extends AsyncNotifier<List<Equipment>> {
         usuario.role.code == 'USER'; // 'USER' equivale a vuestro rol de Cliente
 
     if (esClienteOInvitado) {
-      // Si es cliente/invitado, forzamos que SOLO vea materiales con estado 'AVAILABLE'
+      // Si es cliente/invitado, fuerza que SOLO vea materiales con estado 'AVAILABLE'
       resultado = resultado.where((Equipment e) => e.status?.code == 'AVAILABLE').toList();
     }
 
-    // 1. Filtro por Estado (Solo aplicable si el rol permite ver más estados)
+    // Filtro por Estado (Solo aplicable si el rol permite ver más estados)
     if (_estado != null) {
       resultado = resultado.where((Equipment e) => e.statusId == _estado).toList();
     }
 
-    // 2. Filtro por Categoría
+    // Filtro por Categoría
     if (_categoria != null) {
       resultado = resultado.where((Equipment e) => e.categories.contains(_categoria)).toList();
     }
 
-    // 3. Filtro por Texto del Buscador
+    // Filtro por Texto del Buscador
     if (_query.isNotEmpty) {
       final String q = _query.toLowerCase();
       resultado = resultado.where((Equipment e) => e.title.toLowerCase().contains(q)).toList();

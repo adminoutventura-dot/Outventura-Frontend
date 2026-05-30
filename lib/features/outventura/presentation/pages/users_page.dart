@@ -38,6 +38,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final AppLocalizations s = AppLocalizations.of(context)!;
+    
     // Escucha la lista de usuarios filtrada según el texto de búsqueda, rol y estado activo.
     final AsyncValue<List<User>> filtrados = ref.watch(usuariosFiltradosProvider((
       query: _search.query,
@@ -72,6 +73,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             context,
             MaterialPageRoute(builder: (_) => const UserFormPage()),
           );
+          
           // Si el usuario cancela la creación, no hace nada.
           if (result == null) {
             return;
@@ -89,9 +91,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
               final Guide guia = Guide(
                 userId: creado.id!,
                 credentials: guiaData['credentials'] as String,
-                categories: (guiaData['categoryCodes'] as List<String>)
-                    .map(Category.fromCode)
-                    .toList(),
+                categories: (guiaData['categoryCodes'] as List<dynamic>).cast<Category>(),
                 user: creado,
               );
               await ref.read(guidesProvider.notifier).agregar(guia);
@@ -152,7 +152,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                   return UserCard(
                     usuario: usuarios[index],
                     onEditar: () async {
-
                       // Busca la guía vinculada a este usuario si existe.
                       final Guide? guiaActual = ref.read(guidesProvider.notifier).porUsuario(usuarios[index].id!);
 
@@ -191,7 +190,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                             id: guiaActual?.id,
                             userId: actualizado.id!,
                             credentials: guiaData['credentials'] as String,
-                            categories: (guiaData['categoryCodes'] as List<String>).map(Category.fromCode).toList(),
+                            categories: (guiaData['categoryCodes'] as List<dynamic>).cast<Category>(),
                             user: actualizado,
                           );
 
@@ -230,6 +229,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                       try {
                         // Si el usuario no confirmó, no hace nada.
                         if (!confirmar || !context.mounted) return;
+                        
                         // Elimina el usuario del estado global.
                         await ref.read(usuariosProvider.notifier).eliminar(usuarios[index]);
 
@@ -237,7 +237,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                         showSuccessSnackBar(context, s.userDeleted);
                       } catch (e) {
                         if (!context.mounted) return;
-                        showErrorSnackBar(context, e.toString()); // 👈 Atrapamos el error
+                        showErrorSnackBar(context, e.toString()); 
                       }
                     },
                   );

@@ -68,7 +68,7 @@ class MainApp extends ConsumerWidget {
             loading: () => const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             ),
-            error: (_, __) => const LoginPage(),
+            error: (_, _) => const LoginPage(),
             data: (_) => usuarioActual != null
                 ? MainScaffold(usuario: usuarioActual)
                 : const LoginPage(),

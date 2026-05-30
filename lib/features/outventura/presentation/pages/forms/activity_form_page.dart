@@ -180,7 +180,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       onDateSelected: (DateTime picked) {
                         setState(() {
                           _controller.establecerFecha(isStart: true, value: picked);
-                          _errorTiempo = null; // Limpiamos el error al cambiar datos
+                          _errorTiempo = null; // Limpia el error al cambiar datos
                         });
                       },
                     ),
@@ -195,7 +195,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       onDateSelected: (DateTime picked) {
                         setState(() {
                           _controller.establecerFecha(isStart: false, value: picked);
-                          _errorTiempo = null; // Limpiamos el error al cambiar datos
+                          _errorTiempo = null; // Limpia el error al cambiar datos
                         });
                       },
                     ),

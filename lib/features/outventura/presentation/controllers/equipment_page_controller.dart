@@ -10,7 +10,12 @@ class EquipmentPageController {
 
   bool get hayFiltros => estadoFiltro != null || categoriaFiltro != null;
 
-  void mostrarFiltros(BuildContext context, StateSetter setState, List<dynamic> estadosDisponibles) {
+  void mostrarFiltros(
+    BuildContext context, 
+    StateSetter setState, 
+    List<dynamic> estadosDisponibles,
+    List<Category> categoriasDisponibles, 
+  ) {
     int? estadoTemp = estadoFiltro;
     Category? categoriaTemp = categoriaFiltro;
     final s = AppLocalizations.of(context)!;
@@ -19,20 +24,22 @@ class EquipmentPageController {
       grupos: [
         FilterGrupo(
           titulo: s.statusFilter,
-          // Mapeo seguro usando las claves del mapa JSON ('code' e 'id_status')
           chips: estadosDisponibles
               .map((dynamic e) {
-                final int? idEstado = e['id_status'] as int?;
-                final String codeEstado = (e['code'] ?? '') as String;
+                final int? idEstado = (e['id_status'] as int?) ?? (e['id'] as int?);
+                final String codeEstado = ((e['code'] as String?) ?? (e['name'] as String?)) ?? '';
 
-                // Traducimos el código ('AVAILABLE', etc.) con tus claves de localización
+                // Traducciones 
                 String labelTraducido = codeEstado;
                 if (codeEstado == 'AVAILABLE') labelTraducido = s.statusAvailable;
                 if (codeEstado == 'OUT_OF_STOCK') labelTraducido = s.statusOutOfStock;
                 if (codeEstado == 'MAINTENANCE') labelTraducido = s.statusMaintenance;
                 if (codeEstado == 'OUT_OF_SERVICE') labelTraducido = s.statusOutOfService;
-                if (codeEstado == 'UNAVAILABLE') labelTraducido = 'No disponible';
+                if (codeEstado == 'UNAVAILABLE') labelTraducido = 'No disponible'; 
                 if (codeEstado == 'DISCONTINUED') labelTraducido = 'Descatalogado';
+
+                // Si por algún motivo el código llega totalmente vacío, lo marca para depurar
+                if (labelTraducido.isEmpty) labelTraducido = 'Desconocido';
 
                 return FilterChipSpec(
                   label: labelTraducido,
@@ -44,7 +51,7 @@ class EquipmentPageController {
         ),
         FilterGrupo(
           titulo: s.categoryFilter,
-          chips: Category.values
+          chips: categoriasDisponibles
               .map((Category c) => FilterChipSpec(
                     label: c.localizedLabel(s),
                     seleccionado: categoriaTemp == c,

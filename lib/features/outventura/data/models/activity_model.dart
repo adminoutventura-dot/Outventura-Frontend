@@ -25,7 +25,7 @@ class ActivityModel extends Activity {
         .map(CategoryModel.fromMap)
         .toList();
 
-    // Extraemos de forma segura los IDs de los materiales recomendados
+    // Extrae de forma segura los IDs de los materiales recomendados
     // Dependiendo de si el backend manda los objetos enteros o solo los IDs.
     final List<int> parsedEquipmentIds = (map['recomendedEquipments'] as List<dynamic>? ?? [])
         .map((e) => e is int ? e : (e['id_equipment'] as int))

@@ -18,7 +18,7 @@ extension WorkflowStatusL10n on WorkflowStatus {
 }
 
 
-// Traducciones para el estado del Material/Equipamiento (Ahora es una clase, evaluamos el 'code').
+// Traducciones para el estado del Material/Equipamiento (Ahora es una clase, evalua el 'code').
 extension EstadoEquipamientoL10n on EquipmentStatus {
   String localizedLabel(AppLocalizations s) {
     switch (code) { 

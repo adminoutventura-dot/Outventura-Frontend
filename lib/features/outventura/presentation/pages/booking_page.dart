@@ -87,7 +87,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
       floatingActionButton: widget.puedeCrear
           ? AddFab(
               onPressed: () async {
-                // Al crear desde el FAB general de reservas, asumimos flujo de materiales puros
+                // Al crear desde el FAB general de reservas, asume flujo de materiales puros
                 final Booking? nueva = await Navigator.of(context)
                     .push<Booking>(
                       MaterialPageRoute(
@@ -176,12 +176,12 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                       itemBuilder: (BuildContext context, int i) {
                         final Booking res = lista[i];
 
-                        // 1. Detectamos si es Excursión o Material
+                        // Detecta si es Excursión o Material
                         final bool tieneActividad = res.lines.any(
                           (l) => l.activityId != null,
                         );
 
-                        // 2. Mapeamos los materiales (equipments) para las fotos
+                        // Mapea los materiales (equipments) para las fotos
                         final lineasMapeadas = res.lines
                             .where((l) => l.equipmentId != null)
                             .map(
@@ -197,7 +197,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                             )
                             .toList();
 
-                        // 3. Nombres
+                        // Nombres
                         final String nombreUsuario = ref.watch(
                           userNameProvider(res.userId),
                         );
@@ -207,7 +207,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                             .map((l) => l.activityId)
                             .firstOrNull;
 
-                        // 4. Acciones comunes
+                        // Acciones comunes
                         void onVerDetalleCall() {
                           Navigator.of(context).push(
                             MaterialPageRoute(

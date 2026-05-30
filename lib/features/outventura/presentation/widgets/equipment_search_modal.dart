@@ -149,7 +149,7 @@ class _EquipmentSearchModalState extends State<EquipmentSearchModal> {
                             trailing: Checkbox(
                               value: marcado,
                               activeColor: cs.primary,
-                              // Suavizamos el borde del checkbox deseleccionado
+                              // Suaviza el borde del checkbox deseleccionado
                               side: BorderSide(color: cs.onSurfaceVariant.withValues(alpha: 0.4), width: 1.5),
                               onChanged: (bool? value) {
                                 setState(() {

@@ -78,7 +78,7 @@ class Booking {
 
     return {
       'userId': userId,
-      'statusId': getStatusId(), // Enviamos statusId numérico
+      'statusId': getStatusId(), // Envia statusId numérico
       'init_date': startDate
           .toIso8601String(), // init_date en vez de start_date
       'end_date': endDate.toIso8601String(),
@@ -96,7 +96,7 @@ class Booking {
     double? totalPrice,
   }) {
     return Booking(
-      id: id ?? this.id,
+      id: id ?? id,
       userId: userId ?? this.userId,
       lines: lines ?? this.lines,
       status: status ?? this.status,

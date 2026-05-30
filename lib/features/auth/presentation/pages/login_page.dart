@@ -117,28 +117,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                           ),
 
-                          // Recuperar contraseña
-                          // Align(
-                          //   alignment: Alignment.centerRight,
-                          //   child: TextButton(
-                          //     onPressed: () {
-                          //       // TODO: Recuperar contraseña
-                          //     },
-                          //     style: TextButton.styleFrom(
-                          //       padding: const EdgeInsets.symmetric(
-                          //         horizontal: 8,
-                          //         vertical: 4,
-                          //       ),
-                          //     ),
-                          //     child: Text(
-                          //       s.forgotPassword,
-                          //       style: textTheme.bodySmall?.copyWith(
-                          //         color: colorScheme.primary,
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
-
                           const SizedBox(height: 12),
 
                           // Botón principal

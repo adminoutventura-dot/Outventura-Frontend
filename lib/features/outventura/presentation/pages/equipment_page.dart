@@ -12,6 +12,7 @@ import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/equipment_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/categories_provider.dart'; 
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
@@ -56,7 +57,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
         usuarioActual.role.code == 'INVITADO' ||
         usuarioActual.role.code == 'GUEST';
 
-    // Escuchamos la lista ya filtrada por rol y paginada desde el Notifier
+    // Escuchala lista ya filtrada por rol y paginada desde el Notifier
     final AsyncValue<List<Equipment>> equipamientosAsync = ref.watch(equipmentProvider);
 
     final equipmentNotifier = ref.read(equipmentProvider.notifier);
@@ -77,6 +78,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
               padding: EdgeInsets.zero,
               onPressed: () async { 
                 final estadosBack = await ref.read(equipmentStatusesProvider.future);
+                final categoriasBack = await ref.read(categoriesProvider.future); 
                 
                 if (!context.mounted) return; 
 
@@ -86,7 +88,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                     estado: _controller.estadoFiltro,
                     categoria: _controller.categoriaFiltro,
                   );
-                }, estadosBack);
+                }, estadosBack, categoriasBack);
               },
             ),
           ),

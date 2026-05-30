@@ -47,7 +47,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
           .map((e) => ActivityModel.fromMap(e as Map<String, dynamic>))
           .toList();
 
-      // Procesamos la segmentación de 3 en 3 sobre el total
+      // Procesa la segmentación de 3 en 3 sobre el total
       return _procesarFiltrosYPaginas();
     } on DioException catch (e) {
       throw parseDioError(e);
@@ -84,7 +84,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       ).toList();
     }
 
-    // Si los filtros dejan la lista vacía, reseteamos la paginación a 1/1
+    // Si los filtros dejan la lista vacía, resetea la paginación a 1/1
     if (resultado.isEmpty) {
       currentPage = 1;
       totalPages = 1;
@@ -98,7 +98,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     if (currentPage > totalPages) currentPage = totalPages;
     if (currentPage < 1) currentPage = 1;
 
-    // Extraemos limpiamente los 3 elementos que corresponden a la página visualizada
+    // Extrae los 3 elementos que corresponden a la página visualizada
     final int indiceInicio = (currentPage - 1) * _itemsPerPage;
     final int indiceFin = indiceInicio + _itemsPerPage;
     

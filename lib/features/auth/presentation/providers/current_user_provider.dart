@@ -51,12 +51,15 @@ class CurrentUserNotifier extends Notifier<User?> {
       state = UserModel.fromMap(data['user'] as Map<String, dynamic>);
       return state;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401)
+      if (e.response?.statusCode == 401) {
         throw Exception('Credenciales incorrectas');
-      if (e.type == DioExceptionType.connectionError)
+      }
+      if (e.type == DioExceptionType.connectionError) {
         throw Exception('Sin conexión al servidor');
-      if (e.type == DioExceptionType.receiveTimeout)
+      }
+      if (e.type == DioExceptionType.receiveTimeout) {
         throw Exception('El servidor tarda demasiado');
+      }
       throw parseDioError(e);
     }
   }
@@ -83,8 +86,9 @@ class CurrentUserNotifier extends Notifier<User?> {
         },
       );
     } on DioException catch (e) {
-      if (e.response?.statusCode == 409)
-        throw Exception('El email ya está registrado');
+      if (e.response?.statusCode == 409) {
+        throw Exception('El email ya está registrado'); // TODO: HARDCODEADO
+      }
       throw parseDioError(e);
     }
   }

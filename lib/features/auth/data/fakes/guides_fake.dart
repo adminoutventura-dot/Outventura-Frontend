@@ -8,14 +8,14 @@ final List<Guide> guidesFake = [
     id: 1,
     userId: 1,
     credentials: 'Llicència federativa núm. 0001',
-    categories: [Category.montana, Category.camping],
+    categories: const [Category(code: 'MOUNTAIN'), Category(code: 'CAMPING')],
     user: usersFake[0],
   ),
   Guide(
     id: 2,
     userId: 2,
     credentials: 'Llicència federativa núm. 1234',
-    categories: [Category.acuatico],
+    categories: const [Category(code: 'AQUATIC')],
     user: usersFake[1],
   ),
 ];

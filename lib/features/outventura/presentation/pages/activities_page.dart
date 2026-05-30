@@ -12,6 +12,7 @@ import 'package:outventura/features/outventura/presentation/pages/forms/booking_
 import 'package:outventura/features/outventura/presentation/pages/activity_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/categories_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
@@ -75,14 +76,20 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
               icon: const Icon(Icons.filter_list),
               tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
-              onPressed: () => _controller.mostrarFiltros(context, (fn) {
-                setState(fn);
-                activitiesNotifier.aplicarFiltrosAvanzados(
-                  categoria: _controller.categoriaFiltro,
-                  fechaDesde: _controller.fechaDesde,
-                  fechaHasta: _controller.fechaHasta,
-                );
-              }),
+              onPressed: () async {
+                final categoriasBack = await ref.read(categoriesProvider.future);
+                
+                if (!context.mounted) return;
+
+                _controller.mostrarFiltros(context, (fn) {
+                  setState(fn);
+                  activitiesNotifier.aplicarFiltrosAvanzados(
+                    categoria: _controller.categoriaFiltro,
+                    fechaDesde: _controller.fechaDesde,
+                    fechaHasta: _controller.fechaHasta,
+                  );
+                }, categoriasBack);
+              },
             ),
           ),
         ],

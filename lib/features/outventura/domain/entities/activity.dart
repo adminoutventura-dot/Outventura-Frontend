@@ -13,7 +13,7 @@ class Activity {
   final List<Category> categories;
   final String? imageAsset;
   final List<int> recommendedEquipmentIds;
-  final int? guideId; // Lo necesitamos para saber a qué guía asignarlo
+  final int? guideId;
 
   const Activity({
     this.id,

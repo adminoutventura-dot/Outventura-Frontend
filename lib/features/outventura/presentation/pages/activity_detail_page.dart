@@ -24,7 +24,7 @@ class ActivityDetailPage extends ConsumerWidget {
 
     final actividadesAsync = ref.watch(activitiesProvider);
 
-    // Buscamos la actividad actualizada
+    // Busca la actividad actualizada
     final Activity actual = actividadesAsync.maybeWhen(
       data: (lista) => lista.cast<Activity>().firstWhere(
         (a) => a.id == actividad.id,
@@ -33,7 +33,7 @@ class ActivityDetailPage extends ConsumerWidget {
       orElse: () => actividad,
     );
 
-    // Resolvemos el nombre del guía
+    // Resolve el nombre del guía
     final String nombreGuia = actual.guideId != null
         ? ref.watch(userNameProvider(actual.guideId!))
         : 'Guía no asignado'; // TODO: hardcodeado
@@ -42,15 +42,15 @@ class ActivityDetailPage extends ConsumerWidget {
     int inscritosActuales = 0;
     
     for (final reserva in todasLasReservas) {
-      // Solo contamos las reservas activas (no las canceladas ni las finalizadas)
+      // Solo cuenta las reservas activas (no las canceladas ni las finalizadas)
       if (reserva.status == WorkflowStatus.pendiente ||
           reserva.status == WorkflowStatus.confirmada ||
           reserva.status == WorkflowStatus.enCurso) {
         
-        // Buscamos si esta reserva tiene una línea que sea de esta actividad
+        // Busca si esta reserva tiene una línea que sea de esta actividad
         for (final linea in reserva.lines) {
           if (linea.activityId == actual.id) {
-            inscritosActuales += linea.quantity; // Sumamos los participantes
+            inscritosActuales += linea.quantity; // Suma los participantes
           }
         }
       }
@@ -96,7 +96,7 @@ class ActivityDetailPage extends ConsumerWidget {
                     const SizedBox(height: 24),
                   ],
 
-                  // ESTADÍSTICAS (Aquí mostramos los calculados y los máximos)
+                  // ESTADÍSTICAS (Aquí muestra los calculados y los máximos)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
