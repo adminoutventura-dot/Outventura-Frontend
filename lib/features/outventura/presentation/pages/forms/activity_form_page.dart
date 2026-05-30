@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
-import 'package:outventura/features/outventura/presentation/widgets/equipment_search_modal.dart'; 
+import 'package:outventura/features/outventura/presentation/widgets/equipment_search_modal.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_chip.dart';
@@ -33,7 +33,7 @@ class ActivityFormPage extends ConsumerStatefulWidget {
 
 class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
   late final ActivityFormController _controller;
-  
+
   // Variable local para gestionar el mensaje de error debajo del selector
   String? _errorTiempo;
 
@@ -150,6 +150,8 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               if (!isGuide) ...[
                 // 🌟 DROPDOWN LIMPIO Y SEGURO TIPADO A <Guide>
                 AppDropdownField<Guide>(
+                // 🌟 DROPDOWN LIMPIO Y SEGURO TIPADO A <Guide>
+                AppDropdownField<Guide>(
                   value: _controller.guideId,
                   items: itemsDropdownGuias,
                   itemValue: (Guide guia) => guia.id!,
@@ -162,6 +164,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       _controller.guideId = nuevoId as int?;
                     });
                   },
+                  validator: (dynamic value) => value == null
                   validator: (dynamic value) => value == null
                       ? 'Por favor, selecciona un guía obligatorio' // TODO: hardcodeado
                       : null,
@@ -180,7 +183,8 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                     child: AppDateSelector(
                       label: s.start,
                       date: _controller.fechaInicio,
-                      firstDate: _controller.editando &&
+                      firstDate:
+                          _controller.editando &&
                               _controller.fechaInicio.isBefore(DateTime.now())
                           ? DateTime(
                               _controller.fechaInicio.year,
@@ -188,11 +192,17 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                               _controller.fechaInicio.day,
                             )
                           : DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                      lastDate: DateTime.now().add(
+                        const Duration(days: 365 * 2),
+                      ),
                       onDateSelected: (DateTime picked) {
                         setState(() {
-                          _controller.establecerFecha(isStart: true, value: picked);
-                          _errorTiempo = null; // Limpia el error al cambiar datos
+                          _controller.establecerFecha(
+                            isStart: true,
+                            value: picked,
+                          );
+                          _errorTiempo =
+                              null; // Limpia el error al cambiar datos
                         });
                       },
                     ),
@@ -203,11 +213,17 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       label: s.end,
                       date: _controller.fechaFin,
                       firstDate: _controller.fechaInicio,
-                      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                      lastDate: DateTime.now().add(
+                        const Duration(days: 365 * 2),
+                      ),
                       onDateSelected: (DateTime picked) {
                         setState(() {
-                          _controller.establecerFecha(isStart: false, value: picked);
-                          _errorTiempo = null; // Limpia el error al cambiar datos
+                          _controller.establecerFecha(
+                            isStart: false,
+                            value: picked,
+                          );
+                          _errorTiempo =
+                              null; // Limpia el error al cambiar datos
                         });
                       },
                     ),
@@ -225,7 +241,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       onTimeSelected: (TimeOfDay picked) {
                         setState(() {
                           _controller.horaInicio = picked;
-                          _errorTiempo = null; 
+                          _errorTiempo = null;
                         });
                       },
                     ),
@@ -257,7 +273,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                     ),
                   ),
                 ),
-                
+
               const SizedBox(height: 20),
 
               CustomInputField(
@@ -281,7 +297,10 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                   setState(() => _controller.alternarCategoria(cat));
                 },
                 validator: (List<Category>? v) {
-                  return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
+                  return ValidadoresFormulario.listaRequerida(
+                    v,
+                    s.selectCategory,
+                  );
                 },
               ),
               const SizedBox(height: 32),
@@ -297,11 +316,12 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                     label: s.addLine,
                     icon: Icons.add,
                     onPressed: () async {
-                      final Map<int, int>? resultadoModal = await showEquipmentSearchModal(
-                        context: context,
-                        equipments: equipamientos,
-                        initialSelected: _controller.materialesRecomendados,
-                      );
+                      final Map<int, int>? resultadoModal =
+                          await showEquipmentSearchModal(
+                            context: context,
+                            equipments: equipamientos,
+                            initialSelected: _controller.materialesRecomendados,
+                          );
 
                       if (resultadoModal != null) {
                         setState(() {
@@ -317,21 +337,30 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               if (_controller.materialesRecomendados.isEmpty)
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16), 
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: cs.onSurfaceVariant.withValues(alpha: 0.2), 
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.2),
                       width: 1.5,
                     ),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.inventory_2_outlined, size: 18, color: cs.primary.withValues(alpha: 0.5)),
+                      Icon(
+                        Icons.inventory_2_outlined,
+                        size: 18,
+                        color: cs.primary.withValues(alpha: 0.5),
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         'No hay material recomendado seleccionado', // TODO: hardcodeado
-                        style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                        style: tt.labelMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -340,14 +369,21 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: _controller.materialesRecomendados.keys.map((idEquip) {
-                    final Equipment? item = equipamientos.where((e) => e.id == idEquip).firstOrNull;
+                  children: _controller.materialesRecomendados.keys.map((
+                    idEquip,
+                  ) {
+                    final Equipment? item = equipamientos
+                        .where((e) => e.id == idEquip)
+                        .firstOrNull;
                     if (item == null) return const SizedBox.shrink();
 
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
-                        color: cs.primary.withValues(alpha: 0.08), 
+                        color: cs.primary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: cs.primary.withValues(alpha: 0.4),
@@ -357,21 +393,30 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.inventory_2_outlined, size: 16, color: cs.primary),
+                          Icon(
+                            Icons.inventory_2_outlined,
+                            size: 16,
+                            color: cs.primary,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             item.title,
-                            style: tt.labelMedium?.copyWith(color: cs.onSurface, fontWeight: FontWeight.bold),
+                            style: tt.labelMedium?.copyWith(
+                              color: cs.onSurface,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           GestureDetector(
                             onTap: () => setState(() {
-                              _controller.materialesRecomendados.remove(idEquip);
+                              _controller.materialesRecomendados.remove(
+                                idEquip,
+                              );
                             }),
                             child: Icon(
-                              Icons.cancel_rounded, 
-                              size: 16, 
-                              color: cs.error.withValues(alpha: 0.7)
+                              Icons.cancel_rounded,
+                              size: 16,
+                              color: cs.error.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -410,12 +455,13 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
 
                     if (finCompleto.isBefore(inicioCompleto)) {
                       setState(() {
-                        _errorTiempo = 'La hora de fin no puede ser anterior a la de inicio'; // TODO: hardcodeado
+                        _errorTiempo =
+                            'La hora de fin no puede ser anterior a la de inicio'; // TODO: hardcodeado
                       });
-                      return; 
+                      return;
                     }
 
-                    setState(() => _errorTiempo = null); 
+                    setState(() => _errorTiempo = null);
 
                     final Activity actividad = _controller.construirActividad();
                     Navigator.of(context).pop(actividad);

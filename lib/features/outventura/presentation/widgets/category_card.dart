@@ -29,19 +29,6 @@ class CategoryCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: cs.primary.withAlpha(18),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              Icons.category_outlined,
-              color: cs.primary,
-              size: 22,
-            ),
-          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -51,7 +38,8 @@ class CategoryCard extends StatelessWidget {
                   categoria.code,
                   style: tt.titleMedium?.copyWith(color: cs.onSurface),
                 ),
-                if (categoria.description != null && categoria.description!.isNotEmpty) ...[
+                if (categoria.description != null &&
+                    categoria.description!.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
                     categoria.description!,
