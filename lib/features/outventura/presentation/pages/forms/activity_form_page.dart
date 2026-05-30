@@ -150,8 +150,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               if (!isGuide) ...[
                 // 🌟 DROPDOWN LIMPIO Y SEGURO TIPADO A <Guide>
                 AppDropdownField<Guide>(
-                // 🌟 DROPDOWN LIMPIO Y SEGURO TIPADO A <Guide>
-                AppDropdownField<Guide>(
                   value: _controller.guideId,
                   items: itemsDropdownGuias,
                   itemValue: (Guide guia) => guia.id!,
@@ -164,7 +162,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       _controller.guideId = nuevoId as int?;
                     });
                   },
-                  validator: (dynamic value) => value == null
                   validator: (dynamic value) => value == null
                       ? 'Por favor, selecciona un guía obligatorio' // TODO: hardcodeado
                       : null,
