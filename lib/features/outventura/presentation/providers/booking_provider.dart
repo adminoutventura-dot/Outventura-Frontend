@@ -34,7 +34,7 @@ int _statusIdFrom(WorkflowStatus status) {
   switch (status.code) {
     case 'PENDING':
       return 1;
-    case 'CONFIRMED':
+    case 'ACCEPTED':
       return 2;
     case 'IN_PROGRESS':
       return 3;
@@ -53,6 +53,28 @@ Map<String, dynamic> _createBookingPayload(Booking reserva) {
     'init_date': reserva.startDate.toIso8601String(),
     'end_date': reserva.endDate.toIso8601String(),
   };
+}
+
+Map<String, dynamic> _createBookingUpdatePayload(Booking viejo, Booking nuevo) {
+  final Map<String, dynamic> payload = {};
+
+  if (viejo.userId != nuevo.userId) {
+    payload['userId'] = nuevo.userId;
+  }
+
+  if (!viejo.startDate.isAtSameMomentAs(nuevo.startDate)) {
+    payload['init_date'] = nuevo.startDate.toIso8601String();
+  }
+
+  if (!viejo.endDate.isAtSameMomentAs(nuevo.endDate)) {
+    payload['end_date'] = nuevo.endDate.toIso8601String();
+  }
+
+  if (viejo.status != nuevo.status) {
+    payload['statusId'] = _statusIdFrom(nuevo.status);
+  }
+
+  return payload;
 }
 
 Map<String, int> _aggregateDesiredLines(List<BookingLine> lines) {
@@ -481,13 +503,22 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
         response.data as Map<String, dynamic>,
       );
 
-      if (created.id != null && reserva.lines.isNotEmpty) {
-        await _syncBookingLines(
-          dio,
-          created.id!,
-          reserva.lines,
-          cache: _linesCache,
-        );
+      if (created.id != null) {
+        if (reserva.lines.isNotEmpty) {
+          await _syncBookingLines(
+            dio,
+            created.id!,
+            reserva.lines,
+            cache: _linesCache,
+          );
+        }
+
+        if (reserva.status != WorkflowStatus.pendiente) {
+          await dio.patch(
+            '/booking/${created.id}',
+            data: {'statusId': _statusIdFrom(reserva.status)},
+          );
+        }
       }
 
       ref.invalidateSelf();
@@ -503,11 +534,9 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
       final dio = ref.read(dioProvider);
       _linesCache ??= await _fetchAllBookingLinesGrouped(dio);
 
-      if (viejo.status != nuevo.status) {
-        await dio.patch(
-          '/booking/${viejo.id}',
-          data: {'statusId': _statusIdFrom(nuevo.status)},
-        );
+      final Map<String, dynamic> bookingPatch = _createBookingUpdatePayload(viejo, nuevo);
+      if (bookingPatch.isNotEmpty) {
+        await dio.patch('/booking/${viejo.id}', data: bookingPatch);
       }
 
       if (!_sameAggregatedLines(viejo.lines, nuevo.lines)) {

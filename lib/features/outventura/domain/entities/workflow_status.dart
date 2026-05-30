@@ -12,7 +12,7 @@ enum WorkflowStatus {
       case WorkflowStatus.pendiente:
         return 'PENDING';
       case WorkflowStatus.confirmada:
-        return 'CONFIRMED';
+        return 'ACCEPTED';
       case WorkflowStatus.enCurso:
         return 'IN_PROGRESS';
       case WorkflowStatus.finalizada:
