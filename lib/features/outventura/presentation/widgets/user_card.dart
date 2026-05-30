@@ -11,12 +11,14 @@ class UserCard extends StatelessWidget {
   final User usuario;
   final VoidCallback? onEditar;
   final VoidCallback? onEliminar;
+  final VoidCallback? onVerDetalle;
 
   const UserCard({
     super.key,
     required this.usuario,
     this.onEditar,
     this.onEliminar,
+    this.onVerDetalle,
   });
 
   @override
@@ -156,7 +158,7 @@ class UserCard extends StatelessWidget {
                       
 
                       // Botones de acción
-                      if (onEditar != null || onEliminar != null) ...[
+                      if (onEditar != null || onEliminar != null || onVerDetalle != null) ...[
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -178,7 +180,7 @@ class UserCard extends StatelessWidget {
                                 color: cs.tertiary,
                                 onTap: onEditar!
                               ),
-                              
+
                             if (onEditar != null && onEliminar != null)
                               const SizedBox(width: 4),
 
@@ -187,6 +189,16 @@ class UserCard extends StatelessWidget {
                                 icon: Icons.delete_outline,
                                 color: cs.error,
                                 onTap: onEliminar!,
+                              ),
+
+                            if ((onEditar != null || onEliminar != null) && onVerDetalle != null)
+                              const SizedBox(width: 4),
+
+                            if (onVerDetalle != null)
+                              ActionIcon(
+                                icon: Icons.chevron_right_rounded,
+                                color: cs.onSurfaceVariant,
+                                onTap: onVerDetalle!
                               ),
                           ],
                         ),

@@ -45,7 +45,7 @@ class ReservationDetailPage extends ConsumerWidget {
         : null;
 
     final List<Equipment> equipamientos =
-        ref.watch(equipmentProvider).value ?? [];
+        ref.watch(allEquipmentProvider);
     final double totalAlquiler = calcularPrecioReserva(
       lineas: actual.lines,
       fechaDesde: actual.startDate,

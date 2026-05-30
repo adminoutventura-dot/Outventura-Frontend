@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/date_formatter.dart';
 import 'package:outventura/core/widgets/detail_sliver_header.dart';
+import 'package:outventura/features/auth/domain/entities/guide.dart';
+import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
@@ -34,9 +37,12 @@ class ActivityDetailPage extends ConsumerWidget {
     );
 
     // Resolve el nombre del guía
-    final String nombreGuia = actual.guideId != null
-        ? ref.watch(userNameProvider(actual.guideId!))
-        : 'Guía no asignado'; // TODO: hardcodeado
+    final List<Guide> guias = ref.watch(guidesProvider).value ?? [];
+    final Guide? guia = guias.firstWhereOrNull((g) => g.id == actual.guideId);
+    
+    final String nombreGuia = guia != null
+        ? '${guia.user?.name ?? ''} ${guia.user?.surname ?? ''}'.trim()
+        : 'Guía no asignado';
 
     final todasLasReservas = ref.watch(reservationsProvider).value ?? [];
     int inscritosActuales = 0;

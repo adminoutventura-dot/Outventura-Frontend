@@ -1,22 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
-import 'package:outventura/features/outventura/presentation/controllers/booking_page_controller.dart';
-import 'package:outventura/features/outventura/domain/entities/booking.dart';
+import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
+import 'package:outventura/features/outventura/presentation/controllers/activities_page_controller.dart';
+import 'package:outventura/features/outventura/domain/entities/activity.dart';
+import 'package:outventura/features/outventura/domain/entities/booking.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/activity_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/activity_detail_page.dart';
+import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/categories_provider.dart';
+import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
-import 'package:outventura/features/outventura/presentation/pages/booking_detail_page.dart';
+import 'package:outventura/features/outventura/presentation/widgets/activity_card.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/outventura/presentation/widgets/booking_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/booking_dialogs.dart';
+import 'package:outventura/features/outventura/presentation/pages/booking_detail_page.dart';
+import 'package:outventura/features/outventura/presentation/controllers/booking_page_controller.dart';
+import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
+import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 
 class ReservationsPage extends ConsumerStatefulWidget {
   final bool puedeGestionar;
@@ -37,6 +47,27 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
   final ReservationsPageController _controller = ReservationsPageController();
 
   @override
+  void initState() {
+    super.initState();
+    // Aplicar filtro por guía si es necesario
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final usuarioActual = ref.read(currentUserProvider);
+      final bool isGuide = usuarioActual?.role.code == 'GUIDE';
+      final bool isAdminOSuper = usuarioActual?.role.code == 'ADMIN' || usuarioActual?.role.code == 'SUPER';
+
+      if (isAdminOSuper && widget.puedeGestionar) {
+        // Limpiar filtros para ADMIN/SUPER en gestión de reservas
+        ref.read(reservationsProvider.notifier).aplicarFiltrosAvanzados();
+      } else if (isGuide && widget.puedeGestionar) {
+        final guide = ref.read(guidesProvider).value?.where((g) => g.userId == usuarioActual!.id).firstOrNull;
+        if (guide != null) {
+          ref.read(reservationsProvider.notifier).aplicarFiltrosAvanzados(guideId: guide.id);
+        }
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _search.dispose();
     super.dispose();
@@ -48,20 +79,14 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
     final usuarioActual = ref.watch(currentUserProvider);
+    final String? userRole = usuarioActual?.role.code;
     final ReservationsNotifier notifier = ref.read(
       reservationsProvider.notifier,
     );
+    final int currentPage = notifier.currentPage;
+    final int totalPages = notifier.totalPages;
 
-    final AsyncValue<List<Booking>> filtradas = ref.watch(
-      filteredReservationsProvider((
-        query: _search.query,
-        idUsuario: widget.puedeGestionar ? null : usuarioActual?.id,
-        estado: _controller.estadoFiltro,
-        fechaDesde: _controller.fechaDesde,
-        fechaHasta: _controller.fechaHasta,
-        tipo: _controller.tipoFiltro,
-      )),
-    );
+    final AsyncValue<List<Booking>> reservacionesAsync = ref.watch(reservationsProvider);
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -78,7 +103,14 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
               icon: const Icon(Icons.filter_list),
               tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
-              onPressed: () => _controller.mostrarFiltros(context, setState),
+              onPressed: () => _controller.mostrarFiltros(context, setState, onApply: () {
+                notifier.aplicarFiltrosAvanzados(
+                  estado: _controller.estadoFiltro,
+                  fechaDesde: _controller.fechaDesde,
+                  fechaHasta: _controller.fechaHasta,
+                  tipo: _controller.tipoFiltro,
+                );
+              }),
             ),
           ),
         ],
@@ -86,7 +118,6 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
       floatingActionButton: widget.puedeCrear
           ? AddFab(
               onPressed: () async {
-                // Al crear desde el FAB general de reservas, asume flujo de materiales puros
                 final Booking? nueva = await Navigator.of(context)
                     .push<Booking>(
                       MaterialPageRoute(
@@ -99,40 +130,26 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                     );
 
                 if (nueva == null) return;
-                await notifier.agregar(nueva);
-                ref.invalidate(equipmentProvider);
-
-                if (!context.mounted) return;
-                showSuccessSnackBar(context, s.reservationCreated);
+                
+                // 🌟 PROTECCIÓN EN LA CREACIÓN DE RESERVAS (FAB)
+                try {
+                  await notifier.agregar(nueva);
+                  ref.invalidate(equipmentProvider);
+                  if (!context.mounted) return;
+                  showSuccessSnackBar(context, s.reservationCreated);
+                } catch (e) {
+                  if (!context.mounted) return;
+                  final String mensajeLimpio = e.toString()
+                      .replaceAll('Exception: ', '')
+                      .replaceAll('Exception', '');
+                  showErrorSnackBar(context, mensajeLimpio);
+                }
               },
             )
           : null,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
-            child: SegmentedButton<TipoReserva>(
-              segments: const [
-                ButtonSegment(value: TipoReserva.todas, label: Text('Totes')),
-                ButtonSegment(
-                  value: TipoReserva.materiales,
-                  label: Text('Materials'),
-                ),
-                ButtonSegment(
-                  value: TipoReserva.actividades,
-                  label: Text('Excursions'),
-                ),
-              ],
-              selected: {_controller.tipoFiltro},
-              onSelectionChanged: (Set<TipoReserva> nuevaSeleccion) {
-                setState(() {
-                  _controller.tipoFiltro = nuevaSeleccion.first;
-                });
-              },
-            ),
-          ),
-
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 6, 12, 4),
             child: CustomInputField(
@@ -142,27 +159,73 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
               suffixIcon: _search.query.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
-                      onPressed: () => setState(_search.clear),
+                      onPressed: () => setState(() {
+                        _search.clear();
+                        notifier.aplicarFiltroTexto('');
+                      }),
                     )
                   : null,
-              onChanged: (String v) => setState(() => _search.query = v),
+              onChanged: (String v) => setState(() {
+                _search.query = v;
+                notifier.aplicarFiltroTexto(v);
+              }),
             ),
           ),
 
+          // PAGINACIÓN COMPACTA < 1 / X >
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left, size: 28),
+                    color: currentPage > 1
+                        ? cs.primary
+                        : cs.onSurfaceVariant.withValues(alpha: 0.3),
+                    onPressed: currentPage > 1
+                        ? () => notifier.cambiarPagina(currentPage - 1)
+                        : null,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Text(
+                      '$currentPage / $totalPages',
+                      style: tt.titleMedium?.copyWith(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right, size: 28),
+                    color: currentPage < totalPages
+                        ? cs.primary
+                        : cs.onSurfaceVariant.withValues(alpha: 0.3),
+                    onPressed: currentPage < totalPages
+                        ? () => notifier.cambiarPagina(currentPage + 1)
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+
           Expanded(
-            child: filtradas.when(
+            child: reservacionesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) =>
                   Center(child: Text(s.error(error.toString()))),
-              data: (List<Booking> lista) => lista.isEmpty
-                  ? Center(
-                      child: Text(
-                        s.noReservations,
-                        style: tt.bodyMedium?.copyWith(
-                          color: cs.onSurfaceVariant,
+              data: (List<Booking> listaOriginal) {
+                return listaOriginal.isEmpty
+                    ? Center(
+                        child: Text(
+                          s.noReservations,
+                          style: tt.bodyMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                    )
+                      )
                   : ListView.separated(
                       padding: EdgeInsets.fromLTRB(
                         12,
@@ -170,28 +233,25 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         12,
                         MediaQuery.of(context).padding.bottom + 80,
                       ),
-                      itemCount: lista.length,
+                      itemCount: listaOriginal.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 10),
                       itemBuilder: (BuildContext context, int i) {
-                        final Booking res = lista[i];
+                        final Booking res = listaOriginal[i];
 
                         final Booking reservaActual =
                             ref.watch(reservationsProvider).value
                                 ?.where((b) => b.id == res.id)
-                                .firstOrNull ??
+                                ?.firstOrNull ??
                             res;
 
-                        // Detecta si es Excursión o Material
                         final bool tieneActividad = reservaActual.lines.any(
                           (l) => l.activityId != null,
                         );
 
-                        // Nombres
                         final String nombreUsuario = ref.watch(
                           userNameProvider(res.userId),
                         );
 
-                        // Acciones comunes
                         void onVerDetalleCall() {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -201,11 +261,15 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                           );
                         }
 
-                        final onEditarCall =
-                            (!widget.puedeGestionar &&
-                                res.status != WorkflowStatus.pendiente)
-                            ? null
-                            : () async {
+                        // Según el backend, el método update solo cambia estado, no edita fechas/líneas
+                        // USER/GUIDE: no pueden editar reservas
+                        // ADMIN/SUPER: pueden cambiar estado de reservas
+                        final bool esAdminOSuper = userRole == 'ADMIN' || userRole == 'SUPER';
+
+                        // Solo ADMIN/SUPER pueden editar (cambiar estado) si está en PENDING
+                        final onEditarCall = esAdminOSuper &&
+                            res.status == WorkflowStatus.pendiente
+                            ? () async {
                                 final Booking? resultado =
                                     await Navigator.of(context).push<Booking>(
                                       MaterialPageRoute(
@@ -214,14 +278,16 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                                             booking: reservaActual,
                                             initialIdUsuario:
                                                 widget.puedeGestionar
-                                                ? null
-                                                : usuarioActual?.id,
+                                                    ? null
+                                                    : usuarioActual?.id,
                                           );
                                         },
                                       ),
                                     );
 
                                 if (resultado == null) return;
+
+                                // 🌟 TRADUCCIÓN Y ALERTA CORRECTA EN LA EDICIÓN DE RESERVAS
                                 try {
                                   await notifier.actualizar(
                                     reservaActual,
@@ -236,16 +302,13 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                                   );
                                 } catch (e) {
                                   if (!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Error del servidor: $e'),
-                                      backgroundColor: Theme.of(
-                                        context,
-                                      ).colorScheme.error,
-                                    ),
-                                  );
+                                  final String mensajeLimpio = e.toString()
+                                      .replaceAll('Exception: ', '')
+                                      .replaceAll('Exception', '');
+                                  showErrorSnackBar(context, mensajeLimpio);
                                 }
-                              };
+                              }
+                            : null;
 
                         return BookingCard(
                           reserva: reservaActual,
@@ -253,14 +316,14 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                           esActividad: tieneActividad,
                           onVerDetalle: onVerDetalleCall,
                           onEditar: onEditarCall,
+                          // Según el backend, cancelar es una edición del estado
+                          // USER/GUIDE: no pueden cancelar (no pueden editar)
+                          // ADMIN: puede cancelar PENDING y ACCEPTED con restricciones de tiempo
+                          // SUPER: puede cancelar cualquier estado
                           onCancelar:
-                              (widget.puedeGestionar &&
-                                      res.status ==
-                                          WorkflowStatus.confirmada) ||
-                                  (!widget.puedeGestionar &&
-                                      (res.status == WorkflowStatus.pendiente ||
-                                          res.status ==
-                                              WorkflowStatus.confirmada))
+                              ((res.status == WorkflowStatus.pendiente && esAdminOSuper) ||
+                               (res.status == WorkflowStatus.confirmada && esAdminOSuper) ||
+                               (res.status == WorkflowStatus.finalizada && userRole == 'SUPER'))
                               ? () => mostrarDialogoCancelacion(
                                   context,
                                   res,
@@ -270,21 +333,23 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                                   },
                                 )
                               : null,
-                          onRechazar:
-                              widget.puedeGestionar &&
-                                  res.status == WorkflowStatus.pendiente
-                              ? () => mostrarDialogoRechazo(
-                                  context,
-                                  res,
-                                  () async {
-                                    await notifier.rechazar(res);
-                                    ref.invalidate(equipmentProvider);
-                                  },
-                                )
-                              : null,
+                          // // Solo ADMIN/SUPER puede rechazar PENDING
+                          // onRechazar:
+                          //     widget.puedeGestionar &&
+                          //             res.status == WorkflowStatus.pendiente
+                          //     ? () => mostrarDialogoRechazo(
+                          //         context,
+                          //         res,
+                          //         () async {
+                          //           await notifier.rechazar(res);
+                          //           ref.invalidate(equipmentProvider);
+                          //         },
+                          //       )
+                          //     : null,
+                          // Solo ADMIN/SUPER puede aprobar PENDING
                           onAprobar:
                               widget.puedeGestionar &&
-                                  res.status == WorkflowStatus.pendiente
+                                      res.status == WorkflowStatus.pendiente
                               ? () => mostrarDialogoAprobacion(
                                   context,
                                   res,
@@ -294,9 +359,10 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                                   },
                                 )
                               : null,
+                          // IN_PROGRESS -> puede registrar devolución (ADMIN, SUPER, GUIDE si tiene actividad asignada)
                           onRegistrarDevolucion:
-                              widget.puedeGestionar &&
-                                  res.status == WorkflowStatus.enCurso
+                              res.status == WorkflowStatus.enCurso &&
+                              (widget.puedeGestionar || (userRole == 'GUIDE' && tieneActividad))
                               ? () => mostrarDialogoDevolucion(
                                   context,
                                   res,
@@ -308,11 +374,12 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                               : null,
                         );
                       },
-                    ),
+                    );
+              },
             ),
           ),
-        ],
-      ),
-    );
+        ],    
+      )
+    );        
   }
 }

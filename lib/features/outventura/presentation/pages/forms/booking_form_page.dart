@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/outventura/presentation/widgets/booking_line_dialog.dart';
 import 'package:table_calendar/table_calendar.dart'; 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,8 @@ import 'package:outventura/features/auth/presentation/providers/users_provider.d
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart'; 
+import 'package:outventura/features/auth/domain/entities/guide.dart';
+import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/controllers/booking_mat_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
@@ -49,8 +52,9 @@ class BookingFormPage extends ConsumerStatefulWidget {
 
 class _BookingFormPageState extends ConsumerState<BookingFormPage> {
   late final BookingMatFormController _controller;
-  int? _selectedActivityId; 
+  int? _selectedActivityId;
   bool _syncedInitialActivity = false;
+  final Map<int, int> _cantidadesDaniadas = {};
 
   @override
   void initState() {
@@ -91,7 +95,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
 
     final BookingLine? resultadoLinea = await mostrarDialogoLineaReserva(
       context: context,
-      equipamientos: ref.read(equipmentProvider).value ?? [],
+      equipamientos: ref.read(allEquipmentProvider),
       initialLinea: lineaActual,
     );
 
@@ -118,11 +122,44 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
           _controller.fechaHasta = act.endDate.toLocal();
           _controller.horaInicio = TimeOfDay.fromDateTime(act.initDate.toLocal());
           _controller.horaFin = TimeOfDay.fromDateTime(act.endDate.toLocal());
-          
+
           _controller.lineas.add(BookingLine(activityId: newActivityId, quantity: 1, priceAtMoment: 0));
         }
       }
     });
+  }
+
+  void _incrementarDanio(int lineId, int maxCantidad) {
+    setState(() {
+      final actual = _cantidadesDaniadas[lineId] ?? 0;
+      if (actual < maxCantidad) {
+        _cantidadesDaniadas[lineId] = actual + 1;
+      }
+    });
+  }
+
+  void _decrementarDanio(int lineId) {
+    setState(() {
+      final actual = _cantidadesDaniadas[lineId] ?? 0;
+      if (actual > 0) {
+        _cantidadesDaniadas[lineId] = actual - 1;
+      }
+    });
+  }
+
+  double _calcularTotalDanios(List<Equipment> equipamientos) {
+    double total = 0;
+    for (final linea in _controller.lineas) {
+      if (linea.equipmentId == null) continue;
+      final cantidadDaniada = _cantidadesDaniadas[linea.id ?? _controller.lineas.indexOf(linea)] ?? 0;
+      if (cantidadDaniada > 0) {
+        final equip = equipamientos.where((e) => e.id == linea.equipmentId).firstOrNull;
+        if (equip != null) {
+          total += cantidadDaniada * equip.damageFee;
+        }
+      }
+    }
+    return total;
   }
 
   bool _esHoraInvalida() {
@@ -144,9 +181,13 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
     final bool modoCliente = widget.initialIdUsuario != null;
     final bool hasActivity = _selectedActivityId != null;
 
-    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+    // 🌟 CONTROLADOR DE LECTURA: Bloquea fechas si tiene actividad o si estamos EDITANDO
+    final bool fechasSoloLectura = isEdit || hasActivity;
+
+    final List<Equipment> equipamientos = ref.watch(allEquipmentProvider);
     final List<Activity> todasLasActividades = ref.watch(activitiesProvider).value ?? [];
     final List<Activity> actividadesDisponibles = ref.watch(availableActivitiesProvider).value ?? [];
+    final List<Guide> guias = ref.watch(guidesProvider).value ?? [];
     
     if (_selectedActivityId != null && !isEdit && !_syncedInitialActivity && todasLasActividades.isNotEmpty) {
       final act = todasLasActividades.where((a) => a.id == _selectedActivityId).firstOrNull;
@@ -158,7 +199,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
       }
     }
 
-    final double totalPrice = _controller.totalAlquiler(equipamientos);
+    final double totalPrice = _controller.totalAlquiler(equipamientos) + _calcularTotalDanios(equipamientos);
     final double topPadding = MediaQuery.of(context).padding.top + kToolbarHeight;
     final double bottomBarHeight = MediaQuery.of(context).padding.bottom + 100;
 
@@ -168,7 +209,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
             final User u => [u],
             null => [],
           }
-        : todosLosUsuarios.where((u) => u.role.code == 'USER').toList();
+        : todosLosUsuarios.where((u) => u.active == true).toList();
 
     final Activity? actividadSeleccionada = todasLasActividades.where((a) => a.id == _selectedActivityId).firstOrNull;
 
@@ -248,8 +289,28 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                 prefixIcon: Icons.hiking_outlined,
                 label: 'Actividad vinculada',
                 hint: 'Ninguna (Solo alquiler de material)', 
+                enabled: !isEdit, // 🌟 Tampoco dejamos cambiar la actividad al editar para proteger las fechas
                 onChanged: (dynamic val) => _onActivityChanged(val as int?, todasLasActividades),
               ),
+
+              if (actividadSeleccionada != null) ...[
+                Builder(builder: (context) {
+                  final guide = guias.where((g) => g.id == actividadSeleccionada.guideId).firstOrNull;
+                  if (guide != null) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 14),
+                      child: CustomInputField(
+                        controller: TextEditingController(text: '${guide.user?.name} ${guide.user?.surname}'),
+                        labelText: 'Guía Asignado',
+                        prefixIcon: Icons.person_outline,
+                        enabled: false,
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+              ],
+
               const SizedBox(height: 24),
 
               Text(
@@ -257,10 +318,12 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
+              
+              // 🌟 INTERFAZ BLOQUEADA: Aplica el IgnorePointer según nuestra variable combinada
               IgnorePointer(
-                ignoring: hasActivity, 
+                ignoring: fechasSoloLectura, 
                 child: Opacity(
-                  opacity: hasActivity ? 0.6 : 1.0, 
+                  opacity: fechasSoloLectura ? 0.6 : 1.0, 
                   child: Column(
                     children: [
                       Row(
@@ -320,7 +383,6 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
               ),
               const SizedBox(height: 24),
 
-              // 🌟 SECCIÓN DE MATERIAL RECOMENDADO RENOVADA
               if (actividadSeleccionada != null && actividadSeleccionada.recommendedEquipmentIds.isNotEmpty) ...[
                 Text(
                   'MATERIAL RECOMENDADO',
@@ -335,16 +397,13 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                     margin: const EdgeInsets.only(bottom: 8),
                     decoration: BoxDecoration(
                       color: cs.surface.withValues(alpha: 0.05),
-                      // Quitamos el border y reducimos el radio para que sea más "cuadrada"
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: ListTile(
-                      // Las propiedades dense y visualDensity la hacen mucho más compacta (menos alta)
                       dense: true,
                       visualDensity: VisualDensity.compact,
                       leading: Icon(Icons.inventory_2_outlined, color: cs.primaryContainer),
                       title: Text(eq.title, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
-                      // Subtítulo eliminado
                     ),
                   );
                 }),
@@ -409,15 +468,16 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                           ) ??
                           equipamientos.first;
 
+                      final int cantidadDaniada = _cantidadesDaniadas[linea.id ?? i] ?? 0;
                       return BookingLineCard(
                         linea: linea,
                         equipamiento: equip,
-                        cantidadDaniada: 0,
+                        cantidadDaniada: cantidadDaniada,
                         esCliente: modoCliente,
                         onEdit: () => _mostrarDialogoLinea(index: i),
                         onDelete: () => setState(() => _controller.eliminarLinea(i)),
-                        menosCoste: null,
-                        masCoste: null,
+                        menosCoste: () => _decrementarDanio(linea.id ?? i),
+                        masCoste: () => _incrementarDanio(linea.id ?? i, linea.quantity),
                       );
                     },
                   ),
@@ -439,8 +499,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                       ),
                       Text(
                         s.priceEur(
-                          _controller
-                              .totalAlquiler(equipamientos)
+                          (_controller.totalAlquiler(equipamientos) + _calcularTotalDanios(equipamientos))
                               .toStringAsFixed(2),
                         ),
                         style: tt.labelMedium?.copyWith(

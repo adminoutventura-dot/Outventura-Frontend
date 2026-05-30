@@ -15,12 +15,13 @@ class ReservationsPageController {
   TipoReserva tipoFiltro = TipoReserva.todas;
 
   bool get hayFiltros =>
-      estadoFiltro != null || fechaDesde != null || fechaHasta != null;
+      estadoFiltro != null || fechaDesde != null || fechaHasta != null || tipoFiltro != TipoReserva.todas;
 
-  void mostrarFiltros(BuildContext context, StateSetter setState) {
+  void mostrarFiltros(BuildContext context, StateSetter setState, {VoidCallback? onApply}) {
     WorkflowStatus? estadoTemp = estadoFiltro;
     DateTime? desdeTemp = fechaDesde;
     DateTime? hastaTemp = fechaHasta;
+    TipoReserva tipoTemp = tipoFiltro;
 
     mostrarFiltrosSheet(
       context,
@@ -39,6 +40,20 @@ class ReservationsPageController {
                 )
                 .toList(),
           ),
+          FilterGrupo(
+            titulo: 'Tipo',
+            useErrorColor: true,
+            chips: TipoReserva.values
+                .map(
+                  (TipoReserva e) => FilterChipSpec(
+                    label: e == TipoReserva.todas ? 'Totes' : (e == TipoReserva.materiales ? 'Materials' : 'Excursions'),
+                    seleccionado: tipoTemp == e,
+                    onToggle: () =>
+                        setModal(() => tipoTemp = tipoTemp == e ? TipoReserva.todas : e),
+                  ),
+                )
+                .toList(),
+          ),
         ],
         mostrarFechas: true,
         fechaDesde: desdeTemp,
@@ -53,13 +68,16 @@ class ReservationsPageController {
           estadoTemp = null;
           desdeTemp = null;
           hastaTemp = null;
+          tipoTemp = TipoReserva.todas;
         }),
         onApply: () {
           setState(() {
             estadoFiltro = estadoTemp;
             fechaDesde = desdeTemp;
             fechaHasta = hastaTemp;
+            tipoFiltro = tipoTemp;
           });
+          onApply?.call();
           Navigator.pop(context);
         },
       ),

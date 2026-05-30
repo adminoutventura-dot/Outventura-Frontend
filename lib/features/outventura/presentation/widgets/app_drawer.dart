@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:outventura/app/theme/app_gradients.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
+import 'package:outventura/features/outventura/presentation/pages/equipment_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/app/theme/app_text_styles.dart';
 import 'package:outventura/catalog/pages/catalog_page.dart';
@@ -11,8 +12,11 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/pages/login_page.dart';
 import 'package:outventura/features/auth/presentation/pages/profile_form_page.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
+import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/preferences/presentation/pages/preferences_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/categories_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/activities_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/booking_page.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -29,6 +33,7 @@ class AppDrawer extends ConsumerWidget {
         usuario.role.code == 'GUEST';
 
     final bool isAdmin = usuario?.role.code == 'SUPER' || usuario?.role.code == 'ADMIN';
+    final bool isGuide = usuario?.role.code == 'GUIDE';
 
     return Drawer(
       backgroundColor: cs.surface,
@@ -129,6 +134,24 @@ class AppDrawer extends ConsumerWidget {
                         return;
                       }
 
+                      // Manejar desactivación de cuenta
+                      if (result['desactivar'] == true) {
+                        try {
+                          await ref.read(usuariosProvider.notifier).eliminar(usuario);
+                          if (context.mounted) {
+                            await ref.read(currentUserProvider.notifier).cerrarSesion();
+                            if (context.mounted) {
+                              Navigator.of(context).popUntil((route) => route.isFirst);
+                            }
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            showErrorSnackBar(context, e.toString());
+                          }
+                        }
+                        return;
+                      }
+
                       final User usuarioEditado = result['usuario'] as User;
                       final String? nuevaPassword =
                           result['password'] as String?;
@@ -179,6 +202,102 @@ class AppDrawer extends ConsumerWidget {
                     );
                   },
                 ),
+
+                if (isAdmin || isGuide)
+                  ListTile(
+                    horizontalTitleGap: 8,
+                    leading: Icon(
+                      Icons.hiking,
+                      color: cs.onSurface,
+                      size: 22,
+                    ),
+                    title: Text(
+                      'Gestión de Actividades',
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ActivitiesPage(
+                            puedeGestionar: true,
+                            puedeSolicitar: false,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                if (isAdmin)
+                  ListTile(
+                    horizontalTitleGap: 8,
+                    leading: Icon(
+                      Icons.book_outlined,
+                      color: cs.onSurface,
+                      size: 22,
+                    ),
+                    title: Text(
+                      'Gestión de Reservas',
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ReservationsPage(
+                            puedeGestionar: true,
+                            puedeCrear: true,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                if (isAdmin)
+                  ListTile(
+                    horizontalTitleGap: 8,
+                    leading: Icon(
+                      Icons.inventory_2_outlined,
+                      color: cs.onSurface,
+                      size: 22,
+                    ),
+                    title: Text(
+                      'Gestión de Equipamiento',
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const EquipmentPage(
+                            puedeGestionar: true,
+                            puedeSolicitar: false,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
 
                 if (isAdmin)
                   ListTile(

@@ -43,7 +43,7 @@ class EquipmentNotifier extends AsyncNotifier<List<Equipment>> {
       final dio = ref.read(dioProvider);
       final response = await dio.get(
         '/equipment',
-        queryParameters: {'limit': 99999},
+        queryParameters: {'page': 1, 'limit': 99999},
       );
       
       final List<dynamic> data = response.data['data'] as List<dynamic>;
@@ -61,15 +61,8 @@ class EquipmentNotifier extends AsyncNotifier<List<Equipment>> {
   List<Equipment> _procesarFiltrosYPaginas(dynamic usuario) {
     List<Equipment> resultado = _allEquipment;
 
-    final bool esClienteOInvitado = usuario == null ||
-        usuario.role.code == 'INVITADO' ||
-        usuario.role.code == 'GUEST' ||
-        usuario.role.code == 'USER'; // 'USER' equivale a vuestro rol de Cliente
-
-    if (esClienteOInvitado) {
-      // Si es cliente/invitado, fuerza que SOLO vea materiales con estado 'AVAILABLE'
-      resultado = resultado.where((Equipment e) => e.status?.code == 'AVAILABLE').toList();
-    }
+    // Eliminado filtro por estado 'AVAILABLE' para que los clientes puedan ver todos los materiales
+    // El backend ya filtra por 'DISCONTINUED' para usuarios no admin
 
     // Filtro por Estado (Solo aplicable si el rol permite ver más estados)
     if (_estado != null) {

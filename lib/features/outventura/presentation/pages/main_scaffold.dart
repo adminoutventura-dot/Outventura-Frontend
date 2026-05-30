@@ -35,8 +35,8 @@ class _MainScaffoldState extends State<MainScaffold> {
       esCliente
           ? HomeClientePage(usuario: widget.usuario)
           : const HomeAdminPage(),
-      ActivitiesPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
-      EquipmentPage(puedeGestionar: !esCliente, puedeSolicitar: esCliente),
+      const ActivitiesPage(puedeGestionar: false, puedeSolicitar: true),
+      const EquipmentPage(puedeGestionar: false, puedeSolicitar: true),
       const CalendarPage(), // Limpieza de la firma del constructor
     ];
   }

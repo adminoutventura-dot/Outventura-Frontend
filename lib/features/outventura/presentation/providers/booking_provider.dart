@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
+import 'package:outventura/features/auth/presentation/providers/users_provider.dart' as user_providers;
 import 'package:outventura/features/outventura/data/models/booking_model.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
@@ -256,38 +256,45 @@ Future<List<_LineSnapshot>> _fetchBookingLines(
     return cache[bookingId]!;
   }
 
-  for (final param in const ['bookingId', 'booking_id', 'id_booking']) {
-    try {
-      final response = await dio.get(
-        '/booking-line',
-        queryParameters: {param: bookingId},
-      );
-      final snapshots = _parseLineSnapshots(_extractListPayload(response.data));
-      if (snapshots.isNotEmpty) return snapshots;
-    } catch (_) {
-      continue;
-    }
+  if (cache != null) {
+    return cache[bookingId] ?? const [];
   }
 
-  final grouped = cache ?? await _fetchAllBookingLinesGrouped(dio);
-  return grouped[bookingId] ?? const [];
+  try {
+    final response = await dio.get(
+      '/booking-line',
+      queryParameters: {'bookingId': bookingId},
+    );
+    final List<dynamic> rawList = _extractListPayload(response.data);
+    final List<_LineSnapshot> snapshots = [];
+    for (final item in rawList) {
+      if (item is! Map<String, dynamic>) continue;
+      final parsedId = _parseBookingIdFromLine(item);
+      if (parsedId == bookingId) {
+        final snap = _parseLineSnapshot(item);
+        if (snap != null) {
+          snapshots.add(snap);
+        }
+      }
+    }
+    return snapshots;
+  } catch (_) {
+    final grouped = await _fetchAllBookingLinesGrouped(dio);
+    return grouped[bookingId] ?? const [];
+  }
 }
 
-// 🌟 LA MAGIA SUCEDE AQUÍ: List en lugar de Map para no machacar líneas
 Booking _mergeBookingLines(
   Booking booking,
   List<_LineSnapshot> fetched,
 ) {
   final List<BookingLine> mergedLines = [];
 
-  // 1. Añadimos todas las líneas que ya tenía el booking
   for (final line in booking.lines) {
     mergedLines.add(line);
   }
 
-  // 2. Comparamos los snapshots de la API con lo que ya tenemos.
   for (final snapLine in _linesFromSnapshots(fetched)) {
-    // Verificamos si esta línea (con este ID de base de datos) ya está en mergedLines
     final bool alreadyExists = mergedLines.any((l) => l.id == snapLine.id);
     
     if (!alreadyExists) {
@@ -330,8 +337,6 @@ Future<void> _syncBookingLines(
   for (final entry in desiredByKey.entries) {
     final existing = existingByKey.remove(entry.key);
     if (existing == null) {
-      // Si la línea ya existía en la reserva cargada pero el API no devolvió su id,
-      // no la recreamos (evita el error de 48h al editar reservas existentes).
       if (fallbackKeys.contains(entry.key)) {
         continue;
       }
@@ -358,17 +363,14 @@ Future<void> _syncBookingLines(
   }
 }
 
-// Enum para controlar qué pestaña está viendo el usuario
 enum TipoReserva { todas, materiales, actividades }
 
-// Lista completa de reservas. GET /booking.
 final AsyncNotifierProvider<ReservationsNotifier, List<Booking>>
 reservationsProvider =
     AsyncNotifierProvider<ReservationsNotifier, List<Booking>>(
       ReservationsNotifier.new,
     );
 
-// Filtra reservas en el frontend por usuario, estado, rango de fechas, texto libre Y TIPO DE RESERVA.
 final filteredReservationsProvider =
     Provider.family<
       AsyncValue<List<Booking>>,
@@ -384,26 +386,23 @@ final filteredReservationsProvider =
       final AsyncValue<List<Booking>> asyncTodas = ref.watch(
         reservationsProvider,
       );
-      final List<User> usuarios = ref.watch(usuariosProvider).value ?? [];
+      final List<User> usuarios = ref.watch(user_providers.usuariosProvider).value ?? [];
       final List<Activity> actividades =
           ref.watch(activitiesProvider).value ?? [];
 
       return asyncTodas.whenData((List<Booking> todas) {
         List<Booking> base = todas;
 
-        // 1. Filtro opcional por usuario (vista cliente)
         if (params.idUsuario != null) {
           base = base
               .where((Booking r) => r.userId == params.idUsuario)
               .toList();
         }
 
-        // 2. Filtro opcional por estado
         if (params.estado != null) {
           base = base.where((Booking r) => r.status == params.estado).toList();
         }
 
-        // 3. Rangos de fecha
         if (params.fechaDesde != null) {
           base = base
               .where((Booking r) => !r.endDate.isBefore(params.fechaDesde!))
@@ -415,7 +414,6 @@ final filteredReservationsProvider =
               .toList();
         }
 
-        // Por tipo de reserva (Pestañas de la UI)
         if (params.tipo == TipoReserva.materiales) {
           base = base
               .where((b) => !b.lines.any((l) => l.activityId != null))
@@ -426,7 +424,6 @@ final filteredReservationsProvider =
               .toList();
         }
 
-        // 5. Filtro por texto libre
         if (params.query.isEmpty) {
           return base;
         }
@@ -438,7 +435,6 @@ final filteredReservationsProvider =
             usuarios,
           ).toLowerCase();
 
-          // Busca la primera línea que tenga actividad para sacar su nombre
           final lineAct = r.lines
               .where((l) => l.activityId != null)
               .firstOrNull;
@@ -452,7 +448,6 @@ final filteredReservationsProvider =
       });
     });
 
-// Número de reservas/solicitudes pendientes (para badges)
 final pendingBookingsCountProvider = Provider.family<int, int>((ref, userId) {
   return (ref.watch(reservationsProvider).value ?? [])
       .where((s) => s.userId == userId && s.status == WorkflowStatus.pendiente)
@@ -460,13 +455,30 @@ final pendingBookingsCountProvider = Provider.family<int, int>((ref, userId) {
 });
 
 class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
+  int currentPage = 1;
+  int totalPages = 1;
+  final int _itemsPerPage = 3;
+
   Map<int, List<_LineSnapshot>>? _linesCache;
+  List<Booking> _allBookings = [];
+
+  List<Booking> get allBookings => _allBookings;
+
+  String _query = '';
+  WorkflowStatus? _estado;
+  DateTime? _fechaDesde;
+  DateTime? _fechaHasta;
+  TipoReserva _tipo = TipoReserva.todas;
+  int? _guideId; // Filtro por guía
 
   @override
   Future<List<Booking>> build() async {
     try {
       final dio = ref.read(dioProvider);
-      final response = await dio.get('/booking');
+      final response = await dio.get(
+        '/booking',
+        queryParameters: {'page': 1, 'limit': 99999},
+      );
       final raw = response.data;
 
       final List<dynamic> data = raw is List
@@ -479,7 +491,7 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
 
       _linesCache = await _fetchAllBookingLinesGrouped(dio);
 
-      return bookings
+      _allBookings = bookings
           .map(
             (booking) => _mergeBookingLines(
               booking,
@@ -487,14 +499,137 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
             ),
           )
           .toList();
+
+      return _procesarFiltrosYPaginas();
     } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 
+  List<Booking> _procesarFiltrosYPaginas() {
+    List<Booking> resultado = _allBookings;
+
+    // Filtro por Guía (se aplica antes de la paginación)
+    if (_guideId != null) {
+      final actividades = ref.read(activitiesProvider).value ?? [];
+      resultado = resultado.where((res) {
+        return res.lines.any((l) {
+          if (l.activityId == null) return false;
+          final act = actividades.where((a) => a.id == l.activityId).firstOrNull;
+          return act?.guideId == _guideId;
+        });
+      }).toList();
+    }
+
+    // Filtro por Estado
+    if (_estado != null) {
+      resultado = resultado.where((r) => r.status == _estado).toList();
+    }
+
+    // Filtro por Fecha Desde
+    if (_fechaDesde != null) {
+      resultado = resultado.where((r) => !r.endDate.isBefore(_fechaDesde!)).toList();
+    }
+
+    // Filtro por Fecha Hasta
+    if (_fechaHasta != null) {
+      resultado = resultado.where((r) => !r.startDate.isAfter(_fechaHasta!)).toList();
+    }
+
+    // Filtro por Tipo
+    if (_tipo == TipoReserva.materiales) {
+      resultado = resultado.where((b) => !b.lines.any((l) => l.activityId != null)).toList();
+    } else if (_tipo == TipoReserva.actividades) {
+      resultado = resultado.where((b) => b.lines.any((l) => l.activityId != null)).toList();
+    }
+
+    // Filtro por Texto
+    if (_query.isNotEmpty) {
+      final usuarios = ref.read(user_providers.usuariosProvider).value ?? [];
+      final actividades = ref.read(activitiesProvider).value ?? [];
+      final String q = _query.toLowerCase();
+
+      resultado = resultado.where((Booking r) {
+        final String nombreU = resolverNombreUsuario(r.userId, usuarios).toLowerCase();
+
+        final lineAct = r.lines.where((l) => l.activityId != null).firstOrNull;
+        final String nombreAct = lineAct != null
+            ? (resolverNombreActividad(lineAct.activityId, actividades) ?? '').toLowerCase()
+            : '';
+
+        return nombreU.contains(q) || nombreAct.contains(q);
+      }).toList();
+    }
+
+    if (resultado.isEmpty) {
+      currentPage = 1;
+      totalPages = 1;
+      return [];
+    }
+
+    totalPages = (resultado.length / _itemsPerPage).ceil();
+
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    final int indiceInicio = (currentPage - 1) * _itemsPerPage;
+    final int indiceFin = indiceInicio + _itemsPerPage;
+
+    return resultado.sublist(
+      indiceInicio,
+      indiceFin > resultado.length ? resultado.length : indiceFin
+    );
+  }
+
+  void aplicarFiltroTexto(String texto) {
+    _query = texto;
+    currentPage = 1;
+    state = AsyncData(_procesarFiltrosYPaginas());
+  }
+
+  void aplicarFiltrosAvanzados({
+    WorkflowStatus? estado,
+    DateTime? fechaDesde,
+    DateTime? fechaHasta,
+    TipoReserva? tipo,
+    int? guideId,
+  }) {
+    _estado = estado;
+    _fechaDesde = fechaDesde;
+    _fechaHasta = fechaHasta;
+    if (tipo != null) _tipo = tipo;
+    _guideId = guideId;
+    currentPage = 1;
+    state = AsyncData(_procesarFiltrosYPaginas());
+  }
+
+  void cambiarPagina(int nuevaPagina) {
+    if (nuevaPagina < 1 || nuevaPagina > totalPages || nuevaPagina == currentPage) {
+      return;
+    }
+    currentPage = nuevaPagina;
+    state = AsyncData(_procesarFiltrosYPaginas());
+  }
+
+  // 🌟 MÉTODO AGREGAR ULTRA PROTEGIDO CONTRA ERRORES SILENCIOSOS
   Future<Booking> agregar(Booking reserva) async {
+    // 🌟 1. VALIDACIÓN PREVENTIVA EN FLUTTER (Escudo de 48 horas)
+    // Si la reserva contiene materiales, comprobamos la antelación antes de tocar el servidor
+    final bool tieneMateriales = reserva.lines.any((l) => l.equipmentId != null);
+    if (tieneMateriales) {
+      final DateTime ahora = DateTime.now();
+      final DateTime limite48h = ahora.add(const Duration(hours: 48));
+      
+      if (reserva.startDate.isBefore(limite48h)) {
+        // Frenamos la ejecución en seco. No se enviará nada a la base de datos
+        throw 'Las reservas de material se deben realizar con un mínimo de 48h de antelación.';
+      }
+    }
+
+    int? idReservaCreada;
     try {
       final dio = ref.read(dioProvider);
+      
       final response = await dio.post(
         '/booking',
         data: _createBookingPayload(reserva),
@@ -503,11 +638,13 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
         response.data as Map<String, dynamic>,
       );
 
-      if (created.id != null) {
+      idReservaCreada = created.id;
+
+      if (idReservaCreada != null) {
         if (reserva.lines.isNotEmpty) {
           await _syncBookingLines(
             dio,
-            created.id!,
+            idReservaCreada,
             reserva.lines,
             cache: _linesCache,
           );
@@ -515,16 +652,45 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
 
         if (reserva.status != WorkflowStatus.pendiente) {
           await dio.patch(
-            '/booking/${created.id}',
+            '/booking/$idReservaCreada',
             data: {'statusId': _statusIdFrom(reserva.status)},
           );
         }
       }
 
       ref.invalidateSelf();
+      ref.invalidate(user_providers.usuariosProvider);
       return created;
     } on DioException catch (e) {
+      if (idReservaCreada != null) {
+        try {
+          await ref.read(dioProvider).delete('/booking/$idReservaCreada');
+        } catch (_) {}
+      }
+
+      // 🌟 Sincronizamos la UI con la realidad del backend incluso en caso de error
+      // para evitar que aparezcan "fantasmas" más tarde si el rollback falla.
+      ref.invalidateSelf();
+
+      final String errorTexto = e.response?.toString() ?? e.message ?? e.toString();
+      if (errorTexto.contains("48h") || errorTexto.contains("mínim de 48h") || errorTexto.contains("material")) {
+        throw 'Las reservas de material se deben realizar con un mínimo de 48h de antelación.';
+      }
+
       throw parseDioError(e);
+    } catch (e) {
+      if (idReservaCreada != null) {
+        try {
+          await ref.read(dioProvider).delete('/booking/$idReservaCreada');
+        } catch (_) {}
+      }
+      ref.invalidateSelf();
+      
+      final String txt = e.toString();
+      if (txt.contains("48h") || txt.contains("mínim de 48h") || txt.contains("material")) {
+        throw 'Las reservas de material se deben realizar con un mínimo de 48h de antelación.';
+      }
+      rethrow;
     }
   }
 
@@ -574,13 +740,6 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
       status: WorkflowStatus.confirmada,
     );
     await actualizar(reserva, aprobada);
-  }
-
-  Future<void> rechazar(Booking reserva) async {
-    final Booking rechazada = reserva.copyWith(
-      status: WorkflowStatus.cancelada,
-    );
-    await actualizar(reserva, rechazada);
   }
 
   Future<void> cancelar(Booking reserva) async {

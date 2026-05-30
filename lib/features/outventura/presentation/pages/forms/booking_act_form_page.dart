@@ -85,7 +85,7 @@ class _BookingActFormPageState extends ConsumerState<BookingActFormPage> {
     final List<Activity> actividades =
         ref.watch(activitiesProvider).value ?? [];
     final List<Equipment> equipamientos =
-        ref.watch(equipmentProvider).value ?? [];
+        ref.watch(allEquipmentProvider);
     final bool modoCliente = widget.initialIdUsuario != null;
 
     final List<User> todosLosUsuarios = ref.watch(usuariosProvider).value ?? [];

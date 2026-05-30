@@ -18,14 +18,19 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/presentation/controllers/activity_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 
-// 🌟 IMPORTAMOS EL MODELO GUIDE Y SU PROVEEDOR (Verifica si la ruta es exacta)
+// 🌟 IMPORTAMOS EL MODELO GUIDE Y SU PROVEEDOR
 import 'package:outventura/features/auth/domain/entities/guide.dart';
 import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 
 class ActivityFormPage extends ConsumerStatefulWidget {
   final Activity? actividad;
+  final bool puedeGestionar; // 🌟 Controla si es modo edición/creación o modo lectura/solicitud
 
-  const ActivityFormPage({super.key, this.actividad});
+  const ActivityFormPage({
+    super.key, 
+    this.actividad,
+    this.puedeGestionar = true, // Por defecto true
+  });
 
   @override
   ConsumerState<ActivityFormPage> createState() => _ActivityFormPageState();
@@ -48,8 +53,8 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
         final usuarioLogueado = ref.read(currentUserProvider);
         if (usuarioLogueado?.role.code == 'GUIDE') {
           setState(() {
-            final dynamic user = usuarioLogueado;
-            _controller.guideId = user.id_guide ?? user.guideId;
+            final guide = ref.read(guidesProvider).value?.where((g) => g.userId == usuarioLogueado!.id).firstOrNull;
+            _controller.guideId = guide?.id;
           });
         }
       });
@@ -71,18 +76,18 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
     final usuarioActual = ref.watch(currentUserProvider);
     final bool isGuide = usuarioActual?.role.code == 'GUIDE';
 
-    final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+    final List<Equipment> equipamientos = ref.watch(allEquipmentProvider);
     
     // 🌟 LEEMOS LA LISTA TIPADA DESDE EL BACKEND
     final AsyncValue<List<Guide>> guidesAsync = ref.watch(guidesProvider);
     final List<Guide> todosLosGuias = guidesAsync.value ?? [];
 
-    // 🌟 FILTRAMOS GUÍAS ACTIVOS (Aquí desaparecen los inactivos como Carlos)
+    // 🌟 FILTRAMOS GUÍAS ACTIVOS
     final List<Guide> guiasActivos = todosLosGuias.where((g) => g.user?.active == true).toList();
 
-    // 🌟 INYECCIÓN HISTÓRICA: Si el guía original ya está inactivo, lo inyectamos igual para no romper la vista al editar
+    // 🌟 INYECCIÓN HISTÓRICA
     final List<Guide> itemsDropdownGuias = [...guiasActivos];
-    if (_controller.editando && _controller.guideId != null) {
+    if (_controller.guideId != null) {
       final Guide? guiaSeleccionado = todosLosGuias.where((g) => g.id == _controller.guideId).firstOrNull;
       if (guiaSeleccionado != null && !itemsDropdownGuias.any((g) => g.id == guiaSeleccionado.id)) {
         itemsDropdownGuias.add(guiaSeleccionado);
@@ -110,11 +115,11 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 imageUrl: _controller.imagenAsset,
                 isAsset: true,
                 placeholder: Icons.hiking_outlined,
-                onChanged: (String? nuevaRuta) {
+                onChanged: widget.puedeGestionar ? (String? nuevaRuta) {
                   setState(() {
                     _controller.imagenAsset = nuevaRuta;
                   });
-                },
+                } : null,
               ),
               const SizedBox(height: 20),
 
@@ -128,6 +133,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 controller: _controller.tituloController,
                 labelText: "s.title", // TODO: hardcodeado
                 prefixIcon: Icons.title,
+                enabled: widget.puedeGestionar,
                 validator: ValidadoresFormulario.campoObligatorio(s),
               ),
               const SizedBox(height: 14),
@@ -136,6 +142,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 controller: _controller.puntoInicioFinController,
                 labelText: s.startPoint,
                 prefixIcon: Icons.place_outlined,
+                enabled: widget.puedeGestionar,
               ),
               const SizedBox(height: 14),
 
@@ -144,11 +151,10 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 labelText: s.descriptionOptional,
                 prefixIcon: Icons.notes_outlined,
                 keyboardType: TextInputType.multiline,
+                enabled: widget.puedeGestionar,
               ),
               const SizedBox(height: 14),
 
-              if (!isGuide) ...[
-                // 🌟 DROPDOWN LIMPIO Y SEGURO TIPADO A <Guide>
                 AppDropdownField<Guide>(
                   value: _controller.guideId,
                   items: itemsDropdownGuias,
@@ -157,6 +163,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                   prefixIcon: Icons.person_outline,
                   label: 'Guía Asignado', // TODO: hardcodeado
                   hint: 'Selecciona un guía obligatorio', // TODO: hardcodeado
+                  enabled: widget.puedeGestionar && !isGuide,
                   onChanged: (dynamic nuevoId) {
                     setState(() {
                       _controller.guideId = nuevoId as int?;
@@ -167,96 +174,97 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       : null,
                 ),
                 const SizedBox(height: 20),
-              ],
 
               Text(
                 s.datesSection.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: AppDateSelector(
-                      label: s.start,
-                      date: _controller.fechaInicio,
-                      firstDate:
-                          _controller.editando &&
-                              _controller.fechaInicio.isBefore(DateTime.now())
-                          ? DateTime(
-                              _controller.fechaInicio.year,
-                              _controller.fechaInicio.month,
-                              _controller.fechaInicio.day,
-                            )
-                          : DateTime.now(),
-                      lastDate: DateTime.now().add(
-                        const Duration(days: 365 * 2),
+              
+              // 🌟 ENVOLVEMOS LAS FECHAS EN UN IGNOREPOINTER SI NO SE PUEDE GESTIONAR
+              IgnorePointer(
+                ignoring: !widget.puedeGestionar,
+                child: Opacity(
+                  opacity: widget.puedeGestionar ? 1.0 : 0.7, // Sutil efecto visual de lectura
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: AppDateSelector(
+                          label: s.start,
+                          date: _controller.fechaInicio,
+                          firstDate: _controller.editando &&
+                                  _controller.fechaInicio.isBefore(DateTime.now())
+                              ? DateTime(
+                                  _controller.fechaInicio.year,
+                                  _controller.fechaInicio.month,
+                                  _controller.fechaInicio.day,
+                                )
+                              : DateTime.now(),
+                          lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                          onDateSelected: (DateTime picked) {
+                            setState(() {
+                              _controller.establecerFecha(isStart: true, value: picked);
+                              _errorTiempo = null;
+                            });
+                          },
+                        ),
                       ),
-                      onDateSelected: (DateTime picked) {
-                        setState(() {
-                          _controller.establecerFecha(
-                            isStart: true,
-                            value: picked,
-                          );
-                          _errorTiempo =
-                              null; // Limpia el error al cambiar datos
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: AppDateSelector(
-                      label: s.end,
-                      date: _controller.fechaFin,
-                      firstDate: _controller.fechaInicio,
-                      lastDate: DateTime.now().add(
-                        const Duration(days: 365 * 2),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AppDateSelector(
+                          label: s.end,
+                          date: _controller.fechaFin,
+                          firstDate: _controller.fechaInicio,
+                          lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                          onDateSelected: (DateTime picked) {
+                            setState(() {
+                              _controller.establecerFecha(isStart: false, value: picked);
+                              _errorTiempo = null;
+                            });
+                          },
+                        ),
                       ),
-                      onDateSelected: (DateTime picked) {
-                        setState(() {
-                          _controller.establecerFecha(
-                            isStart: false,
-                            value: picked,
-                          );
-                          _errorTiempo =
-                              null; // Limpia el error al cambiar datos
-                        });
-                      },
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
               const SizedBox(height: 12),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: AppTimeSelector(
-                      label: s.startTime,
-                      time: _controller.horaInicio,
-                      onTimeSelected: (TimeOfDay picked) {
-                        setState(() {
-                          _controller.horaInicio = picked;
-                          _errorTiempo = null;
-                        });
-                      },
-                    ),
+              // 🌟 ENVOLVEMOS LAS HORAS EN UN IGNOREPOINTER SI NO SE PUEDE GESTIONAR
+              IgnorePointer(
+                ignoring: !widget.puedeGestionar,
+                child: Opacity(
+                  opacity: widget.puedeGestionar ? 1.0 : 0.7,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: AppTimeSelector(
+                          label: s.startTime,
+                          time: _controller.horaInicio,
+                          onTimeSelected: (TimeOfDay picked) {
+                            setState(() {
+                              _controller.horaInicio = picked;
+                              _errorTiempo = null;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AppTimeSelector(
+                          label: s.endTime,
+                          time: _controller.horaFin,
+                          onTimeSelected: (TimeOfDay picked) {
+                            setState(() {
+                              _controller.horaFin = picked;
+                              _errorTiempo = null;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: AppTimeSelector(
-                      label: s.endTime,
-                      time: _controller.horaFin,
-                      onTimeSelected: (TimeOfDay picked) {
-                        setState(() {
-                          _controller.horaFin = picked;
-                          _errorTiempo = null;
-                        });
-                      },
-                    ),
-                  ),
-                ],
+                ),
               ),
 
               if (_errorTiempo != null)
@@ -270,7 +278,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                     ),
                   ),
                 ),
-
+                
               const SizedBox(height: 20),
 
               CustomInputField(
@@ -278,6 +286,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 labelText: s.maxParticipants,
                 prefixIcon: Icons.group_outlined,
                 keyboardType: TextInputType.number,
+                enabled: widget.puedeGestionar,
                 validator: ValidadoresFormulario.enteroMayorQueCero(s),
               ),
               const SizedBox(height: 20),
@@ -288,17 +297,21 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 8),
 
-              AppFilterChipFormField(
-                seleccionados: _controller.categories,
-                onToggle: (Category cat) {
-                  setState(() => _controller.alternarCategoria(cat));
-                },
-                validator: (List<Category>? v) {
-                  return ValidadoresFormulario.listaRequerida(
-                    v,
-                    s.selectCategory,
-                  );
-                },
+              // 🌟 ENVOLVEMOS LAS CATEGORÍAS EN UN IGNOREPOINTER SI NO SE PUEDE GESTIONAR
+              IgnorePointer(
+                ignoring: !widget.puedeGestionar,
+                child: Opacity(
+                  opacity: widget.puedeGestionar ? 1.0 : 0.8,
+                  child: AppFilterChipFormField(
+                    seleccionados: _controller.categories,
+                    onToggle: (Category cat) {
+                      setState(() => _controller.alternarCategoria(cat));
+                    },
+                    validator: (List<Category>? v) {
+                      return ValidadoresFormulario.listaRequerida(v, s.selectCategory);
+                    },
+                  ),
+                ),
               ),
               const SizedBox(height: 32),
 
@@ -309,24 +322,25 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                     s.recommendedMaterial.toUpperCase(),
                     style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
-                  TertiaryButton(
-                    label: s.addLine,
-                    icon: Icons.add,
-                    onPressed: () async {
-                      final Map<int, int>? resultadoModal =
-                          await showEquipmentSearchModal(
-                            context: context,
-                            equipments: equipamientos,
-                            initialSelected: _controller.materialesRecomendados,
-                          );
+                  if (widget.puedeGestionar)
+                    TertiaryButton(
+                      label: s.addLine,
+                      icon: Icons.add,
+                      onPressed: () async {
+                        final Map<int, int>? resultadoModal =
+                            await showEquipmentSearchModal(
+                              context: context,
+                              equipments: equipamientos,
+                              initialSelected: _controller.materialesRecomendados,
+                            );
 
-                      if (resultadoModal != null) {
-                        setState(() {
-                          _controller.materialesRecomendados = resultadoModal;
-                        });
-                      }
-                    },
-                  ),
+                        if (resultadoModal != null) {
+                          setState(() {
+                            _controller.materialesRecomendados = resultadoModal;
+                          });
+                        }
+                      },
+                    ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -334,10 +348,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               if (_controller.materialesRecomendados.isEmpty)
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 14,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
@@ -347,17 +358,11 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.inventory_2_outlined,
-                        size: 18,
-                        color: cs.primary.withValues(alpha: 0.5),
-                      ),
+                      Icon(Icons.inventory_2_outlined, size: 18, color: cs.primary.withValues(alpha: 0.5)),
                       const SizedBox(width: 8),
                       Text(
                         'No hay material recomendado seleccionado', // TODO: hardcodeado
-                        style: tt.labelMedium?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
+                        style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -366,19 +371,12 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: _controller.materialesRecomendados.keys.map((
-                    idEquip,
-                  ) {
-                    final Equipment? item = equipamientos
-                        .where((e) => e.id == idEquip)
-                        .firstOrNull;
+                  children: _controller.materialesRecomendados.keys.map((idEquip) {
+                    final Equipment? item = equipamientos.where((e) => e.id == idEquip).firstOrNull;
                     if (item == null) return const SizedBox.shrink();
 
                     return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
                         color: cs.primary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(16),
@@ -390,32 +388,25 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.inventory_2_outlined,
-                            size: 16,
-                            color: cs.primary,
-                          ),
+                          Icon(Icons.inventory_2_outlined, size: 16, color: cs.primary),
                           const SizedBox(width: 8),
                           Text(
                             item.title,
-                            style: tt.labelMedium?.copyWith(
-                              color: cs.onSurface,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: tt.labelMedium?.copyWith(color: cs.onSurface, fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () => setState(() {
-                              _controller.materialesRecomendados.remove(
-                                idEquip,
-                              );
-                            }),
-                            child: Icon(
-                              Icons.cancel_rounded,
-                              size: 16,
-                              color: cs.error.withValues(alpha: 0.7),
+                          if (widget.puedeGestionar) ...[
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () => setState(() {
+                                _controller.materialesRecomendados.remove(idEquip);
+                              }),
+                              child: Icon(
+                                Icons.cancel_rounded,
+                                size: 16,
+                                color: cs.error.withValues(alpha: 0.7),
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     );
@@ -424,47 +415,46 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
 
               const SizedBox(height: 32),
 
-              SizedBox(
-                width: double.infinity,
-                child: PrimaryButton(
-                  label: _controller.editando ? s.save : s.create,
-                  onPressed: () {
-                    if (!_controller.validar()) {
-                      return;
-                    }
+              if (widget.puedeGestionar)
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    label: _controller.editando ? s.save : s.create,
+                    onPressed: () {
+                      if (!_controller.validar()) {
+                        return;
+                      }
 
-                    // Fusión cronológica estricta (Fecha + Hora)
-                    final DateTime inicioCompleto = DateTime(
-                      _controller.fechaInicio.year,
-                      _controller.fechaInicio.month,
-                      _controller.fechaInicio.day,
-                      _controller.horaInicio.hour,
-                      _controller.horaInicio.minute,
-                    );
+                      final DateTime inicioCompleto = DateTime(
+                        _controller.fechaInicio.year,
+                        _controller.fechaInicio.month,
+                        _controller.fechaInicio.day,
+                        _controller.horaInicio.hour,
+                        _controller.horaInicio.minute,
+                      );
 
-                    final DateTime finCompleto = DateTime(
-                      _controller.fechaFin.year,
-                      _controller.fechaFin.month,
-                      _controller.fechaFin.day,
-                      _controller.horaFin.hour,
-                      _controller.horaFin.minute,
-                    );
+                      final DateTime finCompleto = DateTime(
+                        _controller.fechaFin.year,
+                        _controller.fechaFin.month,
+                        _controller.fechaFin.day,
+                        _controller.horaFin.hour,
+                        _controller.horaFin.minute,
+                      );
 
-                    if (finCompleto.isBefore(inicioCompleto)) {
-                      setState(() {
-                        _errorTiempo =
-                            'La hora de fin no puede ser anterior a la de inicio'; // TODO: hardcodeado
-                      });
-                      return;
-                    }
+                      if (finCompleto.isBefore(inicioCompleto)) {
+                        setState(() {
+                          _errorTiempo = 'La hora de fin no puede ser anterior a la de inicio'; // TODO: hardcodeado
+                        });
+                        return;
+                      }
 
-                    setState(() => _errorTiempo = null);
+                      setState(() => _errorTiempo = null);
 
-                    final Activity actividad = _controller.construirActividad();
-                    Navigator.of(context).pop(actividad);
-                  },
+                      final Activity actividad = _controller.construirActividad();
+                      Navigator.of(context).pop(actividad);
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         ),

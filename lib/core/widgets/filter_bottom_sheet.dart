@@ -21,8 +21,9 @@ class FilterChipSpec {
 class FilterGrupo {
   final String titulo;
   final List<FilterChipSpec> chips;
+  final bool useErrorColor;
 
-  const FilterGrupo({required this.titulo, required this.chips});
+  const FilterGrupo({required this.titulo, required this.chips, this.useErrorColor = false});
 }
 
 // Panel de filtros 
@@ -108,8 +109,8 @@ class FilterBottomSheetContent extends StatelessWidget {
                       label: spec.label,
                       seleccionado: spec.seleccionado,
                       onSelected: (_) => spec.onToggle(),
-                      selectedBorderColor: grupo == grupos.first ? cs.secondary : cs.tertiary,
-                      selectedColor: grupo == grupos.first ? cs.secondary : cs.tertiary,
+                      selectedBorderColor: grupo.useErrorColor ? cs.error : (grupo == grupos.first ? cs.secondary : cs.tertiary),
+                      selectedColor: grupo.useErrorColor ? cs.error : (grupo == grupos.first ? cs.secondary : cs.tertiary),
                     ),
                   )
                   .toList(),

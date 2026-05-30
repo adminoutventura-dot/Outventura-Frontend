@@ -14,7 +14,10 @@ import 'package:outventura/features/outventura/services/resolvers.dart';
 // int -> Parámetro que recibe
 final userNameProvider = Provider.family<String, int>((ref, id) {
   final List<User> usuarios = ref.watch(usuariosProvider).value ?? [];
-  return resolverNombreUsuario(id, usuarios);
+      final List<User> expertos = ref.watch(expertsProvider).value ?? [];
+      final List<User> clientes = ref.watch(clientesProvider).value ?? [];
+      final List<User> combined = [...usuarios, ...expertos, ...clientes];
+      return resolverNombreUsuario(id, combined);
 });
 
 // Resuelve el nombre de una actividad por su ID.

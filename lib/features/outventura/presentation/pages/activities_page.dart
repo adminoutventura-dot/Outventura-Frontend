@@ -4,6 +4,7 @@ import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
+import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/activities_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
@@ -39,6 +40,22 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
   final ActivitiesPageController _controller = ActivitiesPageController();
 
   @override
+  void initState() {
+    super.initState();
+    // Aplicar filtro por guía si es necesario
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final usuarioActual = ref.read(currentUserProvider);
+      final bool isGuide = usuarioActual?.role.code == 'GUIDE';
+      if (isGuide && widget.puedeGestionar) {
+        final guide = ref.read(guidesProvider).value?.where((g) => g.userId == usuarioActual!.id).firstOrNull;
+        if (guide != null) {
+          ref.read(activitiesProvider.notifier).aplicarFiltrosAvanzados(guideId: guide.id);
+        }
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _search.dispose();
     super.dispose();
@@ -56,6 +73,8 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
         usuarioActual == null ||
         usuarioActual.role.code == 'INVITADO' ||
         usuarioActual.role.code == 'GUEST';
+
+    final guide = isGuide ? ref.watch(guidesProvider).value?.where((g) => g.userId == usuarioActual!.id).firstOrNull : null;
 
     final actividadesAsync = ref.watch(activitiesProvider);
 
@@ -94,8 +113,8 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
           ),
         ],
       ),
-      drawer: const AppDrawer(),
-      floatingActionButton: (widget.puedeGestionar && !isGuide)
+      drawer: widget.puedeGestionar ? null : const AppDrawer(),
+      floatingActionButton: widget.puedeGestionar
           ? Padding(
               padding: const EdgeInsets.only(bottom: 100.0),
               child: AddFab(
@@ -145,8 +164,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
           ),
 
           // PAGINACIÓN COMPACTA < 1 / 2 >
-          if (totalPages > 1)
-            Padding(
+          Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -191,17 +209,18 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
             child: actividadesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text(s.error(error.toString()))),
-              data: (List<Activity> lista) => ListView.separated(
-                padding: EdgeInsets.fromLTRB(
-                  12,
-                  6,
-                  12,
-                  MediaQuery.of(context).padding.bottom + 100,
-                ),
-                itemCount: lista.isEmpty ? 1 : lista.length,
+              data: (List<Activity> listaOriginal) {
+                return ListView.separated(
+                  padding: EdgeInsets.fromLTRB(
+                    12,
+                    6,
+                    12,
+                    MediaQuery.of(context).padding.bottom + 100,
+                  ),
+                  itemCount: listaOriginal.isEmpty ? 1 : listaOriginal.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (BuildContext context, int index) {
-                  if (lista.isEmpty) {
+                  if (listaOriginal.isEmpty) {
                     return Center(
                       child: Text(
                         s.noActividadesParaCategoria,
@@ -211,7 +230,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                       ),
                     );
                   }
-                  final Activity actividad = lista[index];
+                  final Activity actividad = listaOriginal[index];
                   return ActivityCard(
                     actividad: actividad,
                     onVerDetalle: () {
@@ -220,8 +239,8 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                           builder: (_) => ActivityDetailPage(actividad: actividad),
                         ),
                       );
-                    },
-                    onEditar: (widget.puedeGestionar && !isGuide)
+                      },
+                    onEditar: (widget.puedeGestionar && (!isGuide || actividad.guideId == guide?.id))
                         ? () async {
                             final Activity? actualizada = await Navigator.of(context).push<Activity>(
                               MaterialPageRoute(
@@ -239,7 +258,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                             }
                           }
                         : null,
-                    onEliminar: (widget.puedeGestionar && !isGuide)
+                    onEliminar: (widget.puedeGestionar && (!isGuide || actividad.guideId == guide?.id))
                         ? () async {
                             final bool confirm = await showConfirmDialog(
                               context: context,
@@ -258,7 +277,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                             }
                           }
                         : null,
-                    onSolicitar: (widget.puedeSolicitar && !isGuide)
+                    onSolicitar: widget.puedeSolicitar
                         ? () async {
                             if (isGuest) {
                               showErrorSnackBar(context, 'Necesitas iniciar sesión para apuntarte a una excursión.');
@@ -283,13 +302,29 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                               showSuccessSnackBar(context, 'Reserva realizada con éxito');
                             } catch (e) {
                               if (!context.mounted) return;
-                              showErrorSnackBar(context, s.error(e.toString()));
+                              
+                              // 🌟 EXTRACTOR ULTRA-SEGURO PARA FORZAR EL ERROR EN PANTALLA
+                              String mensajeError = 'Error desconocido al realizar la reserva';
+                              
+                              try {
+                                final dynamic errorDinamico = e;
+                                // Comprobamos si el objeto de error tiene una propiedad 'message' o 'msg'
+                                mensajeError = errorDinamico.message ?? errorDinamico.msg ?? e.toString();
+                              } catch (_) {
+                                mensajeError = e.toString();
+                              }
+
+                              // Imprimimos también en la consola de VS Code para que lo veas mientras programas
+                              print('🚨 ERROR CAPTURADO EN UI: $e');
+
+                              showErrorSnackBar(context, mensajeError);
                             }
                           }
                         : null,
                   );
                 },
-              ),
+              );
+            },
             ),
           ),
         ],

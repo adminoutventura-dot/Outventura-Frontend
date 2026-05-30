@@ -30,6 +30,8 @@ class HomeAdminPage extends ConsumerWidget {
     final currentUser = ref.watch(currentUserProvider);
     final String adminName = currentUser?.name ?? '';
     final bool isGuide = currentUser?.role.code == 'GUIDE';
+    final bool isAdmin = currentUser?.role.code == 'ADMIN';
+    final bool isSuper = currentUser?.role.code == 'SUPER';
 
     final reservas = ref.watch(reservationsProvider).value ?? [];
     final dashboardStatsAsync = ref.watch(adminDashboardStatsProvider);
@@ -96,32 +98,64 @@ class HomeAdminPage extends ConsumerWidget {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (!isGuide) ...[
-                                Expanded(
-                                  child: HomeQuickActionButton(
-                                    label: s.usersTitle,
-                                    onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => const UsersPage(),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Container(width: 1, color: cs.surface),
-                              ],
                               Expanded(
                                 child: HomeQuickActionButton(
-                                  label: s.reservationsTitle,
+                                  label: 'Mis Solicitudes',
                                   onTap: () => Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (_) => const ReservationsPage(
-                                        puedeGestionar: true,
+                                        puedeGestionar: false,
                                         puedeCrear: true,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
+                              Container(width: 1, color: cs.surface),
+                              Expanded(
+                                child: HomeQuickActionButton(
+                                  label: 'Mis Reservas',
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const ReservationsPage(
+                                        puedeGestionar: false,
+                                        puedeCrear: true,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (isGuide) ...[
+                                Container(width: 1, color: cs.surface),
+                                Expanded(
+                                  child: HomeQuickActionButton(
+                                    label: 'Mis Trabajos',
+                                    onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const ReservationsPage(
+                                          puedeGestionar: true,
+                                          puedeCrear: true,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              if (!isGuide) ...[
+                                Container(width: 1, color: cs.surface),
+                                Expanded(
+                                  child: HomeQuickActionButton(
+                                    label: s.usersTitle,
+                                    onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => UsersPage(
+                                          soloGuiasOInferior: isAdmin,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),

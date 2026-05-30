@@ -37,6 +37,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   Category? _categoria;
   DateTime? _fechaDesde;
   DateTime? _fechaHasta;
+  int? _guideId; // Filtro por guía
 
   @override
   Future<List<Activity>> build() async {
@@ -64,6 +65,11 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   /// Filtra sobre el 100% de los datos y luego los pagina cada 3
   List<Activity> _procesarFiltrosYPaginas() {
     List<Activity> resultado = _allActivities;
+
+    // Filtro por Guía (se aplica antes de la paginación)
+    if (_guideId != null) {
+      resultado = resultado.where((act) => act.guideId == _guideId).toList();
+    }
 
     // Filtro por Categoría (Compara de forma segura por código o ID)
     if (_categoria != null) {
@@ -127,11 +133,13 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     Category? categoria,
     DateTime? fechaDesde,
     DateTime? fechaHasta,
+    int? guideId,
   }) {
     _categoria = categoria;
     _fechaDesde = fechaDesde;
     _fechaHasta = fechaHasta;
-    currentPage = 1; 
+    _guideId = guideId;
+    currentPage = 1;
     state = AsyncData(_procesarFiltrosYPaginas());
   }
 

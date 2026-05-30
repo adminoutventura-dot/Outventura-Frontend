@@ -3,7 +3,6 @@ import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/booking_mat_form_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
@@ -146,8 +145,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
           ),
 
           // Paginación Reactiva < 1 / X >
-          if (totalPages > 1)
-            Padding(
+          Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -259,7 +257,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             }
                           }
                         : null,
-                    onAlquilar: (widget.puedeSolicitar && !isGuide)
+                    onAlquilar: widget.puedeSolicitar
                         ? () async {
                             if (isGuest) {
                               showErrorSnackBar(

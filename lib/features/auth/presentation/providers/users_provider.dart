@@ -42,9 +42,68 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
   Future<List<User>> build() async {
     try {
       final dio = ref.read(dioProvider);
-      final response = await dio.get('/user');
-      final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((e) => UserModel.fromMap(e as Map<String, dynamic>)).toList();
+      
+      // Cargar usuarios generales
+      List<dynamic> dataUsers = [];
+      try {
+        final responseUsers = await dio.get(
+          '/user',
+          queryParameters: {'limit': 99999, 'page': 1},
+        );
+        dataUsers = responseUsers.data is List
+            ? responseUsers.data as List<dynamic>
+            : (responseUsers.data['data'] as List<dynamic>? ?? []);
+      } catch (e) {
+        print('⚠️ Error cargando usuarios: $e');
+      }
+      
+      // Cargar clientes
+      List<dynamic> dataClients = [];
+      try {
+        final responseClients = await dio.get('/user/clients');
+        dataClients = responseClients.data is List
+            ? responseClients.data as List<dynamic>
+            : (responseClients.data['data'] as List<dynamic>? ?? []);
+      } catch (e) {
+        print('⚠️ Error cargando usuarios: $e');
+      }
+      
+      // Cargar expertos
+      List<dynamic> dataExperts = [];
+      try {
+        final responseExperts = await dio.get('/user/experts');
+        dataExperts = responseExperts.data is List
+            ? responseExperts.data as List<dynamic>
+            : (responseExperts.data['data'] as List<dynamic>? ?? []);
+      } catch (e) {
+        print('⚠️ Error cargando usuarios: $e');
+      }
+      
+      // Combinar todas las listas eliminando duplicados por ID
+      final Map<int, User> usuariosMap = {};
+      
+      for (var e in dataUsers) {
+        final user = UserModel.fromMap(e as Map<String, dynamic>);
+        if (user.id != null) {
+          usuariosMap[user.id!] = user;
+        }
+      }
+      
+      for (var e in dataClients) {
+        final user = UserModel.fromMap(e as Map<String, dynamic>);
+        if (user.id != null) {
+          usuariosMap[user.id!] = user;
+        }
+      }
+      
+      for (var e in dataExperts) {
+        final user = UserModel.fromMap(e as Map<String, dynamic>);
+        if (user.id != null) {
+          usuariosMap[user.id!] = user;
+        }
+      }
+      
+      return usuariosMap.values.toList();
     } on DioException catch (e) {
       throw parseDioError(e);
     }

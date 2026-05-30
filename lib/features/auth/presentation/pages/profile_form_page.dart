@@ -4,6 +4,7 @@ import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
+import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/controllers/user_form_controller.dart';
@@ -40,15 +41,27 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
       return;
     }
     final User usuarioActualizado = _controller.construirUsuario();
-    
-    final String? nuevaPassword = _loginController.passwordController.text.isNotEmpty 
-        ? _loginController.passwordController.text 
+
+    final String? nuevaPassword = _loginController.passwordController.text.isNotEmpty
+        ? _loginController.passwordController.text
         : null;
 
     Navigator.of(context).pop(<String, dynamic>{
       'usuario': usuarioActualizado,
       'password': nuevaPassword,
     });
+  }
+
+  void _mostrarDialogoDesactivar() async {
+    final bool confirmar = await showConfirmDialog(
+      context: context,
+      title: 'Desactivar cuenta',
+      content: '¿Estás seguro de que quieres desactivar tu cuenta?',
+      confirmLabel: 'Desactivar',
+    );
+    if (confirmar && mounted) {
+      Navigator.of(context).pop({'desactivar': true});
+    }
   }
 
   @override
@@ -168,6 +181,18 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                   onPressed: _submit,
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // Botón Desactivar cuenta
+              if (widget.usuario.active)
+                SizedBox(
+                  width: double.infinity,
+                  child: SecondaryButton(
+                    label: 'Desactivar cuenta',
+                    onPressed: () => _mostrarDialogoDesactivar(),
+                    borderColor: cs.error,
+                  ),
+                ),
             ],
           ),
         ),

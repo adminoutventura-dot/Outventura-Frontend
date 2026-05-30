@@ -5,11 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/domain/entities/guide.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/presentation/controllers/users_page_controller.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/user_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/user_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
@@ -17,7 +20,9 @@ import 'package:outventura/features/outventura/presentation/widgets/user_card.da
 import 'package:outventura/core/widgets/confirm_dialog.dart';
 
 class UsersPage extends ConsumerStatefulWidget {
-  const UsersPage({super.key});
+  final bool soloGuiasOInferior;
+
+  const UsersPage({super.key, this.soloGuiasOInferior = false});
 
   @override
   ConsumerState<UsersPage> createState() => _UsersPageState();
@@ -38,7 +43,18 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final AppLocalizations s = AppLocalizations.of(context)!;
-    
+    final usuarioActual = ref.watch(currentUserProvider);
+    final String? currentRole = usuarioActual?.role.code;
+
+    // Si soloGuiasOInferior es true, preseleccionar el filtro de rol a GUIDE
+    if (widget.soloGuiasOInferior && _controller.rolFiltro == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _controller.rolFiltro = UserRole.guia;
+        });
+      });
+    }
+
     // Escucha la lista de usuarios filtrada según el texto de búsqueda, rol y estado activo.
     final AsyncValue<List<User>> filtrados = ref.watch(usuariosFiltradosProvider((
       query: _search.query,
@@ -149,11 +165,38 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                     );
                   }
 
+                  final User targetUser = usuarios[index];
+                  final String targetRole = targetUser.role.code;
+                  final bool isSelf = targetUser.id == usuarioActual?.id;
+
+                  // Según el backend:
+                  // - SUPER: puede editar cualquier usuario excepto cambiar estado de otro SUPER
+                  // - ADMIN: no puede editar SUPER ni otros ADMIN (excepto sí mismo), no puede cambiar rol ni estado
+                  // - GUIDE y USER: solo pueden editar su propio perfil
+                  final bool puedeEditar = (currentRole == 'SUPER') ||
+                      (currentRole == 'ADMIN' && targetRole != 'SUPER' && (targetRole != 'ADMIN' || isSelf)) ||
+                      (isSelf && (currentRole == 'GUIDE' || currentRole == 'USER'));
+
+                  // Según el backend:
+                  // - USER y GUIDE: solo pueden desactivarse a sí mismos
+                  // - ADMIN: puede desactivarse a sí mismo + USER y GUIDE, pero no otros ADMIN ni SUPER
+                  // - SUPER: puede desactivar cualquier usuario excepto otros SUPER
+                  final bool puedeEliminar = (currentRole == 'SUPER' && (targetRole != 'SUPER' || isSelf)) ||
+                      (currentRole == 'ADMIN' && targetRole != 'SUPER' && targetRole != 'ADMIN') ||
+                      (isSelf && (currentRole == 'GUIDE' || currentRole == 'USER'));
+
                   return UserCard(
-                    usuario: usuarios[index],
-                    onEditar: () async {
+                    usuario: targetUser,
+                    onVerDetalle: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => UserDetailPage(user: targetUser),
+                        ),
+                      );
+                    },
+                    onEditar: puedeEditar ? () async {
                       // Busca la guía vinculada a este usuario si existe.
-                      final Guide? guiaActual = ref.read(guidesProvider.notifier).porUsuario(usuarios[index].id!);
+                      final Guide? guiaActual = ref.read(guidesProvider.notifier).porUsuario(targetUser.id!);
 
                       // Navega al formulario de edición pasando el usuario actual.
                       final Map<String, dynamic>? result =
@@ -161,7 +204,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                         context,
                         MaterialPageRoute(
                           builder: (BuildContext _) => UserFormPage(
-                            usuario: usuarios[index],
+                            usuario: targetUser,
                             guia: guiaActual,
                           ),
                         ),
@@ -175,13 +218,13 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                       final User actualizado = result['usuario'] as User;
                       final Map<String, dynamic>? guiaData = result['guia'] as Map<String, dynamic>?;
                       final String? passwordNueva = result['password'] as String?;
-                      
+
                       try {
                         // Actualiza el usuario en el estado global.
                         await ref.read(usuariosProvider.notifier).actualizar(
-                          usuarios[index], 
+                          targetUser,
                           actualizado,
-                          password: passwordNueva, 
+                          password: passwordNueva,
                         );
 
                         // Actualiza o crea el registro de guía.
@@ -213,33 +256,33 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
                       } catch (e) {
                         if (!context.mounted) return;
-                        showErrorSnackBar(context, e.toString()); 
+                        showErrorSnackBar(context, e.toString());
                       }
-                    },
-                    
-                    onEliminar: () async {
+                    } : null,
+
+                    onEliminar: puedeEliminar ? () async {
                       // Muestra un diálogo de confirmación antes de eliminar.
                       final bool confirmar = await showConfirmDialog(
                         context: context,
                         title: s.deleteUser,
-                        content: s.deleteUserConfirm('${usuarios[index].name} ${usuarios[index].surname}'),
+                        content: s.deleteUserConfirm('${targetUser.name} ${targetUser.surname}'),
                         confirmLabel: s.deleteUser,
                       );
 
                       try {
                         // Si el usuario no confirmó, no hace nada.
                         if (!confirmar || !context.mounted) return;
-                        
+
                         // Elimina el usuario del estado global.
-                        await ref.read(usuariosProvider.notifier).eliminar(usuarios[index]);
+                        await ref.read(usuariosProvider.notifier).eliminar(targetUser);
 
                         if (!context.mounted) return;
                         showSuccessSnackBar(context, s.userDeleted);
                       } catch (e) {
                         if (!context.mounted) return;
-                        showErrorSnackBar(context, e.toString()); 
+                        showErrorSnackBar(context, e.toString());
                       }
-                    },
+                    } : null,
                   );
                 },
               ),
