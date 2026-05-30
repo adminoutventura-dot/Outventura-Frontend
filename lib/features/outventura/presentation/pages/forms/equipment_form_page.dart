@@ -12,6 +12,11 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/presentation/controllers/equipment_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart'; 
 
+final guidesProvider = FutureProvider<List<dynamic>>((ref) async {
+  // Nota: Este provider venía del form anterior por si hiciese falta.
+  return [];
+});
+
 class EquipmentFormPage extends ConsumerStatefulWidget { 
   final Equipment? equipamiento;
 
@@ -116,14 +121,28 @@ class _EquipmentFormPageState extends ConsumerState<EquipmentFormPage> {
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 8),
+              
               AppChipWrap(
                 children: listaEstados.map((dynamic est) {
-                  final bool seleccionado = _controller.statusId == est.id;
+                  final int? idEstado = est['id_status'] as int?; // Cambiado 'id' por 'id_status'
+                  final String codeEstado = (est['code'] ?? '') as String; // Cambiado 'name' por 'code'
+                  
+                  String labelTraducido = codeEstado;
+                  if (codeEstado == 'AVAILABLE') labelTraducido = s.statusAvailable;
+                  if (codeEstado == 'OUT_OF_STOCK') labelTraducido = s.statusOutOfStock;
+                  if (codeEstado == 'MAINTENANCE') labelTraducido = s.statusMaintenance;
+                  if (codeEstado == 'OUT_OF_SERVICE') labelTraducido = s.statusOutOfService;
+                  if (codeEstado == 'DISCONTINUED') labelTraducido = 'Descatalogado';
+
+                  final bool seleccionado = _controller.statusId == idEstado;
+                  
                   return AppChoiceChip(
-                    label: est.name as String,
+                    label: labelTraducido,
                     seleccionado: seleccionado,
                     onPressed: () {
-                      setState(() => _controller.statusId = est.id as int);
+                      if (idEstado != null) {
+                        setState(() => _controller.statusId = idEstado);
+                      }
                     },
                   );
                 }).toList(),

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart'; 
+import 'package:outventura/core/utils/enum_translations.dart';
 import 'package:outventura/l10n/app_localizations.dart';
+import 'package:outventura/features/outventura/presentation/pages/equipment_detail_page.dart'; 
 import 'dart:convert';
 
 class EquipmentCard extends StatefulWidget {
@@ -30,26 +33,32 @@ class _EquipmentCardState extends State<EquipmentCard> {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    // Evalúa las propiedades en tiempo real mapeando contra los códigos String del Backend
     final String statusCode = widget.equipamiento.status?.code ?? 'AVAILABLE';
     final bool esAgotado =
         statusCode == 'AVAILABLE' && widget.equipamiento.availableUnits <= 0;
     final bool esMantenimiento = statusCode == 'MAINTENANCE';
     final bool esFueraServicio = statusCode == 'OUT_OF_SERVICE';
+    final bool esNoDisponible = statusCode == 'UNAVAILABLE';
+    final bool esDescatalogado = statusCode == 'DISCONTINUED';
 
-    // TODO: HARDCODEADO
     Color statusColor = cs.primary;
-    String labelTexto = "s.available";
+    String labelTexto = s.statusAvailable;
 
     if (esAgotado) {
       statusColor = cs.tertiary;
-      labelTexto = "s.outOfStock";
+      labelTexto = s.statusOutOfStock;
     } else if (esMantenimiento) {
       statusColor = cs.onSurfaceVariant;
-      labelTexto = "s.maintenance";
+      labelTexto = s.statusMaintenance;
     } else if (esFueraServicio) {
       statusColor = cs.error;
-      labelTexto = "s.outOfService";
+      labelTexto = s.statusOutOfService;
+    } else if (esNoDisponible) {
+      statusColor = cs.outline; 
+      labelTexto = 'No disponible temporalmente'; 
+    } else if (esDescatalogado) {
+      statusColor = cs.error.withValues(alpha: 0.6); 
+      labelTexto = 'Descatalogado'; 
     }
 
     final double stockPct = widget.equipamiento.totalUnits > 0
@@ -84,24 +93,39 @@ class _EquipmentCardState extends State<EquipmentCard> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: Text(
                             widget.equipamiento.title,
-                            style: tt.labelLarge?.copyWith(color: cs.onSurface),
+                            style: tt.labelLarge?.copyWith(color: cs.onSurface, fontWeight: FontWeight.bold),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
 
-                    TagWidget(
-                      text: labelTexto,
-                      backgroundColor: statusColor.withValues(alpha: 0.12),
-                      textColor: statusColor,
+                    Wrap(
+                      spacing: 5,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        TagWidget(
+                          text: labelTexto,
+                          backgroundColor: statusColor.withValues(alpha: 0.12),
+                          textColor: statusColor,
+                        ),
+                        
+                        ...widget.equipamiento.categories.map(
+                          (Category c) => TagWidget(
+                            text: c.localizedLabel(s),
+                            backgroundColor: cs.onSurfaceVariant.withValues(alpha: 0.12),
+                            textColor: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
 
                     if (widget.equipamiento.description != null) ...[
@@ -171,35 +195,53 @@ class _EquipmentCardState extends State<EquipmentCard> {
                           ),
                         ),
                         const SizedBox(width: 8),
+                        
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
+                            // Editar
                             if (widget.onEditar != null)
                               ActionIcon(
                                 icon: Icons.edit_outlined,
                                 color: cs.tertiary,
                                 onTap: widget.onEditar!,
                               ),
-                            if (widget.onEditar != null &&
-                                (widget.onEliminar != null ||
-                                    widget.onAlquilar != null))
-                              const SizedBox(width: 5),
+                              
+                            if (widget.onEditar != null && widget.onEliminar != null)
+                              const SizedBox(width: 6),
+                              
+                            // Eliminar
                             if (widget.onEliminar != null)
                               ActionIcon(
                                 icon: Icons.delete_outline,
                                 color: cs.error,
                                 onTap: widget.onEliminar!,
                               ),
-                            if (widget.onAlquilar != null &&
-                                statusCode == 'AVAILABLE' &&
-                                widget.equipamiento.availableUnits > 0) ...[
-                              if (widget.onEliminar != null)
-                                const SizedBox(width: 5),
+                              
+                            if ((widget.onEditar != null || widget.onEliminar != null) && widget.onAlquilar != null && statusCode == 'AVAILABLE' && widget.equipamiento.availableUnits > 0)
+                              const SizedBox(width: 6),
+                              
+                            if (widget.onAlquilar != null && statusCode == 'AVAILABLE' && widget.equipamiento.availableUnits > 0)
                               ActionIcon(
                                 icon: Icons.add_rounded,
                                 color: cs.primary,
                                 onTap: widget.onAlquilar!,
                               ),
-                            ],
+                              
+                            // 4. Espaciador final antes del detalle
+                            const SizedBox(width: 6),
+                            
+                            ActionIcon(
+                              icon: Icons.chevron_right_rounded,
+                              color: cs.onSurfaceVariant, // Color suave idéntico
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => EquipmentDetailPage(equipamiento: widget.equipamiento),
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ],
@@ -216,11 +258,11 @@ class _EquipmentCardState extends State<EquipmentCard> {
                 height: double.infinity,
                 child: imagen != null && imagen.isNotEmpty
                     ? (imagen.startsWith('assets/')
-                          ? Image.asset(imagen, fit: BoxFit.cover)
-                          : Image.memory(
-                              base64Decode(imagen),
-                              fit: BoxFit.cover,
-                            ))
+                        ? Image.asset(imagen, fit: BoxFit.cover)
+                        : Image.memory(
+                            base64Decode(imagen),
+                            fit: BoxFit.cover,
+                          ))
                     : DecoratedBox(
                         decoration: BoxDecoration(
                           color: cs.primaryContainer.withValues(alpha: 0.5),

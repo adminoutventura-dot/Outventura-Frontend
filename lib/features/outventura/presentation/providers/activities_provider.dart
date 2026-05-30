@@ -6,7 +6,7 @@ import 'package:outventura/features/outventura/data/models/activity_model.dart';
 import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 
-// Lista oficial de actividades que escucha tu pantalla
+// Lista oficial de actividades que escucha la pantalla
 final AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>
 activitiesProvider = AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>(
   ActivitiesNotifier.new,
@@ -128,7 +128,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
     state = AsyncData(_procesarFiltrosYPaginas());
   }
 
-  // Control de los botones de cambio de página de tu UI < 1 / X >
+  // Control de los botones de cambio de página < 1 / X >
   void cambiarPagina(int nuevaPagina) {
     if (nuevaPagina < 1 || nuevaPagina > totalPages || nuevaPagina == currentPage) {
       return;

@@ -112,7 +112,7 @@ class _EquipmentSearchModalState extends State<EquipmentSearchModal> {
                         return Container(
                           margin: const EdgeInsets.only(bottom: 8),
                           decoration: BoxDecoration(
-                            // Capa de color translúcido para el estado activo equivalente a tu dayPeriodColor
+                            // Capa de color translúcido
                             color: marcado 
                                 ? cs.primary.withValues(alpha: 0.12) 
                                 : cs.surface,

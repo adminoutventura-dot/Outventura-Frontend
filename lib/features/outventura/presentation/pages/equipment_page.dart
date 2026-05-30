@@ -51,20 +51,17 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
     final usuarioActual = ref.watch(currentUserProvider);
     final bool isGuide = usuarioActual?.role.code == 'GUIDE';
 
-    // COMPRUEBA SI ES INVITADO (o si el usuario es null)
     final bool isGuest =
         usuarioActual == null ||
         usuarioActual.role.code == 'INVITADO' ||
         usuarioActual.role.code == 'GUEST';
 
-    // Escucha los equipamientos filtrados según el estado del controlador.
-    final AsyncValue<List<Equipment>> equipamientosFiltrados = ref.watch(
-      filteredEquipmentProvider((
-        query: _search.query,
-        estado: _controller.estadoFiltro,
-        categoria: _controller.categoriaFiltro,
-      )),
-    );
+    // Escuchamos la lista ya filtrada por rol y paginada desde el Notifier
+    final AsyncValue<List<Equipment>> equipamientosAsync = ref.watch(equipmentProvider);
+
+    final equipmentNotifier = ref.read(equipmentProvider.notifier);
+    final int currentPage = equipmentNotifier.currentPage;
+    final int totalPages = equipmentNotifier.totalPages;
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -78,18 +75,24 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
               icon: const Icon(Icons.filter_list),
               tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
-              onPressed: () {
-                final estadosBack =
-                    ref.read(equipmentStatusesProvider).value ?? [];
+              onPressed: () async { 
+                final estadosBack = await ref.read(equipmentStatusesProvider.future);
+                
+                if (!context.mounted) return; 
 
-                _controller.mostrarFiltros(context, setState, estadosBack);
+                _controller.mostrarFiltros(context, (fn) {
+                  setState(fn);
+                  equipmentNotifier.aplicarFiltrosAvanzados(
+                    estado: _controller.estadoFiltro,
+                    categoria: _controller.categoriaFiltro,
+                  );
+                }, estadosBack);
               },
             ),
           ),
         ],
       ),
       drawer: const AppDrawer(),
-      // BLOQUEAMOS EL FAB SI ES GUÍA
       floatingActionButton: (widget.puedeGestionar && !isGuide)
           ? Padding(
               padding: const EdgeInsets.only(bottom: 100.0),
@@ -101,9 +104,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                           builder: (_) => const EquipmentFormPage(),
                         ),
                       );
-                  if (nuevo == null) {
-                    return;
-                  }
+                  if (nuevo == null) return;
 
                   try {
                     await ref.read(equipmentProvider.notifier).agregar(nuevo);
@@ -119,7 +120,6 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
           : null,
       body: Column(
         children: [
-          // Barra de búsqueda
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
             child: CustomInputField(
@@ -129,18 +129,63 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
               suffixIcon: _search.query.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
-                      onPressed: () => setState(_search.clear),
+                      onPressed: () => setState(() {
+                        _search.clear();
+                        equipmentNotifier.aplicarFiltroTexto('');
+                      }),
                     )
                   : null,
-              onChanged: (String v) => setState(() => _search.query = v),
+              onChanged: (String v) => setState(() {
+                _search.query = v;
+                equipmentNotifier.aplicarFiltroTexto(v);
+              }),
             ),
           ),
-          // Lista de materiales filtrados
+
+          // Paginación Reactiva < 1 / X >
+          if (totalPages > 1)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left, size: 28),
+                    color: currentPage > 1
+                        ? cs.primary
+                        : cs.onSurfaceVariant.withValues(alpha: 0.3),
+                    onPressed: currentPage > 1
+                        ? () => ref.read(equipmentProvider.notifier).cambiarPagina(currentPage - 1)
+                        : null,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Text(
+                      '$currentPage / $totalPages',
+                      style: tt.titleMedium?.copyWith(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right, size: 28),
+                    color: currentPage < totalPages
+                        ? cs.primary
+                        : cs.onSurfaceVariant.withValues(alpha: 0.3),
+                    onPressed: currentPage < totalPages
+                        ? () => ref.read(equipmentProvider.notifier).cambiarPagina(currentPage + 1)
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+
           Expanded(
-            child: equipamientosFiltrados.when(
+            child: equipamientosAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) =>
-                  Center(child: Text(s.error(error.toString()))),
+              error: (error, _) => Center(child: Text(s.error(error.toString()))),
               data: (List<Equipment> lista) => ListView.separated(
                 padding: EdgeInsets.fromLTRB(
                   12,
@@ -169,16 +214,13 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                         ? () async {
                             final Equipment? actualizado =
                                 await Navigator.of(context).push<Equipment>(
-                                  MaterialPageRoute(
-                                    builder: (BuildContext _) =>
-                                        EquipmentFormPage(
-                                          equipamiento: equipamiento,
-                                        ),
-                                  ),
-                                );
-                            if (actualizado == null) {
-                              return;
-                            }
+                              MaterialPageRoute(
+                                builder: (BuildContext _) => EquipmentFormPage(
+                                  equipamiento: equipamiento,
+                                ),
+                              ),
+                            );
+                            if (actualizado == null) return;
 
                             try {
                               await ref
@@ -197,10 +239,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             final bool confirm = await showConfirmDialog(
                               context: context,
                               title: s.deleteEquipment,
-                              content:
-                                  '${s.deleteEquipmentConfirm(equipamiento.title)}\n\n'
-                                  '⚠️ ¡Atención! Al eliminar este material se borrarán permanentemente todo el historial de reservas asociado y sus requisitos en las actividades.',
-                            );
+                              content: s.deleteEquipmentConfirm(equipamiento.title));
 
                             if (confirm) {
                               try {
@@ -208,10 +247,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                                     .read(equipmentProvider.notifier)
                                     .eliminar(equipamiento);
                                 if (context.mounted) {
-                                  showSuccessSnackBar(
-                                    context,
-                                    'Material eliminado',
-                                  );
+                                  showSuccessSnackBar(context, 'Material eliminado');
                                 }
                               } catch (e) {
                                 if (!context.mounted) return;
@@ -231,33 +267,26 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             }
 
                             final usuario = ref.read(currentUserProvider);
-                            if (usuario == null) {
-                              return;
-                            }
+                            if (usuario == null) return;
 
                             final Booking? reserva = await Navigator.of(context)
                                 .push<Booking>(
-                                  MaterialPageRoute(
-                                    builder: (_) => ReservationFormPage(
-                                      initialIdUsuario: usuario.id,
-                                      initialIdEquipamiento: equipamiento.id,
-                                    ),
-                                  ),
-                                );
+                              MaterialPageRoute(
+                                builder: (_) => ReservationFormPage(
+                                  initialIdUsuario: usuario.id,
+                                  initialIdEquipamiento: equipamiento.id,
+                                ),
+                              ),
+                            );
 
-                            if (reserva == null) {
-                              return;
-                            }
+                            if (reserva == null) return;
 
                             try {
                               await ref
                                   .read(reservationsProvider.notifier)
                                   .agregar(reserva);
                               if (!context.mounted) return;
-                              showSuccessSnackBar(
-                                context,
-                                s.reservationCreated,
-                              );
+                              showSuccessSnackBar(context, s.reservationCreated);
                             } catch (e) {
                               if (!context.mounted) return;
                               showErrorSnackBar(context, e.toString());

@@ -59,8 +59,6 @@ class Booking {
 
   // Convierte la reserva a un mapa para enviar al backend.
   Map<String, dynamic> toMap() {
-    // Mapeo temporal: Asignamos un ID numérico al estado para el backend.
-    // Ajusta estos números a los IDs reales que tengas en tu BD (ej: 1=PENDING, 2=CONFIRMED...)
     int getStatusId() {
       switch (status.code) {
         case 'PENDING':

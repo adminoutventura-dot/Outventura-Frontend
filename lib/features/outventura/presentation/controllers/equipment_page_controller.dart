@@ -19,13 +19,27 @@ class EquipmentPageController {
       grupos: [
         FilterGrupo(
           titulo: s.statusFilter,
-          // Mapea de forma dinámica la lista de estados reales que le inyectamos desde el widget
+          // Mapeo seguro usando las claves del mapa JSON ('code' e 'id_status')
           chips: estadosDisponibles
-              .map((dynamic e) => FilterChipSpec(
-                    label: e.name as String, 
-                    seleccionado: estadoTemp == e.id,
-                    onToggle: () => setModal(() => estadoTemp = estadoTemp == e.id ? null : e.id as int),
-                  ))
+              .map((dynamic e) {
+                final int? idEstado = e['id_status'] as int?;
+                final String codeEstado = (e['code'] ?? '') as String;
+
+                // Traducimos el código ('AVAILABLE', etc.) con tus claves de localización
+                String labelTraducido = codeEstado;
+                if (codeEstado == 'AVAILABLE') labelTraducido = s.statusAvailable;
+                if (codeEstado == 'OUT_OF_STOCK') labelTraducido = s.statusOutOfStock;
+                if (codeEstado == 'MAINTENANCE') labelTraducido = s.statusMaintenance;
+                if (codeEstado == 'OUT_OF_SERVICE') labelTraducido = s.statusOutOfService;
+                if (codeEstado == 'UNAVAILABLE') labelTraducido = 'No disponible';
+                if (codeEstado == 'DISCONTINUED') labelTraducido = 'Descatalogado';
+
+                return FilterChipSpec(
+                  label: labelTraducido,
+                  seleccionado: estadoTemp == idEstado,
+                  onToggle: () => setModal(() => estadoTemp = estadoTemp == idEstado ? null : idEstado),
+                );
+              })
               .toList(),
         ),
         FilterGrupo(
