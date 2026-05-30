@@ -11,9 +11,10 @@ import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/features/auth/domain/entities/guide.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/auth/presentation/controllers/login_controller.dart';
 import 'package:outventura/features/auth/presentation/controllers/user_form_controller.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/presentation/providers/categories_provider.dart'; 
 
 class UserFormPage extends ConsumerStatefulWidget {
@@ -84,6 +85,8 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
     final bool isEdit = _controller.editando;
     
     final listaCategorias = ref.watch(categoriesProvider).value ?? [];
+    final User? currentUser = ref.watch(currentUserProvider);
+    final bool isSuper = currentUser?.role.code == 'SUPER';
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -179,22 +182,24 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
               ] else
                 const SizedBox(height: 6),
 
-              Text(
-                s.role.toUpperCase(),
-                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
-              ),
-              const SizedBox(height: 8),
-              AppChipWrap(
-                children: UserRole.values.map((UserRole rol) {
-                  final bool seleccionado = _controller.rol == rol;
-                  return AppChoiceChip(
-                    label: rol.localizedLabel(s),
-                    seleccionado: seleccionado,
-                    onPressed: () => setState(() => _controller.rol = rol),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 20),
+              if (isSuper) ...[
+                Text(
+                  s.role.toUpperCase(),
+                  style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+                ),
+                const SizedBox(height: 8),
+                AppChipWrap(
+                  children: UserRole.values.map((UserRole rol) {
+                    final bool seleccionado = _controller.rol == rol;
+                    return AppChoiceChip(
+                      label: rol.localizedLabel(s),
+                      seleccionado: seleccionado,
+                      onPressed: () => setState(() => _controller.rol = rol),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+              ],
 
               if (_esGuia) ..._buildGuideSection(cs, tt, listaCategorias),
 

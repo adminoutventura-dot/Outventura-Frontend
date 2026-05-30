@@ -103,8 +103,14 @@ class CurrentUserNotifier extends Notifier<User?> {
     try {
       final dio = ref.read(dioProvider);
 
-      // Prepara los datos
-      final Map<String, dynamic> datosAEnviar = usuarioEditado.toMap();
+      // Prepara los datos - no enviamos roleId, role ni status para evitar errores de permisos
+      final Map<String, dynamic> datosAEnviar = {
+        'name': usuarioEditado.name,
+        'surname': usuarioEditado.surname,
+        'email': usuarioEditado.email,
+        'phone': usuarioEditado.phone,
+        'photo': usuarioEditado.photo,
+      };
       if (nuevaPassword != null && nuevaPassword.isNotEmpty) {
         datosAEnviar['password'] = nuevaPassword;
       }

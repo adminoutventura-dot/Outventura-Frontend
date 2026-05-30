@@ -179,6 +179,9 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
     
     final bool isEdit = widget.booking != null;
     final bool modoCliente = widget.initialIdUsuario != null;
+    final User? usuarioActual = ref.watch(currentUserProvider);
+    final bool esAdminOSuper = usuarioActual?.role.code == 'ADMIN' || usuarioActual?.role.code == 'SUPER';
+    final bool mostrarSelectorEstado = esAdminOSuper && !modoCliente;
     final bool hasActivity = _selectedActivityId != null;
 
     // 🌟 CONTROLADOR DE LECTURA: Bloquea fechas si tiene actividad o si estamos EDITANDO
@@ -410,7 +413,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                 const SizedBox(height: 16),
               ],
 
-              if (!modoCliente) ...[
+              if (mostrarSelectorEstado) ...[
                 Text(
                   s.status.toUpperCase(),
                   style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
