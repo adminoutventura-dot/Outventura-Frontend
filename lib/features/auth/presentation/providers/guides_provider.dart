@@ -14,8 +14,16 @@ class GuidesNotifier extends AsyncNotifier<List<Guide>> {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/guide');
-      final List<dynamic> data = response.data as List<dynamic>;
-      return data.map((e) => GuideModel.fromMap(e as Map<String, dynamic>)).toList();
+
+      // 🌟 AJUSTE: Manejamos correctamente el formato de NestJS { "data": [...] }
+      final dynamic rawData = response.data;
+      final List<dynamic> data = rawData is Map && rawData['data'] != null
+          ? rawData['data'] as List<dynamic>
+          : rawData as List<dynamic>;
+
+      return data
+          .map((e) => GuideModel.fromMap(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -26,7 +34,9 @@ class GuidesNotifier extends AsyncNotifier<List<Guide>> {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.post('/guide', data: guide.toMap());
-      final Guide created = GuideModel.fromMap(response.data as Map<String, dynamic>);
+      final Guide created = GuideModel.fromMap(
+        response.data as Map<String, dynamic>,
+      );
       ref.invalidateSelf();
       return created;
     } on DioException catch (e) {
