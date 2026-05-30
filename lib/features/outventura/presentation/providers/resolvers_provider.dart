@@ -22,25 +22,25 @@ final activityNameProvider = Provider.family<String?, int?>((ref, id) {
   if (id == null) {
     return null;
   }
-  final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
+  final List<Activity> actividades = ref.watch(allActivitiesProvider);
   return resolverNombreActividad(id, actividades);
 });
 
 // Resuelve el nombre de un equipamiento por su ID.
 final equipmentNameProvider = Provider.family<String, int>((ref, id) {
-  final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+  final List<Equipment> equipamientos = ref.watch(allEquipmentProvider);
   return resolverNombreEquipamiento(id, equipamientos);
 });
 
 // Resuelve la imagen de un equipamiento por su ID.
 final equipmentImageProvider = Provider.family<String?, int>((ref, id) {
-  final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+  final List<Equipment> equipamientos = ref.watch(allEquipmentProvider);
   return resolverImagenEquipamiento(id, equipamientos);
 });
 
 // Resuelve una actividad completa por su ID.
 final activityByIdProvider = Provider.family<Activity?, int>((ref, id) {
-  final List<Activity> actividades = ref.watch(activitiesProvider).value ?? [];
+  final List<Activity> actividades = ref.watch(allActivitiesProvider);
   final int index = actividades.indexWhere((Activity e) => e.id == id);
   return index != -1 ? actividades[index] : null;
 });
@@ -54,7 +54,7 @@ final reservationByIdProvider = Provider.family<Booking?, int>((ref, id) {
 
 // Resuelve un equipamiento completo por su ID.
 final equipmentByIdProvider = Provider.family<Equipment?, int>((ref, id) {
-  final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
+  final List<Equipment> equipamientos = ref.watch(allEquipmentProvider);
   final int index = equipamientos.indexWhere((Equipment e) => e.id == id);
   return index != -1 ? equipamientos[index] : null;
 });

@@ -84,16 +84,16 @@ class _InputsDemoState extends State<InputsDemo> {
             style: tt.titleMedium?.copyWith(color: cs.onSurface),
           ),
           const SizedBox(height: 8),
-          AppDropdownField<User>(
-            value: _idUsuario,
-            items: usersFake,
-            itemValue: (User u) => u.id,
-            itemLabel: (User u) => '${u.name} ${u.surname}',
-            prefixIcon: Icons.person_outline,
-            label: 'Experto asignado',
-            hint: 'Sin asignar',
-            onChanged: (int? v) => setState(() => _idUsuario = v),
-          ),
+          // AppDropdownField<User>(
+          //   value: _idUsuario,
+          //   items: usersFake,
+          //   itemValue: (User u) => u.id,
+          //   itemLabel: (User u) => '${u.name} ${u.surname}',
+          //   prefixIcon: Icons.person_outline,
+          //   label: 'Experto asignado',
+          //   hint: 'Sin asignar',
+          //   onChanged: (int? v) => setState(() => _idUsuario = v),
+          // ),
 
           // // AppDropdownField (Actividad)
           // const SizedBox(height: 24),

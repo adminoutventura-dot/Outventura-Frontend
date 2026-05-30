@@ -6,7 +6,7 @@ import 'package:outventura/features/auth/domain/entities/user.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/presentation/pages/booking_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/booking_act_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
@@ -187,7 +187,7 @@ class HomeClientePage extends ConsumerWidget {
                               MaterialPageRoute(
                                 // Cambiado 'reserva' por 'solicitud'
                                 builder: (_) =>
-                                    BookingActFormPage(reserva: sol),
+                                    BookingFormPage(booking: sol),
                               ),
                             ),
                           ),

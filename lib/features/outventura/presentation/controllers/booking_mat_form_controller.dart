@@ -43,16 +43,10 @@ class BookingMatFormController {
     idUsuario = reserva.userId;
     lineas = List.from(reserva.lines);
     estado = reserva.status;
-    fechaDesde = reserva.startDate;
-    fechaHasta = reserva.endDate;
-    horaInicio = TimeOfDay(
-      hour: reserva.startDate.hour,
-      minute: reserva.startDate.minute,
-    );
-    horaFin = TimeOfDay(
-      hour: reserva.endDate.hour,
-      minute: reserva.endDate.minute,
-    );
+    fechaDesde = reserva.startDate.toLocal();
+    fechaHasta = reserva.endDate.toLocal();
+    horaInicio = TimeOfDay.fromDateTime(reserva.startDate.toLocal());
+    horaFin = TimeOfDay.fromDateTime(reserva.endDate.toLocal());
 
     final lineAct = reserva.lines
         .where((l) => l.activityId != null)
@@ -132,7 +126,7 @@ class BookingMatFormController {
       fechaDesde.day,
       horaInicio.hour,
       horaInicio.minute,
-    );
+    ).toUtc();
 
     final DateTime fechaFinReal = DateTime(
       fechaHasta.year,
@@ -140,7 +134,7 @@ class BookingMatFormController {
       fechaHasta.day,
       horaFin.hour,
       horaFin.minute,
-    );
+    ).toUtc();
 
     return Booking(
       id: seleccionado?.id,

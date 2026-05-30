@@ -115,36 +115,36 @@ class CardsDemo extends StatelessWidget {
           //   onCancelar: () {},
           // ),
 
-          // RESERVATION LINE CARD
-          const SizedBox(height: 24),
-          Text('ReservationLineCard – Sin daños', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
-          const SizedBox(height: 8),
-          ReservationLineCard(
-            linea: reservationsFake[0].lines.first,
-            equipamiento: equipmentFake.firstWhere(
-              (Equipment e) => e.id == reservationsFake[0].lines.first.equipmentId,
-              orElse: () => equipmentFake.first,
-            ),
-            cantidadDaniada: 0,
-            onEdit: () {},
-            onDelete: () {},
-          ),
+          // // RESERVATION LINE CARD
+          // const SizedBox(height: 24),
+          // Text('ReservationLineCard – Sin daños', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          // const SizedBox(height: 8),
+          // ReservationLineCard(
+          //   linea: reservationsFake[0].lines.first,
+          //   equipamiento: equipmentFake.firstWhere(
+          //     (Equipment e) => e.id == reservationsFake[0].lines.first.equipmentId,
+          //     orElse: () => equipmentFake.first,
+          //   ),
+          //   cantidadDaniada: 0,
+          //   onEdit: () {},
+          //   onDelete: () {},
+          // ),
 
-          const SizedBox(height: 16),
-          Text('ReservationLineCard – Con daños', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
-          const SizedBox(height: 8),
-          ReservationLineCard(
-            linea: reservationsFake[0].lines.first,
-            equipamiento: equipmentFake.firstWhere(
-              (Equipment e) => e.id == reservationsFake[0].lines.first.equipmentId,
-              orElse: () => equipmentFake.first,
-            ),
-            cantidadDaniada: 2,
-            onEdit: () {},
-            onDelete: () {},
-            menosCoste: () {},
-            masCoste: () {},
-          ),
+          // const SizedBox(height: 16),
+          // Text('ReservationLineCard – Con daños', style: tt.titleMedium?.copyWith(color: cs.onSurface)),
+          // const SizedBox(height: 8),
+          // ReservationLineCard(
+          //   linea: reservationsFake[0].lines.first,
+          //   equipamiento: equipmentFake.firstWhere(
+          //     (Equipment e) => e.id == reservationsFake[0].lines.first.equipmentId,
+          //     orElse: () => equipmentFake.first,
+          //   ),
+          //   cantidadDaniada: 2,
+          //   onEdit: () {},
+          //   onDelete: () {},
+          //   menosCoste: () {},
+          //   masCoste: () {},
+          // ),
 
           // EQUIPAMIENTO CARD
           const SizedBox(height: 24),

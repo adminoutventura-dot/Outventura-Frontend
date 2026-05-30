@@ -175,7 +175,14 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                     child: AppDateSelector(
                       label: s.start,
                       date: _controller.fechaInicio,
-                      firstDate: DateTime.now(),
+                      firstDate: _controller.editando &&
+                              _controller.fechaInicio.isBefore(DateTime.now())
+                          ? DateTime(
+                              _controller.fechaInicio.year,
+                              _controller.fechaInicio.month,
+                              _controller.fechaInicio.day,
+                            )
+                          : DateTime.now(),
                       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
                       onDateSelected: (DateTime picked) {
                         setState(() {

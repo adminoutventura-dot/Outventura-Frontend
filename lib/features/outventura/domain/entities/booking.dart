@@ -2,12 +2,14 @@ import 'package:outventura/features/outventura/domain/entities/workflow_status.d
 
 // Una línea de reserva (ahora puede ser un material o una actividad).
 class BookingLine {
+  final int? id;
   final int? equipmentId;
   final int? activityId;
   final int quantity;
   final double priceAtMoment;
 
   const BookingLine({
+    this.id,
     this.equipmentId,
     this.activityId,
     required this.quantity,
@@ -23,12 +25,14 @@ class BookingLine {
   };
 
   BookingLine copyWith({
+    int? id,
     int? equipmentId,
     int? activityId,
     int? quantity,
     double? priceAtMoment,
   }) {
     return BookingLine(
+      id: id ?? this.id,
       equipmentId: equipmentId ?? this.equipmentId,
       activityId: activityId ?? this.activityId,
       quantity: quantity ?? this.quantity,

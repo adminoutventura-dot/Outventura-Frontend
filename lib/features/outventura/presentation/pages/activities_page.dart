@@ -8,7 +8,7 @@ import 'package:outventura/features/outventura/presentation/controllers/activiti
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/activity_form_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/booking_act_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/activity_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
@@ -269,7 +269,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
 
                             final Booking? reserva = await Navigator.of(context).push<Booking>(
                               MaterialPageRoute(
-                                builder: (_) => BookingActFormPage(
+                                builder: (_) => BookingFormPage(
                                   initialIdActividad: actividad.id,
                                   initialIdUsuario: usuario.id,
                                 ),

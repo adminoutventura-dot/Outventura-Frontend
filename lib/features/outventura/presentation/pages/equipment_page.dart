@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/booking_mat_form_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/core/widgets/confirm_dialog.dart';
@@ -57,7 +58,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
         usuarioActual.role.code == 'INVITADO' ||
         usuarioActual.role.code == 'GUEST';
 
-    // Escuchala lista ya filtrada por rol y paginada desde el Notifier
+    // Escucha la lista ya filtrada por rol y paginada desde el Notifier
     final AsyncValue<List<Equipment>> equipamientosAsync = ref.watch(equipmentProvider);
 
     final equipmentNotifier = ref.read(equipmentProvider.notifier);
@@ -274,7 +275,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
                             final Booking? reserva = await Navigator.of(context)
                                 .push<Booking>(
                               MaterialPageRoute(
-                                builder: (_) => ReservationFormPage(
+                                builder: (_) => BookingFormPage(
                                   initialIdUsuario: usuario.id,
                                   initialIdEquipamiento: equipamiento.id,
                                 ),

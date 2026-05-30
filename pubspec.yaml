@@ -48,6 +48,7 @@ dependencies:
   flutter_svg: ^2.0.10
   fl_chart: ^1.2.0
   image_picker: ^1.2.2
+  collection: ^1.19.1
 
 dev_dependencies:
   flutter_test:

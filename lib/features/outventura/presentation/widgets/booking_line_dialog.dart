@@ -78,7 +78,7 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
               label: s.equipment,
               hint: s.noneSelected,
               isRequired: true,
-              onChanged: (int? v) => setState(() => _idEquipamiento = v),
+              onChanged: (dynamic v) => setState(() => _idEquipamiento = v as int?),
             ),
             const SizedBox(height: 16),
             CustomInputField(
@@ -127,8 +127,11 @@ class _LineaReservaDialogState extends State<_LineaReservaDialog> {
             Navigator.pop(
               context,
               BookingLine(
+                id: widget.initialLinea?.id,
                 equipmentId: _idEquipamiento!,
+                activityId: widget.initialLinea?.activityId,
                 quantity: int.parse(_cantCtrl.text),
+                priceAtMoment: widget.initialLinea?.priceAtMoment ?? 0,
               ),
             );
           },

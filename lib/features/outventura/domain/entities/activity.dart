@@ -34,8 +34,8 @@ class Activity {
   Map<String, dynamic> toMap() {
     // Función auxiliar que añade la 'Z' si no la tiene, SIN restar horas de zona horaria
     String formatPrismaDate(DateTime date) {
-      final String iso = date.toIso8601String();
-      return iso.endsWith('Z') ? iso : '${iso}Z';
+      final DateTime utc = date.isUtc ? date : date.toUtc();
+      return utc.toIso8601String();
     }
 
     return {

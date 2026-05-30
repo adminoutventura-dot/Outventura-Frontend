@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/booking_mat_form_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/presentation/controllers/booking_page_controller.dart';
@@ -11,7 +10,7 @@ import 'package:outventura/features/outventura/domain/entities/workflow_status.d
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/booking_act_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
@@ -91,7 +90,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                 final Booking? nueva = await Navigator.of(context)
                     .push<Booking>(
                       MaterialPageRoute(
-                        builder: (_) => ReservationFormPage(
+                        builder: (_) => BookingFormPage(
                           initialIdUsuario: widget.puedeGestionar
                               ? null
                               : usuarioActual?.id,
@@ -176,43 +175,28 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                       itemBuilder: (BuildContext context, int i) {
                         final Booking res = lista[i];
 
+                        final Booking reservaActual =
+                            ref.watch(reservationsProvider).value
+                                ?.where((b) => b.id == res.id)
+                                .firstOrNull ??
+                            res;
+
                         // Detecta si es Excursión o Material
-                        final bool tieneActividad = res.lines.any(
+                        final bool tieneActividad = reservaActual.lines.any(
                           (l) => l.activityId != null,
                         );
-
-                        // Mapea los materiales (equipments) para las fotos
-                        final lineasMapeadas = res.lines
-                            .where((l) => l.equipmentId != null)
-                            .map(
-                              (BookingLine linea) => (
-                                nombre: ref.watch(
-                                  equipmentNameProvider(linea.equipmentId!),
-                                ),
-                                imagen: ref.watch(
-                                  equipmentImageProvider(linea.equipmentId!),
-                                ),
-                                cantidad: linea.quantity,
-                              ),
-                            )
-                            .toList();
 
                         // Nombres
                         final String nombreUsuario = ref.watch(
                           userNameProvider(res.userId),
                         );
 
-                        final int? activityIdFromLine = res.lines
-                            .where((l) => l.activityId != null)
-                            .map((l) => l.activityId)
-                            .firstOrNull;
-
                         // Acciones comunes
                         void onVerDetalleCall() {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) =>
-                                  ReservationDetailPage(reserva: res),
+                                  ReservationDetailPage(reserva: reservaActual),
                             ),
                           );
                         }
@@ -226,30 +210,23 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                                     await Navigator.of(context).push<Booking>(
                                       MaterialPageRoute(
                                         builder: (BuildContext _) {
-                                          if (tieneActividad) {
-                                            return BookingActFormPage(
-                                              reserva: res,
-                                              initialIdUsuario:
-                                                  widget.puedeGestionar
-                                                  ? null
-                                                  : usuarioActual?.id,
-                                            );
-                                          } else {
-                                            return ReservationFormPage(
-                                              reserva: res,
-                                              initialIdUsuario:
-                                                  widget.puedeGestionar
-                                                  ? null
-                                                  : usuarioActual?.id,
-                                            );
-                                          }
+                                          return BookingFormPage(
+                                            booking: reservaActual,
+                                            initialIdUsuario:
+                                                widget.puedeGestionar
+                                                ? null
+                                                : usuarioActual?.id,
+                                          );
                                         },
                                       ),
                                     );
 
                                 if (resultado == null) return;
                                 try {
-                                  await notifier.actualizar(res, resultado);
+                                  await notifier.actualizar(
+                                    reservaActual,
+                                    resultado,
+                                  );
                                   ref.invalidate(equipmentProvider);
 
                                   if (!context.mounted) return;
@@ -271,15 +248,9 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                               };
 
                         return BookingCard(
-                          reserva: res,
-                          lineas: lineasMapeadas,
+                          reserva: reservaActual,
                           nombreUsuario: nombreUsuario,
                           esActividad: tieneActividad,
-                          nombreActividad: tieneActividad
-                              ? ref.watch(
-                                  activityNameProvider(activityIdFromLine),
-                                )
-                              : null,
                           onVerDetalle: onVerDetalleCall,
                           onEditar: onEditarCall,
                           onCancelar:

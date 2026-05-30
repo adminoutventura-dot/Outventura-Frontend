@@ -4,6 +4,7 @@ import 'package:outventura/features/outventura/domain/entities/workflow_status.d
 /// Modelo de línea de reserva: extiende [BookingLine] añadiendo la deserialización desde JSON.
 class BookingLineModel extends BookingLine {
   const BookingLineModel({
+    super.id,
     super.equipmentId,
     super.activityId,
     required super.quantity,
@@ -11,11 +12,34 @@ class BookingLineModel extends BookingLine {
   });
 
   factory BookingLineModel.fromMap(Map<String, dynamic> map) {
+    final dynamic equipment = map['equipment'];
+    final dynamic activity = map['activity'];
+    final int? equipmentId = equipment is int
+        ? equipment
+        : map['equipmentId'] as int? ??
+            map['equipment_id'] as int? ??
+            map['id_equipment'] as int? ??
+            (equipment is Map
+                ? equipment['id_equipment'] as int? ?? equipment['id'] as int?
+                : null);
+    final int? activityId = activity is int
+        ? activity
+        : map['activityId'] as int? ??
+            map['activity_id'] as int? ??
+            map['id_activity'] as int? ??
+            (activity is Map
+                ? activity['id_activity'] as int? ?? activity['id'] as int?
+                : null);
+
     return BookingLineModel(
-      equipmentId: map['equipmentId'] as int?,
-      activityId: map['activityId'] as int?,
+      id: map['id_line'] as int? ?? map['idLine'] as int? ?? map['id'] as int?,
+      equipmentId: equipmentId,
+      activityId: activityId,
       quantity: int.tryParse(map['quantity'].toString()) ?? 0,
-      priceAtMoment: double.tryParse(map['price_at_moment'].toString()) ?? 0,
+      priceAtMoment: double.tryParse(
+            (map['price_at_moment'] ?? map['priceAtMoment'] ?? 0).toString(),
+          ) ??
+          0,
     );
   }
 }
@@ -33,7 +57,12 @@ class BookingModel extends Booking {
   });
 
   factory BookingModel.fromMap(Map<String, dynamic> map) {
-    final linesRaw = map['lines'] as List? ?? [];
+    final dynamic linesField = map['lines'] ??
+        map['bookingLines'] ??
+        map['booking_lines'] ??
+        map['line'] ??
+        map['Line'];
+    final linesRaw = linesField is List ? linesField : const [];
     final lines = linesRaw
         .map((e) => BookingLineModel.fromMap(e as Map<String, dynamic>))
         .toList();

@@ -17,12 +17,19 @@ final equipmentProvider =
       EquipmentNotifier.new,
     );
 
+final Provider<List<Equipment>> allEquipmentProvider = Provider<List<Equipment>>((ref) {
+  ref.watch(equipmentProvider);
+  return ref.read(equipmentProvider.notifier).allEquipment;
+});
+
 class EquipmentNotifier extends AsyncNotifier<List<Equipment>> {
   int currentPage = 1;
   int totalPages = 1;
   final int _itemsPerPage = 3; 
 
   List<Equipment> _allEquipment = [];
+
+  List<Equipment> get allEquipment => _allEquipment;
 
   String _query = '';
   int? _estado;

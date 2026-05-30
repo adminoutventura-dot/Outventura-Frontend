@@ -12,6 +12,11 @@ activitiesProvider = AsyncNotifierProvider<ActivitiesNotifier, List<Activity>>(
   ActivitiesNotifier.new,
 );
 
+final Provider<List<Activity>> allActivitiesProvider = Provider<List<Activity>>((ref) {
+  ref.watch(activitiesProvider);
+  return ref.read(activitiesProvider.notifier).allActivities;
+});
+
 // Actividades recientes para el Dashboard
 final recentActivitiesProvider = Provider.family<List<Activity>, int>((ref, count) {
   return (ref.watch(activitiesProvider).value ?? []).take(count).toList();
@@ -24,6 +29,8 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
 
   // Almacén local de seguridad para guardar todo el catálogo que mande el NestJS
   List<Activity> _allActivities = [];
+
+  List<Activity> get allActivities => _allActivities;
 
   // Estado de los filtros activos en la botonera de la app
   String _query = '';
@@ -180,15 +187,14 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       final dio = ref.read(dioProvider);
       final Map<String, dynamic> datosAEnviar = nuevo.toMap();
 
-      String normalizarFecha(DateTime date) {
-        final String iso = date.toIso8601String();
-        return iso.endsWith('Z') ? iso : '${iso}Z';
+      bool mismaFecha(DateTime a, DateTime b) {
+        return a.toUtc().millisecondsSinceEpoch == b.toUtc().millisecondsSinceEpoch;
       }
 
-      if (normalizarFecha(viejo.initDate) == normalizarFecha(nuevo.initDate)) {
+      if (mismaFecha(viejo.initDate, nuevo.initDate)) {
         datosAEnviar.remove('init_date');
       }
-      if (normalizarFecha(viejo.endDate) == normalizarFecha(nuevo.endDate)) {
+      if (mismaFecha(viejo.endDate, nuevo.endDate)) {
         datosAEnviar.remove('end_date');
       }
 

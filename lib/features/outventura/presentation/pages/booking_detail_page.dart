@@ -125,12 +125,12 @@ class ReservationDetailPage extends ConsumerWidget {
                     ],
                   ),
 
-                  if (reserva.lines.any((l) => l.equipmentId != null)) ...[
+                  if (actual.lines.any((l) => l.equipmentId != null)) ...[
                     const SizedBox(height: 20),
                     DetailSection(
                       title: s.reservedMaterial,
                       children: [
-                        for (final linea in reserva.lines.where(
+                        for (final linea in actual.lines.where(
                           (l) => l.equipmentId != null,
                         ))
                           DetailRow(

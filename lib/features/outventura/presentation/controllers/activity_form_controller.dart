@@ -40,17 +40,21 @@ class ActivityFormController {
     descripcionController.text = actividad.description ?? '';
     participantesController.text = actividad.maxParticipants.toString();
 
-    fechaInicio = actividad.initDate;
+    final DateTime inicioLocal = actividad.initDate.toLocal();
+    final DateTime finLocal = actividad.endDate.toLocal();
+
+    fechaInicio = DateTime(
+      inicioLocal.year,
+      inicioLocal.month,
+      inicioLocal.day,
+    );
     horaInicio = TimeOfDay(
-      hour: actividad.initDate.hour,
-      minute: actividad.initDate.minute,
+      hour: inicioLocal.hour,
+      minute: inicioLocal.minute,
     );
 
-    fechaFin = actividad.endDate;
-    horaFin = TimeOfDay(
-      hour: actividad.endDate.hour,
-      minute: actividad.endDate.minute,
-    );
+    fechaFin = DateTime(finLocal.year, finLocal.month, finLocal.day);
+    horaFin = TimeOfDay(hour: finLocal.hour, minute: finLocal.minute);
 
     dificultad = actividad.difficulty;
     imagenAsset = actividad.imageAsset;
@@ -92,14 +96,14 @@ class ActivityFormController {
       fechaInicio.day,
       horaInicio.hour,
       horaInicio.minute,
-    );
+    ).toUtc();
     final endDateTime = DateTime(
       fechaFin.year,
       fechaFin.month,
       fechaFin.day,
       horaFin.hour,
       horaFin.minute,
-    );
+    ).toUtc();
 
     return Activity(
       id: seleccionada?.id,
