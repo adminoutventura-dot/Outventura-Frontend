@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:outventura/core/network/dio_client.dart'; 
 import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/core/utils/form_validators.dart';
 import 'package:outventura/core/widgets/app_dropdown_field.dart';
@@ -19,15 +18,9 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/presentation/controllers/activity_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 
-final guidesProvider = FutureProvider<List<dynamic>>((ref) async {
-  final dio = ref.read(dioProvider);
-  final response = await dio.get('/guide');
-
-  if (response.data is Map && response.data['data'] != null) {
-    return response.data['data'] as List<dynamic>;
-  }
-  return response.data as List<dynamic>;
-});
+// 🌟 IMPORTAMOS EL MODELO GUIDE Y SU PROVEEDOR (Verifica si la ruta es exacta)
+import 'package:outventura/features/auth/domain/entities/guide.dart';
+import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 
 class ActivityFormPage extends ConsumerStatefulWidget {
   final Activity? actividad;
@@ -79,8 +72,22 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
     final bool isGuide = usuarioActual?.role.code == 'GUIDE';
 
     final List<Equipment> equipamientos = ref.watch(equipmentProvider).value ?? [];
-    final AsyncValue<List<dynamic>> guidesAsync = ref.watch(guidesProvider);
-    final List<dynamic> listaGuiasReales = guidesAsync.value ?? [];
+    
+    // 🌟 LEEMOS LA LISTA TIPADA DESDE EL BACKEND
+    final AsyncValue<List<Guide>> guidesAsync = ref.watch(guidesProvider);
+    final List<Guide> todosLosGuias = guidesAsync.value ?? [];
+
+    // 🌟 FILTRAMOS GUÍAS ACTIVOS (Aquí desaparecen los inactivos como Carlos)
+    final List<Guide> guiasActivos = todosLosGuias.where((g) => g.user?.active == true).toList();
+
+    // 🌟 INYECCIÓN HISTÓRICA: Si el guía original ya está inactivo, lo inyectamos igual para no romper la vista al editar
+    final List<Guide> itemsDropdownGuias = [...guiasActivos];
+    if (_controller.editando && _controller.guideId != null) {
+      final Guide? guiaSeleccionado = todosLosGuias.where((g) => g.id == _controller.guideId).firstOrNull;
+      if (guiaSeleccionado != null && !itemsDropdownGuias.any((g) => g.id == guiaSeleccionado.id)) {
+        itemsDropdownGuias.add(guiaSeleccionado);
+      }
+    }
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -141,14 +148,12 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               const SizedBox(height: 14),
 
               if (!isGuide) ...[
-                AppDropdownField<dynamic>(
+                // 🌟 DROPDOWN LIMPIO Y SEGURO TIPADO A <Guide>
+                AppDropdownField<Guide>(
                   value: _controller.guideId,
-                  items: listaGuiasReales,
-                  itemValue: (dynamic guia) => guia['id_guide'] as int,
-                  itemLabel: (dynamic guia) {
-                    final Map<String, dynamic> user = guia['user'] as Map<String, dynamic>;
-                    return '${user['name']} ${user['surname']}';
-                  },
+                  items: itemsDropdownGuias,
+                  itemValue: (Guide guia) => guia.id!,
+                  itemLabel: (Guide guia) => '${guia.user?.name} ${guia.user?.surname}',
                   prefixIcon: Icons.person_outline,
                   label: 'Guía Asignado', // TODO: hardcodeado
                   hint: 'Selecciona un guía obligatorio', // TODO: hardcodeado
@@ -157,7 +162,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       _controller.guideId = nuevoId as int?;
                     });
                   },
-                  validator: (value) => value == null
+                  validator: (dynamic value) => value == null
                       ? 'Por favor, selecciona un guía obligatorio' // TODO: hardcodeado
                       : null,
                 ),
@@ -241,7 +246,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                 ],
               ),
 
-              // Si existe un error de tiempos, se renderiza justo aquí debajo de las horas
               if (_errorTiempo != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 6, left: 14),
@@ -282,7 +286,6 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 32),
 
-              // --- SECCIÓN MATERIAL RECOMENDADO MODAL ---
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
