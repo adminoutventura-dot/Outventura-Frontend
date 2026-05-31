@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.wrapper.Wrapper
+
 allprojects {
     repositories {
         google()
@@ -17,6 +19,11 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+}
+
+tasks.named<Wrapper>("wrapper") {
+    gradleVersion = "8.13"
+    distributionType = Wrapper.DistributionType.BIN
 }
 
 tasks.register<Delete>("clean") {

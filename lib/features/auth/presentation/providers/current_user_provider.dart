@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/auth/data/models/user_model.dart';
@@ -52,12 +51,18 @@ class CurrentUserNotifier extends Notifier<User?> {
       state = UserModel.fromMap(data['user'] as Map<String, dynamic>);
       return state;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401)
-        throw Exception('Credenciales incorrectas');
-      if (e.type == DioExceptionType.connectionError)
+      if (e.response?.statusCode == 401) {
+        final String msg =
+            e.response?.data['message']?.toString() ??
+            'Credencials incorrectes';
+        throw Exception(msg);
+      }
+      if (e.type == DioExceptionType.connectionError) {
         throw Exception('Sin conexión al servidor');
-      if (e.type == DioExceptionType.receiveTimeout)
+      }
+      if (e.type == DioExceptionType.receiveTimeout) {
         throw Exception('El servidor tarda demasiado');
+      }
       throw parseDioError(e);
     }
   }
@@ -84,8 +89,9 @@ class CurrentUserNotifier extends Notifier<User?> {
         },
       );
     } on DioException catch (e) {
-      if (e.response?.statusCode == 409)
+      if (e.response?.statusCode == 409) {
         throw Exception('El email ya está registrado');
+      }
       throw parseDioError(e);
     }
   }

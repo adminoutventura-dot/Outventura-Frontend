@@ -23,7 +23,8 @@ Future<String?> readAuthToken() => _storage.read(key: _tokenKey);
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
-      baseUrl: 'http://localhost:3000',
+      // baseUrl: 'http://localhost:3000',
+      baseUrl: 'http://192.168.100.64:3000',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {'Content-Type': 'application/json'},
