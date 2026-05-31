@@ -145,7 +145,7 @@ class HomeAdminPage extends ConsumerWidget {
                                 Container(width: 1, color: cs.surface),
                                 Expanded(
                                   child: HomeQuickActionButton(
-                                    label: s.usersTitle,
+                                  label: isAdmin ? 'Guías' : s.usersTitle,
                                     onTap: () => Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) => UsersPage(

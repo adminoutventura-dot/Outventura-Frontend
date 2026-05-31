@@ -4,12 +4,29 @@ import 'package:outventura/core/widgets/app_bar.dart';
 import 'package:outventura/features/outventura/domain/entities/activity_log.dart';
 import 'package:outventura/features/outventura/presentation/providers/activity_log_provider.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
 
-class LogsPage extends ConsumerWidget {
+class LogsPage extends ConsumerStatefulWidget {
   const LogsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LogsPage> createState() => _LogsPageState();
+}
+
+class _LogsPageState extends ConsumerState<LogsPage> {
+  int _currentPage = 1;
+  final int _perPage = 5;
+
+  void _prevPage() {
+    if (_currentPage > 1) setState(() => _currentPage--);
+  }
+
+  void _nextPage(int totalPages) {
+    if (_currentPage < totalPages) setState(() => _currentPage++);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
     final logsAsync = ref.watch(activityLogProvider);
@@ -45,14 +62,62 @@ class LogsPage extends ConsumerWidget {
             );
           }
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: logs.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final log = logs[index];
-              return _LogCard(log: log);
-            },
+          final int total = logs.length;
+          final int totalPages = (total / _perPage).ceil();
+          final int start = (_currentPage - 1) * _perPage;
+          final int end = min(start + _perPage, total);
+          final pageItems = logs.sublist(start, end);
+
+          return Column(
+            children: [
+              Container(
+                width: double.infinity,
+                color: cs.surfaceVariant.withOpacity(0.03),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: _currentPage > 1 ? _prevPage : null,
+                      icon: const Icon(Icons.chevron_left, size: 28),
+                      color: _currentPage > 1
+                          ? cs.primary
+                          : cs.onSurfaceVariant.withValues(alpha: 0.3),
+                      tooltip: 'Anterior',
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      '$_currentPage / $totalPages',
+                      style: tt.titleMedium?.copyWith(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    IconButton(
+                      onPressed: _currentPage < totalPages ? () => _nextPage(totalPages) : null,
+                      icon: const Icon(Icons.chevron_right, size: 28),
+                      color: _currentPage < totalPages
+                          ? cs.primary
+                          : cs.onSurfaceVariant.withValues(alpha: 0.3),
+                      tooltip: 'Siguiente',
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: pageItems.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final log = pageItems[index];
+                    return _LogCard(log: log);
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),
