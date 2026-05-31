@@ -69,11 +69,11 @@ class HomeClientePage extends ConsumerWidget {
               statSlots: [
                 HomeStatSlot(
                   value: '${misReservasMateriales.length}',
-                  label: s.myReservations,
+                  label: s.myMaterialReservations,
                 ),
                 HomeStatSlot(
                   value: '${misExcursiones.length}',
-                  label: s.myRequests,
+                  label: s.myActivityReservations,
                 ),
                 HomeStatSlot(value: '$pendientes', label: s.pendingLabel),
               ],
@@ -98,7 +98,7 @@ class HomeClientePage extends ConsumerWidget {
                           ? SizedBox(
                               width: double.infinity,
                               child: HomeQuickActionButton(
-                                label: 'Guías',
+                                label: s.guides,
                                 onTap: () => Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (_) => const UsersPage(
@@ -130,7 +130,7 @@ class HomeClientePage extends ConsumerWidget {
                                 // Middle slot (Mis Solicitudes) - placeholder when guest
                                 Expanded(
                                   child: HomeQuickActionButton(
-                                    label: s.myRequestsBtn,
+                                    label: s.myActivitiesBtn,
                                     onTap: () => Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) => const ReservationsPage(
@@ -146,7 +146,7 @@ class HomeClientePage extends ConsumerWidget {
                                 // Right slot (Guías) - always present
                                 Expanded(
                                   child: HomeQuickActionButton(
-                                    label: 'Guías',
+                                    label: s.guides,
                                     onTap: () => Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) => const UsersPage(
@@ -201,10 +201,9 @@ class HomeClientePage extends ConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 4,
                           ),
                           child: EventoTile(
-                            titulo: s.requestEvent,
+                            titulo: s.reservationEvent,
                             subtitulo:
                                 ref.watch(
                                   activityNameProvider(

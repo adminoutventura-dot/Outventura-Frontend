@@ -199,19 +199,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reservations => 'Reservas';
 
   @override
-  String get requests => 'Solicitudes';
-
-  @override
-  String get recentRequests => 'SOLICITUDES RECIENTES';
-
-  @override
   String get clientPanel => 'Panel de Cliente';
 
   @override
   String get myReservations => 'MIS RESERVAS';
 
   @override
-  String get myRequests => 'MIS SOLICITUDES';
+  String get myMaterialReservations => 'Material';
+
+  @override
+  String get myActivityReservations => 'Actividades';
 
   @override
   String greeting(String name) {
@@ -220,16 +217,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get clientDescription =>
-      'Desde aquí puedes crear y revisar tus reservas y solicitudes.';
+      'Desde aquí puedes crear y revisar tus reservas.';
 
   @override
   String get myReservationsBtn => 'Mis Reservas';
 
   @override
-  String get myRequestsBtn => 'Mis Solicitudes';
-
-  @override
-  String get noRequestsYet => 'No tienes solicitudes todavía.';
+  String get myActivitiesBtn => 'Mis Actividades';
 
   @override
   String get nuevasActividades => 'NUEVAS ACTIVIDADES';
@@ -314,18 +308,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reservationUpdated => 'Reserva actualizada correctamente.';
 
   @override
-  String get requestManagement => 'Gestión de solicitudes';
-
-  @override
-  String get requestsTitle => 'Solicitudes';
-
-  @override
-  String get searchByActividadRoute => 'Buscar por actividad (ruta)...';
-
-  @override
-  String get noRequests => 'No hay solicitudes';
-
-  @override
   String get calendarTitle => 'Calendario';
 
   @override
@@ -355,15 +337,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String requestsBadge(int count) {
-    return '$count S';
-  }
-
-  @override
   String get reservationEvent => 'Reserva';
-
-  @override
-  String get requestEvent => 'Solicitud';
 
   @override
   String get noEventsToday => 'No hay eventos este día';
@@ -434,7 +408,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get requestDetail => 'Solicitud';
+  String get requestDetail => 'Reserva';
 
   @override
   String get assignedExpert => 'Experto asignado';
@@ -452,20 +426,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get associatedReservation => 'Reserva asociada';
-
-  @override
-  String get route => 'Ruta';
-
-  @override
-  String get basePrice => 'Precio base';
-
-  @override
-  String pricePerPerson(String price) {
-    return '$price €/persona';
-  }
-
-  @override
-  String get requestedMaterial => 'Material solicitado';
 
   @override
   String get editActividad => 'Editar actividad';
@@ -595,12 +555,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get addAtLeastOneLine => 'Añade al menos una línea de reserva.';
 
   @override
-  String get editRequest => 'Editar solicitud';
-
-  @override
-  String get newRequest => 'Nueva solicitud';
-
-  @override
   String get client => 'Cliente';
 
   @override
@@ -666,17 +620,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'Añade al menos un material para crear la reserva.';
 
   @override
-  String placesCount(int count) {
-    return '$count plazas';
-  }
-
-  @override
   String pricePerPersonShort(String price) {
     return '$price€/persona';
   }
 
   @override
-  String get requestBtn => 'Solicitar';
+  String get requestBtn => 'Reservar';
 
   @override
   String pricePerDayShort(String price) {
@@ -772,29 +721,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get categoryFilter => 'Categoría';
 
   @override
-  String get acceptRequest => 'Aceptar solicitud';
-
-  @override
-  String get acceptRequestConfirm =>
-      '¿Aceptar la solicitud?\nSe generará una actividad automáticamente.';
-
-  @override
-  String get requestAccepted => 'Solicitud aceptada. Actividad generada.';
-
-  @override
-  String get materialReservationCreated =>
-      'Reserva de materiales creada correctamente.';
-
-  @override
-  String get rejectRequest => 'Rechazar solicitud';
-
-  @override
-  String get rejectRequestConfirm => '¿Rechazar la solicitud?';
-
-  @override
-  String get requestRejected => 'Solicitud rechazada.';
-
-  @override
   String get activeFilter => 'Activos';
 
   @override
@@ -846,6 +772,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get categoryCamping => 'Camping';
 
   @override
+  String get categoryHiking => 'Hiking';
+
+  @override
   String get roleSuperadmin => 'Superadmin';
 
   @override
@@ -885,9 +814,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reservationDataSection => 'Datos de la reserva';
 
   @override
-  String get requestDataSection => 'Datos de la solicitud';
-
-  @override
   String get unknownUser => 'Usuario desconocido';
 
   @override
@@ -921,14 +847,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get navSubtitleReservations => 'Gestión de reservas';
 
   @override
-  String get navSubtitleRequests => 'Peticiones de clientes';
-
-  @override
-  String pendingRequestsAlert(int count) {
-    return '$count solicitudes pendientes de revisión';
-  }
-
-  @override
   String get summary => 'Resumen';
 
   @override
@@ -944,7 +862,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reservationsToday => 'Reservas hoy';
 
   @override
-  String get requestsActive => 'Solicitudes activas';
+  String get materialReservationsToday => 'Material hoy';
 
   @override
   String get upcomingActivities => 'PRÓXIMAS ACTIVIDADES';
@@ -966,9 +884,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get weeklyOverview => 'ACTIVIDAD SEMANAL';
-
-  @override
-  String get requestsByStatus => 'SOLICITUDES POR ESTADO';
 
   @override
   String get quickActions => 'ACCESOS RÁPIDOS';
@@ -1011,4 +926,124 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get sun => 'D';
+
+  @override
+  String get title => 'Título';
+
+  @override
+  String get assignedGuide => 'Guía asignado';
+
+  @override
+  String get selectGuideRequired => 'Selecciona un guía obligatorio';
+
+  @override
+  String get pleaseSelectGuideRequired =>
+      'Por favor, selecciona un guía obligatorio';
+
+  @override
+  String get noRecommendedMaterialSelected =>
+      'No hay material recomendado seleccionado';
+
+  @override
+  String get endTimeCannotBeBeforeStart =>
+      'La hora de fin no puede ser anterior a la de inicio';
+
+  @override
+  String get signIn => 'Iniciar sesión';
+
+  @override
+  String get activityDetails => 'Detalles de la actividad';
+
+  @override
+  String get date => 'Fecha';
+
+  @override
+  String get occupancy => 'Ocupación';
+
+  @override
+  String get guide => 'Guía';
+
+  @override
+  String get schedule => 'Horario';
+
+  @override
+  String get meetingPoint => 'Punto de encuentro';
+
+  @override
+  String get difficulty => 'Dificultad';
+
+  @override
+  String get level => 'Nivel';
+
+  @override
+  String get selectMaterial => 'Seleccionar Material';
+
+  @override
+  String get searchByNameOrCategory => 'Buscar por nombre o categoría...';
+
+  @override
+  String get noResults => 'No hay resultados';
+
+  @override
+  String activitiesBadge(Object count) {
+    return '$count A';
+  }
+
+  @override
+  String get emailAlreadyRegistered => 'El email ya está registrado';
+
+  @override
+  String get linkedActivity => 'Actividad vinculada';
+
+  @override
+  String get noneMaterialOnly => 'Ninguna (Solo alquiler de material)';
+
+  @override
+  String get deleteReservationWarning =>
+      '⚠️ ¡Atención! Al eliminar esta reserva se borrarán permanentemente todas sus líneas de materiales asociadas.';
+
+  @override
+  String get endTimeMustBeAfterStart =>
+      'La hora de fin debe ser posterior a la hora de inicio.';
+
+  @override
+  String get noCategory => 'Sin categoría';
+
+  @override
+  String get temporarilyUnavailable => 'No disponible temporalmente';
+
+  @override
+  String get discontinued => 'Descatalogado';
+
+  @override
+  String get routeNotSpecified => 'Ruta no especificada';
+
+  @override
+  String get places => 'plazas';
+
+  @override
+  String get excursion => 'Excursión';
+
+  @override
+  String get userDetail => 'Detalle de Usuario';
+
+  @override
+  String get active => 'Activo';
+
+  @override
+  String get inactive => 'Inactivo';
+
+  @override
+  String get guides => 'Guías';
+
+  @override
+  String get previous => 'Anterior';
+
+  @override
+  String get next => 'Siguiente';
+
+  @override
+  String placesCount(int count) {
+    return '$count plazas';
+  }
 }

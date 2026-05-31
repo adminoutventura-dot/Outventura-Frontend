@@ -22,8 +22,8 @@ class UserDetailPage extends ConsumerWidget {
       body: CustomScrollView(
         slivers: [
           DetailSliverHeader(
-            title: 'Detalle de Usuario',
-            subtitle: user.active ? 'Activo' : 'Inactivo',
+            title: s.userDetail,
+            subtitle: user.active ? s.active : s.inactive,
             color: accentColor,
           ),
           SliverToBoxAdapter(
@@ -48,7 +48,7 @@ class UserDetailPage extends ConsumerWidget {
                       DetailRow(
                         Icons.circle_outlined,
                         s.status,
-                        user.active ? 'Activo' : 'Inactivo',
+                        user.active ? s.active : s.inactive,
                       ),
                     ],
                   ),

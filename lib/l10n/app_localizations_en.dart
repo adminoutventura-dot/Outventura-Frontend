@@ -199,19 +199,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reservations => 'Reservations';
 
   @override
-  String get requests => 'Requests';
-
-  @override
-  String get recentRequests => 'RECENT REQUESTS';
-
-  @override
   String get clientPanel => 'Client Panel';
 
   @override
   String get myReservations => 'MY RESERVATIONS';
 
   @override
-  String get myRequests => 'MY REQUESTS';
+  String get myMaterialReservations => 'Material';
+
+  @override
+  String get myActivityReservations => 'Activities';
 
   @override
   String greeting(String name) {
@@ -220,16 +217,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clientDescription =>
-      'From here you can create and review your reservations and requests.';
+      'From here you can create and review your reservations.';
 
   @override
   String get myReservationsBtn => 'My Reservations';
 
   @override
-  String get myRequestsBtn => 'My Requests';
-
-  @override
-  String get noRequestsYet => 'You have no requests yet.';
+  String get myActivitiesBtn => 'My Activities';
 
   @override
   String get nuevasActividades => 'NEW ACTIVITIES';
@@ -262,10 +256,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get requestCreatedWithReservation =>
-      'Request created with material reservation.';
+      'Solicitud creada con reserva de materiales.';
 
   @override
-  String get requestCreated => 'Request created successfully.';
+  String get requestCreated => 'Solicitud creada correctamente.';
 
   @override
   String get equipmentTitle => 'Equipment';
@@ -312,18 +306,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reservationUpdated => 'Reservation updated successfully.';
 
   @override
-  String get requestManagement => 'Request management';
-
-  @override
-  String get requestsTitle => 'Requests';
-
-  @override
-  String get searchByActividadRoute => 'Search by activity (route)...';
-
-  @override
-  String get noRequests => 'No requests';
-
-  @override
   String get calendarTitle => 'Calendar';
 
   @override
@@ -353,15 +335,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String requestsBadge(int count) {
-    return '$count S';
-  }
-
-  @override
   String get reservationEvent => 'Reservation';
-
-  @override
-  String get requestEvent => 'Request';
 
   @override
   String get noEventsToday => 'No events today';
@@ -432,7 +406,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get requestDetail => 'Request';
+  String get requestDetail => 'Reservation';
 
   @override
   String get assignedExpert => 'Assigned expert';
@@ -450,20 +424,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get associatedReservation => 'Associated reservation';
-
-  @override
-  String get route => 'Route';
-
-  @override
-  String get basePrice => 'Base price';
-
-  @override
-  String pricePerPerson(String price) {
-    return '$price €/person';
-  }
-
-  @override
-  String get requestedMaterial => 'Requested material';
 
   @override
   String get editActividad => 'Edit activity';
@@ -593,12 +553,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addAtLeastOneLine => 'Add at least one reservation line.';
 
   @override
-  String get editRequest => 'Edit request';
-
-  @override
-  String get newRequest => 'New request';
-
-  @override
   String get client => 'Client';
 
   @override
@@ -664,17 +618,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Add at least one material to create the reservation.';
 
   @override
-  String placesCount(int count) {
-    return '$count places';
-  }
-
-  @override
   String pricePerPersonShort(String price) {
     return '$price€/person';
   }
 
   @override
-  String get requestBtn => 'Request';
+  String get requestBtn => 'Reserve';
 
   @override
   String pricePerDayShort(String price) {
@@ -770,29 +719,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryFilter => 'Category';
 
   @override
-  String get acceptRequest => 'Accept request';
-
-  @override
-  String get acceptRequestConfirm =>
-      'Accept request?\nAn activity will be generated automatically.';
-
-  @override
-  String get requestAccepted => 'Request accepted. Activity generated.';
-
-  @override
-  String get materialReservationCreated =>
-      'Material reservation created successfully.';
-
-  @override
-  String get rejectRequest => 'Reject request';
-
-  @override
-  String get rejectRequestConfirm => 'Reject request?';
-
-  @override
-  String get requestRejected => 'Request rejected.';
-
-  @override
   String get activeFilter => 'Active';
 
   @override
@@ -844,6 +770,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryCamping => 'Camping';
 
   @override
+  String get categoryHiking => 'Hiking';
+
+  @override
   String get roleSuperadmin => 'Superadmin';
 
   @override
@@ -883,9 +812,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reservationDataSection => 'Reservation data';
 
   @override
-  String get requestDataSection => 'Request data';
-
-  @override
   String get unknownUser => 'Unknown user';
 
   @override
@@ -919,14 +845,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSubtitleReservations => 'Reservation management';
 
   @override
-  String get navSubtitleRequests => 'Client requests';
-
-  @override
-  String pendingRequestsAlert(int count) {
-    return '$count requests pending review';
-  }
-
-  @override
   String get summary => 'Summary';
 
   @override
@@ -942,7 +860,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reservationsToday => 'Today\'s reservations';
 
   @override
-  String get requestsActive => 'Active requests';
+  String get materialReservationsToday => 'Material today';
 
   @override
   String get upcomingActivities => 'UPCOMING ACTIVITIES';
@@ -964,9 +882,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weeklyOverview => 'WEEKLY ACTIVITY';
-
-  @override
-  String get requestsByStatus => 'REQUESTS BY STATUS';
 
   @override
   String get quickActions => 'QUICK ACTIONS';
@@ -1009,4 +924,122 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sun => 'S';
+
+  @override
+  String get title => 'Title';
+
+  @override
+  String get assignedGuide => 'Assigned guide';
+
+  @override
+  String get selectGuideRequired => 'Select a required guide';
+
+  @override
+  String get pleaseSelectGuideRequired => 'Please, select a required guide';
+
+  @override
+  String get noRecommendedMaterialSelected =>
+      'No recommended material selected';
+
+  @override
+  String get endTimeCannotBeBeforeStart =>
+      'End time cannot be before start time';
+
+  @override
+  String get signIn => 'Sign in';
+
+  @override
+  String get activityDetails => 'Activity details';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get occupancy => 'Occupancy';
+
+  @override
+  String get guide => 'Guide';
+
+  @override
+  String get schedule => 'Schedule';
+
+  @override
+  String get meetingPoint => 'Meeting point';
+
+  @override
+  String get difficulty => 'Difficulty';
+
+  @override
+  String get level => 'Level';
+
+  @override
+  String get selectMaterial => 'Select Material';
+
+  @override
+  String get searchByNameOrCategory => 'Search by name or category...';
+
+  @override
+  String get noResults => 'No results';
+
+  @override
+  String activitiesBadge(Object count) {
+    return '$count A';
+  }
+
+  @override
+  String get emailAlreadyRegistered => 'Email already registered';
+
+  @override
+  String get linkedActivity => 'Linked activity';
+
+  @override
+  String get noneMaterialOnly => 'None (Material rental only)';
+
+  @override
+  String get deleteReservationWarning =>
+      '⚠️ Warning! Deleting this reservation will permanently delete all its associated material lines.';
+
+  @override
+  String get endTimeMustBeAfterStart => 'End time must be after start time.';
+
+  @override
+  String get noCategory => 'No category';
+
+  @override
+  String get temporarilyUnavailable => 'Temporarily unavailable';
+
+  @override
+  String get discontinued => 'Discontinued';
+
+  @override
+  String get routeNotSpecified => 'Route not specified';
+
+  @override
+  String get places => 'places';
+
+  @override
+  String get excursion => 'Excursion';
+
+  @override
+  String get userDetail => 'User Detail';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get inactive => 'Inactive';
+
+  @override
+  String get guides => 'Guides';
+
+  @override
+  String get previous => 'Previous';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String placesCount(int count) {
+    return '$count places';
+  }
 }

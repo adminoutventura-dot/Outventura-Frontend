@@ -18,7 +18,7 @@ class EquipmentDetailPage extends ConsumerWidget {
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
-    // 1. Evaluar el estado del material para colores y etiquetas
+    // Evaluar el estado del material para colores y etiquetas
     final String statusCode = equipamiento.status?.code ?? 'AVAILABLE';
     final bool esAgotado = statusCode == 'AVAILABLE' && equipamiento.availableUnits <= 0;
     final bool esMantenimiento = statusCode == 'MAINTENANCE';
@@ -40,16 +40,16 @@ class EquipmentDetailPage extends ConsumerWidget {
       labelTexto = s.statusOutOfService;
     } else if (esNoDisponible) {
       statusColor = cs.outline;
-      labelTexto = 'No disponible temporalmente';
+      labelTexto = s.temporarilyUnavailable;
     } else if (esDescatalogado) {
       statusColor = cs.error.withValues(alpha: 0.6);
-      labelTexto = 'Descatalogado';
+      labelTexto = s.discontinued;
     }
 
-    // 2. Extraer imagen y montar el texto de categorías
+    // Extraer imagen y montar el texto de categorías
     final String? imagen = equipamiento.imageAsset;
     final String categoriasTexto = equipamiento.categories.isEmpty 
-        ? 'Sense categoria' 
+        ? s.noCategory 
         : equipamiento.categories.map((c) => c.localizedLabel(s)).join(', ');
 
     return Scaffold(

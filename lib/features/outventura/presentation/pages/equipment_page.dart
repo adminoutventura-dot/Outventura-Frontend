@@ -94,7 +94,7 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
           ),
         ],
       ),
-      drawer: const AppDrawer(),
+      drawer: widget.puedeGestionar ? null : const AppDrawer(),
       floatingActionButton: (widget.puedeGestionar && !isGuide)
           ? Padding(
               padding: const EdgeInsets.only(bottom: 100.0),

@@ -131,7 +131,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
 
               CustomInputField(
                 controller: _controller.tituloController,
-                labelText: "s.title", // TODO: hardcodeado
+                labelText: s.title,
                 prefixIcon: Icons.title,
                 enabled: widget.puedeGestionar,
                 validator: ValidadoresFormulario.campoObligatorio(s),
@@ -161,8 +161,8 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                   itemValue: (Guide guia) => guia.id!,
                   itemLabel: (Guide guia) => '${guia.user?.name} ${guia.user?.surname}',
                   prefixIcon: Icons.person_outline,
-                  label: 'Guía Asignado', // TODO: hardcodeado
-                  hint: 'Selecciona un guía obligatorio', // TODO: hardcodeado
+                  label: s.assignedGuide,
+                  hint: s.selectGuideRequired,
                   enabled: widget.puedeGestionar && !isGuide,
                   onChanged: (dynamic nuevoId) {
                     setState(() {
@@ -170,7 +170,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                     });
                   },
                   validator: (dynamic value) => value == null
-                      ? 'Por favor, selecciona un guía obligatorio' // TODO: hardcodeado
+                      ? s.pleaseSelectGuideRequired
                       : null,
                 ),
                 const SizedBox(height: 20),
@@ -361,7 +361,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
                       Icon(Icons.inventory_2_outlined, size: 18, color: cs.primary.withValues(alpha: 0.5)),
                       const SizedBox(width: 8),
                       Text(
-                        'No hay material recomendado seleccionado', // TODO: hardcodeado
+                        s.noRecommendedMaterialSelected,
                         style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],
@@ -443,7 +443,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
 
                       if (finCompleto.isBefore(inicioCompleto)) {
                         setState(() {
-                          _errorTiempo = 'La hora de fin no puede ser anterior a la de inicio'; // TODO: hardcodeado
+                          _errorTiempo = s.endTimeCannotBeBeforeStart;
                         });
                         return;
                       }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
+import 'package:outventura/l10n/app_localizations.dart';
 
 // Tarjeta de actividad adaptada para mostrar el título unificado en el carrusel horizontal.
 class ActivityCarouselCard extends StatelessWidget {
@@ -11,6 +12,7 @@ class ActivityCarouselCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final s = AppLocalizations.of(context)!;
 
     return Container(
       width: 280,
@@ -77,7 +79,7 @@ class ActivityCarouselCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    actividad.startEndPoint ?? 'Ruta no especificada',
+                    actividad.startEndPoint ?? s.routeNotSpecified,
                     style: tt.labelMedium,
                   ),
                   const Spacer(),
@@ -90,14 +92,14 @@ class ActivityCarouselCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${actividad.maxParticipants} plazas',
+                        '${actividad.maxParticipants} ${s.places}',
                         style: tt.labelSmall?.copyWith(
                           color: cs.onSurfaceVariant,
                         ),
                       ),
                       const Spacer(),
                       Text(
-                        'Excursió',
+                        s.excursion,
                         style: tt.labelSmall?.copyWith(
                           color: cs.primary,
                           fontWeight: FontWeight.w600,
@@ -141,7 +143,8 @@ class HomeQuickActionButton extends StatelessWidget {
           child: Text(
             label.toUpperCase(),
             textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+            maxLines: 2,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: textColor ?? cs.onSurfaceVariant,
               fontWeight: FontWeight.bold,

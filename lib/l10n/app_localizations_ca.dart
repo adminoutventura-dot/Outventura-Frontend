@@ -199,19 +199,16 @@ class AppLocalizationsCa extends AppLocalizations {
   String get reservations => 'Reserves';
 
   @override
-  String get requests => 'Sol·licituds';
-
-  @override
-  String get recentRequests => 'SOL·LICITUDS RECENTS';
-
-  @override
   String get clientPanel => 'Panell de Client';
 
   @override
   String get myReservations => 'LES MEVES RESERVES';
 
   @override
-  String get myRequests => 'LES MEVES SOL·LICITUDS';
+  String get myMaterialReservations => 'Material';
+
+  @override
+  String get myActivityReservations => 'Activitats';
 
   @override
   String greeting(String name) {
@@ -220,16 +217,13 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get clientDescription =>
-      'Des d\'aquí pots crear i revisar les teves reserves i sol·licituds.';
+      'Des d\'aquí pots crear i revisar les teves reserves.';
 
   @override
   String get myReservationsBtn => 'Les meves Reserves';
 
   @override
-  String get myRequestsBtn => 'Les meves Sol·licituds';
-
-  @override
-  String get noRequestsYet => 'No tens sol·licituds encara.';
+  String get myActivitiesBtn => 'Les meves Activitats';
 
   @override
   String get nuevasActividades => 'NOVES ACTIVITATS';
@@ -263,10 +257,10 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get requestCreatedWithReservation =>
-      'Sol·licitud creada amb reserva de materials.';
+      'Solicitud creada con reserva de materiales.';
 
   @override
-  String get requestCreated => 'Sol·licitud creada correctament.';
+  String get requestCreated => 'Solicitud creada correctamente.';
 
   @override
   String get equipmentTitle => 'Equipament';
@@ -314,18 +308,6 @@ class AppLocalizationsCa extends AppLocalizations {
   String get reservationUpdated => 'Reserva actualitzada correctament.';
 
   @override
-  String get requestManagement => 'Gestió de sol·licituds';
-
-  @override
-  String get requestsTitle => 'Sol·licituds';
-
-  @override
-  String get searchByActividadRoute => 'Cercar per activitat (ruta)...';
-
-  @override
-  String get noRequests => 'No hi ha sol·licituds';
-
-  @override
   String get calendarTitle => 'Calendari';
 
   @override
@@ -355,15 +337,7 @@ class AppLocalizationsCa extends AppLocalizations {
   }
 
   @override
-  String requestsBadge(int count) {
-    return '$count S';
-  }
-
-  @override
   String get reservationEvent => 'Reserva';
-
-  @override
-  String get requestEvent => 'Sol·licitud';
 
   @override
   String get noEventsToday => 'No hi ha events avui';
@@ -434,7 +408,7 @@ class AppLocalizationsCa extends AppLocalizations {
   }
 
   @override
-  String get requestDetail => 'Sol·licitud';
+  String get requestDetail => 'Reserva';
 
   @override
   String get assignedExpert => 'Expert assignat';
@@ -452,20 +426,6 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get associatedReservation => 'Reserva associada';
-
-  @override
-  String get route => 'Ruta';
-
-  @override
-  String get basePrice => 'Preu base';
-
-  @override
-  String pricePerPerson(String price) {
-    return '$price €/persona';
-  }
-
-  @override
-  String get requestedMaterial => 'Material sol·licitat';
 
   @override
   String get editActividad => 'Editar activitat';
@@ -595,12 +555,6 @@ class AppLocalizationsCa extends AppLocalizations {
   String get addAtLeastOneLine => 'Afegeix almenys una línia de reserva.';
 
   @override
-  String get editRequest => 'Editar sol·licitud';
-
-  @override
-  String get newRequest => 'Nova sol·licitud';
-
-  @override
   String get client => 'Client';
 
   @override
@@ -666,17 +620,12 @@ class AppLocalizationsCa extends AppLocalizations {
       'Afegeix almenys un material per crear la reserva.';
 
   @override
-  String placesCount(int count) {
-    return '$count places';
-  }
-
-  @override
   String pricePerPersonShort(String price) {
     return '$price€/persona';
   }
 
   @override
-  String get requestBtn => 'Sol·licitar';
+  String get requestBtn => 'Reservar';
 
   @override
   String pricePerDayShort(String price) {
@@ -772,29 +721,6 @@ class AppLocalizationsCa extends AppLocalizations {
   String get categoryFilter => 'Categoria';
 
   @override
-  String get acceptRequest => 'Acceptar sol·licitud';
-
-  @override
-  String get acceptRequestConfirm =>
-      'Acceptar la sol·licitud?\nEs generarà una activitat automàticament.';
-
-  @override
-  String get requestAccepted => 'Sol·licitud acceptada. Activitat generada.';
-
-  @override
-  String get materialReservationCreated =>
-      'Reserva de materials creada correctament.';
-
-  @override
-  String get rejectRequest => 'Rebutjar sol·licitud';
-
-  @override
-  String get rejectRequestConfirm => 'Rebutjar la sol·licitud?';
-
-  @override
-  String get requestRejected => 'Sol·licitud rebutjada.';
-
-  @override
   String get activeFilter => 'Actius';
 
   @override
@@ -846,6 +772,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get categoryCamping => 'Càmping';
 
   @override
+  String get categoryHiking => 'Hiking';
+
+  @override
   String get roleSuperadmin => 'Superadmin';
 
   @override
@@ -885,9 +814,6 @@ class AppLocalizationsCa extends AppLocalizations {
   String get reservationDataSection => 'Dades de la reserva';
 
   @override
-  String get requestDataSection => 'Dades de la sol·licitud';
-
-  @override
   String get unknownUser => 'Usuari desconegut';
 
   @override
@@ -921,14 +847,6 @@ class AppLocalizationsCa extends AppLocalizations {
   String get navSubtitleReservations => 'Gestió de reserves';
 
   @override
-  String get navSubtitleRequests => 'Peticions de clients';
-
-  @override
-  String pendingRequestsAlert(int count) {
-    return '$count sol·licituds pendents de revisió';
-  }
-
-  @override
   String get summary => 'Resum';
 
   @override
@@ -944,7 +862,7 @@ class AppLocalizationsCa extends AppLocalizations {
   String get reservationsToday => 'Reserves d\'avui';
 
   @override
-  String get requestsActive => 'Sol·licituds actives';
+  String get materialReservationsToday => 'Material avui';
 
   @override
   String get upcomingActivities => 'PROPERES ACTIVITATS';
@@ -966,9 +884,6 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get weeklyOverview => 'ACTIVITAT SETMANAL';
-
-  @override
-  String get requestsByStatus => 'SOL·LICITUDS PER ESTAT';
 
   @override
   String get quickActions => 'ACCESSOS RÀPIDS';
@@ -1011,4 +926,124 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get sun => 'Dg';
+
+  @override
+  String get title => 'Títol';
+
+  @override
+  String get assignedGuide => 'Guia assignat';
+
+  @override
+  String get selectGuideRequired => 'Selecciona un guia obligatori';
+
+  @override
+  String get pleaseSelectGuideRequired =>
+      'Si us plau, selecciona un guia obligatori';
+
+  @override
+  String get noRecommendedMaterialSelected =>
+      'No hi ha material recomanat seleccionat';
+
+  @override
+  String get endTimeCannotBeBeforeStart =>
+      'L\'hora de fi no pot ser anterior a la d\'inici';
+
+  @override
+  String get signIn => 'Iniciar sessió';
+
+  @override
+  String get activityDetails => 'Detalls de l\'activitat';
+
+  @override
+  String get date => 'Data';
+
+  @override
+  String get occupancy => 'Ocupació';
+
+  @override
+  String get guide => 'Guia';
+
+  @override
+  String get schedule => 'Horari';
+
+  @override
+  String get meetingPoint => 'Punt de trobada';
+
+  @override
+  String get difficulty => 'Dificultat';
+
+  @override
+  String get level => 'Nivell';
+
+  @override
+  String get selectMaterial => 'Seleccionar Material';
+
+  @override
+  String get searchByNameOrCategory => 'Cercar per nom o categoria...';
+
+  @override
+  String get noResults => 'No hi ha resultats';
+
+  @override
+  String activitiesBadge(Object count) {
+    return '$count A';
+  }
+
+  @override
+  String get emailAlreadyRegistered => 'L\'email ja està registrat';
+
+  @override
+  String get linkedActivity => 'Activitat vinculada';
+
+  @override
+  String get noneMaterialOnly => 'Cap (Només lloguer de material)';
+
+  @override
+  String get deleteReservationWarning =>
+      '⚠️ Atenció! En eliminar aquesta reserva s\'esborraran permanentment totes les seves línies de materials associades.';
+
+  @override
+  String get endTimeMustBeAfterStart =>
+      'L\'hora de fi ha de ser posterior a la d\'inici.';
+
+  @override
+  String get noCategory => 'Sense categoria';
+
+  @override
+  String get temporarilyUnavailable => 'No disponible temporalment';
+
+  @override
+  String get discontinued => 'Descatalogat';
+
+  @override
+  String get routeNotSpecified => 'Ruta no especificada';
+
+  @override
+  String get places => 'places';
+
+  @override
+  String get excursion => 'Excursió';
+
+  @override
+  String get userDetail => 'Detall d\'Usuari';
+
+  @override
+  String get active => 'Actiu';
+
+  @override
+  String get inactive => 'Inactiu';
+
+  @override
+  String get guides => 'Guies';
+
+  @override
+  String get previous => 'Anterior';
+
+  @override
+  String get next => 'Següent';
+
+  @override
+  String placesCount(int count) {
+    return '$count places';
+  }
 }

@@ -1,43 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-// Gráfico de barras semanal con barras apiladas: reservas (abajo) y solicitudes (arriba).
+// Gráfico de barras semanal con barras de reservas de material y actividad.
 class WeeklyBarChart extends StatelessWidget {
-  final List<double> reservasData;
-  final List<double> solicitudesData;
+  final List<double> actividadesData;
+  final List<double> materialesData;
   final ColorScheme cs;
   final TextTheme tt;
   final List<String> dayLabels;
-  final String reservasLabel;
-  final String solicitudesLabel;
+  final String actividadesLabel;
+  final String materialesLabel;
 
   const WeeklyBarChart({
     super.key,
-    required this.reservasData,
-    required this.solicitudesData,
+    required this.actividadesData,
+    required this.materialesData,
     required this.cs,
     required this.tt,
     required this.dayLabels,
-    required this.reservasLabel,
-    required this.solicitudesLabel,
+    required this.actividadesLabel,
+    required this.materialesLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Combina reservas y solicitudes para calcular el máximo del eje Y.
-    final combined = <double>[];
-
-    // Suma reservas y solicitudes por día para obtener el total de cada barra.
-    for (int dia = 0; dia < 7; dia++) {
-      final reservasDelDia = reservasData[dia];
-      final solicitudesDelDia = solicitudesData[dia];
-      final totalDia = reservasDelDia + solicitudesDelDia;
-      combined.add(totalDia);
+    // Valor máximo entre todas las series.
+    double maxY = 0;
+    for (final val in actividadesData) {
+      if (val > maxY) {
+        maxY = val;
+      }
     }
-
-    // Valalor máximo entre reservas y solicitudes.
-    double maxY = combined.first;
-    for (final val in combined) {
+    for (final val in materialesData) {
       if (val > maxY) {
         maxY = val;
       }
@@ -46,9 +40,6 @@ class WeeklyBarChart extends StatelessWidget {
     // Maximo del eje Y: si maxY es menor que 4, se fija en 4. 
     // .ceilToDouble(): Redondea hacia arriba.
     final double topY = maxY < 4 ? 4 : (maxY + 1).ceilToDouble();
-
-    // Índice del día de hoy (lunes = 0, domingo = 6) para destacarlo visualmente.
-    final int todayIndex = DateTime.now().weekday - 1;
 
     return Column(
       children: [
@@ -98,33 +89,28 @@ class WeeklyBarChart extends StatelessWidget {
               // Bordes de las barras: sin bordes.
               borderData: FlBorderData(show: false),
 
-              // Datos de las barras: se generan 7 grupos (uno por día) con barras apiladas de reservas y solicitudes.
+              // Datos de las barras: se generan 7 grupos (uno por día) con barras de actividades y materiales.
               barGroups: List.generate(7, (i) {
-                final r = reservasData[i];
-                final s = solicitudesData[i];
+                final a = actividadesData[i];
+                final m = materialesData[i];
 
-                // El día de hoy usa colores más saturados.
-                bool isToday;
-                if (i == todayIndex) {
-                  isToday = true;
-                } else {
-                  isToday = false;
-                }
-
-                final reservaColor = isToday ? cs.tertiary : cs.onTertiary;
-                final solicitudColor = isToday ? cs.primary : cs.primaryContainer;
+                // Colores consistentes para evitar confusión en la leyenda.
+                final actividadColor = cs.primary;
+                final materialColor = cs.tertiary;
 
                 return BarChartGroupData(
                   x: i,
                   barRods: [
                     BarChartRodData(
-                      toY: r + s,
+                      toY: a,
                       width: 22,
-                      // La barra tiene segmentos apilados: inferior las reservas y el superior las solicitudes.
-                      rodStackItems: [
-                        BarChartRodStackItem(0, r, reservaColor),
-                        BarChartRodStackItem(r, r + s, solicitudColor),
-                      ],
+                      color: actividadColor,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+                    ),
+                    BarChartRodData(
+                      toY: m,
+                      width: 22,
+                      color: materialColor,
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
                     ),
                   ],
@@ -134,28 +120,27 @@ class WeeklyBarChart extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        // Leyenda del gráfico: puntos de color con etiquetas para reservas y solicitudes.
+        // Leyenda del gráfico: puntos de color con etiquetas para actividades y materiales.
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Leyenda para reservas.
+            // Leyenda para actividades.
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(width: 10, height: 10, decoration: BoxDecoration(color: cs.primary, borderRadius: BorderRadius.circular(3))),
                 const SizedBox(width: 5),
-                Text(reservasLabel, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                Text(actividadesLabel, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
               ],
             ),
-            const SizedBox(width: 20),
-
-            // Leyenda para solicitudes.
+            const SizedBox(width: 16),
+            // Leyenda para materiales.
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(width: 10, height: 10, decoration: BoxDecoration(color: cs.tertiary, borderRadius: BorderRadius.circular(3))),
                 const SizedBox(width: 5),
-                Text(solicitudesLabel, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                Text(materialesLabel, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
               ],
             ),
           ],

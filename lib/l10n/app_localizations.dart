@@ -472,18 +472,6 @@ abstract class AppLocalizations {
   /// **'Reservas'**
   String get reservations;
 
-  /// No description provided for @requests.
-  ///
-  /// In es, this message translates to:
-  /// **'Solicitudes'**
-  String get requests;
-
-  /// No description provided for @recentRequests.
-  ///
-  /// In es, this message translates to:
-  /// **'SOLICITUDES RECIENTES'**
-  String get recentRequests;
-
   /// No description provided for @clientPanel.
   ///
   /// In es, this message translates to:
@@ -496,11 +484,17 @@ abstract class AppLocalizations {
   /// **'MIS RESERVAS'**
   String get myReservations;
 
-  /// No description provided for @myRequests.
+  /// No description provided for @myMaterialReservations.
   ///
   /// In es, this message translates to:
-  /// **'MIS SOLICITUDES'**
-  String get myRequests;
+  /// **'Material'**
+  String get myMaterialReservations;
+
+  /// No description provided for @myActivityReservations.
+  ///
+  /// In es, this message translates to:
+  /// **'Actividades'**
+  String get myActivityReservations;
 
   /// No description provided for @greeting.
   ///
@@ -511,7 +505,7 @@ abstract class AppLocalizations {
   /// No description provided for @clientDescription.
   ///
   /// In es, this message translates to:
-  /// **'Desde aquí puedes crear y revisar tus reservas y solicitudes.'**
+  /// **'Desde aquí puedes crear y revisar tus reservas.'**
   String get clientDescription;
 
   /// No description provided for @myReservationsBtn.
@@ -520,17 +514,11 @@ abstract class AppLocalizations {
   /// **'Mis Reservas'**
   String get myReservationsBtn;
 
-  /// No description provided for @myRequestsBtn.
+  /// No description provided for @myActivitiesBtn.
   ///
   /// In es, this message translates to:
-  /// **'Mis Solicitudes'**
-  String get myRequestsBtn;
-
-  /// No description provided for @noRequestsYet.
-  ///
-  /// In es, this message translates to:
-  /// **'No tienes solicitudes todavía.'**
-  String get noRequestsYet;
+  /// **'Mis Actividades'**
+  String get myActivitiesBtn;
 
   /// No description provided for @nuevasActividades.
   ///
@@ -682,30 +670,6 @@ abstract class AppLocalizations {
   /// **'Reserva actualizada correctamente.'**
   String get reservationUpdated;
 
-  /// No description provided for @requestManagement.
-  ///
-  /// In es, this message translates to:
-  /// **'Gestión de solicitudes'**
-  String get requestManagement;
-
-  /// No description provided for @requestsTitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Solicitudes'**
-  String get requestsTitle;
-
-  /// No description provided for @searchByActividadRoute.
-  ///
-  /// In es, this message translates to:
-  /// **'Buscar por actividad (ruta)...'**
-  String get searchByActividadRoute;
-
-  /// No description provided for @noRequests.
-  ///
-  /// In es, this message translates to:
-  /// **'No hay solicitudes'**
-  String get noRequests;
-
   /// No description provided for @calendarTitle.
   ///
   /// In es, this message translates to:
@@ -760,23 +724,11 @@ abstract class AppLocalizations {
   /// **'{count} R'**
   String reservationsBadge(int count);
 
-  /// No description provided for @requestsBadge.
-  ///
-  /// In es, this message translates to:
-  /// **'{count} S'**
-  String requestsBadge(int count);
-
   /// No description provided for @reservationEvent.
   ///
   /// In es, this message translates to:
   /// **'Reserva'**
   String get reservationEvent;
-
-  /// No description provided for @requestEvent.
-  ///
-  /// In es, this message translates to:
-  /// **'Solicitud'**
-  String get requestEvent;
 
   /// No description provided for @noEventsToday.
   ///
@@ -901,7 +853,7 @@ abstract class AppLocalizations {
   /// No description provided for @requestDetail.
   ///
   /// In es, this message translates to:
-  /// **'Solicitud'**
+  /// **'Reserva'**
   String get requestDetail;
 
   /// No description provided for @assignedExpert.
@@ -933,30 +885,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Reserva asociada'**
   String get associatedReservation;
-
-  /// No description provided for @route.
-  ///
-  /// In es, this message translates to:
-  /// **'Ruta'**
-  String get route;
-
-  /// No description provided for @basePrice.
-  ///
-  /// In es, this message translates to:
-  /// **'Precio base'**
-  String get basePrice;
-
-  /// No description provided for @pricePerPerson.
-  ///
-  /// In es, this message translates to:
-  /// **'{price} €/persona'**
-  String pricePerPerson(String price);
-
-  /// No description provided for @requestedMaterial.
-  ///
-  /// In es, this message translates to:
-  /// **'Material solicitado'**
-  String get requestedMaterial;
 
   /// No description provided for @editActividad.
   ///
@@ -1210,18 +1138,6 @@ abstract class AppLocalizations {
   /// **'Añade al menos una línea de reserva.'**
   String get addAtLeastOneLine;
 
-  /// No description provided for @editRequest.
-  ///
-  /// In es, this message translates to:
-  /// **'Editar solicitud'**
-  String get editRequest;
-
-  /// No description provided for @newRequest.
-  ///
-  /// In es, this message translates to:
-  /// **'Nueva solicitud'**
-  String get newRequest;
-
   /// No description provided for @client.
   ///
   /// In es, this message translates to:
@@ -1336,12 +1252,6 @@ abstract class AppLocalizations {
   /// **'Añade al menos un material para crear la reserva.'**
   String get addAtLeastOneMaterial;
 
-  /// No description provided for @placesCount.
-  ///
-  /// In es, this message translates to:
-  /// **'{count} plazas'**
-  String placesCount(int count);
-
   /// No description provided for @pricePerPersonShort.
   ///
   /// In es, this message translates to:
@@ -1351,7 +1261,7 @@ abstract class AppLocalizations {
   /// No description provided for @requestBtn.
   ///
   /// In es, this message translates to:
-  /// **'Solicitar'**
+  /// **'Reservar'**
   String get requestBtn;
 
   /// No description provided for @pricePerDayShort.
@@ -1522,48 +1432,6 @@ abstract class AppLocalizations {
   /// **'Categoría'**
   String get categoryFilter;
 
-  /// No description provided for @acceptRequest.
-  ///
-  /// In es, this message translates to:
-  /// **'Aceptar solicitud'**
-  String get acceptRequest;
-
-  /// No description provided for @acceptRequestConfirm.
-  ///
-  /// In es, this message translates to:
-  /// **'¿Aceptar la solicitud?\nSe generará una actividad automáticamente.'**
-  String get acceptRequestConfirm;
-
-  /// No description provided for @requestAccepted.
-  ///
-  /// In es, this message translates to:
-  /// **'Solicitud aceptada. Actividad generada.'**
-  String get requestAccepted;
-
-  /// No description provided for @materialReservationCreated.
-  ///
-  /// In es, this message translates to:
-  /// **'Reserva de materiales creada correctamente.'**
-  String get materialReservationCreated;
-
-  /// No description provided for @rejectRequest.
-  ///
-  /// In es, this message translates to:
-  /// **'Rechazar solicitud'**
-  String get rejectRequest;
-
-  /// No description provided for @rejectRequestConfirm.
-  ///
-  /// In es, this message translates to:
-  /// **'¿Rechazar la solicitud?'**
-  String get rejectRequestConfirm;
-
-  /// No description provided for @requestRejected.
-  ///
-  /// In es, this message translates to:
-  /// **'Solicitud rechazada.'**
-  String get requestRejected;
-
   /// No description provided for @activeFilter.
   ///
   /// In es, this message translates to:
@@ -1666,6 +1534,12 @@ abstract class AppLocalizations {
   /// **'Camping'**
   String get categoryCamping;
 
+  /// No description provided for @categoryHiking.
+  ///
+  /// In es, this message translates to:
+  /// **'Hiking'**
+  String get categoryHiking;
+
   /// No description provided for @roleSuperadmin.
   ///
   /// In es, this message translates to:
@@ -1744,12 +1618,6 @@ abstract class AppLocalizations {
   /// **'Datos de la reserva'**
   String get reservationDataSection;
 
-  /// No description provided for @requestDataSection.
-  ///
-  /// In es, this message translates to:
-  /// **'Datos de la solicitud'**
-  String get requestDataSection;
-
   /// No description provided for @unknownUser.
   ///
   /// In es, this message translates to:
@@ -1804,18 +1672,6 @@ abstract class AppLocalizations {
   /// **'Gestión de reservas'**
   String get navSubtitleReservations;
 
-  /// No description provided for @navSubtitleRequests.
-  ///
-  /// In es, this message translates to:
-  /// **'Peticiones de clientes'**
-  String get navSubtitleRequests;
-
-  /// No description provided for @pendingRequestsAlert.
-  ///
-  /// In es, this message translates to:
-  /// **'{count} solicitudes pendientes de revisión'**
-  String pendingRequestsAlert(int count);
-
   /// No description provided for @summary.
   ///
   /// In es, this message translates to:
@@ -1846,11 +1702,11 @@ abstract class AppLocalizations {
   /// **'Reservas hoy'**
   String get reservationsToday;
 
-  /// No description provided for @requestsActive.
+  /// No description provided for @materialReservationsToday.
   ///
   /// In es, this message translates to:
-  /// **'Solicitudes activas'**
-  String get requestsActive;
+  /// **'Material hoy'**
+  String get materialReservationsToday;
 
   /// No description provided for @upcomingActivities.
   ///
@@ -1893,12 +1749,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'ACTIVIDAD SEMANAL'**
   String get weeklyOverview;
-
-  /// No description provided for @requestsByStatus.
-  ///
-  /// In es, this message translates to:
-  /// **'SOLICITUDES POR ESTADO'**
-  String get requestsByStatus;
 
   /// No description provided for @quickActions.
   ///
@@ -1983,6 +1833,228 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'D'**
   String get sun;
+
+  /// No description provided for @title.
+  ///
+  /// In es, this message translates to:
+  /// **'Título'**
+  String get title;
+
+  /// No description provided for @assignedGuide.
+  ///
+  /// In es, this message translates to:
+  /// **'Guía asignado'**
+  String get assignedGuide;
+
+  /// No description provided for @selectGuideRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un guía obligatorio'**
+  String get selectGuideRequired;
+
+  /// No description provided for @pleaseSelectGuideRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, selecciona un guía obligatorio'**
+  String get pleaseSelectGuideRequired;
+
+  /// No description provided for @noRecommendedMaterialSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay material recomendado seleccionado'**
+  String get noRecommendedMaterialSelected;
+
+  /// No description provided for @endTimeCannotBeBeforeStart.
+  ///
+  /// In es, this message translates to:
+  /// **'La hora de fin no puede ser anterior a la de inicio'**
+  String get endTimeCannotBeBeforeStart;
+
+  /// No description provided for @signIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get signIn;
+
+  /// No description provided for @activityDetails.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalles de la actividad'**
+  String get activityDetails;
+
+  /// No description provided for @date.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha'**
+  String get date;
+
+  /// No description provided for @occupancy.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocupación'**
+  String get occupancy;
+
+  /// No description provided for @guide.
+  ///
+  /// In es, this message translates to:
+  /// **'Guía'**
+  String get guide;
+
+  /// No description provided for @schedule.
+  ///
+  /// In es, this message translates to:
+  /// **'Horario'**
+  String get schedule;
+
+  /// No description provided for @meetingPoint.
+  ///
+  /// In es, this message translates to:
+  /// **'Punto de encuentro'**
+  String get meetingPoint;
+
+  /// No description provided for @difficulty.
+  ///
+  /// In es, this message translates to:
+  /// **'Dificultad'**
+  String get difficulty;
+
+  /// No description provided for @level.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel'**
+  String get level;
+
+  /// No description provided for @selectMaterial.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar Material'**
+  String get selectMaterial;
+
+  /// No description provided for @searchByNameOrCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre o categoría...'**
+  String get searchByNameOrCategory;
+
+  /// No description provided for @noResults.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay resultados'**
+  String get noResults;
+
+  /// No description provided for @activitiesBadge.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} A'**
+  String activitiesBadge(Object count);
+
+  /// No description provided for @emailAlreadyRegistered.
+  ///
+  /// In es, this message translates to:
+  /// **'El email ya está registrado'**
+  String get emailAlreadyRegistered;
+
+  /// No description provided for @linkedActivity.
+  ///
+  /// In es, this message translates to:
+  /// **'Actividad vinculada'**
+  String get linkedActivity;
+
+  /// No description provided for @noneMaterialOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Ninguna (Solo alquiler de material)'**
+  String get noneMaterialOnly;
+
+  /// No description provided for @deleteReservationWarning.
+  ///
+  /// In es, this message translates to:
+  /// **'⚠️ ¡Atención! Al eliminar esta reserva se borrarán permanentemente todas sus líneas de materiales asociadas.'**
+  String get deleteReservationWarning;
+
+  /// No description provided for @endTimeMustBeAfterStart.
+  ///
+  /// In es, this message translates to:
+  /// **'La hora de fin debe ser posterior a la hora de inicio.'**
+  String get endTimeMustBeAfterStart;
+
+  /// No description provided for @noCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin categoría'**
+  String get noCategory;
+
+  /// No description provided for @temporarilyUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No disponible temporalmente'**
+  String get temporarilyUnavailable;
+
+  /// No description provided for @discontinued.
+  ///
+  /// In es, this message translates to:
+  /// **'Descatalogado'**
+  String get discontinued;
+
+  /// No description provided for @routeNotSpecified.
+  ///
+  /// In es, this message translates to:
+  /// **'Ruta no especificada'**
+  String get routeNotSpecified;
+
+  /// No description provided for @places.
+  ///
+  /// In es, this message translates to:
+  /// **'plazas'**
+  String get places;
+
+  /// No description provided for @excursion.
+  ///
+  /// In es, this message translates to:
+  /// **'Excursión'**
+  String get excursion;
+
+  /// No description provided for @userDetail.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalle de Usuario'**
+  String get userDetail;
+
+  /// No description provided for @active.
+  ///
+  /// In es, this message translates to:
+  /// **'Activo'**
+  String get active;
+
+  /// No description provided for @inactive.
+  ///
+  /// In es, this message translates to:
+  /// **'Inactivo'**
+  String get inactive;
+
+  /// No description provided for @guides.
+  ///
+  /// In es, this message translates to:
+  /// **'Guías'**
+  String get guides;
+
+  /// No description provided for @previous.
+  ///
+  /// In es, this message translates to:
+  /// **'Anterior'**
+  String get previous;
+
+  /// No description provided for @next.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente'**
+  String get next;
+
+  /// No description provided for @placesCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} plazas'**
+  String placesCount(int count);
 }
 
 class _AppLocalizationsDelegate

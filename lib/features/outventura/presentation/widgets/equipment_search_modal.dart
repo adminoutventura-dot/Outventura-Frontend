@@ -70,7 +70,7 @@ class _EquipmentSearchModalState extends State<EquipmentSearchModal> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      title: Text('Seleccionar Material', style: tt.titleLarge?.copyWith(fontWeight: FontWeight.bold)), // TODO: hardcodeado
+      title: Text(s.selectMaterial, style: tt.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
       content: SizedBox(
         width: double.maxFinite, 
         height: 400, 
@@ -79,7 +79,7 @@ class _EquipmentSearchModalState extends State<EquipmentSearchModal> {
           children: [
             CustomInputField(
               controller: _searchCtrl,
-              labelText: 'Buscar por nombre o categoría...', // TODO: hardcodeado
+              labelText: s.searchByNameOrCategory,
               prefixIcon: Icons.search,
               suffixIcon: _query.isNotEmpty
                   ? IconButton(
@@ -98,7 +98,7 @@ class _EquipmentSearchModalState extends State<EquipmentSearchModal> {
               child: filteredList.isEmpty
                   ? Center(
                       child: Text(
-                        'No hay resultados', // TODO: hardcodeado
+                        s.noResults,
                         style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     )

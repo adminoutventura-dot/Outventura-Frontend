@@ -68,7 +68,7 @@ class ActivityDetailPage extends ConsumerWidget {
         slivers: [
           DetailSliverHeader(
             title: actual.title,
-            subtitle: 'Detalles de la actividad', // TODO: hardcodeado
+            subtitle: s.activityDetails,
             color: cs.primary,
           ),
           SliverToBoxAdapter(
@@ -108,7 +108,7 @@ class ActivityDetailPage extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: _StatItem(
-                          label: 'Fecha', // TODO: hardcodeado
+                          label: s.date,
                           value: FormateadorFecha.short(actual.initDate),
                           cs: cs,
                         ),
@@ -118,7 +118,7 @@ class ActivityDetailPage extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _StatItem(
-                          label: 'Ocupación', // TODO: hardcodeado
+                          label: s.occupancy,
                           // Aquí se pinta el "calculado / máximo"
                           value: '$inscritosActuales / ${actual.maxParticipants}',
                           cs: cs,
@@ -154,24 +154,24 @@ class ActivityDetailPage extends ConsumerWidget {
                     children: [
                       DetailRow(
                         Icons.person_pin_outlined,
-                        'Guía', // TODO: hardcodeado
+                        s.guide,
                         nombreGuia,
                       ),
                       DetailRow(
                         Icons.schedule_outlined,
-                        'Horario', // TODO: hardcodeado
+                        s.schedule,
                         '${FormateadorFecha.timeOnly(actual.initDate)} - ${FormateadorFecha.timeOnly(actual.endDate)}',
                       ),
                       if (actual.startEndPoint != null)
                         DetailRow(
                           Icons.place_outlined,
-                          'Punto de encuentro', // TODO: hardcodeado
+                          s.meetingPoint,
                           actual.startEndPoint!,
                         ),
                       DetailRow(
                         Icons.terrain_outlined,
-                        'Dificultad', // TODO: hardcodeado
-                        'Nivel ${actual.difficulty}', // TODO: hardcodeado
+                        s.difficulty,
+                        '${s.level} ${actual.difficulty}',
                       ),
                     ],
                   ),

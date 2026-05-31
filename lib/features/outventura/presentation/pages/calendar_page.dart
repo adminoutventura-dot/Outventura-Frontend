@@ -255,7 +255,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                s.requestsBadge(solicitudesCount),
+                                s.reservationsBadge(solicitudesCount),
                                 style: AppTextStyles.titleSmall.copyWith(color: cs.surface),
                               ),
                             ),
@@ -271,7 +271,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                '$actividadesCount A', // TODO: HARCODEADO Usa s.actividadesTitle si tienes
+                                s.activitiesBadge(actividadesCount),
                                 style: AppTextStyles.titleSmall.copyWith(color: cs.surface),
                               ),
                             ),
@@ -354,7 +354,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                           );
                         } else {
                           return EventoTile(
-                            titulo: s.requestEvent,
+                            titulo: s.reservationEvent,
                             subtitulo: evento.status.localizedLabel(s),
                             color: colorSolicitud,
                             onTap: () => Navigator.of(context).push(

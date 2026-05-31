@@ -177,32 +177,33 @@ class AppDrawer extends ConsumerWidget {
                     },
                   ),
 
-                // Item - Catálogo de componentes
-                ListTile(
-                  horizontalTitleGap: 8,
-                  leading: Icon(
-                    Icons.map_outlined,
-                    color: cs.onSurface,
-                    size: 22,
-                  ),
-                  title: Text(
-                    s.componentCatalog,
-                    style: AppTextStyles.labelLarge.copyWith(
+                // Item - Catálogo de componentes (SOLO SUPER)
+                if (usuario?.role.code == 'SUPER')
+                  ListTile(
+                    horizontalTitleGap: 8,
+                    leading: Icon(
+                      Icons.map_outlined,
                       color: cs.onSurface,
+                      size: 22,
                     ),
+                    title: Text(
+                      s.componentCatalog,
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CatalogPage()),
+                      );
+                    },
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const CatalogPage()),
-                    );
-                  },
-                ),
 
                 if (isAdmin || isGuide)
                   ListTile(
@@ -319,7 +320,7 @@ class AppDrawer extends ConsumerWidget {
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     onTap: () {
-                      Navigator.pop(context); // Cerrael drawer
+                      Navigator.pop(context); // Cierra el drawer
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -402,7 +403,7 @@ class AppDrawer extends ConsumerWidget {
                     size: 22,
                   ),
                   title: Text(
-                    isGuest ? 'Iniciar sesión' : s.logout, // TODO: hardcodeado
+                    isGuest ? s.signIn : s.logout,
                     style: AppTextStyles.labelLarge.copyWith(
                       color: isGuest ? cs.primary : cs.error,
                     ),

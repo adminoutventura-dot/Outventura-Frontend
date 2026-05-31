@@ -49,7 +49,7 @@ extension CategoriaActividadL10n on Category {
       case 'CAMPING':
         return s.categoryCamping;
       case 'HIKING':
-        return "Hiking"; // TODO: HARDCODEADO
+        return s.categoryHiking;
       default:
         return code;
     }

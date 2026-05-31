@@ -70,37 +70,35 @@ class _LogsPageState extends ConsumerState<LogsPage> {
 
           return Column(
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      onPressed: _currentPage > 1 ? _prevPage : null,
                       icon: const Icon(Icons.chevron_left, size: 28),
                       color: _currentPage > 1
                           ? cs.primary
                           : cs.onSurfaceVariant.withValues(alpha: 0.3),
-                      tooltip: 'Anterior',
+                      onPressed: _currentPage > 1 ? _prevPage : null,
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '$_currentPage / $totalPages',
-                      style: tt.titleMedium?.copyWith(
-                        color: cs.onSurface,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Text(
+                        '$_currentPage / $totalPages',
+                        style: tt.titleMedium?.copyWith(
+                          color: cs.onSurface,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
                     IconButton(
-                      onPressed: _currentPage < totalPages ? () => _nextPage(totalPages) : null,
                       icon: const Icon(Icons.chevron_right, size: 28),
                       color: _currentPage < totalPages
                           ? cs.primary
                           : cs.onSurfaceVariant.withValues(alpha: 0.3),
-                      tooltip: 'Siguiente',
+                      onPressed: _currentPage < totalPages ? () => _nextPage(totalPages) : null,
                     ),
                   ],
                 ),

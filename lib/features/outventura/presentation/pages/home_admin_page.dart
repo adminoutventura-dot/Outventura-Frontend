@@ -7,7 +7,6 @@ import 'package:outventura/features/auth/presentation/providers/current_user_pro
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/pages/booking_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/users_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/home_shared_widgets.dart';
@@ -32,7 +31,7 @@ class HomeAdminPage extends ConsumerWidget {
     final bool isGuide = currentUser?.role.code == 'GUIDE';
     final bool isAdmin = currentUser?.role.code == 'ADMIN';
 
-    final reservas = ref.watch(reservationsProvider).value ?? [];
+    final reservasAsync = ref.watch(allReservationsProvider);
     final dashboardStatsAsync = ref.watch(adminDashboardStatsProvider);
 
     final today = DateTime.now();
@@ -49,14 +48,49 @@ class HomeAdminPage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text(s.error(err.toString()))),
         data: (statsMap) {
-          final totalMateriales = statsMap['totalMateriales'] ?? 0;
-          final totalExcursiones = statsMap['totalExcursiones'] ?? 0;
+          final reservas = reservasAsync.value ?? [];
           final pendientes = statsMap['pendientesAprobacion'] ?? 0;
+          final materialesHoy = statsMap['materialesHoy'] ?? 0;
+          final actividadesHoy = statsMap['actividadesHoy'] ?? 0;
 
           final excursionesPendientes = reservas.where((b) {
             final tieneActividad = b.lines.any((l) => l.activityId != null);
             return tieneActividad && b.status == WorkflowStatus.pendiente;
           }).toList();
+
+          // Calcular reservas por día de la semana actual para el gráfico
+          final weeklyActividades = List<double>.filled(7, 0.0);
+          final weeklyMateriales = List<double>.filled(7, 0.0);
+
+          final hoy = DateTime.now();
+          final inicioSemana = DateTime(hoy.year, hoy.month, hoy.day)
+              .subtract(Duration(days: hoy.weekday - 1));
+          final finSemana = inicioSemana.add(const Duration(days: 7));
+
+          final reservasSemana = reservas.where((r) {
+            final fecha = r.startDate;
+            return !fecha.isBefore(inicioSemana) && fecha.isBefore(finSemana);
+          });
+
+          for (final reserva in reservasSemana) {
+            final reservaDate = reserva.startDate;
+            final dayIndex = reservaDate.weekday - 1; // lunes = 0, domingo = 6
+            if (dayIndex >= 0 && dayIndex < 7) {
+              final tieneActividad = reserva.lines.any((l) => l.activityId != null);
+              if (tieneActividad) {
+                weeklyActividades[dayIndex]++;
+              } else {
+                weeklyMateriales[dayIndex]++;
+              }
+            }
+          }
+
+          // Calcular reservas por estado para el gráfico circular
+          final pendingCount = reservas.where((b) => b.status.code == 'PENDING').length;
+          final acceptedCount = reservas.where((b) => b.status.code == 'ACCEPTED').length;
+          final inProgressCount = reservas.where((b) => b.status.code == 'IN_PROGRESS').length;
+          final finishedCount = reservas.where((b) => b.status.code == 'FINISHED').length;
+          final cancelledCount = reservas.where((b) => b.status.code == 'CANCELLED').length;
 
           return CustomScrollView(
             slivers: [
@@ -69,14 +103,14 @@ class HomeAdminPage extends ConsumerWidget {
                   dateStr: dateStr,
                   statSlots: [
                     HomeStatSlot(
-                      value: '$totalExcursiones',
+                      value: '$actividadesHoy',
                       label: s.activitiesToday,
                     ),
                     HomeStatSlot(
-                      value: '$totalMateriales',
-                      label: s.reservationsToday,
+                      value: '$materialesHoy',
+                      label: s.materialReservationsToday,
                     ),
-                    HomeStatSlot(value: '$pendientes', label: s.requestsActive),
+                    HomeStatSlot(value: '$pendientes', label: s.pending),
                   ],
                   collapsedHeight: 32.0,
                 ),
@@ -99,7 +133,7 @@ class HomeAdminPage extends ConsumerWidget {
                             children: [
                               Expanded(
                                 child: HomeQuickActionButton(
-                                  label: 'Mis Solicitudes',
+                                  label: s.myReservationsBtn,
                                   onTap: () => Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (_) => const ReservationsPage(
@@ -113,7 +147,7 @@ class HomeAdminPage extends ConsumerWidget {
                               Container(width: 1, color: cs.surface),
                               Expanded(
                                 child: HomeQuickActionButton(
-                                  label: 'Mis Reservas',
+                                  label: s.myActivitiesBtn,
                                   onTap: () => Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (_) => const ReservationsPage(
@@ -183,8 +217,8 @@ class HomeAdminPage extends ConsumerWidget {
                               ),
                             ),
                             child: WeeklyBarChart(
-                              reservasData: const [0, 0, 0, 0, 0, 0, 0],
-                              solicitudesData: const [0, 0, 0, 0, 0, 0, 0],
+                              actividadesData: weeklyActividades,
+                              materialesData: weeklyMateriales,
                               cs: cs,
                               tt: tt,
                               dayLabels: [
@@ -196,8 +230,8 @@ class HomeAdminPage extends ConsumerWidget {
                                 s.sat,
                                 s.sun,
                               ],
-                              reservasLabel: s.reservationsTitle,
-                              solicitudesLabel: s.requestsTitle,
+                              actividadesLabel: s.myActivityReservations,
+                              materialesLabel: s.myMaterialReservations,
                             ),
                           ),
                         ),
@@ -205,7 +239,7 @@ class HomeAdminPage extends ConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                           child: Text(
-                            s.requestsByStatus.toUpperCase(),
+                            s.reservationsTitle.toUpperCase(),
                             style: tt.labelMedium?.copyWith(
                               color: cs.onSurfaceVariant,
                             ),
@@ -234,12 +268,41 @@ class HomeAdminPage extends ConsumerWidget {
                                       sectionsSpace: 2,
                                       centerSpaceRadius: 24,
                                       sections: [
-                                        PieChartSectionData(
-                                          value: pendientes.toDouble() + 1,
-                                          color: cs.tertiary,
-                                          radius: 28,
-                                          showTitle: false,
-                                        ),
+                                        if (pendingCount > 0)
+                                          PieChartSectionData(
+                                            value: pendingCount.toDouble(),
+                                            color: cs.tertiary,
+                                            radius: 28,
+                                            showTitle: false,
+                                          ),
+                                        if (acceptedCount > 0)
+                                          PieChartSectionData(
+                                            value: acceptedCount.toDouble(),
+                                            color: cs.primary,
+                                            radius: 28,
+                                            showTitle: false,
+                                          ),
+                                        if (inProgressCount > 0)
+                                          PieChartSectionData(
+                                            value: inProgressCount.toDouble(),
+                                            color: cs.secondary,
+                                            radius: 28,
+                                            showTitle: false,
+                                          ),
+                                        if (finishedCount > 0)
+                                          PieChartSectionData(
+                                            value: finishedCount.toDouble(),
+                                            color: cs.onSurfaceVariant,
+                                            radius: 28,
+                                            showTitle: false,
+                                          ),
+                                        if (cancelledCount > 0)
+                                          PieChartSectionData(
+                                            value: cancelledCount.toDouble(),
+                                            color: cs.error,
+                                            radius: 28,
+                                            showTitle: false,
+                                          ),
                                       ],
                                     ),
                                   ),
@@ -251,13 +314,46 @@ class HomeAdminPage extends ConsumerWidget {
                                         CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      LegendItem(
-                                        color: cs.tertiary,
-                                        label: s.pending,
-                                        value: pendientes,
-                                        tt: tt,
-                                        cs: cs,
-                                      ),
+                                      if (pendingCount > 0)
+                                        LegendItem(
+                                          color: cs.tertiary,
+                                          label: s.pending,
+                                          value: pendingCount,
+                                          tt: tt,
+                                          cs: cs,
+                                        ),
+                                      if (acceptedCount > 0)
+                                        LegendItem(
+                                          color: cs.primary,
+                                          label: s.confirmed,
+                                          value: acceptedCount,
+                                          tt: tt,
+                                          cs: cs,
+                                        ),
+                                      if (inProgressCount > 0)
+                                        LegendItem(
+                                          color: cs.secondary,
+                                          label: s.inProgress,
+                                          value: inProgressCount,
+                                          tt: tt,
+                                          cs: cs,
+                                        ),
+                                      if (finishedCount > 0)
+                                        LegendItem(
+                                          color: cs.onSurfaceVariant,
+                                          label: s.finished,
+                                          value: finishedCount,
+                                          tt: tt,
+                                          cs: cs,
+                                        ),
+                                      if (cancelledCount > 0)
+                                        LegendItem(
+                                          color: cs.error,
+                                          label: s.cancelled,
+                                          value: cancelledCount,
+                                          tt: tt,
+                                          cs: cs,
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -280,10 +376,9 @@ class HomeAdminPage extends ConsumerWidget {
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: 4,
                               ),
                               child: EventoTile(
-                                titulo: s.requestEvent,
+                                titulo: s.reservationEvent,
                                 subtitulo:
                                     ref.watch(
                                       activityNameProvider(
@@ -298,7 +393,6 @@ class HomeAdminPage extends ConsumerWidget {
                                 color: cs.primary,
                                 onTap: () => Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    // Cambiado 'reserva' por 'solicitud'
                                     builder: (_) =>
                                         BookingFormPage(booking: r),
                                   ),

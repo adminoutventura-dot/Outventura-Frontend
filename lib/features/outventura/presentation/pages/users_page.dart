@@ -57,16 +57,18 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final usuarioActual = ref.watch(currentUserProvider);
     final String? currentRole = usuarioActual?.role.code;
 
-    // Escucha la lista de usuarios filtrada según el texto de búsqueda, rol y estado activo.
-    final AsyncValue<List<User>> filtrados = ref.watch(usuariosFiltradosProvider((
-      query: _search.query,
-      rol: _controller.rolFiltro,
-      activo: _controller.activoFiltro,
-    )));
+    // Lista base: guías (cuando es vista reducida) o usuarios filtrados completos.
+    final AsyncValue<List<User>> usuariosAsync = widget.soloGuiasOInferior
+        ? ref.watch(expertsProvider)
+        : ref.watch(usuariosFiltradosProvider((
+            query: _search.query,
+            rol: _controller.rolFiltro,
+            activo: _controller.activoFiltro,
+          )));
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: widget.soloGuiasOInferior ? 'Guías' : s.usersTitle,
+        title: widget.soloGuiasOInferior ? s.guides : s.usersTitle,
         actions: [
           // Botón de filtros. Oculto en la vista reducida de guías.
           if (!widget.soloGuiasOInferior)
@@ -152,10 +154,25 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
           // Lista de usuarios filtrados con paginación
           Expanded(
-            child: filtrados.when(
+            child: usuariosAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => Center(child: Text(s.error(error.toString()))),
-              data: (List<User> usuarios) {
+              data: (List<User> usuariosBase) {
+                List<User> usuarios = usuariosBase;
+
+                if (widget.soloGuiasOInferior) {
+                  if (_controller.activoFiltro != null) {
+                    usuarios = usuarios.where((u) => u.active == _controller.activoFiltro).toList();
+                  }
+
+                  if (_search.query.isNotEmpty) {
+                    final String q = _search.query.toLowerCase();
+                    usuarios = usuarios.where((User u) =>
+                      '${u.name} ${u.surname} ${u.email} ${u.phone ?? ''}'.toLowerCase().contains(q)
+                    ).toList();
+                  }
+                }
+
                 if (usuarios.isEmpty) {
                   return Center(
                     child: Text(

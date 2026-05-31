@@ -234,7 +234,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
         actionLabel: isEdit ? s.save : s.create,
         onPressed: () {
           if (_esHoraInvalida()) {
-            showErrorSnackBar(context, 'La hora de fin debe ser posterior a la hora de inicio.');
+            showErrorSnackBar(context, s.endTimeMustBeAfterStart);
             return;
           }
 
@@ -251,7 +251,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
         },
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20, topPadding + 40, 20, bottomBarHeight + 24),
+        padding: EdgeInsets.fromLTRB(20, topPadding + 40, 20, bottomBarHeight + 45),
         child: Form(
           key: _controller.formKey,
           child: Column(
@@ -290,8 +290,8 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                 itemValue: (Activity a) => a.id,
                 itemLabel: (Activity a) => a.title,
                 prefixIcon: Icons.hiking_outlined,
-                label: 'Actividad vinculada',
-                hint: 'Ninguna (Solo alquiler de material)', 
+                label: s.linkedActivity,
+                hint: s.noneMaterialOnly, 
                 enabled: !isEdit, // Tampoco deja cambiar la actividad al editar para proteger las fechas
                 onChanged: (dynamic val) => _onActivityChanged(val as int?, todasLasActividades),
               ),
@@ -304,7 +304,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                       padding: const EdgeInsets.only(top: 14),
                       child: CustomInputField(
                         controller: TextEditingController(text: '${guide.user?.name} ${guide.user?.surname}'),
-                        labelText: 'Guía Asignado',
+                        labelText: s.assignedGuide,
                         prefixIcon: Icons.person_outline,
                         enabled: false,
                       ),
@@ -388,7 +388,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
 
               if (actividadSeleccionada != null && actividadSeleccionada.recommendedEquipmentIds.isNotEmpty) ...[
                 Text(
-                  'MATERIAL RECOMENDADO',
+                  s.recommendedMaterial.toUpperCase(),
                   style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 8),
@@ -525,7 +525,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                       title: s.deleteReservation,
                       content:
                           '${s.deleteReservationConfirm}\n\n'
-                          '⚠️ ¡Atención! Al eliminar esta reserva se borrarán permanentemente todas sus líneas de materiales asociadas.',
+                          '${s.deleteReservationWarning}',
                       confirmLabel: s.deleteReservation,
                     );
                     if (confirmar && context.mounted) {

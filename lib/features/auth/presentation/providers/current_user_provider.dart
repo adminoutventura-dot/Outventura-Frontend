@@ -87,7 +87,7 @@ class CurrentUserNotifier extends Notifier<User?> {
       );
     } on DioException catch (e) {
       if (e.response?.statusCode == 409) {
-        throw Exception('El email ya está registrado'); // TODO: HARDCODEADO
+        throw Exception('El email ya está registrado');
       }
       throw parseDioError(e);
     }
@@ -103,7 +103,7 @@ class CurrentUserNotifier extends Notifier<User?> {
     try {
       final dio = ref.read(dioProvider);
 
-      // Prepara los datos - no enviamos roleId, role ni status para evitar errores de permisos
+      // Prepara los datos - no envia roleId, role ni status para evitar errores de permisos
       final Map<String, dynamic> datosAEnviar = {
         'name': usuarioEditado.name,
         'surname': usuarioEditado.surname,

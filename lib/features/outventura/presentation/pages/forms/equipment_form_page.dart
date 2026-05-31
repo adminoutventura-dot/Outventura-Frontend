@@ -132,7 +132,7 @@ class _EquipmentFormPageState extends ConsumerState<EquipmentFormPage> {
                   if (codeEstado == 'OUT_OF_STOCK') labelTraducido = s.statusOutOfStock;
                   if (codeEstado == 'MAINTENANCE') labelTraducido = s.statusMaintenance;
                   if (codeEstado == 'OUT_OF_SERVICE') labelTraducido = s.statusOutOfService;
-                  if (codeEstado == 'DISCONTINUED') labelTraducido = 'Descatalogado';
+                  if (codeEstado == 'DISCONTINUED') labelTraducido = s.discontinued;
 
                   final bool seleccionado = _controller.statusId == idEstado;
                   
