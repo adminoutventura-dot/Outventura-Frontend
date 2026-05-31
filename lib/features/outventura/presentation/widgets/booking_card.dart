@@ -49,7 +49,7 @@ class BookingCard extends ConsumerWidget {
     // LECTURA REACTIVA: Si los datos tardan, la tarjeta se repintará sola al llegar
     final List<Activity> todasLasActividades = ref.watch(allActivitiesProvider);
     final List<Equipment> todosLosEquipos = ref.watch(allEquipmentProvider);
-    
+
     // Buscar la excursión
     final actLine = reserva.lines.firstWhereOrNull((l) => l.activityId != null);
     final Activity? actividadSeleccionada = actLine != null 
@@ -60,6 +60,7 @@ class BookingCard extends ConsumerWidget {
 
     // Construir la lista de materiales reactivos
     final lineasMaterial = reserva.lines.where((l) => l.equipmentId != null).toList();
+    
     final List<String> imagenesGrid = lineasMaterial.map((l) {
       final eq = todosLosEquipos.firstWhereOrNull((e) => e.id == l.equipmentId);
       return eq?.imageAsset; 

@@ -292,6 +292,29 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               const SizedBox(height: 20),
 
               Text(
+                s.difficulty.toUpperCase(),
+                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 8),
+              IgnorePointer(
+                ignoring: !widget.puedeGestionar,
+                child: Opacity(
+                  opacity: widget.puedeGestionar ? 1.0 : 0.8,
+                  child: AppChipWrap(
+                    children: [
+                      for (int nivel = 1; nivel <= 4; nivel++)
+                        AppChoiceChip(
+                          label: '${s.level} $nivel',
+                          seleccionado: _controller.dificultad == nivel,
+                          onPressed: () => setState(() => _controller.dificultad = nivel),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              Text(
                 s.categories.toUpperCase(),
                 style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
               ),

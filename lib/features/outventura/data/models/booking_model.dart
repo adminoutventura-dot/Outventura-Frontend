@@ -49,6 +49,8 @@ class BookingModel extends Booking {
   const BookingModel({
     super.id,
     required super.userId,
+    super.userName,
+    super.userEmail,
     required super.lines,
     required super.status,
     required super.startDate,
@@ -78,8 +80,23 @@ class BookingModel extends Booking {
     }
 
     // Extrae el userId (puede venir directo o anidado en el objeto user dependiendo del include de Prisma)
+    final dynamic userObj = map['user'];
     final int userId =
-        map['userId'] as int? ?? (map['user']?['id_user'] as int? ?? 0);
+        map['userId'] as int? ?? (userObj is Map ? userObj['id_user'] as int? : null) ?? 0;
+
+    // Extrae el nombre/email del cliente embebido en la respuesta (include de Prisma).
+    // Esto evita depender del listado /user (restringido a ADMIN/SUPER) para
+    // resolver el nombre del cliente en las tarjetas de reserva.
+    String? userName;
+    String? userEmail;
+    if (userObj is Map) {
+      final String? name = userObj['name'] as String?;
+      final String? surname = userObj['surname'] as String?;
+      if (name != null) {
+        userName = surname != null && surname.isNotEmpty ? '$name $surname' : name;
+      }
+      userEmail = userObj['email'] as String?;
+    }
 
     // Extrae las fechas (usando los nuevos nombres de Prisma)
     final String? startDateRaw = map['init_date'] as String?;
@@ -95,6 +112,8 @@ class BookingModel extends Booking {
     return BookingModel(
       id: map['id_booking'] as int?,
       userId: userId,
+      userName: userName,
+      userEmail: userEmail,
       lines: lines,
       status: WorkflowStatus.fromCode(statusCode),
       startDate: parsedStartDate,

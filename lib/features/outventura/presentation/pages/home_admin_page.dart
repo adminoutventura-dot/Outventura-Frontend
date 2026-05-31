@@ -6,7 +6,6 @@ import 'package:outventura/core/widgets/evento_tile.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/presentation/pages/booking_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/users_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/resolvers_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/widgets/home_shared_widgets.dart';
@@ -15,6 +14,7 @@ import 'package:outventura/features/outventura/presentation/widgets/weekly_bar_c
 import 'package:outventura/features/outventura/presentation/widgets/home_app_bar_delegate.dart';
 import 'package:outventura/features/outventura/presentation/providers/dashboard_provider.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/users_page.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 class HomeAdminPage extends ConsumerWidget {
   const HomeAdminPage({super.key});
@@ -128,53 +128,71 @@ class HomeAdminPage extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                child: HomeQuickActionButton(
-                                  label: s.myReservationsBtn,
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const ReservationsPage(
-                                        puedeGestionar: false,
-                                        puedeCrear: true,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(width: 1, color: cs.surface),
-                              Expanded(
-                                child: HomeQuickActionButton(
-                                  label: s.myActivitiesBtn,
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const ReservationsPage(
-                                        puedeGestionar: false,
-                                        puedeCrear: true,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              if (!isGuide) ...[
-                                Container(width: 1, color: cs.surface),
-                                Expanded(
-                                  child: HomeQuickActionButton(
-                                  label: isAdmin ? 'Guías' : s.usersTitle,
-                                    onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => UsersPage(
-                                          soloGuiasOInferior: isAdmin,
+                          child: isGuide
+                              ? Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: HomeQuickActionButton(
+                                        label: s.myReservationsBtn,
+                                        onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => const ReservationsPage(
+                                              puedeGestionar: false,
+                                              puedeCrear: true,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
+                                    Container(width: 1, color: cs.surface),
+                                    Expanded(
+                                      child: HomeQuickActionButton(
+                                        label: s.guideReservationsBtn,
+                                        onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => const ReservationsPage(
+                                              puedeGestionar: true,
+                                              puedeCrear: true,
+                                              showGuideReservations: true,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: HomeQuickActionButton(
+                                        label: s.myReservationsBtn,
+                                        onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => const ReservationsPage(
+                                              puedeGestionar: false,
+                                              puedeCrear: true,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(width: 1, color: cs.surface),
+                                    Expanded(
+                                      child: HomeQuickActionButton(
+                                        label: s.usersTitle,
+                                        onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => const UsersPage(
+                                              soloGuiasOInferior: true,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ],
-                          ),
                         ),
                         const SizedBox(height: 28),
                         Padding(

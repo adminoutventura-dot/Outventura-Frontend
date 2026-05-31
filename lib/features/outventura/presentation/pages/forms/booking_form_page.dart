@@ -52,6 +52,8 @@ class BookingFormPage extends ConsumerStatefulWidget {
 
 class _BookingFormPageState extends ConsumerState<BookingFormPage> {
   late final BookingMatFormController _controller;
+  late final TextEditingController _participantsController; // Controlador para los participantes
+  
   int? _selectedActivityId;
   bool _syncedInitialActivity = false;
   final Map<int, int> _cantidadesDaniadas = {};
@@ -60,6 +62,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
   void initState() {
     super.initState();
     _controller = BookingMatFormController();
+    _participantsController = TextEditingController(text: '1'); // 1 participante por defecto
 
     if (widget.booking != null) {
       _controller.cargarReserva(widget.booking!);
@@ -70,6 +73,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
       final actLine = widget.booking!.lines.where((l) => l.activityId != null).firstOrNull;
       if (actLine != null) {
         _selectedActivityId = actLine.activityId;
+        _participantsController.text = actLine.quantity.toString(); // Cargar los participantes de la BD
       }
     } else {
       _controller.aplicarValoresIniciales(
@@ -86,6 +90,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
 
   @override
   void dispose() {
+    _participantsController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -110,6 +115,21 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
     });
   }
 
+  // Actualiza la cantidad en la línea de reserva cuando el usuario escribe
+  void _onParticipantsChanged(String val) {
+    int qty = int.tryParse(val) ?? 1;
+    if (qty < 1) qty = 1; // Para evitar que pongan 0 o negativos
+    
+    setState(() {
+      final index = _controller.lineas.indexWhere((l) => l.activityId != null);
+      if (index != -1) {
+        final oldLine = _controller.lineas[index];
+        // Usamos tu método copyWith para actualizar solo la cantidad de forma limpia
+        _controller.lineas[index] = oldLine.copyWith(quantity: qty);
+      }
+    });
+  }
+
   void _onActivityChanged(int? newActivityId, List<Activity> actividades) {
     setState(() {
       _selectedActivityId = newActivityId;
@@ -123,7 +143,11 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
           _controller.horaInicio = TimeOfDay.fromDateTime(act.initDate.toLocal());
           _controller.horaFin = TimeOfDay.fromDateTime(act.endDate.toLocal());
 
-          _controller.lineas.add(BookingLine(activityId: newActivityId, quantity: 1, priceAtMoment: 0));
+          // Recuperamos lo que haya en el input para crear la línea inicial
+          int qty = int.tryParse(_participantsController.text) ?? 1;
+          if (qty < 1) qty = 1;
+
+          _controller.lineas.add(BookingLine(activityId: newActivityId, quantity: qty, priceAtMoment: 0));
         }
       }
     });
@@ -181,15 +205,15 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
     final bool modoCliente = widget.initialIdUsuario != null;
     final User? usuarioActual = ref.watch(currentUserProvider);
     final bool esAdminOSuper = usuarioActual?.role.code == 'ADMIN' || usuarioActual?.role.code == 'SUPER';
-    final bool mostrarSelectorEstado = esAdminOSuper && !modoCliente;
+    final bool esGuia = usuarioActual?.role.code == 'GUIDE';
+    final bool mostrarSelectorEstado = (esAdminOSuper || esGuia) && !modoCliente;
     final bool hasActivity = _selectedActivityId != null;
 
-    // CONTROLADOR DE LECTURA: Bloquea fechas si tiene actividad o si estamos EDITANDO
     final bool fechasSoloLectura = isEdit || hasActivity;
 
     final List<Equipment> equipamientos = ref.watch(allEquipmentProvider);
     final List<Activity> todasLasActividades = ref.watch(activitiesProvider).value ?? [];
-    final List<Activity> actividadesDisponibles = ref.watch(availableActivitiesProvider).value ?? [];
+    final List<Activity> actividadesDisponibles = ref.watch(availableActivitiesProvider);
     final List<Guide> guias = ref.watch(guidesProvider).value ?? [];
     
     if (_selectedActivityId != null && !isEdit && !_syncedInitialActivity && todasLasActividades.isNotEmpty) {
@@ -292,7 +316,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                 prefixIcon: Icons.hiking_outlined,
                 label: s.linkedActivity,
                 hint: s.noneMaterialOnly, 
-                enabled: !isEdit, // Tampoco deja cambiar la actividad al editar para proteger las fechas
+                enabled: !isEdit,
                 onChanged: (dynamic val) => _onActivityChanged(val as int?, todasLasActividades),
               ),
 
@@ -312,6 +336,18 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                   }
                   return const SizedBox.shrink();
                 }),
+                
+                // INPUT DE PARTICIPANTES USANDO TU WIDGET
+                Padding(
+                  padding: const EdgeInsets.only(top: 14),
+                  child: CustomInputField(
+                    controller: _participantsController,
+                    labelText: 'Participantes', // Si tienes traducción, puedes usar s.participants
+                    prefixIcon: Icons.group_outlined,
+                    keyboardType: TextInputType.number,
+                    onChanged: _onParticipantsChanged,
+                  ),
+                ),
               ],
 
               const SizedBox(height: 24),
@@ -322,7 +358,6 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
               ),
               const SizedBox(height: 8),
               
-              // INTERFAZ BLOQUEADA: Aplica el IgnorePointer según nuestra variable combinada
               IgnorePointer(
                 ignoring: fechasSoloLectura, 
                 child: Opacity(
@@ -386,30 +421,39 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
               ),
               const SizedBox(height: 24),
 
-              if (actividadSeleccionada != null && actividadSeleccionada.recommendedEquipmentIds.isNotEmpty) ...[
+              if (actividadSeleccionada != null) ...[
                 Text(
                   s.recommendedMaterial.toUpperCase(),
                   style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 8),
-                ...actividadSeleccionada.recommendedEquipmentIds.map((idEq) {
-                  final eq = ref.watch(equipmentByIdProvider(idEq));
-                  if (eq == null) return const SizedBox.shrink();
-                  
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
-                      color: cs.surface.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(6),
+                if (actividadSeleccionada.recommendedEquipmentIds.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      s.noRecommendedMaterial,
+                      style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
-                    child: ListTile(
-                      dense: true,
-                      visualDensity: VisualDensity.compact,
-                      leading: Icon(Icons.inventory_2_outlined, color: cs.primaryContainer),
-                      title: Text(eq.title, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
-                    ),
-                  );
-                }),
+                  )
+                else
+                  ...actividadSeleccionada.recommendedEquipmentIds.map((idEq) {
+                    final eq = ref.watch(equipmentByIdProvider(idEq));
+                    if (eq == null) return const SizedBox.shrink();
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: cs.surface.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: ListTile(
+                        dense: true,
+                        visualDensity: VisualDensity.compact,
+                        leading: Icon(Icons.inventory_2_outlined, color: cs.primaryContainer),
+                        title: Text(eq.title, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
+                      ),
+                    );
+                  }),
                 const SizedBox(height: 16),
               ],
 

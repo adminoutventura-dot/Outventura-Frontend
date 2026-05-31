@@ -8,12 +8,12 @@ import 'package:outventura/features/auth/presentation/providers/guides_provider.
 import 'package:outventura/features/outventura/presentation/controllers/activities_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/activity_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/activity_detail_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/categories_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
@@ -49,7 +49,7 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
       if (isGuide && widget.puedeGestionar) {
         final guide = ref.read(guidesProvider).value?.where((g) => g.userId == usuarioActual!.id).firstOrNull;
         if (guide != null) {
-          ref.read(activitiesProvider.notifier).aplicarFiltrosAvanzados(guideId: guide.id);
+          ref.read(activitiesProvider.notifier).aplicarFiltroGuia(guide.id);
         }
       }
     });
@@ -96,18 +96,32 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
               tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
               onPressed: () async {
-                final categoriasBack = await ref.read(categoriesProvider.future);
-                
+                // Derivar las categorías y dificultades disponibles del catálogo
+                // ya cargado, evitando llamar a /category (que devuelve 403 para
+                // los roles USER y GUEST).
+                final List<Activity> todas = ref.read(allActivitiesProvider);
+                final List<Category> categoriasBack = [];
+                final Set<String> vistas = {};
+                for (final Activity a in todas) {
+                  for (final Category c in a.categories) {
+                    if (vistas.add(c.code)) categoriasBack.add(c);
+                  }
+                }
+                final List<int> dificultadesBack =
+                    todas.map((Activity a) => a.difficulty).toSet().toList()
+                      ..sort();
+
                 if (!context.mounted) return;
 
                 _controller.mostrarFiltros(context, (fn) {
                   setState(fn);
                   activitiesNotifier.aplicarFiltrosAvanzados(
                     categoria: _controller.categoriaFiltro,
+                    dificultad: _controller.dificultadFiltro,
                     fechaDesde: _controller.fechaDesde,
                     fechaHasta: _controller.fechaHasta,
                   );
-                }, categoriasBack);
+                }, categoriasBack, dificultadesBack);
               },
             ),
           ),

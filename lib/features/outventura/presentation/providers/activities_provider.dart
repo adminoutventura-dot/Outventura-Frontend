@@ -35,6 +35,7 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   // Estado de los filtros activos en la botonera de la app
   String _query = '';
   Category? _categoria;
+  int? _dificultad; // Filtro por dificultad (nivel)
   DateTime? _fechaDesde;
   DateTime? _fechaHasta;
   int? _guideId; // Filtro por guía
@@ -76,6 +77,11 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       resultado = resultado.where((act) => 
         act.categories.any((c) => c.id == _categoria!.id || c.code == _categoria!.code)
       ).toList();
+    }
+
+    // Filtro por Dificultad (nivel)
+    if (_dificultad != null) {
+      resultado = resultado.where((act) => act.difficulty == _dificultad).toList();
     }
 
     // Filtro por Fecha Desde
@@ -131,13 +137,21 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
   // Vinculado al botón de confirmar del modal de filtros avanzados
   void aplicarFiltrosAvanzados({
     Category? categoria,
+    int? dificultad,
     DateTime? fechaDesde,
     DateTime? fechaHasta,
-    int? guideId,
   }) {
     _categoria = categoria;
+    _dificultad = dificultad;
     _fechaDesde = fechaDesde;
     _fechaHasta = fechaHasta;
+    currentPage = 1;
+    state = AsyncData(_procesarFiltrosYPaginas());
+  }
+
+  // Filtro por guía (independiente de los filtros avanzados para que no se
+  // pierda al aplicar categoría/dificultad/fechas).
+  void aplicarFiltroGuia(int? guideId) {
     _guideId = guideId;
     currentPage = 1;
     state = AsyncData(_procesarFiltrosYPaginas());
@@ -180,7 +194,6 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       final Activity created = ActivityModel.fromMap(response.data as Map<String, dynamic>);
 
       ref.invalidateSelf();
-      ref.invalidate(availableActivitiesProvider);
 
       return created;
     } on DioException catch (e) {
@@ -209,7 +222,6 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       await dio.patch('/activity/${viejo.id}', data: datosAEnviar);
 
       ref.invalidateSelf();
-      ref.invalidate(availableActivitiesProvider);
     } on DioException catch (e) {
       throw parseDioError(e);
     }
@@ -222,35 +234,18 @@ class ActivitiesNotifier extends AsyncNotifier<List<Activity>> {
       final dio = ref.read(dioProvider);
       await dio.delete('/activity/${actividad.id}');
       ref.invalidateSelf();
-      ref.invalidate(availableActivitiesProvider);
     } on DioException catch (e) {
       throw parseDioError(e);
     }
   }
 }
 
-// Lista de actividades para los Dropdowns
-final AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>>
-availableActivitiesProvider =
-    AsyncNotifierProvider<AvailableActivitiesNotifier, List<Activity>>(
-      AvailableActivitiesNotifier.new,
-    );
-
-class AvailableActivitiesNotifier extends AsyncNotifier<List<Activity>> {
-  @override
-  Future<List<Activity>> build() async {
-    try {
-      final dio = ref.read(dioProvider);
-      final response = await dio.get(
-        '/activity/available',
-        queryParameters: {'limit': 100},
-      );
-      final List<dynamic> data = response.data['data'] as List<dynamic>;
-      return data
-          .map((e) => ActivityModel.fromMap(e as Map<String, dynamic>))
-          .toList();
-    } on DioException catch (e) {
-      throw parseDioError(e);
-    }
-  }
-}
+// Lista de actividades para los Dropdowns (filtra localmente actividades
+// futuras del allActivitiesProvider, evitando una petición HTTP separada
+// que podría quedar desfasada respecto al listado principal).
+final Provider<List<Activity>> availableActivitiesProvider =
+    Provider<List<Activity>>((ref) {
+  final List<Activity> all = ref.watch(allActivitiesProvider);
+  final now = DateTime.now();
+  return all.where((a) => !a.initDate.isBefore(now)).toList();
+});

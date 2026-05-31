@@ -9,10 +9,10 @@ import 'package:outventura/features/auth/presentation/providers/current_user_pro
 import 'package:outventura/features/outventura/presentation/controllers/equipment_page_controller.dart';
 import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
+import 'package:outventura/features/outventura/domain/entities/category.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/equipment_form_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/categories_provider.dart'; 
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
@@ -77,8 +77,29 @@ class _EquipmentPageState extends ConsumerState<EquipmentPage> {
               tooltip: s.filtersTitle,
               padding: EdgeInsets.zero,
               onPressed: () async { 
-                final estadosBack = await ref.read(equipmentStatusesProvider.future);
-                final categoriasBack = await ref.read(categoriesProvider.future); 
+                // Categorías derivadas del material ya cargado (evita /category,
+                // que devuelve 403 para los roles USER y GUEST).
+                final List<Equipment> todos = equipmentNotifier.allEquipment;
+                final List<Category> categoriasBack = [];
+                final Set<String> vistas = {};
+                for (final Equipment e in todos) {
+                  for (final Category c in e.categories) {
+                    if (vistas.add(c.code)) categoriasBack.add(c);
+                  }
+                }
+
+                // Los estados solo son accesibles para ADMIN/SUPER; para el resto
+                // de roles se omite el grupo de filtro por estado.
+                final bool isAdminOrSuper = usuarioActual?.role.code == 'ADMIN' ||
+                    usuarioActual?.role.code == 'SUPER';
+                List<dynamic> estadosBack = [];
+                if (isAdminOrSuper) {
+                  try {
+                    estadosBack = await ref.read(equipmentStatusesProvider.future);
+                  } catch (_) {
+                    estadosBack = [];
+                  }
+                }
                 
                 if (!context.mounted) return; 
 

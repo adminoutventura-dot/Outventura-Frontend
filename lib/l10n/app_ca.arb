@@ -81,6 +81,7 @@
   "clientDescription": "Des d'aquí pots crear i revisar les teves reserves.",
   "myReservationsBtn": "Les meves Reserves",
   "myActivitiesBtn": "Les meves Activitats",
+  "guideReservationsBtn": "Reserves com a Guia",
   "nuevasActividades": "NOVES ACTIVITATS",
   "noNuevasActividades": "No hi ha activitats noves.",
 
@@ -204,6 +205,8 @@
   "materialId": "Material #{id}",
   "addMaterials": "Afegir materials",
   "reservedMaterialSection": "Material reservat",
+  "availableEquipment": "Material disponible",
+  "noAvailableEquipment": "No hi ha material disponible.",
   "expert": "Expert",
   "selectExpert": "Selecciona un expert",
   "priceSummary": "Resum de preu",

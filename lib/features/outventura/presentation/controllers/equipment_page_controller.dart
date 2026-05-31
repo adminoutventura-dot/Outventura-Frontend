@@ -22,33 +22,36 @@ class EquipmentPageController {
 
     mostrarFiltrosSheet(context, (setModal) => FilterBottomSheetContent(
       grupos: [
-        FilterGrupo(
-          titulo: s.statusFilter,
-          chips: estadosDisponibles
-              .map((dynamic e) {
-                final int? idEstado = (e['id_status'] as int?) ?? (e['id'] as int?);
-                final String codeEstado = ((e['code'] as String?) ?? (e['name'] as String?)) ?? '';
+        // El grupo de estados solo se muestra si hay estados disponibles
+        // (solo ADMIN/SUPER pueden consultar /equipment-status).
+        if (estadosDisponibles.isNotEmpty)
+          FilterGrupo(
+            titulo: s.statusFilter,
+            chips: estadosDisponibles
+                .map((dynamic e) {
+                  final int? idEstado = (e['id_status'] as int?) ?? (e['id'] as int?);
+                  final String codeEstado = ((e['code'] as String?) ?? (e['name'] as String?)) ?? '';
 
-                // Traducciones 
-                String labelTraducido = codeEstado;
-                if (codeEstado == 'AVAILABLE') labelTraducido = s.statusAvailable;
-                if (codeEstado == 'OUT_OF_STOCK') labelTraducido = s.statusOutOfStock;
-                if (codeEstado == 'MAINTENANCE') labelTraducido = s.statusMaintenance;
-                if (codeEstado == 'OUT_OF_SERVICE') labelTraducido = s.statusOutOfService;
-                if (codeEstado == 'UNAVAILABLE') labelTraducido = 'No disponible'; 
-                if (codeEstado == 'DISCONTINUED') labelTraducido = 'Descatalogado';
+                  // Traducciones 
+                  String labelTraducido = codeEstado;
+                  if (codeEstado == 'AVAILABLE') labelTraducido = s.statusAvailable;
+                  if (codeEstado == 'OUT_OF_STOCK') labelTraducido = s.statusOutOfStock;
+                  if (codeEstado == 'MAINTENANCE') labelTraducido = s.statusMaintenance;
+                  if (codeEstado == 'OUT_OF_SERVICE') labelTraducido = s.statusOutOfService;
+                  if (codeEstado == 'UNAVAILABLE') labelTraducido = 'No disponible'; 
+                  if (codeEstado == 'DISCONTINUED') labelTraducido = 'Descatalogado';
 
-                // Si por algún motivo el código llega totalmente vacío, lo marca para depurar
-                if (labelTraducido.isEmpty) labelTraducido = 'Desconocido';
+                  // Si por algún motivo el código llega totalmente vacío, lo marca para depurar
+                  if (labelTraducido.isEmpty) labelTraducido = 'Desconocido';
 
-                return FilterChipSpec(
-                  label: labelTraducido,
-                  seleccionado: estadoTemp == idEstado,
-                  onToggle: () => setModal(() => estadoTemp = estadoTemp == idEstado ? null : idEstado),
-                );
-              })
-              .toList(),
-        ),
+                  return FilterChipSpec(
+                    label: labelTraducido,
+                    seleccionado: estadoTemp == idEstado,
+                    onToggle: () => setModal(() => estadoTemp = estadoTemp == idEstado ? null : idEstado),
+                  );
+                })
+                .toList(),
+          ),
         FilterGrupo(
           titulo: s.categoryFilter,
           chips: categoriasDisponibles

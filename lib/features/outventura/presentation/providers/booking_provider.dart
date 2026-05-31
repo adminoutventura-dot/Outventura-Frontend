@@ -160,6 +160,14 @@ int? _parseLineId(Map<String, dynamic> map) {
 int? _parseEquipmentIdFromLine(Map<String, dynamic> map) {
   final dynamic equipment = map['equipment'];
   if (equipment is int) return equipment;
+  
+  // Si equipment es un objeto Map, extraer el ID
+  if (equipment is Map<String, dynamic>) {
+    return equipment['id_equipment'] as int? ?? 
+           equipment['id'] as int? ??
+           equipment['equipmentId'] as int?;
+  }
+  
   return map['equipmentId'] as int? ??
       map['equipment_id'] as int? ??
       map['id_equipment'] as int? ??
@@ -423,10 +431,9 @@ final filteredReservationsProvider =
 
         final String q = params.query.toLowerCase();
         return base.where((Booking r) {
-          final String nombreU = resolverNombreUsuario(
-            r.userId,
-            usuarios,
-          ).toLowerCase();
+          final String nombreU = (r.userName ??
+                  resolverNombreUsuario(r.userId, usuarios))
+              .toLowerCase();
 
           final lineAct = r.lines
               .where((l) => l.activityId != null)
@@ -462,10 +469,14 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
   DateTime? _fechaDesde;
   DateTime? _fechaHasta;
   TipoReserva _tipo = TipoReserva.todas;
+  int? _userId; // Filtro por usuario solicitante
   int? _guideId; // Filtro por guía
 
   @override
   Future<List<Booking>> build() async {
+    // Vigilar actividades para que el filtro por guía se re-evalue
+    // automáticamente cuando las actividades terminen de cargar.
+    ref.watch(activitiesProvider);
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.get(
@@ -502,15 +513,23 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
   List<Booking> _procesarFiltrosYPaginas() {
     List<Booking> resultado = _allBookings;
 
+    // Filtro por Usuario solicitante (se aplica antes de la paginación)
+    if (_userId != null) {
+      resultado = resultado.where((r) => r.userId == _userId).toList();
+    }
+
     // Filtro por Guía (se aplica antes de la paginación)
     if (_guideId != null) {
-      final actividades = ref.read(activitiesProvider).value ?? [];
+      final actividades = ref.read(allActivitiesProvider);
       resultado = resultado.where((res) {
-        return res.lines.any((l) {
+        // Incluir solo reservas que tienen actividades del guía
+        final tieneActividadDelGuia = res.lines.any((l) {
           if (l.activityId == null) return false;
           final act = actividades.where((a) => a.id == l.activityId).firstOrNull;
           return act?.guideId == _guideId;
         });
+        
+        return tieneActividadDelGuia;
       }).toList();
     }
 
@@ -543,7 +562,8 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
       final String q = _query.toLowerCase();
 
       resultado = resultado.where((Booking r) {
-        final String nombreU = resolverNombreUsuario(r.userId, usuarios).toLowerCase();
+        final String nombreU =
+            (r.userName ?? resolverNombreUsuario(r.userId, usuarios)).toLowerCase();
 
         final lineAct = r.lines.where((l) => l.activityId != null).firstOrNull;
         final String nombreAct = lineAct != null
@@ -585,13 +605,27 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
     DateTime? fechaDesde,
     DateTime? fechaHasta,
     TipoReserva? tipo,
-    int? guideId,
   }) {
     _estado = estado;
     _fechaDesde = fechaDesde;
     _fechaHasta = fechaHasta;
     if (tipo != null) _tipo = tipo;
+    currentPage = 1;
+    state = AsyncData(_procesarFiltrosYPaginas());
+  }
+
+  // Inicializa la vista de reservas fijando el propietario (usuario o guía) y
+  // limpiando el resto de filtros. El filtro de propietario es independiente de
+  // los filtros avanzados para que no se pierda al aplicar estado/fecha/tipo
+  // desde el panel de filtros.
+  void inicializarVista({int? userId, int? guideId}) {
+    _userId = userId;
     _guideId = guideId;
+    _estado = null;
+    _fechaDesde = null;
+    _fechaHasta = null;
+    _tipo = TipoReserva.todas;
+    _query = '';
     currentPage = 1;
     state = AsyncData(_procesarFiltrosYPaginas());
   }
@@ -704,6 +738,28 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
           nuevo.lines,
           cache: _linesCache,
           fallbackExistingLines: viejo.lines,
+        );
+      }
+
+      ref.invalidateSelf();
+    } on DioException catch (e) {
+      throw parseDioError(e);
+    }
+  }
+
+  Future<void> actualizarLineas(Booking reserva, List<BookingLine> nuevasLineas) async {
+    if (reserva.id == null) throw StateError('Booking has no id');
+    try {
+      final dio = ref.read(dioProvider);
+      _linesCache ??= await _fetchAllBookingLinesGrouped(dio);
+
+      if (!_sameAggregatedLines(reserva.lines, nuevasLineas)) {
+        await _syncBookingLines(
+          dio,
+          reserva.id!,
+          nuevasLineas,
+          cache: _linesCache,
+          fallbackExistingLines: reserva.lines,
         );
       }
 

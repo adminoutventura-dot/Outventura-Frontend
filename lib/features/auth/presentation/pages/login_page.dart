@@ -235,7 +235,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           SecondaryButton(
                             label: 'Entrar como invitado', 
                             onPressed: () {
-                              final invitado = const User(
+                              const invitado = User(
                                 id: null, 
                                 name: 'Invitado', 
                                 surname: '',
@@ -247,6 +247,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   description: 'Usuario invitado'
                                 ), 
                               );
+                              
+                              ref.read(currentUserProvider.notifier).setUsuario(invitado);
                               
                               Navigator.pushReplacement(
                                 context,

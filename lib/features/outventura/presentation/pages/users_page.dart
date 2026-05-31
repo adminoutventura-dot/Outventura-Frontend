@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/auth/domain/entities/guide.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
-import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 import 'package:outventura/features/auth/presentation/providers/users_provider.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
@@ -43,10 +42,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   @override
   void initState() {
     super.initState();
-    // Si soloGuiasOInferior es true, preseleccionar el filtro de rol a GUIDE
-    if (widget.soloGuiasOInferior && _controller.rolFiltro == null) {
-      _controller.rolFiltro = UserRole.guia;
-    }
   }
 
   @override
@@ -57,18 +52,33 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final usuarioActual = ref.watch(currentUserProvider);
     final String? currentRole = usuarioActual?.role.code;
 
-    // Lista base: guías (cuando es vista reducida) o usuarios filtrados completos.
-    final AsyncValue<List<User>> usuariosAsync = widget.soloGuiasOInferior
-        ? ref.watch(expertsProvider)
+    // Lista base: usuarios con rol GUIDE o inferior (cuando es vista reducida)
+    // o usuarios filtrados completos.
+    final AsyncValue<List<User>> rawAsync = widget.soloGuiasOInferior
+        ? ref.watch(usuariosProvider)
         : ref.watch(usuariosFiltradosProvider((
             query: _search.query,
             rol: _controller.rolFiltro,
             activo: _controller.activoFiltro,
           )));
 
+    final AsyncValue<List<User>> usuariosAsync = widget.soloGuiasOInferior
+        ? rawAsync.whenData((todos) {
+            debugPrint('usuariosProvider trajo ${todos.length} usuarios');
+            for (final u in todos) {
+              debugPrint('  user=${u.name} role=${u.role.code} active=${u.active}');
+            }
+            final filtrados = todos
+                .where((u) => u.role.code != 'ADMIN' && u.role.code != 'SUPER')
+                .toList();
+            debugPrint('filtrados (sin ADMIN/SUPER): ${filtrados.length}');
+            return filtrados;
+          })
+        : rawAsync;
+
     return Scaffold(
       appBar: CustomAppBar(
-        title: widget.soloGuiasOInferior ? s.guides : s.usersTitle,
+        title: widget.soloGuiasOInferior ? s.usersTitle : s.usersTitle,
         actions: [
           // Botón de filtros. Oculto en la vista reducida de guías.
           if (!widget.soloGuiasOInferior)
@@ -87,9 +97,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       ),
 
       // Botón flotante para crear un nuevo usuario.
-      floatingActionButton: widget.soloGuiasOInferior
-          ? null
-          : AddFab(
+      floatingActionButton: AddFab(
               onPressed: () async {
                 // Navega al formulario de creación de usuario.
                 final Map<String, dynamic>? result = await Navigator.push<Map<String, dynamic>>(
@@ -176,9 +184,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                 if (usuarios.isEmpty) {
                   return Center(
                     child: Text(
-                      widget.soloGuiasOInferior
-                          ? 'No hay guías registradas'
-                          : s.noUsers,
+                      s.noUsers,
                       style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   );

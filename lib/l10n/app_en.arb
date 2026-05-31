@@ -81,6 +81,7 @@
   "clientDescription": "From here you can create and review your reservations.",
   "myReservationsBtn": "My Reservations",
   "myActivitiesBtn": "My Activities",
+  "guideReservationsBtn": "Guide Reservations",
   "nuevasActividades": "NEW ACTIVITIES",
   "noNuevasActividades": "No new activities.",
 
@@ -204,6 +205,8 @@
   "materialId": "Material #{id}",
   "addMaterials": "Add materials",
   "reservedMaterialSection": "Reserved material",
+  "availableEquipment": "Available equipment",
+  "noAvailableEquipment": "No equipment available.",
   "expert": "Expert",
   "selectExpert": "Select an expert",
   "priceSummary": "Price summary",

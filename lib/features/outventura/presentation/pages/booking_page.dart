@@ -22,11 +22,13 @@ import 'package:outventura/features/outventura/presentation/providers/equipment_
 class ReservationsPage extends ConsumerStatefulWidget {
   final bool puedeGestionar;
   final bool puedeCrear;
+  final bool showGuideReservations;
 
   const ReservationsPage({
     super.key,
     this.puedeGestionar = true,
     this.puedeCrear = true,
+    this.showGuideReservations = false,
   });
 
   @override
@@ -41,19 +43,33 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
   void initState() {
     super.initState();
     // Aplicar filtro por guía si es necesario
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final usuarioActual = ref.read(currentUserProvider);
       final bool isGuide = usuarioActual?.role.code == 'GUIDE';
       final bool isAdminOSuper = usuarioActual?.role.code == 'ADMIN' || usuarioActual?.role.code == 'SUPER';
 
-      if (isAdminOSuper && widget.puedeGestionar) {
-        // Limpiar filtros para ADMIN/SUPER en gestión de reservas
-        ref.read(reservationsProvider.notifier).aplicarFiltrosAvanzados();
-      } else if (isGuide && widget.puedeGestionar) {
-        final guide = ref.read(guidesProvider).value?.where((g) => g.userId == usuarioActual!.id).firstOrNull;
-        if (guide != null) {
-          ref.read(reservationsProvider.notifier).aplicarFiltrosAvanzados(guideId: guide.id);
+      if (isAdminOSuper && widget.puedeGestionar && !widget.showGuideReservations) {
+        // ADMIN/SUPER en gestión: ven todas las reservas, sin filtro de propietario.
+        ref.read(reservationsProvider.notifier).inicializarVista();
+      } else if (widget.showGuideReservations && isGuide) {
+        // Vista de reservas como guía (actividades asignadas al guía).
+        // Esperamos a que el listado de guías cargue para poder resolver
+        // el guideId del usuario actual.
+        try {
+          final guides = await ref.read(guidesProvider.future);
+          final guide = guides.where((g) => g.userId == usuarioActual!.id).firstOrNull;
+          if (guide != null) {
+            ref.read(reservationsProvider.notifier).inicializarVista(guideId: guide.id);
+          }
+        } catch (_) {
+          // Si falla la carga de guías, deja el filtro sin aplicar.
         }
+      } else if (!widget.puedeGestionar && usuarioActual != null) {
+        // Usuarios normales (y guías en su vista de solicitante) ven solo sus propias reservas.
+        ref.read(reservationsProvider.notifier).inicializarVista(userId: usuarioActual.id);
+      } else if (isGuide && widget.puedeGestionar && !widget.showGuideReservations && usuarioActual != null) {
+        // Guía en modo gestión pero sin showGuideReservations -> ver sus propias reservas como solicitante
+        ref.read(reservationsProvider.notifier).inicializarVista(userId: usuarioActual.id);
       }
     });
   }
@@ -239,9 +255,11 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                           (l) => l.activityId != null,
                         );
 
-                        final String nombreUsuario = ref.watch(
-                          userNameProvider(res.userId),
-                        );
+                        // Prioriza el nombre embebido en la reserva (lo incluye
+                        // el backend), y solo recurre al listado /user (restringido
+                        // a ADMIN/SUPER) como respaldo.
+                        final String nombreUsuario = reservaActual.userName ??
+                            ref.watch(userNameProvider(res.userId));
 
                         void onVerDetalleCall() {
                           Navigator.of(context).push(
@@ -253,13 +271,21 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         }
 
                         // Según el backend, el método update solo cambia estado, no edita fechas/líneas
-                        // USER/GUIDE: no pueden editar reservas
+                        // USER: pueden editar sus reservas pendientes (solo líneas)
+                        // GUIDE: puede editar reservas con actividad asignada
                         // ADMIN/SUPER: pueden cambiar estado de reservas
                         final bool esAdminOSuper = userRole == 'ADMIN' || userRole == 'SUPER';
+                        final bool esUser = userRole == 'USER';
+                        final bool esPropiaReserva = res.userId == usuarioActual?.id;
+                        final bool puedeEditarReserva = esAdminOSuper ||
+                            (userRole == 'GUIDE' && tieneActividad) ||
+                            (esUser && esPropiaReserva);
 
-                        // Solo ADMIN/SUPER pueden editar (cambiar estado) si está en PENDING
-                        final onEditarCall = esAdminOSuper &&
-                            res.status == WorkflowStatus.pendiente
+                        // ADMIN/SUPER y USER propietario solo en PENDING.
+                        // GUIDE con actividad asignada puede editar siempre.
+                        final onEditarCall = ((puedeEditarReserva &&
+                                res.status == WorkflowStatus.pendiente) ||
+                            (userRole == 'GUIDE' && tieneActividad))
                             ? () async {
                                 final Booking? resultado =
                                     await Navigator.of(context).push<Booking>(
@@ -280,10 +306,19 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
 
                                 // TRADUCCIÓN Y ALERTA CORRECTA EN LA EDICIÓN DE RESERVAS
                                 try {
-                                  await notifier.actualizar(
-                                    reservaActual,
-                                    resultado,
-                                  );
+                                  if (esUser && esPropiaReserva) {
+                                    // USER solo puede editar líneas
+                                    await notifier.actualizarLineas(
+                                      reservaActual,
+                                      resultado.lines,
+                                    );
+                                  } else {
+                                    // ADMIN/SUPER/GUIDE pueden editar todo
+                                    await notifier.actualizar(
+                                      reservaActual,
+                                      resultado,
+                                    );
+                                  }
                                   ref.invalidate(equipmentProvider);
 
                                   if (!context.mounted) return;

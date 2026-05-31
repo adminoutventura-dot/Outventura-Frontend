@@ -5,6 +5,7 @@ import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/auth/data/models/user_model.dart';
 import 'package:outventura/features/auth/domain/entities/role.dart';
 import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 
 // Lista completa de usuarios del sistema. GET /user.
 // Usado por el panel de administración para gestionar cuentas.
@@ -139,6 +140,14 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
       final Map<String, dynamic> datosAEnviar = nuevo.toMap();
       if (password != null && password.isNotEmpty) {
         datosAEnviar['password'] = password;
+      }
+
+      // Solo SUPER puede cambiar rol o estado; el resto de roles los elimina
+      // para evitar errores de permisos del backend.
+      final currentUser = ref.read(currentUserProvider);
+      if (currentUser?.role.code != 'SUPER') {
+        datosAEnviar.remove('roleId');
+        datosAEnviar.remove('status');
       }
 
       // Envia el paquete modificado

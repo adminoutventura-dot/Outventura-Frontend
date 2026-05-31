@@ -6,18 +6,24 @@ import 'package:outventura/core/utils/enum_translations.dart';
 
 class ActivitiesPageController {
   Category? categoriaFiltro;
+  int? dificultadFiltro;
   DateTime? fechaDesde;
   DateTime? fechaHasta;
 
   bool get hayFiltros =>
-      categoriaFiltro != null || fechaDesde != null || fechaHasta != null;
+      categoriaFiltro != null ||
+      dificultadFiltro != null ||
+      fechaDesde != null ||
+      fechaHasta != null;
 
   void mostrarFiltros(
     BuildContext context, 
     StateSetter setState,
-    List<Category> categoriasDisponibles, // 👈 Inyección añadida
+    List<Category> categoriasDisponibles,
+    List<int> dificultadesDisponibles,
   ) {
     Category? categoriaTemp = categoriaFiltro;
+    int? dificultadTemp = dificultadFiltro;
     DateTime? desdeTemp = fechaDesde;
     DateTime? hastaTemp = fechaHasta;
     final s = AppLocalizations.of(context)!;
@@ -40,6 +46,20 @@ class ActivitiesPageController {
                 )
                 .toList(),
           ),
+          FilterGrupo(
+            titulo: s.difficulty,
+            chips: dificultadesDisponibles
+                .map(
+                  (int d) => FilterChipSpec(
+                    label: '${s.level} $d',
+                    seleccionado: dificultadTemp == d,
+                    onToggle: () => setModal(
+                      () => dificultadTemp = dificultadTemp == d ? null : d,
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
         ],
         mostrarFechas: true,
         fechaDesde: desdeTemp,
@@ -52,12 +72,14 @@ class ActivitiesPageController {
         }),
         onLimpiar: () => setModal(() {
           categoriaTemp = null;
+          dificultadTemp = null;
           desdeTemp = null;
           hastaTemp = null;
         }),
         onApply: () {
           setState(() {
             categoriaFiltro = categoriaTemp;
+            dificultadFiltro = dificultadTemp;
             fechaDesde = desdeTemp;
             fechaHasta = hastaTemp;
           });

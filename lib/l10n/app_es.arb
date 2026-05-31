@@ -84,6 +84,7 @@
   "clientDescription": "Desde aquí puedes crear y revisar tus reservas.",
   "myReservationsBtn": "Mis Reservas",
   "myActivitiesBtn": "Mis Actividades",
+  "guideReservationsBtn": "Reservas como Guía",
   "nuevasActividades": "NUEVAS ACTIVIDADES",
   "noNuevasActividades": "No hay actividades nuevas.",
 
@@ -217,6 +218,8 @@
   "@materialId": { "placeholders": { "id": { "type": "int" } } },
   "addMaterials": "Añadir materiales",
   "reservedMaterialSection": "Material reservado",
+  "availableEquipment": "Material disponible",
+  "noAvailableEquipment": "No hay material disponible.",
   "expert": "Experto",
   "selectExpert": "Selecciona un experto",
   "priceSummary": "Resumen de precio",

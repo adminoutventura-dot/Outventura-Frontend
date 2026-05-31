@@ -226,6 +226,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get myActivitiesBtn => 'Les meves Activitats';
 
   @override
+  String get guideReservationsBtn => 'Reserves com a Guia';
+
+  @override
   String get nuevasActividades => 'NOVES ACTIVITATS';
 
   @override
@@ -587,6 +590,12 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get reservedMaterialSection => 'Material reservat';
+
+  @override
+  String get availableEquipment => 'Material disponible';
+
+  @override
+  String get noAvailableEquipment => 'No hi ha material disponible.';
 
   @override
   String get expert => 'Expert';

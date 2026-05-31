@@ -32,7 +32,8 @@ class ReservationDetailPage extends ConsumerWidget {
       orElse: () => reserva,
     );
 
-    final String nombreUsuario = ref.watch(userNameProvider(reserva.userId));
+    final String nombreUsuario =
+        actual.userName ?? ref.watch(userNameProvider(reserva.userId));
 
     // Extrae el ID de la actividad buscando en la lista interna de líneas
     final int? activityIdFromLine = actual.lines

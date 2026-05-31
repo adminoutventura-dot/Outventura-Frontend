@@ -45,6 +45,8 @@ class BookingLine {
 class Booking {
   final int? id;
   final int userId;
+  final String? userName; // Nombre del cliente (viene embebido en la respuesta del backend)
+  final String? userEmail; // Email del cliente (viene embebido en la respuesta del backend)
   final List<BookingLine> lines;
   final WorkflowStatus status;
   final DateTime startDate;
@@ -54,6 +56,8 @@ class Booking {
   const Booking({
     this.id,
     required this.userId,
+    this.userName,
+    this.userEmail,
     required this.lines,
     required this.status,
     required this.startDate,
@@ -67,7 +71,7 @@ class Booking {
       switch (status.code) {
         case 'PENDING':
           return 1;
-        case 'CONFIRMED':
+        case 'ACCEPTED':
           return 2;
         case 'IN_PROGRESS':
           return 3;
@@ -93,6 +97,8 @@ class Booking {
 
   Booking copyWith({
     int? userId,
+    String? userName,
+    String? userEmail,
     List<BookingLine>? lines,
     WorkflowStatus? status,
     DateTime? startDate,
@@ -102,6 +108,8 @@ class Booking {
     return Booking(
       id: id ?? id,
       userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      userEmail: userEmail ?? this.userEmail,
       lines: lines ?? this.lines,
       status: status ?? this.status,
       startDate: startDate ?? this.startDate,

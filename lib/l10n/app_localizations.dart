@@ -520,6 +520,12 @@ abstract class AppLocalizations {
   /// **'Mis Actividades'**
   String get myActivitiesBtn;
 
+  /// No description provided for @guideReservationsBtn.
+  ///
+  /// In es, this message translates to:
+  /// **'Reservas como Guía'**
+  String get guideReservationsBtn;
+
   /// No description provided for @nuevasActividades.
   ///
   /// In es, this message translates to:
@@ -1197,6 +1203,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Material reservado'**
   String get reservedMaterialSection;
+
+  /// No description provided for @availableEquipment.
+  ///
+  /// In es, this message translates to:
+  /// **'Material disponible'**
+  String get availableEquipment;
+
+  /// No description provided for @noAvailableEquipment.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay material disponible.'**
+  String get noAvailableEquipment;
 
   /// No description provided for @expert.
   ///

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:outventura/core/widgets/evento_tile.dart';
-import 'package:outventura/features/auth/domain/entities/user.dart';
+import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/presentation/pages/booking_page.dart';
@@ -16,9 +16,7 @@ import 'package:outventura/features/outventura/presentation/providers/resolvers_
 import 'package:outventura/l10n/app_localizations.dart';
 
 class HomeClientePage extends ConsumerWidget {
-  final User usuario;
-
-  const HomeClientePage({super.key, required this.usuario});
+  const HomeClientePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,6 +24,11 @@ class HomeClientePage extends ConsumerWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
+    final usuario = ref.watch(currentUserProvider);
+    
+    if (usuario == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     final bool isGuest =
         usuario.role.code == 'INVITADO' || usuario.role.code == 'GUEST';
@@ -93,41 +96,17 @@ class HomeClientePage extends ConsumerWidget {
                   children: [
                     IntrinsicHeight(
                       child: isGuest
-                          ? const SizedBox.shrink() // Si es invitado, no mostramos nada aquí
-                          : Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                // Left slot (Mis Reservas)
-                                Expanded(
-                                  child: HomeQuickActionButton(
-                                    label: s.myReservationsBtn,
-                                    onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => const ReservationsPage(
-                                          puedeGestionar: false,
-                                          puedeCrear: true,
-                                        ),
-                                      ),
-                                    ),
+                          ? const SizedBox.shrink()
+                          : HomeQuickActionButton(
+                              label: s.myReservationsBtn,
+                              onTap: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const ReservationsPage(
+                                    puedeGestionar: false,
+                                    puedeCrear: true,
                                   ),
                                 ),
-                                Container(width: 1, color: cs.surface),
-
-                                // Right slot (Mis Solicitudes)
-                                Expanded(
-                                  child: HomeQuickActionButton(
-                                    label: s.myActivitiesBtn,
-                                    onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => const ReservationsPage(
-                                          puedeGestionar: false,
-                                          puedeCrear: true,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                     ),
 
