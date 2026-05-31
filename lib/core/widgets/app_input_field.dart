@@ -11,7 +11,7 @@ class CustomInputField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final int? maxLines;
   final int? minLines;
-  final bool enabled; // 🌟 1. Añadimos la propiedad enabled
+  final bool enabled; // 1. Añade la propiedad enabled
 
   const CustomInputField({
     super.key,
@@ -25,7 +25,7 @@ class CustomInputField extends StatelessWidget {
     this.onChanged,
     this.maxLines = 1,
     this.minLines,
-    this.enabled = true, // 🌟 2. Por defecto estará activo (true)
+    this.enabled = true, // 2. Por defecto estará activo (true)
   });
 
   @override
@@ -41,7 +41,7 @@ class CustomInputField extends StatelessWidget {
       onChanged: onChanged,
       maxLines: maxLines,
       minLines: minLines,
-      enabled: enabled, // 🌟 3. Se lo pasamos al TextFormField
+      enabled: enabled, // 3. Pásalo al TextFormField
       style: textTheme.bodyMedium?.copyWith(
         // Cambia el color del texto si está deshabilitado para que se note el modo lectura
         color: enabled ? colorScheme.onSurface : colorScheme.onSurface.withAlpha(120),

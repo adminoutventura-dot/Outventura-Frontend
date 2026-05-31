@@ -5,7 +5,7 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 
-// 🌟 RENOMBRADO: De ReservationLineCard a BookingLineCard
+// RENOMBRADO: De ReservationLineCard a BookingLineCard
 class BookingLineCard extends StatelessWidget {
   final BookingLine linea;
   final Equipment equipamiento;

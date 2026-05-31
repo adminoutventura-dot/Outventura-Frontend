@@ -46,7 +46,7 @@ class BookingCard extends ConsumerWidget {
     final TextTheme tt = Theme.of(context).textTheme;
     final s = AppLocalizations.of(context)!;
 
-    // 🌟 LECTURA REACTIVA: Si los datos tardan, la tarjeta se repintará sola al llegar
+    // LECTURA REACTIVA: Si los datos tardan, la tarjeta se repintará sola al llegar
     final List<Activity> todasLasActividades = ref.watch(allActivitiesProvider);
     final List<Equipment> todosLosEquipos = ref.watch(allEquipmentProvider);
     
@@ -71,7 +71,6 @@ class BookingCard extends ConsumerWidget {
       WorkflowStatus.enCurso => cs.secondary,
       WorkflowStatus.finalizada => cs.onSurfaceVariant,
       WorkflowStatus.cancelada => cs.error,
-      _ => cs.outline,
     };
 
     return Container(
@@ -137,7 +136,7 @@ class BookingCard extends ConsumerWidget {
                                   Text('${FormateadorFecha.short(reserva.startDate)} – ${FormateadorFecha.short(reserva.endDate)}', style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
                                 ],
                               ),
-                              // 🌟 LECTURA REACTIVA DE ACTIVIDAD
+                              // LECTURA REACTIVA DE ACTIVIDAD
                               if (esActividad) ...[
                                 const SizedBox(height: 4),
                                 Row(
@@ -163,7 +162,7 @@ class BookingCard extends ConsumerWidget {
                       ],
                     ),
                     
-                    // 🌟 LECTURA REACTIVA DE MATERIALES
+                    // LECTURA REACTIVA DE MATERIALES
                     if (lineasMaterial.isNotEmpty) ...[
                       const SizedBox(height: 10),
                       Divider(height: 1, thickness: 0.5, color: statusColor.withValues(alpha: 0.20)),

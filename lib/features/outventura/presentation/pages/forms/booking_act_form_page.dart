@@ -90,7 +90,7 @@ class _BookingActFormPageState extends ConsumerState<BookingActFormPage> {
 
     final List<User> todosLosUsuarios = ref.watch(usuariosProvider).value ?? [];
 
-    // 🌟 FILTRO DE USUARIOS ACTIVOS
+    // FILTRA USUARIOS ACTIVOS
     final List<User> usuariosActivos = !modoCliente
         ? todosLosUsuarios
               .where((u) => u.role.code == 'USER' && u.active == true)
@@ -100,7 +100,7 @@ class _BookingActFormPageState extends ConsumerState<BookingActFormPage> {
             null => [],
           };
 
-    // 🌟 INYECCIÓN HISTÓRICA DE USUARIO
+    // INYECCIÓN HISTÓRICA DE USUARIO
     final List<User> itemsDropdownUsuarios = [...usuariosActivos];
     if (isEdit && _controller.idUsuario != null) {
       final User? usuarioSeleccionado = todosLosUsuarios
@@ -112,7 +112,7 @@ class _BookingActFormPageState extends ConsumerState<BookingActFormPage> {
       }
     }
 
-    // 🌟 INYECCIÓN HISTÓRICA DE ACTIVIDAD
+    // INYECCIÓN HISTÓRICA DE ACTIVIDAD
     final List<Activity> actividadesDisponibles =
         ref.watch(availableActivitiesProvider).value ?? [];
     final Activity? actividadSeleccionada = _controller
@@ -172,7 +172,7 @@ class _BookingActFormPageState extends ConsumerState<BookingActFormPage> {
 
             AppDropdownField<User>(
               value: _controller.idUsuario,
-              items: itemsDropdownUsuarios, // 🌟 Usamos la lista segura
+              items: itemsDropdownUsuarios, // USA la lista segura
               itemValue: (User user) => user.id,
               itemLabel: (User user) => '${user.name} ${user.surname}',
               prefixIcon: Icons.person_outlined,
@@ -180,7 +180,7 @@ class _BookingActFormPageState extends ConsumerState<BookingActFormPage> {
               hint: modoCliente ? s.client : s.selectClient,
               enabled: !modoCliente,
               onChanged: (dynamic v) {
-                // 🌟 dynamic
+                // dynamic
                 setState(() => _controller.idUsuario = v as int?);
               },
             ),
@@ -188,7 +188,7 @@ class _BookingActFormPageState extends ConsumerState<BookingActFormPage> {
 
             AppDropdownField<Activity>(
               value: _controller.idActividad,
-              items: itemsDropdownActividades, // 🌟 Usamos la lista segura
+              items: itemsDropdownActividades, // USA la lista segura
               itemValue: (e) => e.id,
               itemLabel: (e) => e.title,
               prefixIcon: Icons.hiking_outlined,
@@ -197,7 +197,7 @@ class _BookingActFormPageState extends ConsumerState<BookingActFormPage> {
               isRequired: true,
               enabled: !isEdit || !modoCliente,
               onChanged: (dynamic v) {
-                // 🌟 dynamic
+                // dynamic
                 setState(() {
                   _controller.idActividad = v as int?;
                   _controller.recalcularMateriales(actividadesDisponibles);

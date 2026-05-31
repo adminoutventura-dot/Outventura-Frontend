@@ -184,7 +184,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
     final bool mostrarSelectorEstado = esAdminOSuper && !modoCliente;
     final bool hasActivity = _selectedActivityId != null;
 
-    // 🌟 CONTROLADOR DE LECTURA: Bloquea fechas si tiene actividad o si estamos EDITANDO
+    // CONTROLADOR DE LECTURA: Bloquea fechas si tiene actividad o si estamos EDITANDO
     final bool fechasSoloLectura = isEdit || hasActivity;
 
     final List<Equipment> equipamientos = ref.watch(allEquipmentProvider);
@@ -292,7 +292,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
                 prefixIcon: Icons.hiking_outlined,
                 label: 'Actividad vinculada',
                 hint: 'Ninguna (Solo alquiler de material)', 
-                enabled: !isEdit, // 🌟 Tampoco dejamos cambiar la actividad al editar para proteger las fechas
+                enabled: !isEdit, // Tampoco deja cambiar la actividad al editar para proteger las fechas
                 onChanged: (dynamic val) => _onActivityChanged(val as int?, todasLasActividades),
               ),
 
@@ -322,7 +322,7 @@ class _BookingFormPageState extends ConsumerState<BookingFormPage> {
               ),
               const SizedBox(height: 8),
               
-              // 🌟 INTERFAZ BLOQUEADA: Aplica el IgnorePointer según nuestra variable combinada
+              // INTERFAZ BLOQUEADA: Aplica el IgnorePointer según nuestra variable combinada
               IgnorePointer(
                 ignoring: fechasSoloLectura, 
                 child: Opacity(

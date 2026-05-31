@@ -31,7 +31,6 @@ class HomeAdminPage extends ConsumerWidget {
     final String adminName = currentUser?.name ?? '';
     final bool isGuide = currentUser?.role.code == 'GUIDE';
     final bool isAdmin = currentUser?.role.code == 'ADMIN';
-    final bool isSuper = currentUser?.role.code == 'SUPER';
 
     final reservas = ref.watch(reservationsProvider).value ?? [];
     final dashboardStatsAsync = ref.watch(adminDashboardStatsProvider);

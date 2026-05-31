@@ -191,13 +191,6 @@ _LineSnapshot? _parseLineSnapshot(Map<String, dynamic> map) {
   );
 }
 
-List<_LineSnapshot> _parseLineSnapshots(List<dynamic> data) {
-  return data
-      .whereType<Map<String, dynamic>>()
-      .map(_parseLineSnapshot)
-      .whereType<_LineSnapshot>()
-      .toList();
-}
 
 List<_LineSnapshot> _snapshotsFromBookingLines(List<BookingLine> lines) {
   return lines
@@ -611,17 +604,16 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
     state = AsyncData(_procesarFiltrosYPaginas());
   }
 
-  // 🌟 MÉTODO AGREGAR ULTRA PROTEGIDO CONTRA ERRORES SILENCIOSOS
+  // MÉTODO AGREGAR ULTRA PROTEGIDO CONTRA ERRORES SILENCIOSOS
   Future<Booking> agregar(Booking reserva) async {
-    // 🌟 1. VALIDACIÓN PREVENTIVA EN FLUTTER (Escudo de 48 horas)
-    // Si la reserva contiene materiales, comprobamos la antelación antes de tocar el servidor
+    // Si la reserva contiene materiales, comprueba la antelación antes de tocar el servidor
     final bool tieneMateriales = reserva.lines.any((l) => l.equipmentId != null);
     if (tieneMateriales) {
       final DateTime ahora = DateTime.now();
       final DateTime limite48h = ahora.add(const Duration(hours: 48));
       
       if (reserva.startDate.isBefore(limite48h)) {
-        // Frenamos la ejecución en seco. No se enviará nada a la base de datos
+        // Frena la ejecución. No se enviará nada a la base de datos
         throw 'Las reservas de material se deben realizar con un mínimo de 48h de antelación.';
       }
     }
@@ -668,7 +660,7 @@ class ReservationsNotifier extends AsyncNotifier<List<Booking>> {
         } catch (_) {}
       }
 
-      // 🌟 Sincronizamos la UI con la realidad del backend incluso en caso de error
+      // Sincroniza la UI con la realidad del backend incluso en caso de error
       // para evitar que aparezcan "fantasmas" más tarde si el rollback falla.
       ref.invalidateSelf();
 

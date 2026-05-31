@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:outventura/features/auth/data/fakes/users_fake.dart';
 import 'package:outventura/features/outventura/data/fakes/equipment_fake.dart';
 import 'package:outventura/features/outventura/data/fakes/activities_fake.dart';
-import 'package:outventura/features/outventura/data/fakes/booking_fake.dart';
 // import 'package:outventura/features/outventura/data/fakes/requests_fake.dart';
-import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 // import 'package:outventura/features/outventura/domain/entities/reservation.dart';
 import 'package:outventura/features/outventura/presentation/widgets/equipment_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/activity_card.dart';
 // import 'package:outventura/features/outventura/presentation/widgets/reservation_card.dart';
-import 'package:outventura/features/outventura/presentation/widgets/booking_line_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/stat_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/user_card.dart';
 

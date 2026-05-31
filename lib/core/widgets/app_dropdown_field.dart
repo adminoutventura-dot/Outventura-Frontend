@@ -40,7 +40,7 @@ class _AppDropdownFieldState<T> extends State<AppDropdownField<T>> {
   void _mostrarSelectorBuscable(BuildContext context, FormFieldState<dynamic> state) {
     String query = '';
     
-    // 🌟 Capturamos el tema de la app para pasárselo al buscador
+    // Captura el tema de la app para pasárselo al buscador
     final ColorScheme cs = Theme.of(context).colorScheme;
     final TextTheme tt = Theme.of(context).textTheme;
 
@@ -62,7 +62,7 @@ class _AppDropdownFieldState<T> extends State<AppDropdownField<T>> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 🌟 BUSCADOR CON EL ESTILO 100% OUTVENTURA (Calco de CustomInputField)
+                    // BUSCADOR CON EL ESTILO 100% OUTVENTURA (Calco de CustomInputField)
                     TextField(
                       style: tt.bodyMedium?.copyWith(color: cs.onSurface),
                       decoration: InputDecoration(

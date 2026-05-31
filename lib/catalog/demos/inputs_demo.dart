@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:outventura/core/widgets/app_buttons.dart';
-import 'package:outventura/core/widgets/app_dropdown_field.dart';
 import 'package:outventura/core/widgets/detail_section.dart';
 import 'package:outventura/core/widgets/filter_bottom_sheet.dart';
 import 'package:outventura/core/widgets/app_image_picker_field.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
 import 'package:outventura/core/widgets/app_tag.dart';
-import 'package:outventura/features/auth/data/fakes/users_fake.dart';
-import 'package:outventura/features/auth/domain/entities/user.dart';
 
 class InputsDemo extends StatefulWidget {
   const InputsDemo({super.key});
@@ -20,7 +17,7 @@ class _InputsDemoState extends State<InputsDemo> {
   // Chips
 
   // Dropdowns
-  int? _idUsuario;
+  // int? _idUsuario;
   // int? _idActividad;
 
   // // Date

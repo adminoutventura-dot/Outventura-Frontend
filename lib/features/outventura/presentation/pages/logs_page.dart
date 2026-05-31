@@ -33,7 +33,7 @@ class _LogsPageState extends ConsumerState<LogsPage> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: CustomAppBar(title: 'Logs del Sistema'),
+      appBar: const CustomAppBar(title: 'Logs del Sistema'),
       body: logsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(
@@ -72,7 +72,6 @@ class _LogsPageState extends ConsumerState<LogsPage> {
             children: [
               Container(
                 width: double.infinity,
-                color: cs.surfaceVariant.withOpacity(0.03),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -110,7 +109,7 @@ class _LogsPageState extends ConsumerState<LogsPage> {
                 child: ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: pageItems.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final log = pageItems[index];
                     return _LogCard(log: log);

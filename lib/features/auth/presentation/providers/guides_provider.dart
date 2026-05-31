@@ -15,7 +15,7 @@ class GuidesNotifier extends AsyncNotifier<List<Guide>> {
       final dio = ref.read(dioProvider);
       final response = await dio.get('/guide');
 
-      // 🌟 AJUSTE: Manejamos correctamente el formato de NestJS { "data": [...] }
+      // AJUSTE: Maneja correctamente el formato de NestJS { "data": [...] }
       final dynamic rawData = response.data;
       final List<dynamic> data = rawData is Map && rawData['data'] != null
           ? rawData['data'] as List<dynamic>

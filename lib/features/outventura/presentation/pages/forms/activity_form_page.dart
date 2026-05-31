@@ -18,13 +18,13 @@ import 'package:outventura/features/outventura/domain/entities/equipment.dart';
 import 'package:outventura/features/outventura/presentation/controllers/activity_form_controller.dart';
 import 'package:outventura/features/outventura/presentation/providers/equipment_provider.dart';
 
-// 🌟 IMPORTAMOS EL MODELO GUIDE Y SU PROVEEDOR
+// IMPORTA EL MODELO GUIDE Y SU PROVEEDOR
 import 'package:outventura/features/auth/domain/entities/guide.dart';
 import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 
 class ActivityFormPage extends ConsumerStatefulWidget {
   final Activity? actividad;
-  final bool puedeGestionar; // 🌟 Controla si es modo edición/creación o modo lectura/solicitud
+  final bool puedeGestionar; // Controla si es modo edición/creación o modo lectura/solicitud
 
   const ActivityFormPage({
     super.key, 
@@ -78,14 +78,14 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
 
     final List<Equipment> equipamientos = ref.watch(allEquipmentProvider);
     
-    // 🌟 LEEMOS LA LISTA TIPADA DESDE EL BACKEND
+    // LEE LA LISTA TIPADA DESDE EL BACKEND
     final AsyncValue<List<Guide>> guidesAsync = ref.watch(guidesProvider);
     final List<Guide> todosLosGuias = guidesAsync.value ?? [];
 
-    // 🌟 FILTRAMOS GUÍAS ACTIVOS
+    // FILTRA GUÍAS ACTIVOS
     final List<Guide> guiasActivos = todosLosGuias.where((g) => g.user?.active == true).toList();
 
-    // 🌟 INYECCIÓN HISTÓRICA
+    // INYECCIÓN HISTÓRICA
     final List<Guide> itemsDropdownGuias = [...guiasActivos];
     if (_controller.guideId != null) {
       final Guide? guiaSeleccionado = todosLosGuias.where((g) => g.id == _controller.guideId).firstOrNull;
@@ -181,7 +181,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 8),
               
-              // 🌟 ENVOLVEMOS LAS FECHAS EN UN IGNOREPOINTER SI NO SE PUEDE GESTIONAR
+              // ENVUELVE LAS FECHAS EN UN IGNOREPOINTER SI NO SE PUEDE GESTIONAR
               IgnorePointer(
                 ignoring: !widget.puedeGestionar,
                 child: Opacity(
@@ -230,7 +230,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 12),
 
-              // 🌟 ENVOLVEMOS LAS HORAS EN UN IGNOREPOINTER SI NO SE PUEDE GESTIONAR
+              // ENVUELVE LAS HORAS EN UN IGNOREPOINTER SI NO SE PUEDE GESTIONAR
               IgnorePointer(
                 ignoring: !widget.puedeGestionar,
                 child: Opacity(
@@ -297,7 +297,7 @@ class _ActivityFormPageState extends ConsumerState<ActivityFormPage> {
               ),
               const SizedBox(height: 8),
 
-              // 🌟 ENVOLVEMOS LAS CATEGORÍAS EN UN IGNOREPOINTER SI NO SE PUEDE GESTIONAR
+              // ENVUELVE LAS CATEGORÍAS EN UN IGNOREPOINTER SI NO SE PUEDE GESTIONAR
               IgnorePointer(
                 ignoring: !widget.puedeGestionar,
                 child: Opacity(

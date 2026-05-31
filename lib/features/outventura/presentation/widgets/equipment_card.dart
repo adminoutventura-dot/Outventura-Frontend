@@ -228,7 +228,7 @@ class _EquipmentCardState extends State<EquipmentCard> {
                                 onTap: widget.onAlquilar!,
                               ),
                               
-                            // 4. Espaciador final antes del detalle
+                            // Espaciador final antes del detalle
                             const SizedBox(width: 6),
                             
                             ActionIcon(

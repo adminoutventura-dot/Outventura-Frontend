@@ -303,19 +303,16 @@ class _ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                             } catch (e) {
                               if (!context.mounted) return;
                               
-                              // 🌟 EXTRACTOR ULTRA-SEGURO PARA FORZAR EL ERROR EN PANTALLA
+                              // EXTRACTOR ULTRA-SEGURO PARA FORZAR EL ERROR EN PANTALLA
                               String mensajeError = 'Error desconocido al realizar la reserva';
                               
                               try {
                                 final dynamic errorDinamico = e;
-                                // Comprobamos si el objeto de error tiene una propiedad 'message' o 'msg'
+                                // Comprueba si el objeto de error tiene una propiedad 'message' o 'msg'
                                 mensajeError = errorDinamico.message ?? errorDinamico.msg ?? e.toString();
                               } catch (_) {
                                 mensajeError = e.toString();
                               }
-
-                              // Imprimimos también en la consola de VS Code para que lo veas mientras programas
-                              print('🚨 ERROR CAPTURADO EN UI: $e');
 
                               showErrorSnackBar(context, mensajeError);
                             }

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/network/dio_client.dart';
 import 'package:outventura/features/auth/data/models/user_model.dart';
@@ -54,7 +55,7 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
             ? responseUsers.data as List<dynamic>
             : (responseUsers.data['data'] as List<dynamic>? ?? []);
       } catch (e) {
-        print('⚠️ Error cargando usuarios: $e');
+        debugPrint('⚠️ Error cargando usuarios: $e');
       }
       
       // Cargar clientes
@@ -65,7 +66,7 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
             ? responseClients.data as List<dynamic>
             : (responseClients.data['data'] as List<dynamic>? ?? []);
       } catch (e) {
-        print('⚠️ Error cargando usuarios: $e');
+        debugPrint('⚠️ Error cargando usuarios: $e');
       }
       
       // Cargar expertos
@@ -76,7 +77,7 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
             ? responseExperts.data as List<dynamic>
             : (responseExperts.data['data'] as List<dynamic>? ?? []);
       } catch (e) {
-        print('⚠️ Error cargando usuarios: $e');
+        debugPrint('⚠️ Error cargando usuarios: $e');
       }
       
       // Combinar todas las listas eliminando duplicados por ID

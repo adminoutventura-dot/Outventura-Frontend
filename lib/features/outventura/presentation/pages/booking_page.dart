@@ -2,24 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:outventura/core/utils/snackbar_helper.dart';
 import 'package:outventura/core/widgets/app_bar.dart';
-import 'package:outventura/core/widgets/confirm_dialog.dart';
 import 'package:outventura/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:outventura/features/auth/presentation/providers/guides_provider.dart';
 import 'package:outventura/features/outventura/domain/entities/workflow_status.dart';
-import 'package:outventura/features/outventura/presentation/controllers/activities_page_controller.dart';
-import 'package:outventura/features/outventura/domain/entities/activity.dart';
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
-import 'package:outventura/features/outventura/presentation/pages/forms/activity_form_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/activity_detail_page.dart';
-import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
-import 'package:outventura/features/outventura/presentation/providers/categories_provider.dart';
-import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
 import 'package:outventura/features/outventura/presentation/controllers/search_controller.dart';
 import 'package:outventura/core/widgets/add_fab.dart';
 import 'package:outventura/core/widgets/app_input_field.dart';
-import 'package:outventura/features/outventura/presentation/widgets/activity_card.dart';
 import 'package:outventura/l10n/app_localizations.dart';
 import 'package:outventura/features/outventura/presentation/widgets/booking_card.dart';
 import 'package:outventura/features/outventura/presentation/widgets/booking_dialogs.dart';
@@ -131,7 +122,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
 
                 if (nueva == null) return;
                 
-                // 🌟 PROTECCIÓN EN LA CREACIÓN DE RESERVAS (FAB)
+                // PROTECCIÓN EN LA CREACIÓN DE RESERVAS (FAB)
                 try {
                   await notifier.agregar(nueva);
                   ref.invalidate(equipmentProvider);
@@ -241,7 +232,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
                         final Booking reservaActual =
                             ref.watch(reservationsProvider).value
                                 ?.where((b) => b.id == res.id)
-                                ?.firstOrNull ??
+                                .firstOrNull ??
                             res;
 
                         final bool tieneActividad = reservaActual.lines.any(
@@ -287,7 +278,7 @@ class _ReservationsPageState extends ConsumerState<ReservationsPage> {
 
                                 if (resultado == null) return;
 
-                                // 🌟 TRADUCCIÓN Y ALERTA CORRECTA EN LA EDICIÓN DE RESERVAS
+                                // TRADUCCIÓN Y ALERTA CORRECTA EN LA EDICIÓN DE RESERVAS
                                 try {
                                   await notifier.actualizar(
                                     reservaActual,

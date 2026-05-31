@@ -19,9 +19,9 @@ class ActivityLogNotifier extends AsyncNotifier<List<ActivityLog>> {
     final response = await dio.get(
       '/activity-log',
       queryParameters: {
-        if (method != null) 'method': method,
-        if (userId != null) 'userId': userId,
-        if (statusCode != null) 'statusCode': statusCode,
+        'method': ?method,
+        'userId': ?userId,
+        'statusCode': ?statusCode,
         'page': page,
         'limit': limit,
       },
@@ -31,10 +31,10 @@ class ActivityLogNotifier extends AsyncNotifier<List<ActivityLog>> {
     List<dynamic> data;
 
     if (responseData is List) {
-      data = responseData as List<dynamic>;
+      data = responseData;
     } else if (responseData is Map<String, dynamic>) {
       // El backend devuelve un objeto con la lista dentro
-      final map = responseData as Map<String, dynamic>;
+      final map = responseData;
       data = (map['data'] as List<dynamic>?) ?? (map['items'] as List<dynamic>?) ?? (map['logs'] as List<dynamic>?) ?? [];
     } else {
       data = [];
