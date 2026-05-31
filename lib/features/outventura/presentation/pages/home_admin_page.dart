@@ -158,22 +158,6 @@ class HomeAdminPage extends ConsumerWidget {
                                   ),
                                 ),
                               ),
-                              if (isGuide) ...[
-                                Container(width: 1, color: cs.surface),
-                                Expanded(
-                                  child: HomeQuickActionButton(
-                                    label: 'Mis Trabajos',
-                                    onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => const ReservationsPage(
-                                          puedeGestionar: true,
-                                          puedeCrear: true,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
                               if (!isGuide) ...[
                                 Container(width: 1, color: cs.surface),
                                 Expanded(

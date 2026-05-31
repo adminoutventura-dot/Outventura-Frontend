@@ -6,6 +6,7 @@ import 'package:outventura/features/outventura/presentation/pages/equipment_page
 import 'package:outventura/features/outventura/presentation/pages/activities_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/home_admin_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/home_client_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/users_page.dart'; // Añadido
 import 'package:outventura/l10n/app_localizations.dart';
 
 class MainScaffold extends StatefulWidget {
@@ -37,7 +38,8 @@ class _MainScaffoldState extends State<MainScaffold> {
           : const HomeAdminPage(),
       const ActivitiesPage(puedeGestionar: false, puedeSolicitar: true),
       const EquipmentPage(puedeGestionar: false, puedeSolicitar: true),
-      const CalendarPage(), // Limpieza de la firma del constructor
+      const UsersPage(soloGuiasOInferior: true), // Nueva pestaña de Guías
+      const CalendarPage(), 
     ];
   }
 
@@ -79,6 +81,12 @@ class _MainScaffoldState extends State<MainScaffold> {
                   icon: const Icon(Icons.inventory_2_outlined),
                   activeIcon: const Icon(Icons.inventory_2),
                   label: s.tabEquipment,
+                ),
+                // Nuevo elemento en la barra de navegación inferior
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.people_outline),
+                  activeIcon: const Icon(Icons.people),
+                  label: s.guides, 
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.calendar_today_outlined),

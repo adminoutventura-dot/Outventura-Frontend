@@ -7,7 +7,6 @@ import 'package:outventura/features/outventura/domain/entities/workflow_status.d
 import 'package:outventura/features/outventura/domain/entities/booking.dart';
 import 'package:outventura/features/outventura/presentation/pages/booking_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/forms/booking_form_page.dart';
-import 'package:outventura/features/outventura/presentation/pages/users_page.dart';
 import 'package:outventura/features/outventura/presentation/providers/activities_provider.dart';
 import 'package:outventura/features/outventura/presentation/providers/booking_provider.dart';
 import 'package:outventura/features/outventura/presentation/widgets/app_drawer.dart';
@@ -86,7 +85,6 @@ class HomeClientePage extends ConsumerWidget {
               top: 20,
               bottom: MediaQuery.of(context).padding.bottom + 40,
             ),
-            // Cambiado 'child' por 'sliver'
             sliver: SliverToBoxAdapter(
               child: Transform.translate(
                 offset: const Offset(0, -40),
@@ -95,23 +93,11 @@ class HomeClientePage extends ConsumerWidget {
                   children: [
                     IntrinsicHeight(
                       child: isGuest
-                          ? SizedBox(
-                              width: double.infinity,
-                              child: HomeQuickActionButton(
-                                label: s.guides,
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => const UsersPage(
-                                      soloGuiasOInferior: true,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
+                          ? const SizedBox.shrink() // Si es invitado, no mostramos nada aquí
                           : Row(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                // Left slot (Mis Reservas) - placeholder when guest
+                                // Left slot (Mis Reservas)
                                 Expanded(
                                   child: HomeQuickActionButton(
                                     label: s.myReservationsBtn,
@@ -127,7 +113,7 @@ class HomeClientePage extends ConsumerWidget {
                                 ),
                                 Container(width: 1, color: cs.surface),
 
-                                // Middle slot (Mis Solicitudes) - placeholder when guest
+                                // Right slot (Mis Solicitudes)
                                 Expanded(
                                   child: HomeQuickActionButton(
                                     label: s.myActivitiesBtn,
@@ -136,21 +122,6 @@ class HomeClientePage extends ConsumerWidget {
                                         builder: (_) => const ReservationsPage(
                                           puedeGestionar: false,
                                           puedeCrear: true,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Container(width: 1, color: cs.surface),
-
-                                // Right slot (Guías) - always present
-                                Expanded(
-                                  child: HomeQuickActionButton(
-                                    label: s.guides,
-                                    onTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => const UsersPage(
-                                          soloGuiasOInferior: true,
                                         ),
                                       ),
                                     ),
@@ -216,7 +187,6 @@ class HomeClientePage extends ConsumerWidget {
                             color: cs.primary,
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
-                                // Cambiado 'reserva' por 'solicitud'
                                 builder: (_) =>
                                     BookingFormPage(booking: sol),
                               ),
