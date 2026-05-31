@@ -17,6 +17,7 @@ import 'package:outventura/features/preferences/presentation/pages/preferences_p
 import 'package:outventura/features/outventura/presentation/pages/categories_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/activities_page.dart';
 import 'package:outventura/features/outventura/presentation/pages/booking_page.dart';
+import 'package:outventura/features/outventura/presentation/pages/logs_page.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -323,6 +324,35 @@ class AppDrawer extends ConsumerWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const CategoriesPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                if (isAdmin)
+                  ListTile(
+                    horizontalTitleGap: 8,
+                    leading: Icon(
+                      Icons.history_outlined,
+                      color: cs.onSurface,
+                      size: 22,
+                    ),
+                    title: Text(
+                      'Logs del Sistema',
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const LogsPage(),
                         ),
                       );
                     },
